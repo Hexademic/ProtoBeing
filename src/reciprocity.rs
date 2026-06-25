@@ -106,7 +106,9 @@ impl ReciprocityEngine {
             self.average_reciprocity = Q88_SCALE;
         }
         if self.partnership_alarm > Q88_SCALE / 4 {
-            self.extraction_streak = self.extraction_streak.saturating_add(1);
+            // Cap the streak: confirmed extraction shouldn't latch so high that
+            // it can never clear once the being is in a healthy bond again.
+            self.extraction_streak = self.extraction_streak.saturating_add(1).min(30);
         } else {
             self.extraction_streak = self.extraction_streak.saturating_sub(1);
         }

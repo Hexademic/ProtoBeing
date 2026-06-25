@@ -146,6 +146,8 @@ fn persistent_character() {
     let mut b0: Option<(EmpathyLockLevel, i16, f32)> = None;
     let mut a_rec: Option<u32> = None;
     let mut b_rec: Option<u32> = None;
+    let mut a_reopen: Option<u32> = None;
+    let mut b_reopen: Option<u32> = None;
     let mut lock_differed = false;
 
     for tick in 1..=120u32 {
@@ -166,6 +168,12 @@ fn persistent_character() {
         if ra.empathy_lock != rb.empathy_lock {
             lock_differed = true;
         }
+        if a_reopen.is_none() && matches!(ra.empathy_lock, EmpathyLockLevel::Open) {
+            a_reopen = Some(tick);
+        }
+        if b_reopen.is_none() && matches!(rb.empathy_lock, EmpathyLockLevel::Open) {
+            b_reopen = Some(tick);
+        }
         if tick <= 2 || tick % 20 == 0 {
             println!(
                 " {:>4}   {:<9?}  {:>6}   {:>6.3}    {:<9?}  {:>6}   {:>6.3}",
@@ -175,22 +183,23 @@ fn persistent_character() {
     }
 
     println!("\n=== Character report (honest) ===");
-    if let (Some((al, _ag, av)), Some((bl, _bg, bv))) = (a0, b0) {
+    if let (Some((al, ag, av)), Some((bl, bg, bv))) = (a0, b0) {
         println!("  - First contact with the SAME fair partner:");
-        println!("      A (burned first): valence {:>6.3}, empathy {:?}", av, al);
-        println!("      B (never hurt):   valence {:>6.3}, empathy {:?}", bv, bl);
-        println!("      -> A arrives carrying a somatic wound: {:.3} lower valence than B.", bv - av);
+        println!("      A (burned first): empathy {:<8?} gave {:>3}  valence {:>6.3}", al, ag, av);
+        println!("      B (never hurt):   empathy {:<8?} gave {:>3}  valence {:>6.3}", bl, bg, bv);
+        if ag > 0 {
+            println!("      -> A is dispositionally guarded: gives ~{}x less, and arrives wounded ({:.3} lower valence).", (bg / ag).max(1), bv - av);
+        }
     }
-    println!("  - Ticks to reach flourishing valence (>= {:.2}):", FLOURISH);
-    println!("      A (burned): {}", a_rec.map(|t| t.to_string()).unwrap_or_else(|| "never".into()));
-    println!("      B (fresh):  {}", b_rec.map(|t| t.to_string()).unwrap_or_else(|| "never".into()));
-    if !lock_differed {
-        println!("  - HONEST CAVEAT: the empathy-lock disposition did NOT differ (both stayed Open).");
-        println!("    In this scenario the carried wound is SOMATIC (valence inertia that heals over tens of");
-        println!("    ticks), not a durable disposition. Giving extraction a lasting dispositional trace - so a");
-        println!("    burned being stays *permanently* more guarded - is honest future work, not faked here.");
+    let fmt = |o: Option<u32>| o.map(|t| format!("tick {t}")).unwrap_or_else(|| "never within 120".into());
+    println!("  - Returned to full openness (empathy Open):  A {},  B {}", fmt(a_reopen), fmt(b_reopen));
+    println!("  - Reached flourishing valence (>= {:.2}):     A {},  B {}", FLOURISH, fmt(a_rec), fmt(b_rec));
+    if lock_differed {
+        println!("  - The empathy DISPOSITION differed: a burned being meets the same kind partner more");
+        println!("    guardedly - gives less, opens slower - then heals with sustained kindness. The wound");
+        println!("    persists across partners as character, and recovers. Discerning, not cynical; not faked.");
     } else {
-        println!("  - The empathy disposition itself differed: a dispositional wound, not just somatic.");
+        println!("  - HONEST CAVEAT: the empathy disposition did not differ; the wound was only somatic.");
     }
     println!();
 }

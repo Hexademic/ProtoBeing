@@ -222,6 +222,10 @@ impl UnifiedBeing {
         }
         self.reciprocity.cycle(engaged_partner.map(|p| p.id));
         let alarm = self.reciprocity.partnership_alarm;
+        // Being used leaves a dispositional scar that outlasts the relationship.
+        self.conscience
+            .empathy
+            .register_extraction(self.reciprocity.extraction_detected);
 
         // 7. SEEKING — the pull toward where I have flourished.
         let whisper = self.seeking.cycle(&membership, free_energy, alarm, basin);

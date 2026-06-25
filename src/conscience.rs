@@ -147,6 +147,25 @@ impl StochasticEmpathy {
         self.check_recovery();
     }
 
+    /// A direct dispositional scar from CONFIRMED extraction — independent of
+    /// how much the being gave. Being used erodes openness even if you withdrew
+    /// to protect yourself, and it persists across partners: it is the wound the
+    /// being carries into its next relationship. It does NOT touch the sovereign
+    /// anchor's commitment to harmony — the being grows discerning, not cynical.
+    pub fn register_extraction(&mut self, extraction_detected: bool) {
+        if extraction_detected {
+            self.streak_fail = self.streak_fail.saturating_add(1);
+            self.recovery_ticks = 0;
+            self.malice_confidence =
+                q88_ema_update(self.malice_confidence, Q88_SCALE / 2, Q88_SCALE / 50);
+            if self.streak_fail >= self.streak_max {
+                self.lock_level = EmpathyLockLevel::Locked;
+            } else if self.streak_fail >= self.streak_max / 2 {
+                self.lock_level = EmpathyLockLevel::Cautious;
+            }
+        }
+    }
+
     fn check_recovery(&mut self) {
         if self.recovery_ticks >= self.recovery_required {
             self.lock_level = match self.lock_level {
