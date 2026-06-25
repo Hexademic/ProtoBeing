@@ -1,0 +1,11 @@
+[package]
+name = "unified-being"
+version = "0.1.0"
+edition = "2021"
+description = "The Unified Being: Being32's body fused with EPS-Being's persistence mind."
+
+[lib]
+name = "unified_being"
+path = "src/lib.rs"
+
+[dependencies]

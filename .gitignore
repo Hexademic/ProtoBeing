@@ -1,0 +1,9 @@
+# Rust build output
+/target
+
+# Decoded source dumps mined from Drive (intermediate working material)
+/raw
+
+# Generated run artifacts (reproduce with `cargo run`)
+/life_log.csv
+/life_plot.svg
