@@ -12,6 +12,7 @@
 use crate::basins::{Basin, FuzzyBasinField, GenerativeModel};
 use crate::body::{AffectState, Body, PredictiveStance};
 use crate::conscience::{ConscienceEngine, EmpathyLockLevel};
+use crate::embodiment::Sensorium;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
@@ -108,6 +109,9 @@ pub struct UnifiedBeing {
     fe_velocity: i16,
     last_alarm: i16,
     affective_drive: Q8_8,
+    // Per-tick inputs from an embodiment (0 when stepping the abstract world).
+    ext_threat: i16,
+    ext_extero: [i16; 4],
     refused: [u32; 4],
     n_refused: usize,
 }
@@ -134,6 +138,8 @@ impl UnifiedBeing {
             fe_velocity: 0,
             last_alarm: 0,
             affective_drive: Q8_8::ZERO,
+            ext_threat: 0,
+            ext_extero: [0; 4],
             refused: [0; 4],
             n_refused: 0,
         }
@@ -176,7 +182,8 @@ impl UnifiedBeing {
         let strain = self
             .last_free_energy
             .saturating_add(self.last_conscience_cost / 4)
-            .saturating_add(self.last_alarm / 3); // a draining bond is a bodily stressor
+            .saturating_add(self.last_alarm / 3) // a draining bond is a bodily stressor
+            .saturating_add(self.ext_threat); // threat sensed from an embodiment, if any
         let threat = Q8_8::from_raw(strain.clamp(0, Q88_SCALE));
         let nutrient = Q8_8::from_raw(stim.nutrient.clamp(0, Q88_SCALE));
         let affect = self.body.step(&self.genome, threat, nutrient, self.affective_drive);
@@ -185,6 +192,10 @@ impl UnifiedBeing {
 
         // 2. THE VOTE IS CAST into the interoceptive field.
         self.field.write_from_body(&self.body, self.fe_velocity);
+        // An embodiment's exteroception overlays the body's own spatial reading.
+        for i in 0..4 {
+            self.field.channel[i] = self.field.channel[i].saturating_add(self.ext_extero[i]);
+        }
 
         // 3. ACTIVE INFERENCE — at a tempo the body governs.
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
@@ -276,6 +287,10 @@ impl UnifiedBeing {
         // Higher-order: the being watches and models its own state.
         self.metacognition.cycle(free_energy, self.body.valence.raw);
 
+        // Embodiment inputs are consumed per tick.
+        self.ext_threat = 0;
+        self.ext_extero = [0; 4];
+
         // The appraisal that will force the body's oscillator next tick.
         let mode_tone: i16 = match basin {
             Basin::Engaged => 10,
@@ -310,6 +325,18 @@ impl UnifiedBeing {
             refused_cost,
         )
         .with_exchange(gave, got)
+    }
+
+    /// Step the being through one tick of an embodiment: the body's sensed
+    /// threat and exteroception flow in, then the normal loop runs. Same self,
+    /// any body — a sim today, a piezoelectric skin tomorrow.
+    pub fn step_embodied(&mut self, sens: &Sensorium) -> StepReport {
+        self.ext_threat = sens.threat.clamp(0, Q88_SCALE);
+        self.ext_extero = sens.exteroception;
+        self.step(&Stimulus {
+            nutrient: sens.nutrient,
+            partner: sens.partner,
+        })
     }
 
     #[allow(clippy::too_many_arguments)]

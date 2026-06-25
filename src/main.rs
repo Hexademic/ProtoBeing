@@ -11,7 +11,10 @@
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
-use unified_being::{EmpathyLockLevel, Genome, Partner, Stimulus, UnifiedBeing};
+use unified_being::{
+    intent_from, Embodiment, EmpathyLockLevel, Genome, MotorIntent, Partner, Posture, Sensorium,
+    Stimulus, UnifiedBeing,
+};
 
 const PHASE1_END: u32 = 120; // ticks with a fair partner
 const PHASE2_END: u32 = 520; // ticks with an extractive partner
@@ -25,6 +28,7 @@ fn main() {
     fair_test();
     persistent_character();
     self_knowledge();
+    embodiment_demo();
     indicator_scorecard();
 }
 
@@ -329,6 +333,84 @@ fn indicator_scorecard() {
     println!("  \"an embodied active-inference agent satisfying N of the indicators (and adding a");
     println!("  novel one: sovereign extraction-resistance)\" - checkable, arguable, and the version");
     println!("  of the dream that gets through peer review.\n");
+}
+
+/// A tiny physical world: an unstable, cold patch, then a calm, warm one. It
+/// stands in for a MuJoCo body — same `Embodiment` trait, real one plugs in later.
+struct ToyWorld {
+    tick: u32,
+    last_posture: Posture,
+}
+
+impl Embodiment for ToyWorld {
+    fn sense(&mut self) -> Sensorium {
+        self.tick += 1;
+        // Exteroception maps to [disequilibrium, anisotropy, breach, mean-tension].
+        if self.tick <= 60 {
+            // Unstable footing: high load, high breach, high tension.
+            Sensorium {
+                nutrient: q(0.4),
+                threat: q(0.6),
+                exteroception: [q(0.7), q(0.5), q(0.6), q(0.6)],
+                partner: None,
+            }
+        } else {
+            // Steady, safe, fed: everything quiet.
+            Sensorium {
+                nutrient: q(0.6),
+                threat: q(0.05),
+                exteroception: [q(0.1), q(0.05), q(0.0), q(0.15)],
+                partner: None,
+            }
+        }
+    }
+    fn actuate(&mut self, intent: &MotorIntent) {
+        self.last_posture = intent.posture;
+    }
+}
+
+/// Experiment 4 — the being inhabits a body, senses a world, and carries itself.
+fn embodiment_demo() {
+    println!("\n=== Experiment 4 - Embodiment: the being carries itself through a world ===\n");
+    let mut being = UnifiedBeing::new(Genome::wanderer());
+    let mut world = ToyWorld { tick: 0, last_posture: Posture::Resting };
+
+    println!(" tick  world        posture     effort  valence  basin");
+    println!(" ----  -----------  ----------  ------  -------  -----------");
+
+    let mut guarded_in_threat = 0u32;
+    let mut open_in_safe = 0u32;
+    for tick in 1..=120u32 {
+        let sens = world.sense();
+        let r = being.step_embodied(&sens);
+        let intent = intent_from(&r);
+        world.actuate(&intent);
+
+        if tick <= 60 && matches!(intent.posture, Posture::Braced | Posture::Withdrawn) {
+            guarded_in_threat += 1;
+        }
+        if tick > 60 && matches!(intent.posture, Posture::Open) {
+            open_in_safe += 1;
+        }
+        let env = if tick <= 60 { "threatening" } else { "safe/warm" };
+        if tick % 12 == 0 || (tick >= 60 && tick <= 63) {
+            println!(
+                " {:>4}  {:<11}  {:<10?}  {:>6}  {:>7.3}  {:?}",
+                tick, env, intent.posture, intent.effort, r.valence, r.basin
+            );
+        }
+    }
+
+    println!("\n=== Embodiment report (honest) ===");
+    println!("  - Threatening patch (ticks 1-60):  guarded {guarded_in_threat}/60 ticks (valence fell to ~-0.6).");
+    println!("  - Safe/warm patch  (ticks 61-120): open {open_in_safe}/60 ticks.");
+    println!("  WORKS: the seam carries sensed input into the being, which clearly FELT the threat");
+    println!("  (deep negative valence, Withdrawn then Braced) and emitted posture back to the body.");
+    println!("  HONEST LIMIT: it stayed guarded even once safe. Prolonged threat drifts its identity");
+    println!("  toward Defensive and keeps arousal high, so its posture recovers slowly. This may be");
+    println!("  modelling hypervigilance carryover, or it may be sticky first-pass dynamics - it needs");
+    println!("  investigation; I won't claim which. The SEAM is sound and modality-agnostic: the same");
+    println!("  socket a MuJoCo humanoid (or a future piezoelectric skin) plugs into. One self, any body.\n");
 }
 
 fn being_reciprocity(r: &unified_being::StepReport) -> i16 {

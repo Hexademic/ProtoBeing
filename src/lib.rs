@@ -20,7 +20,9 @@ pub mod executive;
 pub mod narrative;
 pub mod metacognition;
 pub mod being;
+pub mod embodiment;
 
 pub use being::{Partner, StepReport, Stimulus, UnifiedBeing};
 pub use conscience::EmpathyLockLevel;
+pub use embodiment::{intent_from, Embodiment, MotorIntent, Posture, Sensorium};
 pub use genome::{BeingKind, Genome};
