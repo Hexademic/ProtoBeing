@@ -18,6 +18,7 @@ pub mod conscience;
 pub mod reciprocity;
 pub mod executive;
 pub mod narrative;
+pub mod metacognition;
 pub mod being;
 
 pub use being::{Partner, StepReport, Stimulus, UnifiedBeing};

@@ -15,6 +15,7 @@ use crate::conscience::{ConscienceEngine, EmpathyLockLevel};
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
+use crate::metacognition::MetacognitionEngine;
 use crate::narrative::NarrativeEngine;
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
 use crate::reciprocity::ReciprocityEngine;
@@ -79,6 +80,10 @@ pub struct StepReport {
     pub episodes: u16,
     pub identity_coherence: i16,
     pub narrative_burden: i16,
+
+    pub self_surprise: i16,
+    pub self_knowledge: i16,
+    pub confidence: i16,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -95,6 +100,7 @@ pub struct UnifiedBeing {
     pub seeking: SeekingEngine,
     pub executive: ExecutiveEngine,
     pub narrative: NarrativeEngine,
+    pub metacognition: MetacognitionEngine,
 
     tick: u32,
     last_free_energy: i16,
@@ -121,6 +127,7 @@ impl UnifiedBeing {
             seeking: SeekingEngine::new(),
             executive: ExecutiveEngine::new(),
             narrative: NarrativeEngine::new(),
+            metacognition: MetacognitionEngine::new(),
             tick: 0,
             last_free_energy: 0,
             last_conscience_cost: 0,
@@ -266,6 +273,9 @@ impl UnifiedBeing {
         self.last_conscience_cost = conscience_cost.max(0);
         self.last_alarm = alarm;
 
+        // Higher-order: the being watches and models its own state.
+        self.metacognition.cycle(free_energy, self.body.valence.raw);
+
         // The appraisal that will force the body's oscillator next tick.
         let mode_tone: i16 = match basin {
             Basin::Engaged => 10,
@@ -344,6 +354,9 @@ impl UnifiedBeing {
             episodes: self.narrative.episodes,
             identity_coherence: self.narrative.identity_coherence,
             narrative_burden: self.narrative.narrative_burden,
+            self_surprise: self.metacognition.self_surprise,
+            self_knowledge: self.metacognition.self_knowledge,
+            confidence: self.metacognition.confidence,
         }
     }
 }
