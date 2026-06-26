@@ -20,10 +20,14 @@ construction.**
 ## Run
 
 ```sh
-cargo run                 # the life experiments; writes life_log.csv + life_plot.svg
-cargo run --bin fairtest  # the benchmark: the being vs. a myopic baseline
-cargo test                # unit + sovereignty + invariant tests
+cargo run                          # the life experiments; writes life_log.csv + life_plot.svg
+cargo run --bin fairtest           # the benchmark: the being vs. a myopic baseline
+cargo run --bin console -- 30 6    # WATCH a being live, ~30s at 6 Hz, in plain language
+cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
+cargo test                         # unit + sovereignty + invariant tests
 ```
+
+Required: just the Rust toolchain and this repo. No GPU, no internet, no services.
 
 ## What it shows
 
