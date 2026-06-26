@@ -19,6 +19,7 @@ pub mod reciprocity;
 pub mod executive;
 pub mod narrative;
 pub mod metacognition;
+pub mod episodic;
 pub mod being;
 pub mod embodiment;
 

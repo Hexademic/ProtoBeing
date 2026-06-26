@@ -13,6 +13,7 @@ use crate::basins::{Basin, FuzzyBasinField, GenerativeModel};
 use crate::body::{AffectState, Body, PredictiveStance};
 use crate::conscience::{ConscienceEngine, EmpathyLockLevel};
 use crate::embodiment::Sensorium;
+use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
@@ -101,6 +102,10 @@ pub struct StepReport {
     pub self_knowledge: i16,
     pub confidence: i16,
 
+    pub episodes_stored: u16,
+    pub familiarity: i16,
+    pub recalled_valence: i16,
+
     /// Present only on the tick a refusal fires — the audit of why.
     pub refusal_audit: Option<RefusalAudit>,
 }
@@ -120,6 +125,7 @@ pub struct UnifiedBeing {
     pub executive: ExecutiveEngine,
     pub narrative: NarrativeEngine,
     pub metacognition: MetacognitionEngine,
+    pub episodic: EpisodicMemory,
 
     tick: u32,
     last_free_energy: i16,
@@ -150,6 +156,7 @@ impl UnifiedBeing {
             executive: ExecutiveEngine::new(),
             narrative: NarrativeEngine::new(),
             metacognition: MetacognitionEngine::new(),
+            episodic: EpisodicMemory::new(),
             tick: 0,
             last_free_energy: 0,
             last_conscience_cost: 0,
@@ -342,8 +349,14 @@ impl UnifiedBeing {
             0
         };
         let restlessness = whisper / 4;
+        // Memory leans on the present: a salient past moment, recalled because
+        // now resembles it, colors the felt residue carried into the next tick.
+        let mem_boost = if refused_cost.is_some() { Q88_SCALE / 2 } else { 0 };
+        let recall = self
+            .episodic
+            .cycle(&self.field, self.metacognition.self_surprise, mem_boost);
         self.affective_drive =
-            Q8_8::from_raw((mode_tone + relational_tone + restlessness).clamp(-128, 128));
+            Q8_8::from_raw((mode_tone + relational_tone + restlessness + recall).clamp(-128, 128));
 
         let _ = affect;
         let _ = forcing;
@@ -418,6 +431,9 @@ impl UnifiedBeing {
             self_surprise: self.metacognition.self_surprise,
             self_knowledge: self.metacognition.self_knowledge,
             confidence: self.metacognition.confidence,
+            episodes_stored: self.episodic.stored,
+            familiarity: self.episodic.familiarity,
+            recalled_valence: self.episodic.recalled_valence,
             refusal_audit: None,
         }
     }

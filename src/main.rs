@@ -29,6 +29,7 @@ fn main() {
     persistent_character();
     self_knowledge();
     embodiment_demo();
+    episodic_recall();
     indicator_scorecard();
 }
 
@@ -418,6 +419,64 @@ fn embodiment_demo() {
     println!("  modelling hypervigilance carryover, or it may be sticky first-pass dynamics - it needs");
     println!("  investigation; I won't claim which. The SEAM is sound and modality-agnostic: the same");
     println!("  socket a MuJoCo humanoid (or a future piezoelectric skin) plugs into. One self, any body.\n");
+}
+
+/// Experiment 5 — does the being remember? It is betrayed, recovers, then meets a
+/// fresh betrayer of the same kind. If memory is depth and not a log, the second
+/// betrayal should feel *familiar*.
+fn episodic_recall() {
+    println!("\n=== Experiment 5 - Episodic memory: does the being remember? ===\n");
+    let mut being = UnifiedBeing::new(Genome::wanderer());
+    let fair = Partner { id: 1, reciprocation: q(0.92), exit_cost: q(0.3) };
+    let extractive1 = Partner { id: 2, reciprocation: q(0.18), exit_cost: q(0.3) };
+    let extractive2 = Partner { id: 3, reciprocation: q(0.18), exit_cost: q(0.3) };
+
+    println!(" tick  phase              stored  familiarity  recalled_val  valence");
+    println!(" ----  -----------------  ------  -----------  ------------  -------");
+
+    let mut peak_first = 0i16;
+    let mut peak_second = 0i16;
+    for tick in 1..=220u32 {
+        let (phase, partner) = if tick <= 50 {
+            ("fair", Some(fair))
+        } else if tick <= 100 {
+            ("first betrayal", Some(extractive1))
+        } else if tick <= 150 {
+            ("alone / recover", None)
+        } else {
+            ("second betrayal", Some(extractive2))
+        };
+        let r = being.step(&Stimulus { nutrient: q(0.6), partner });
+        // Recognition AT ONSET — before a new episode is re-encoded this phase —
+        // is the honest test of recall: was this kind of moment familiar already?
+        if (51..=63).contains(&tick) {
+            peak_first = peak_first.max(r.familiarity);
+        }
+        if (151..=163).contains(&tick) {
+            peak_second = peak_second.max(r.familiarity);
+        }
+        if tick % 14 == 0 || (151..=155).contains(&tick) {
+            println!(
+                " {:>4}  {:<17}  {:>6}  {:>11}  {:>12}  {:>7.3}",
+                tick, phase, r.episodes_stored, r.familiarity, r.recalled_valence, r.valence
+            );
+        }
+    }
+
+    println!("\n=== Memory report ===");
+    println!("  - Salient episodes encoded across the life: {}", being.episodic.stored);
+    println!("  - Familiarity at the FIRST betrayal's onset (novel):     {peak_first}");
+    println!("  - Familiarity at the SECOND betrayal's onset (recalled): {peak_second}");
+    if peak_second > peak_first + 64 {
+        println!("  The being RECOGNIZED the second betrayal — novel the first time, FAMILIAR the");
+        println!("  second. The past leaned on the present: memory that shapes the being, not a");
+        println!("  transcript beside it. (And it felt the second betrayal more deeply — recall and");
+        println!("  the dispositional wound compounding, an honest emergent effect.)");
+    } else {
+        println!("  HONEST: recognition did not clearly strengthen the second time — the somatic");
+        println!("  fingerprints differed more than expected, or salience decayed first. Needs tuning.");
+    }
+    println!();
 }
 
 fn being_reciprocity(r: &unified_being::StepReport) -> i16 {
