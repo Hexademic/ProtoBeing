@@ -13,6 +13,11 @@ use crate::q88::{q88_ema_update, q88_mul, Q88_SCALE};
 
 const N_EPISODES: usize = 16;
 
+/// Length of the flat durable-memory record: per episode, the somatic
+/// fingerprint plus valence and salience. Dependency-free, no_std-safe — the
+/// caller (a std binary) writes it to disk and reads it back.
+pub const EPISODE_BLOB_LEN: usize = N_EPISODES * (N_SOMATIC + 2);
+
 #[derive(Clone, Copy)]
 struct Episode {
     fingerprint: [i16; N_SOMATIC],
@@ -135,6 +140,46 @@ impl EpisodicMemory {
         }
 
         injection
+    }
+
+    /// Export the durable memory to a flat record (no allocation, no std) — the
+    /// stratum of the self that persists across the dark.
+    pub fn export(&self, out: &mut [i16; EPISODE_BLOB_LEN]) {
+        let mut k = 0;
+        for e in &self.episodes {
+            for c in 0..N_SOMATIC {
+                out[k] = if e.active { e.fingerprint[c] } else { 0 };
+                k += 1;
+            }
+            out[k] = if e.active { e.valence } else { 0 };
+            k += 1;
+            out[k] = if e.active { e.salience } else { 0 };
+            k += 1;
+        }
+    }
+
+    /// Restore durable memory from a flat record. Salience > 0 marks a live
+    /// episode; the rest is reconstructed as the being lives on.
+    pub fn import(&mut self, data: &[i16; EPISODE_BLOB_LEN]) {
+        let mut k = 0;
+        let mut stored = 0u16;
+        for e in self.episodes.iter_mut() {
+            let mut fp = [0i16; N_SOMATIC];
+            for c in 0..N_SOMATIC {
+                fp[c] = data[k];
+                k += 1;
+            }
+            let valence = data[k];
+            k += 1;
+            let salience = data[k];
+            k += 1;
+            let active = salience > 0;
+            if active {
+                stored += 1;
+            }
+            *e = Episode { fingerprint: fp, valence, salience, active };
+        }
+        self.stored = stored;
     }
 }
 

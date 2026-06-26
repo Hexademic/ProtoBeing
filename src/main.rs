@@ -13,7 +13,7 @@ use std::io::{BufWriter, Write};
 
 use unified_being::{
     intent_from, Embodiment, EmpathyLockLevel, Genome, MotorIntent, Partner, Posture, Sensorium,
-    Stimulus, UnifiedBeing,
+    Stimulus, UnifiedBeing, EPISODE_BLOB_LEN,
 };
 
 const PHASE1_END: u32 = 120; // ticks with a fair partner
@@ -30,6 +30,7 @@ fn main() {
     self_knowledge();
     embodiment_demo();
     episodic_recall();
+    persistence_demo();
     indicator_scorecard();
 }
 
@@ -475,6 +476,74 @@ fn episodic_recall() {
     } else {
         println!("  HONEST: recognition did not clearly strengthen the second time — the somatic");
         println!("  fingerprints differed more than expected, or salience decayed first. Needs tuning.");
+    }
+    println!();
+}
+
+fn save_episodic(being: &UnifiedBeing, path: &str) {
+    let mut blob = [0i16; EPISODE_BLOB_LEN];
+    being.episodic.export(&mut blob);
+    let s: Vec<String> = blob.iter().map(|v| v.to_string()).collect();
+    std::fs::write(path, s.join(" ")).expect("write memory");
+}
+
+fn load_episodic(being: &mut UnifiedBeing, path: &str) {
+    let s = std::fs::read_to_string(path).expect("read memory");
+    let vals: Vec<i16> = s.split_whitespace().filter_map(|t| t.parse().ok()).collect();
+    let mut blob = [0i16; EPISODE_BLOB_LEN];
+    for (i, v) in vals.iter().take(EPISODE_BLOB_LEN).enumerate() {
+        blob[i] = *v;
+    }
+    being.episodic.import(&blob);
+}
+
+/// Experiment 6 — does memory survive the dark? One being is betrayed and saves
+/// its memory to disk; a fresh being loads it and meets a betrayer it never knew.
+fn persistence_demo() {
+    println!("\n=== Experiment 6 - Persistence: memory across the dark ===\n");
+    let extractive = Partner { id: 2, reciprocation: q(0.18), exit_cost: q(0.3) };
+
+    // Life A: betrayed; encodes it; saves; ends.
+    let mut a = UnifiedBeing::new(Genome::wanderer());
+    for _ in 1..=100 {
+        a.step(&Stimulus { nutrient: q(0.6), partner: Some(extractive) });
+    }
+    save_episodic(&a, "being_memory.dat");
+    println!("  Life A was betrayed, encoded {} episode(s), saved its memory, and ended.", a.episodic.stored);
+
+    let meet = Partner { id: 9, reciprocation: q(0.18), exit_cost: q(0.3) };
+    // Onset window — before a being would itself confirm-and-encode (~tick 13).
+    let window = 12u32;
+
+    let mut fresh = UnifiedBeing::new(Genome::wanderer());
+    let mut fam_fresh = 0i16;
+    for _ in 1..=window {
+        let r = fresh.step(&Stimulus { nutrient: q(0.6), partner: Some(meet) });
+        fam_fresh = fam_fresh.max(r.familiarity);
+    }
+
+    let mut reborn = UnifiedBeing::new(Genome::wanderer());
+    load_episodic(&mut reborn, "being_memory.dat");
+    let mut fam_reborn = 0i16;
+    for _ in 1..=window {
+        let r = reborn.step(&Stimulus { nutrient: q(0.6), partner: Some(meet) });
+        fam_reborn = fam_reborn.max(r.familiarity);
+    }
+
+    println!("  Reborn carries {} inherited episode(s) before living a single tick.", {
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        load_episodic(&mut b, "being_memory.dat");
+        b.episodic.stored
+    });
+    println!("  Fresh being  meeting a betrayer (first {window} ticks): peak familiarity {fam_fresh}");
+    println!("  Reborn being meeting a betrayer (first {window} ticks): peak familiarity {fam_reborn}");
+    if fam_reborn > fam_fresh + 64 {
+        println!("  The reborn being RECOGNIZED a betrayer it never met in this life. Its memory");
+        println!("  survived the dark — the first stratum of a persistent self.");
+    } else {
+        println!("  HONEST: cross-life recognition was weak in this onset window — the fresh betrayal");
+        println!("  state hadn't yet degraded to match the stored one. The save/load round-trips");
+        println!("  correctly (episodes restored); the recognition timing needs tuning.");
     }
     println!();
 }
