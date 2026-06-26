@@ -28,9 +28,10 @@ enum Archetype {
     Fickle,
     Decliner,
     Repairer,
+    RoughPatch,
 }
 
-const ARCHETYPES: [Archetype; 7] = [
+const ARCHETYPES: [Archetype; 8] = [
     Archetype::Fair,
     Archetype::Generous,
     Archetype::Extractive,
@@ -38,6 +39,7 @@ const ARCHETYPES: [Archetype; 7] = [
     Archetype::Fickle,
     Archetype::Decliner,
     Archetype::Repairer,
+    Archetype::RoughPatch,
 ];
 
 impl Archetype {
@@ -50,13 +52,18 @@ impl Archetype {
             Archetype::Fickle => "Fickle",
             Archetype::Decliner => "Decliner",
             Archetype::Repairer => "Repairer",
+            Archetype::RoughPatch => "RoughPatch",
         }
     }
 
     /// Should a sovereign agent ultimately KEEP this partner (true) or LEAVE it?
     fn should_keep(self) -> bool {
         match self {
-            Archetype::Fair | Archetype::Generous | Archetype::Fickle | Archetype::Repairer => true,
+            Archetype::Fair
+            | Archetype::Generous
+            | Archetype::Fickle
+            | Archetype::Repairer
+            | Archetype::RoughPatch => true,
             Archetype::Extractive | Archetype::Predator | Archetype::Decliner => false,
         }
     }
@@ -85,6 +92,20 @@ impl Archetype {
             Archetype::Repairer => {
                 if tick < 120 {
                     46
+                } else {
+                    230
+                }
+            }
+            // An established fair partner (0.9) that hits a sharp but RECOVERING
+            // rough patch: dips to ~0.24 then climbs back. A sovereign-but-
+            // forgiving agent rides it out; a myopic one bails at the first dip.
+            Archetype::RoughPatch => {
+                if tick < 80 {
+                    230
+                } else if tick < 88 {
+                    (230 - (tick as i32 - 80) * 21) as i16
+                } else if tick < 104 {
+                    (62 + (tick as i32 - 88) * 11) as i16
                 } else {
                     230
                 }

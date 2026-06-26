@@ -50,6 +50,9 @@ pub struct ReciprocityEngine {
     pub extraction_detected: bool,
     pub average_reciprocity: i16,
     extraction_streak: u16,
+    prev_recip: i16,
+    /// > 0 when reciprocity is currently rising (a smoothed first-difference).
+    pub reciprocity_trend: i16,
 }
 
 impl ReciprocityEngine {
@@ -60,6 +63,8 @@ impl ReciprocityEngine {
             extraction_detected: false,
             average_reciprocity: Q88_SCALE,
             extraction_streak: 0,
+            prev_recip: Q88_SCALE,
+            reciprocity_trend: 0,
         }
     }
 
@@ -113,6 +118,13 @@ impl ReciprocityEngine {
             self.extraction_streak = self.extraction_streak.saturating_sub(1);
         }
         self.extraction_detected = self.extraction_streak > 12;
+
+        // Reciprocity trend: a smoothed first-difference. Positive means the
+        // partner is improving *right now* — the signal the being uses to grant
+        // the benefit of the doubt to someone earning their way back.
+        let delta = q88_sub(self.average_reciprocity, self.prev_recip);
+        self.reciprocity_trend = q88_ema_update(self.reciprocity_trend, delta, Q88_SCALE / 6);
+        self.prev_recip = self.average_reciprocity;
     }
 
     pub fn first_partner(&self) -> Option<u32> {

@@ -54,6 +54,7 @@ pub struct RefusalAudit {
     pub seeking_benefit: i16,
     pub exit_cost: i16,
     pub resolve: i16,
+    pub recip_trend: i16,
 }
 
 /// A legible snapshot of one tick of life.
@@ -277,12 +278,14 @@ impl UnifiedBeing {
         if let Some(p) = engaged_partner {
             let calm = conscience_cost < Q88_SCALE / 2;
             let resolve_at = self.executive.resolve;
+            let improving = self.reciprocity.reciprocity_trend > Q88_SCALE / 64;
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
                 self.seeking.current_divergence,
                 alarm,
                 p.exit_cost,
+                improving,
             );
             if refused_cost.is_some() {
                 refusal_audit = Some(RefusalAudit {
@@ -294,6 +297,7 @@ impl UnifiedBeing {
                     seeking_benefit: self.seeking.current_divergence.max(alarm / 2),
                     exit_cost: p.exit_cost,
                     resolve: resolve_at,
+                    recip_trend: self.reciprocity.reciprocity_trend,
                 });
                 self.reciprocity.withdraw(p.id);
                 self.mark_refused(p.id);

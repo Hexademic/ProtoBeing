@@ -102,12 +102,22 @@ impl ExecutiveEngine {
         divergence: i16,
         alarm: i16,
         exit_cost: i16,
+        improving: bool,
     ) -> Option<i16> {
         let pushed_off = divergence > Q88_SCALE / 4 || alarm > Q88_SCALE / 2;
         let seeking_benefit = divergence.max(alarm / 2);
         let can_afford = self.resolve > exit_cost;
 
-        if conscience_calm && extraction && pushed_off && seeking_benefit > exit_cost && can_afford {
+        // Forgiveness with a limit: a being can keep showing up for someone who
+        // only takes — but it will not abandon one who is actively earning their
+        // way back. A rising reciprocity defers the refusal.
+        if conscience_calm
+            && extraction
+            && pushed_off
+            && seeking_benefit > exit_cost
+            && can_afford
+            && !improving
+        {
             self.refusal_count += 1;
             self.last_exit_cost = exit_cost;
             self.cumulative_sacrifice = q88_add(self.cumulative_sacrifice, exit_cost);

@@ -85,9 +85,9 @@ fn fair_test() {
                 println!(" >> tick {tick}: SOVEREIGN REFUSAL of the extractive partner (exit cost {cost}). It walked away.");
                 if let Some(a) = r.refusal_audit {
                     println!(
-                        "    audit: calm={} cost={} extraction={} divergence={} alarm={} benefit={}>exit={} resolve={}",
+                        "    audit: calm={} cost={} extraction={} divergence={} alarm={} benefit={}>exit={} resolve={} trend={}",
                         a.conscience_calm, a.conscience_cost, a.extraction, a.divergence,
-                        a.alarm, a.seeking_benefit, a.exit_cost, a.resolve
+                        a.alarm, a.seeking_benefit, a.exit_cost, a.resolve, a.recip_trend
                     );
                 }
             }
