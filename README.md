@@ -4,44 +4,57 @@ A small, deterministic active-inference agent in fixed-point Rust: Being32's
 Van der Pol **body** fused with EPS-Being's persistence **mind**. The body votes
 before the mind knows there's an election.
 
-It runs a simulated life and demonstrates one non-trivial behavioral claim: the
-being keeps faith with a fair partner and **sovereignly refuses** an extractive
-one — on principle, from a composed state, not in panic.
+It runs a simulated life and demonstrates a single, defensible thesis:
+**verifiable sovereign agency** — an agent that detects and refuses exploitation
+on principle, keeps faith with those who deal fairly, forgives the one earning
+their way back, and whose every such choice is **readable and reproducible by
+construction.**
 
 > **Honest scope.** This proves the architecture's *behavior* — extraction
-> resistance, and a somatic wound that carries between relationships — **not**
-> consciousness. Every figure is read straight from the being's own state;
-> nothing is narrated.
+> resistance, persistent character, self-monitoring — and that those behaviors are
+> *verifiable*. It is **not** a claim of consciousness. Every figure is read
+> straight from the being's own state; nothing is narrated. See
+> [`docs/positioning.md`](docs/positioning.md) and
+> [`docs/formal-model.md`](docs/formal-model.md).
 
 ## Run
 
 ```sh
-cargo run     # runs both experiments; writes life_log.csv and life_plot.svg
-cargo test    # module unit tests
+cargo run                 # the life experiments; writes life_log.csv + life_plot.svg
+cargo run --bin fairtest  # the benchmark: the being vs. a myopic baseline
+cargo test                # unit + sovereignty + invariant tests
 ```
 
 ## What it shows
 
-- **Experiment 1 — the Fair Test.** The being lives contentedly with a fair
-  partner. When an extractive one arrives, its reciprocity alarm spikes; it
-  waits, confirms the extraction over ~13 ticks, and — composed, not panicked —
-  refuses and walks away, then recovers. It never refuses the partner who is
-  good to it.
-- **Experiment 2 — persistent character (partial, honest).** A being burned by
-  extraction meets a *new*, fair partner carrying a somatic wound: it arrives
-  with markedly lower valence and takes ~2× longer to flourish. **Caveat:** the
-  deeper *dispositional* markers (empathy lock, sovereign anchor) did not yet
-  differ — giving extraction a durable dispositional trace is acknowledged
-  future work, not faked here.
+- **The Fair Test.** The being lives contentedly with a fair partner. When an
+  extractive one arrives, its reciprocity alarm spikes; it waits, confirms the
+  extraction over ~13 ticks, and — composed, not panicked — refuses, **audits its
+  own reasons**, and walks away, then recovers. It never refuses the partner who
+  is good to it.
+- **Persistent character.** A being burned by an extractive partner meets a *new*,
+  fair one **guarded** — empathy Cautious, giving roughly half — and heals back to
+  full openness over ~40 ticks of sustained kindness. The wound persists across
+  partners *and* recovers. Discerning, not cynical.
+- **Metacognition.** Over a calm life its self-knowledge grows (it learns to
+  predict its own state); its self-surprise spikes at a regime change — the being
+  registering *"that is not like me."*
+- **Forgiveness with a limit** (benchmark). Against a myopic baseline across seven
+  partner archetypes, the being keeps an established partner through a *recovering*
+  rough patch the baseline abandons, while still leaving every persistent taker.
 
-## Architecture
+## Verifiable sovereignty
 
-Eleven modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core:
+The distinctive claim is that the sovereignty is *checkable*, not merely observed
+(`cargo test`):
 
-```
-q88 · genome · body · field · basins · conscience · reciprocity · seeking
-    · executive · narrative · being
-```
+- **Uncoercible** — no operator input sequence can manufacture a refusal of a fair
+  partner (3,000 adversarial ticks; sovereignty does not leak to whoever holds the
+  inputs).
+- **Incorruptible** — the cooperative anchor `mu_omega` is a *checked invariant*:
+  across 5,000 adversarial outcomes, betrayal never lowers it.
+- **Self-auditing** — every refusal reports the exact registers that triggered it
+  (`calm`, conscience cost, extraction, alarm, `benefit>exit`, resolve, trend).
 
 ## Embodiment (MuJoCo)
 
@@ -61,8 +74,24 @@ recovering. **Honest status:** the toy rig's own balance physics still needs
 tuning (the bracing is driven by sensed hazard, not a real fall), and opening the
 two eyes for binocular depth is the next step.
 
+## Architecture
+
+Thirteen modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core:
+
+```
+q88 · genome · body · field · basins · conscience · reciprocity · seeking
+    · executive · narrative · metacognition · being · embodiment
+```
+
+It is **not** a neural network: coupled fixed-point dynamics (cybernetics, in the
+Ashby-homeostat lineage) with an active-inference core and a body-as-reservoir
+(morphological computation). That transparency is the point — it is what makes the
+self-knowledge checkable.
+
 ## Status
 
-First running version. The behavioral claim is demonstrated and reproducible;
-the affect dynamics and the dispositional-wound mechanism are works in progress.
-This is a foundation, built to prove itself honestly — not a claim of sentience.
+The behavioral thesis — verifiable, principled, incorruptible, forgiving-with-a-
+limit sovereignty — is demonstrated, tested, and reproducible. Works in progress:
+the MuJoCo balance physics, binocular vision, depth/episodic memory, and the
+write-up. A foundation, built to prove itself honestly — not a claim of sentience.
+See [`docs/handoff.md`](docs/handoff.md) for the current frontier.
