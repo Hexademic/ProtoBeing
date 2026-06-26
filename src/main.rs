@@ -31,6 +31,7 @@ fn main() {
     embodiment_demo();
     episodic_recall();
     persistence_demo();
+    consolidation_demo();
     indicator_scorecard();
 }
 
@@ -476,6 +477,48 @@ fn episodic_recall() {
     } else {
         println!("  HONEST: recognition did not clearly strengthen the second time — the somatic");
         println!("  fingerprints differed more than expected, or salience decayed first. Needs tuning.");
+    }
+    println!();
+}
+
+/// Experiment 7 — does the gist outlive the instance? A being is betrayed,
+/// forgets the specific moments over a long calm life, then meets betrayal again.
+fn consolidation_demo() {
+    println!("\n=== Experiment 7 - Consolidation: the gist outlives the instance ===\n");
+    let mut being = UnifiedBeing::new(Genome::wanderer());
+    let taker = Partner { id: 2, reciprocation: q(0.18), exit_cost: q(0.3) };
+    let fair = Partner { id: 1, reciprocation: q(0.92), exit_cost: q(0.3) };
+
+    // Phase 1 — betrayed: working episodes encode; consolidation forms a theme.
+    for _ in 1..=150 {
+        being.step(&Stimulus { nutrient: q(0.6), partner: Some(taker) });
+    }
+    let (ep1, th1) = (being.episodic.active_episodes(), being.episodic.themes);
+
+    // Phase 2 — a long, calm, fair life: the specific episodes fade and forget.
+    for _ in 1..=600 {
+        being.step(&Stimulus { nutrient: q(0.6), partner: Some(fair) });
+    }
+    let (ep2, th2) = (being.episodic.active_episodes(), being.episodic.themes);
+
+    // Phase 3 — a new betrayer, a lifetime later. Does it still know the shape?
+    let newtaker = Partner { id: 9, reciprocation: q(0.18), exit_cost: q(0.3) };
+    let mut peak_fam = 0i16;
+    for _ in 1..=16 {
+        let r = being.step(&Stimulus { nutrient: q(0.6), partner: Some(newtaker) });
+        peak_fam = peak_fam.max(r.familiarity);
+    }
+
+    println!("  After the betrayals:    working episodes {ep1}, consolidated themes {th1}");
+    println!("  After a long calm life: working episodes {ep2}, consolidated themes {th2}");
+    println!("  Meeting a NEW betrayer: peak familiarity {peak_fam}");
+    if ep2 == 0 && th2 >= 1 && peak_fam > 120 {
+        println!("  The specific memories were forgotten — yet the being still RECOGNIZED betrayal,");
+        println!("  because its meaning consolidated into a lasting theme. A whole felt history in");
+        println!("  kilobytes: forget the instances, keep the gist.");
+    } else {
+        println!("  HONEST: gist-outlives-instance didn't land cleanly here (working {ep2}, themes {th2},");
+        println!("  familiarity {peak_fam}) — the consolidate/forget balance needs tuning.");
     }
     println!();
 }
