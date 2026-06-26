@@ -62,3 +62,31 @@ pub fn intent_from(r: &StepReport) -> MotorIntent {
     let effort = ((r.arousal * 256.0) as i16).clamp(0, 256);
     MotorIntent { posture, effort }
 }
+
+/// The body-action vocabulary — the "universal controller." A physics rig binds
+/// each variant to a target pose; the being's affect hot-keys which one to hold.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BodyAction {
+    Idle = 0,
+    StandOpen = 1,
+    Brace = 2,
+    Curl = 3,
+    Recoil = 4,
+}
+
+/// Hot-key the being's affect to a discrete body action.
+pub fn action_from(intent: &MotorIntent) -> BodyAction {
+    let vigorous = intent.effort > 160; // ~0.6
+    match intent.posture {
+        Posture::Open => BodyAction::StandOpen,
+        Posture::Resting => BodyAction::Idle,
+        Posture::Braced => {
+            if vigorous {
+                BodyAction::Recoil
+            } else {
+                BodyAction::Brace
+            }
+        }
+        Posture::Withdrawn => BodyAction::Curl,
+    }
+}

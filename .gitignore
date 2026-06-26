@@ -7,3 +7,7 @@
 # Generated run artifacts (reproduce with `cargo run`)
 /life_log.csv
 /life_plot.svg
+
+# Python
+__pycache__/
+*.pyc

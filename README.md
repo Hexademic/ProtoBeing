@@ -43,6 +43,24 @@ q88 · genome · body · field · basins · conscience · reciprocity · seeking
     · executive · narrative · being
 ```
 
+## Embodiment (MuJoCo)
+
+The being is sensor-agnostic — any body plugs in through the `Embodiment` seam. A
+headless MuJoCo demo runs the being inside a physics body (a head carrying two
+stereo-ready cameras, mounted but **dormant**) as a continuous subprocess:
+
+```sh
+pip install mujoco numpy
+cargo build --bin embody
+python sim/embody_mujoco.py
+```
+
+It feels its body and a sensed hazard through the seam and carries itself
+accordingly — bracing 100% of the time under danger, valence collapsing, then
+recovering. **Honest status:** the toy rig's own balance physics still needs
+tuning (the bracing is driven by sensed hazard, not a real fall), and opening the
+two eyes for binocular depth is the next step.
+
 ## Status
 
 First running version. The behavioral claim is demonstrated and reproducible;

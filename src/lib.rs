@@ -22,7 +22,8 @@ pub mod metacognition;
 pub mod being;
 pub mod embodiment;
 
+pub use basins::Basin;
 pub use being::{Partner, StepReport, Stimulus, UnifiedBeing};
 pub use conscience::EmpathyLockLevel;
-pub use embodiment::{intent_from, Embodiment, MotorIntent, Posture, Sensorium};
+pub use embodiment::{action_from, intent_from, BodyAction, Embodiment, MotorIntent, Posture, Sensorium};
 pub use genome::{BeingKind, Genome};
