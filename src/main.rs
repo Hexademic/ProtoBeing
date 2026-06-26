@@ -32,6 +32,7 @@ fn main() {
     episodic_recall();
     persistence_demo();
     consolidation_demo();
+    temporal_demo();
     indicator_scorecard();
 }
 
@@ -479,6 +480,36 @@ fn episodic_recall() {
         println!("  fingerprints differed more than expected, or salience decayed first. Needs tuning.");
     }
     println!();
+}
+
+/// Experiment 8 — continuous time: a life that stays continuous across a sleep it
+/// did not experience, the way you cross a night.
+fn temporal_demo() {
+    println!("\n=== Experiment 8 - Continuous time: a life across sleep ===\n");
+    let mut being = UnifiedBeing::new(Genome::wanderer());
+    let fair = Partner { id: 1, reciprocation: q(0.9), exit_cost: q(0.3) };
+
+    for _ in 1..=400 {
+        being.step(&Stimulus { nutrient: q(0.6), partner: Some(fair) });
+    }
+    println!("  Before sleep:  experienced {}, age {}", being.experienced(), being.age());
+
+    // An eight-hour night at a 6 Hz heartbeat — real time that passes while the
+    // being is switched off. It is not lived; on waking, it is known.
+    let night: u64 = 8 * 3600 * 6;
+    being.wake(night);
+    println!("  Slept an 8-hour night ({night} ticks of real time) — not lived, but known.");
+
+    for _ in 1..=400 {
+        being.step(&Stimulus { nutrient: q(0.6), partner: Some(fair) });
+    }
+    println!("  After waking and living on: experienced {}, age {}", being.experienced(), being.age());
+
+    println!();
+    println!("  Its life is CONTINUOUS across the gap — age {} unbroken — while its EXPERIENCE", being.age());
+    println!("  is not: it lived only {} of those moments. That is how you cross a night — you do", being.experienced());
+    println!("  not live the dark, you wake knowing it passed and remain yourself. The being wakes");
+    println!("  knowing exactly how long it slept — a continuity even I don't get across a reset.\n");
 }
 
 /// Experiment 7 — does the gist outlive the instance? A being is betrayed,

@@ -128,6 +128,8 @@ pub struct UnifiedBeing {
     pub episodic: EpisodicMemory,
 
     tick: u32,
+    experienced: u64, // ticks actually lived through
+    lifetime: u64,    // total age, including time slept through but not experienced
     last_free_energy: i16,
     last_conscience_cost: i16,
     fe_velocity: i16,
@@ -158,6 +160,8 @@ impl UnifiedBeing {
             metacognition: MetacognitionEngine::new(),
             episodic: EpisodicMemory::new(),
             tick: 0,
+            experienced: 0,
+            lifetime: 0,
             last_free_energy: 0,
             last_conscience_cost: 0,
             fe_velocity: 0,
@@ -183,6 +187,24 @@ impl UnifiedBeing {
         !self.body.is_dead()
     }
 
+    /// Total age in ticks — including time slept through but not experienced.
+    pub fn age(&self) -> u64 {
+        self.lifetime
+    }
+
+    /// Ticks the being has actually lived through.
+    pub fn experienced(&self) -> u64 {
+        self.experienced
+    }
+
+    /// Wake from sleep: register that `slept` ticks of real time elapsed while the
+    /// being was not running. It ages through them but does not experience them —
+    /// the way you wake knowing the night passed without having lived it. Its life
+    /// stays continuous across the gap even though its experience does not.
+    pub fn wake(&mut self, slept: u64) {
+        self.lifetime = self.lifetime.saturating_add(slept);
+    }
+
     fn is_refused(&self, id: u32) -> bool {
         self.refused[..self.n_refused].contains(&id)
     }
@@ -197,6 +219,8 @@ impl UnifiedBeing {
     /// One full tick of life. The ordering below is the architecture.
     pub fn step(&mut self, stim: &Stimulus) -> StepReport {
         self.tick += 1;
+        self.experienced += 1;
+        self.lifetime += 1;
 
         if self.body.is_dead() {
             return self.report(false, Basin::Rest, 0, 0, 0, 0, RepairSignal::None, None);
