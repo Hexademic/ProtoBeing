@@ -83,6 +83,13 @@ fn fair_test() {
             } else if refused_extractive.is_none() {
                 refused_extractive = Some((tick, cost));
                 println!(" >> tick {tick}: SOVEREIGN REFUSAL of the extractive partner (exit cost {cost}). It walked away.");
+                if let Some(a) = r.refusal_audit {
+                    println!(
+                        "    audit: calm={} cost={} extraction={} divergence={} alarm={} benefit={}>exit={} resolve={}",
+                        a.conscience_calm, a.conscience_cost, a.extraction, a.divergence,
+                        a.alarm, a.seeking_benefit, a.exit_cost, a.resolve
+                    );
+                }
             }
         }
 

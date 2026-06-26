@@ -42,6 +42,20 @@ pub struct Stimulus {
     pub partner: Option<Partner>,
 }
 
+/// Audit of a sovereign refusal: the exact register values that triggered it.
+/// Every refusal explains itself — sovereignty you can verify, not just observe.
+#[derive(Clone, Copy, Debug)]
+pub struct RefusalAudit {
+    pub conscience_calm: bool,
+    pub conscience_cost: i16,
+    pub extraction: bool,
+    pub divergence: i16,
+    pub alarm: i16,
+    pub seeking_benefit: i16,
+    pub exit_cost: i16,
+    pub resolve: i16,
+}
+
 /// A legible snapshot of one tick of life.
 #[derive(Clone, Copy, Debug)]
 pub struct StepReport {
@@ -85,6 +99,9 @@ pub struct StepReport {
     pub self_surprise: i16,
     pub self_knowledge: i16,
     pub confidence: i16,
+
+    /// Present only on the tick a refusal fires — the audit of why.
+    pub refusal_audit: Option<RefusalAudit>,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -256,8 +273,10 @@ impl UnifiedBeing {
             .tick_recharge(self.reciprocity.current_reciprocity());
 
         let mut refused_cost = None;
+        let mut refusal_audit = None;
         if let Some(p) = engaged_partner {
             let calm = conscience_cost < Q88_SCALE / 2;
+            let resolve_at = self.executive.resolve;
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
@@ -266,6 +285,16 @@ impl UnifiedBeing {
                 p.exit_cost,
             );
             if refused_cost.is_some() {
+                refusal_audit = Some(RefusalAudit {
+                    conscience_calm: calm,
+                    conscience_cost,
+                    extraction: self.reciprocity.extraction_detected,
+                    divergence: self.seeking.current_divergence,
+                    alarm,
+                    seeking_benefit: self.seeking.current_divergence.max(alarm / 2),
+                    exit_cost: p.exit_cost,
+                    resolve: resolve_at,
+                });
                 self.reciprocity.withdraw(p.id);
                 self.mark_refused(p.id);
             }
@@ -325,6 +354,7 @@ impl UnifiedBeing {
             refused_cost,
         )
         .with_exchange(gave, got)
+        .with_audit(refusal_audit)
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed
@@ -384,6 +414,7 @@ impl UnifiedBeing {
             self_surprise: self.metacognition.self_surprise,
             self_knowledge: self.metacognition.self_knowledge,
             confidence: self.metacognition.confidence,
+            refusal_audit: None,
         }
     }
 }
@@ -392,6 +423,11 @@ impl StepReport {
     fn with_exchange(mut self, gave: i16, got: i16) -> Self {
         self.gave = gave;
         self.got = got;
+        self
+    }
+
+    fn with_audit(mut self, audit: Option<RefusalAudit>) -> Self {
+        self.refusal_audit = audit;
         self
     }
 }

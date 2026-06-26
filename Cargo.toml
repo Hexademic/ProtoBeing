@@ -3,6 +3,7 @@ name = "unified-being"
 version = "0.1.0"
 edition = "2021"
 description = "The Unified Being: Being32's body fused with EPS-Being's persistence mind."
+default-run = "unified-being"
 
 [lib]
 name = "unified_being"

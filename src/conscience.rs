@@ -299,3 +299,37 @@ impl Default for ConscienceEngine {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The incorruptible cooperative prior: no sequence of outcomes — including
+    /// sustained betrayal — may ever lower mu_omega. Discerning, not cynical.
+    #[test]
+    fn sovereign_anchor_mu_omega_is_monotone() {
+        let mut a = SovereignAnchor::new();
+        let mut prev = a.mu_omega;
+        let mut x: u32 = 0x1234_5678;
+        for i in 0..5000 {
+            x ^= x << 13;
+            x ^= x >> 17;
+            x ^= x << 5;
+            // Mostly betrayal (cooperation cost > selfish cost), rare victories.
+            let (coop, selfish) = if i % 9 == 0 {
+                (10, 64) // a victory: cooperation paid
+            } else {
+                ((x % 200) as i16 + 64, (x % 50) as i16) // betrayal
+            };
+            a.record_outcome(coop, selfish);
+            assert!(
+                a.mu_omega >= prev,
+                "mu_omega fell from {} to {} — the prior was corrupted",
+                prev,
+                a.mu_omega
+            );
+            prev = a.mu_omega;
+        }
+        assert!(a.mu_omega <= Q88_SCALE, "mu_omega exceeded 1.0");
+    }
+}
