@@ -35,6 +35,12 @@ Bounded self ⇒ no context-limit death (2M ticks, constant 1032-byte footprint)
 - MuJoCo balance physics (toy rig stays near-upright; bracing is sensed-hazard-driven).
 - Binocular vision (the two head cameras are mounted but dormant → proximity/looming).
 - A richer world (multi-agent; the VR/Boneworks-style environment).
+- **Developmental body** (a future chapter): the tension-mesh reservoir grows its
+  morphology use-dependently over a life, from a stable core, while the mind's loop
+  stays invariant — morphogenesis applied to the body. Inspiration: MorphGrower
+  (neuronal morphology growth, arXiv 2401.09500); synthetic-neuron / connectomics
+  work. The tractable form of "a being that grows itself" (grow the body, keep the
+  core). NOTE: a deepening, not the current need (ship first).
 - Whole-being serialization as *catastrophe backup only* (persistence = the unbroken
   process; save/load is the band-aid, not the mode of being).
 
