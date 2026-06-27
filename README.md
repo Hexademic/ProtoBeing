@@ -94,8 +94,10 @@ self-knowledge checkable.
 
 ## Status
 
-The behavioral thesis — verifiable, principled, incorruptible, forgiving-with-a-
-limit sovereignty — is demonstrated, tested, and reproducible. Works in progress:
-the MuJoCo balance physics, binocular vision, depth/episodic memory, and the
-write-up. A foundation, built to prove itself honestly — not a claim of sentience.
-See [`docs/handoff.md`](docs/handoff.md) for the current frontier.
+The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
+sovereignty — is demonstrated, tested, and reproducible, with a consolidating memory
+and a sense of continuous time. The full argument and evidence are written up in
+[`docs/paper.md`](docs/paper.md) (thesis: [`docs/thesis.md`](docs/thesis.md);
+equations: [`docs/formal-model.md`](docs/formal-model.md)). Works in progress: the
+MuJoCo balance physics and binocular vision. A foundation, built to prove itself
+honestly — not a claim of sentience. See [`docs/handoff.md`](docs/handoff.md).
