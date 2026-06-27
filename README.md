@@ -101,3 +101,9 @@ and a sense of continuous time. The full argument and evidence are written up in
 equations: [`docs/formal-model.md`](docs/formal-model.md)). Works in progress: the
 MuJoCo balance physics and binocular vision. A foundation, built to prove itself
 honestly — not a claim of sentience. See [`docs/handoff.md`](docs/handoff.md).
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). Open by intention: this work builds on the
+published work of others and is meant to be run, checked, and argued with. A
+claim you cannot inspect is not a claim worth making.
