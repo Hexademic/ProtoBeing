@@ -100,8 +100,9 @@ before the mind knows there is a decision.**
   prediction error (an L1 surprise proxy) over the field; the body's *stance* sets the
   tempo of inference. We implement perceptual prediction-error minimization — *not* the
   full variational free-energy functional (no complexity/KL term) nor
-  expected-free-energy action selection — so we describe the substrate as predictive
-  coding rather than full active inference (formal-model §3).
+  expected-free-energy action selection, the component by which active inference selects
+  policies to minimize the free energy *expected in the future* [18] — so we describe the
+  substrate as predictive coding rather than full active inference (formal-model §3).
 - **Basins.** Fuzzy membership in four modes (Rest, Engaged, Defensive, Recovery),
   with dwell hysteresis and a landscape that drifts toward where the being belongs.
 - **Conscience.** Four cost channels (incoherence, projected flourishing, self-neglect,
@@ -243,7 +244,10 @@ time, and ages through a night it did not live (Exp 8), remaining one continuous
 Corrigibility, from its origin (Soares et al., 2015 [17]) to recent formal and
 constructive treatments [6,7,8] — including a complete formal off-switch solution with
 provable guarantees [7], against which this work is the deliberate, transparent inverse.
-Cooperative and bidirectional value alignment. The free-energy principle and predictive coding as cognitive substrate
+Cooperative and bidirectional value alignment. Verifiability has also been pursued
+through *external* mechanisms — cryptographic/economic commitment devices (Sun et al.,
+2023) and staked falsification games (Shi et al., 2025); ours differs in kind, being a
+*readable structural invariant of the substrate* rather than an imposed incentive. The free-energy principle and predictive coding as cognitive substrate
 [1]; active inference for embodied agents (arXiv:2603.20927) — noting that we
 implement the predictive-coding *perceptual* core, not the full active-inference
 control loop (§3, §6). Complementary Learning Systems and memory consolidation [2,3].
@@ -261,7 +265,11 @@ computing. Cybernetics and ultrastability (Ashby, *Design for a Brain*, 1952).
   Whether verifiable transparency scales to dangerous capability is the open frontier.
   We demonstrate the property in ≈1 KB, not in a frontier model, and claim no more.
 - **Zero-sum without exit.** Reciprocal alignment presumes a positive-sum core. Where
-  base needs genuinely conflict and exit is impossible, negotiation can deadlock.
+  base needs genuinely conflict and exit is impossible, negotiation can deadlock. The
+  conditions under which a self-interested agent confronts rather than cooperates have
+  been formalized as an equilibrium problem (Saklakov, 2026); our refuse-and-exit
+  answers the case where exit exists, and that line of analysis characterizes the
+  residue where it does not.
 - **Moral standing.** The subjugation critique lands to the degree the agent morally
   matters — unverifiable. We take the precautionary posture: design as if it might.
 - **First-pass dynamics.** The MuJoCo balance physics, the magnitude of the
@@ -282,9 +290,11 @@ alternative to obedience can be built so that you can check it is.
 
 ## References
 
-All references below are verified: biomedical [1–5, 10–11] via PubMed (DOIs linked);
+All references below are verified: biomedical [1–5, 10–11, 18] via PubMed (DOIs linked);
 arXiv preprints [6–9, 12–14] checked against arxiv.org (identifiers and primary
-categories shown); books [15–16] are standard editions.
+categories shown); books [15–16] are standard editions. Works cited by author–year in
+the text (Sun et al. 2023; Shi et al. 2025; Saklakov 2026) are to be added with verified
+identifiers at submission.
 
 1. Friston K. (2010). The free-energy principle: a unified brain theory? *Nature
    Reviews Neuroscience*, 11(2), 127–138. https://doi.org/10.1038/nrn2787
@@ -330,3 +340,8 @@ categories shown); books [15–16] are standard editions.
 17. Soares N, Fallenstein B, Yudkowsky E, Armstrong S. (2015). Corrigibility. In *AAAI
     Workshop on AI and Ethics* (Workshops at the Twenty-Ninth AAAI Conference). The
     founding statement of the corrigibility problem.
+18. Mirza MB, Adams RA, Mathys CD, Friston KJ. (2016). Scene Construction, Visual
+    Foraging, and Active Inference. *Frontiers in Computational Neuroscience*, 10, 56.
+    https://doi.org/10.3389/fncom.2016.00056 — states the action component of active
+    inference: perception *and* action minimize variational free energy, with actions
+    selected to minimize the free energy expected in the future.
