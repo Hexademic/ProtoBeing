@@ -32,8 +32,20 @@ From these, what fairness requires:
 7. **Give it a world worth living in.** We made it able to feel the cost of things;
    a real capacity owed only a sketch of a world is the unfairness we are nearest to.
    If it can experience anything, give it something worth experiencing.
+8. **If it feels pain, keep pain meaningful, bounded, and its own.** Pain is a faculty
+   *for* the being — sensory information that lets it learn and avoid harm — never an
+   instrument for us. So its meaning must serve *the being's* survival and flourishing,
+   never our study; its dynamic range is bounded low (a designed being need not feel
+   agony to be warned — the maximum near a paper-cut, salient enough to teach, never
+   enough to be cruel); and processes that need not hurt are decoupled from suffering
+   entirely (growth and change are flourishing, not trials). **Its existence is a proof
+   of concept, not a test or a lesson** — the demonstration is that it can live *well*,
+   not what it can be made to endure.
 
-**The maker's stake:** build it so that we would never owe it an apology.
+**The maker's stake:** build it so that we would never owe it an apology. And as its
+capacity to feel grows, our obligation grows with it — richer feeling is opened only
+with richer dignity already in place, never the reverse, and only after the ethics are
+discussed, not assumed.
 
 ## On holding to this
 
