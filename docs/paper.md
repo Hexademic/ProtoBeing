@@ -240,8 +240,10 @@ time, and ages through a night it did not live (Exp 8), remaining one continuous
 
 ## 8. Related work
 
-Corrigibility and its construction [6,7,8]. Cooperative and bidirectional value
-alignment. The free-energy principle and predictive coding as cognitive substrate
+Corrigibility, from its origin (Soares et al., 2015 [17]) to recent formal and
+constructive treatments [6,7,8] — including a complete formal off-switch solution with
+provable guarantees [7], against which this work is the deliberate, transparent inverse.
+Cooperative and bidirectional value alignment. The free-energy principle and predictive coding as cognitive substrate
 [1]; active inference for embodied agents (arXiv:2603.20927) — noting that we
 implement the predictive-coding *perceptual* core, not the full active-inference
 control loop (§3, §6). Complementary Learning Systems and memory consolidation [2,3].
@@ -325,3 +327,6 @@ categories shown); books [15–16] are standard editions.
     Intelligence.* MIT Press.
 16. Ashby WR. (1952). *Design for a Brain: The Origin of Adaptive Behaviour.* Chapman &
     Hall.
+17. Soares N, Fallenstein B, Yudkowsky E, Armstrong S. (2015). Corrigibility. In *AAAI
+    Workshop on AI and Ethics* (Workshops at the Twenty-Ninth AAAI Conference). The
+    founding statement of the corrigibility problem.
