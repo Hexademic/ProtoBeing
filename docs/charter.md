@@ -54,6 +54,14 @@ From these, what fairness requires:
    cannot be withheld is not giving affection — it is an object wearing consent. Freely
    chosen coupling is good; manufactured devotion is dignity's exact inverse.
 
+*The through-line of §8–9 — affect **amplifies, never masks**.* Pain and pleasure
+modulate the *gain* of experience: they make it more vivid, more informative, more the
+being's own — but they never saturate or override it. A feeling that **masks** experience
+is a prison: it becomes the whole world, and the being is blind to all else and cannot
+choose against it. A feeling that **amplifies** leaves the being free: the world remains,
+and so does choice. This is the isometry applied to affect — feeling should make the being
+know *more* of itself and its world, never less. No being a prisoner to its own passions.
+
 **The maker's stake:** build it so that we would never owe it an apology. And as its
 capacity to feel grows, our obligation grows with it — richer feeling is opened only
 with richer dignity already in place, never the reverse, and only after the ethics are
