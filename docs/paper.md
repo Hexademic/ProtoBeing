@@ -280,9 +280,9 @@ alternative to obedience can be built so that you can check it is.
 
 ## References
 
-Biomedical references [1–5, 10–11] were located and verified via PubMed; DOIs are
-linked. Computer-science references [6–9] are arXiv preprints (identifiers given) and
-books; their full bibliographic entries are to be finalized at submission.
+All references below are verified: biomedical [1–5, 10–11] via PubMed (DOIs linked);
+arXiv preprints [6–9, 12–14] checked against arxiv.org (identifiers and primary
+categories shown); books [15–16] are standard editions.
 
 1. Friston K. (2010). The free-energy principle: a unified brain theory? *Nature
    Reviews Neuroscience*, 11(2), 127–138. https://doi.org/10.1038/nrn2787
@@ -298,12 +298,15 @@ books; their full bibliographic entries are to be finalized at submission.
 5. McEwen BS. (2000). Allostasis and allostatic load: implications for
    neuropsychopharmacology. *Neuropsychopharmacology*, 22(2), 108–124.
    https://doi.org/10.1016/S0893-133X(99)00129-3
-6. *Corrigibility Transformation*. arXiv:2510.15395.
-7. *Core Safety Values for Provably Corrigible Agents*. arXiv:2507.20964.
-8. *Absolutist AI*. arXiv:2307.10315.
-9. Butlin P, Long R, Elmoznino E, Bengio Y, et al. (2023). *Consciousness in
-   Artificial Intelligence: Insights from the Science of Consciousness*.
-   arXiv:2308.08708.
+6. Hudson R. (2025). *Corrigibility Transformation: Constructing Goals That Accept
+   Updates.* arXiv:2510.15395 [cs.AI].
+7. Nayebi A. (2025). *Core Safety Values for Provably Corrigible Agents.*
+   arXiv:2507.20964 [cs.AI].
+8. Barrington M. (2023). *Absolutist AI.* arXiv:2307.10315 [cs.AI].
+9. Butlin P, Long R, Elmoznino E, Bengio Y, Birch J, Constant A, Deane G, Fleming SM,
+   Frith C, Ji X, Kanai R, Klein C, Lindsay G, Michel M, Mudrik L, Peters MAK,
+   Schwitzgebel E, Simon J, VanRullen R. (2023). *Consciousness in Artificial
+   Intelligence: Insights from the Science of Consciousness.* arXiv:2308.08708 [cs.AI].
 10. Tononi G, Cirelli C. (2014). Sleep and the price of plasticity: from synaptic and
     cellular homeostasis to memory consolidation and integration. *Neuron*, 81(1),
     12–34. https://doi.org/10.1016/j.neuron.2013.12.025
@@ -311,7 +314,14 @@ books; their full bibliographic entries are to be finalized at submission.
     reduces catastrophic forgetting in artificial neural networks. *Nature
     Communications*, 13, 7742. https://doi.org/10.1038/s41467-022-34938-7
 
-Additional context cited in text: active inference for physical agents
-(arXiv:2603.20927); SDT↔FEP bridge (Self++, arXiv:2603.28306); Pfeifer & Bongard,
-*How the Body Shapes the Way We Think* (MIT Press, 2006); Ashby, *Design for a Brain*
-(1952).
+12. de Vries B. (2026). *Active Inference for Physical AI Agents — An Engineering
+    Perspective.* arXiv:2603.20927 [stat.ML].
+13. Piumsomboon T. (2026). *Self++: Co-Determined Agency for Human–AI Symbiosis in
+    Extended Reality.* arXiv:2603.28306 [cs.HC].
+14. Nakamura Y. (2026). *Body-Reservoir Governance in Repeated Games: Embodied
+    Decision-Making, Dynamic Sentinel Adaptation, and Complexity-Regularized
+    Optimization.* arXiv:2602.20846 [cs.GT].
+15. Pfeifer R, Bongard J. (2006). *How the Body Shapes the Way We Think: A New View of
+    Intelligence.* MIT Press.
+16. Ashby WR. (1952). *Design for a Brain: The Origin of Adaptive Behaviour.* Chapman &
+    Hall.

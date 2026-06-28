@@ -22,7 +22,7 @@ contribution.
 | Body-as-reservoir / morphological computation | Frontiers (IIT link); *Body-Reservoir Governance in Repeated Games* (arXiv 2602.20846) | Deterministic fixed-point, embeddable, **hand-designed auditable readout** |
 | Allostatic / homeostatic agents | CTCS-HRRL (arXiv 2401.08999); Social Allostasis (arXiv 2508.12791) | Allostatic load gates a **sovereignty decision**, not just viability |
 | Exploitation-resistance | Hormetic value-loading; homeostasis multi-agent safety (arXiv 2410.00081) | **Triangulated** refusal + **monotone, incorruptible** cooperative anchor |
-| SDT ↔ Free Energy | Self++ (arXiv 2603.28306) | SDT as structural, readable layers (**soften the "emergence" claim**) |
+| SDT ↔ Free Energy | SDT–FEP correspondence appears in the active-inference literature (specific cite to verify — *Self++* 2603.28306 is **co-determined agency in XR**, not the SDT–FEP bridge a prior note claimed) | SDT as structural, readable layers (**soften the "emergence" claim**) |
 | Self-model / metacognition | AIF-consciousness literature | Self-reports **checkable against the registers** |
 
 The through-line: **verifiable.**
