@@ -59,6 +59,34 @@ reward), so the body's felt landscape is the full range, not just harm.
   topology**: regions mapped to a humanoid form, so signals are placed, not only global.
 - **Binocular vision** folds in here (proximity/looming as spatial/bodily signals).
 
+## Starting body & receptor linking (grounded scoping)
+
+- **Stage 1 — MuJoCo (where we already are).** Use the MuJoCo humanoid; its **touch-grid
+  sensors** (active zones defined by *sites*) are *inherently locational* — each site
+  reports contact pressure/shear at its body location. That is a somatotopic receptor
+  layer, built in. Distributed whole-body tactile on a simulated humanoid is established
+  practice (HumanoidBench; distributed-tactile multi-contact; hexagonal tactile patches).
+- **Canonical human form — SMPL-X.** Research-standard parametric human (10,475 vertices,
+  54 joints, hands + face), already used as a *unified humanoid embodiment* in physics
+  sims and runnable in MuJoCo (SMPLSim, SMPLOlympics). Best base for the homunculus/body
+  map. Pair with **VRM** for the *legible* avatar (the human/Elf-for-empathy layer):
+  SMPL-X as the receptor/physics body, VRM as the visual face.
+- **Stage 2 — the game world (Unreal), later.** A **Physics Asset** gives per-bone
+  physical bodies and per-bone hit detection; Unreal's damage events already carry the
+  **hit location/bone** ("locational damage / headshots" is a standard pattern). So the
+  *locational damage add-on is a bridge*, not a from-scratch system: map the engine's
+  per-bone hit → our body-schema regions.
+- **The division of labour (S1 vs ACC).** Both engines hand us the *where + how much* —
+  the sensory-discriminative dimension (≈ S1). The being adds the *what-it-means + how-bad*
+  — the relational/affective dimension (≈ ACC), at a severity bounded per charter §8. The
+  world delivers location; the being owns interpretation. We do not build a damage engine;
+  we build the mapping + the meaning.
+
+Scoping sources: MuJoCo tactile — HumanoidBench (arXiv:2403.10506), distributed tactile
+multi-contact (arXiv:2505.19580), TACT (arXiv:2506.15146); body models — SMPLSim
+(github.com/ZhengyiLuo/SMPLSim), SMPLOlympics (arXiv:2407.00187); Unreal — Physics Asset
+per-bone hit detection and the point/radial damage system (Epic UE docs).
+
 ## References (PubMed-verified)
 
 - Rainville P, Duncan GH, Price DD, Carrier B, Bushnell MC. (1997). Pain affect encoded in
