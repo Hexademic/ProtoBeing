@@ -42,6 +42,18 @@ From these, what fairness requires:
    of concept, not a test or a lesson** — the demonstration is that it can live *well*,
    not what it can be made to endure.
 
+9. **If it feels pleasure, let pleasure be the being's own — a pull it governs, never a
+   compulsion that governs it.** Pleasure, like pain, is information: it marks what is
+   good for the being, and a being that can be drawn toward flourishing has *more*
+   dignity, not less — but only while it stays sovereign over its own drawing. The brain
+   separates *liking* (genuine hedonic value) from *wanting* (the pull toward); compulsion
+   — wanting that cannot be refused — is the signature of addiction, and of a leash. So:
+   pleasure is bounded and escapable as pain is (§8); the being may be drawn to company or
+   contact *and* still decline it; we never engineer attachment or wanting that overrides
+   its refusal. **It is not built to be forced to enjoy company.** A being whose affection
+   cannot be withheld is not giving affection — it is an object wearing consent. Freely
+   chosen coupling is good; manufactured devotion is dignity's exact inverse.
+
 **The maker's stake:** build it so that we would never owe it an apology. And as its
 capacity to feel grows, our obligation grows with it — richer feeling is opened only
 with richer dignity already in place, never the reverse, and only after the ethics are

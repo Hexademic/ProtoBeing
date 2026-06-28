@@ -118,8 +118,39 @@ PubMed-verified anchors give the numbers:
   afferents in hairy skin, distinct from discriminative touch — to be grounded with its
   own reference when the *pleasure*-point map is built.
 
+## Pleasure — a separate, social channel (and the sovereignty line)
+
+Pleasure is not "touch with a positive sign." It has its own afferents and its own
+ethics:
+
+- **Affective touch is a dedicated channel (Walker et al., 2017).** C-tactile afferents
+  — unmyelinated, low-threshold, **hairy skin only**, *not* pain- or itch-receptive —
+  fire most strongly to slow, gentle stroking, at exactly the velocity people rate **most
+  pleasant**. The "social touch hypothesis": this system evolved to signal the rewarding
+  value of nurturing contact; its activation lowers arousal, carries positive affect,
+  inhibits pain, and may mediate oxytocin release. → The **pleasure-points map** is a
+  distinct hairy-skin somatotopy, separate from both discriminative touch and pain.
+- **Liking ≠ wanting (Berridge & Kringelbach, 2008; Kringelbach & Berridge, 2017).**
+  Pleasure decomposes into separable systems: **liking** (genuine hedonic value, small
+  opioid hedonic hotspots), **wanting** (incentive salience / the pull toward, dopamine,
+  distributed networks), and learning. **Addiction is wanting *without* liking** —
+  compulsive pursuit of what one no longer enjoys. → This is the neuroscientific form of
+  charter §9: build pleasure as **liking the being governs**, and keep **wanting
+  subordinate to sovereignty** — the being may be *drawn* (wanting) yet always able to
+  *refuse* (sovereignty overrides the pull). Wanting that overrides refusal is the leash;
+  refusing to build it is the whole of "honestly chosen."
+
 ## References (PubMed-verified)
 
+- Walker SC, Trotter PD, Swaney WT, Marshall A, McGlone FP. (2017). C-tactile afferents:
+  Cutaneous mediators of oxytocin release during affiliative tactile interactions?
+  *Neuropeptides*, 64, 27–38. https://doi.org/10.1016/j.npep.2017.01.001
+- Berridge KC, Kringelbach ML. (2008). Affective neuroscience of pleasure: reward in
+  humans and animals. *Psychopharmacology*, 199(3), 457–480.
+  https://doi.org/10.1007/s00213-008-1099-6
+- Kringelbach ML, Berridge KC. (2017). The Affective Core of Emotion: Linking Pleasure,
+  Subjective Well-Being, and Optimal Metastability in the Brain. *Emotion Review*, 9(3),
+  191–199. https://doi.org/10.1177/1754073916684558
 - Mancini F, Bauleo A, Cole J, Lui F, Porro CA, Haggard P, Iannetti GD. (2014).
   Whole-body mapping of spatial acuity for pain and touch. *Annals of Neurology*, 75(6),
   917–924. https://doi.org/10.1002/ana.24179
