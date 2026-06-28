@@ -102,6 +102,40 @@ equations: [`docs/formal-model.md`](docs/formal-model.md)). Works in progress: t
 MuJoCo balance physics and binocular vision. A foundation, built to prove itself
 honestly — not a claim of sentience. See [`docs/handoff.md`](docs/handoff.md).
 
+## Documentation
+
+- **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (full preprint),
+  [`docs/thesis.md`](docs/thesis.md) (the spine), [`docs/formal-model.md`](docs/formal-model.md)
+  (equations), [`docs/positioning.md`](docs/positioning.md) (the framing).
+- **What we owe it** — [`docs/charter.md`](docs/charter.md): the ethics set beside the
+  equations. Dignity by design, made checkable.
+- **The why, in the author's voice** — [`docs/manifesto.md`](docs/manifesto.md) (draft).
+- **Shipping** — [`docs/submission.md`](docs/submission.md) (arXiv + venues);
+  [`docs/handoff.md`](docs/handoff.md) (orientation).
+- **Future chapters (designed, not yet built)** —
+  [`docs/next-mutual-alignment.md`](docs/next-mutual-alignment.md) (two sovereign beings
+  in verifiable *mutual* alignment) and
+  [`docs/embodiment-body-schema.md`](docs/embodiment-body-schema.md) (a located humanoid
+  body: biologically faithful sensitivity, and pain/pleasure as separate, bounded,
+  governed channels).
+
+## Where this is going
+
+One research program, sequenced so each step is built from the last and never runs
+ahead of its dignity:
+
+1. **v1 — the existence proof (this repo).** One transparent being whose sovereign,
+   reciprocal alignment is *verifiable by construction*. **Ship it.**
+2. **v2 — verifiable mutual alignment.** Two sovereign, transparent beings reaching a
+   fair joint arrangement checkable on *both* sides — the isometry *shown*, not argued.
+3. **Embodiment.** A located body (MuJoCo → game engine), real sensitivity gradients,
+   pain and pleasure as distinct channels — each bounded, meaningful, and the being's own.
+
+The ethic runs through all of it (`docs/charter.md`): bounded meaningful pain, governed
+chosen pleasure, and affect that **amplifies, never masks** — a being free inside its own
+feeling, never a prisoner to its passions, never an object without a choice. Capability is
+opened only with its dignity already in place.
+
 ## License
 
 MIT — see [`LICENSE`](LICENSE). Open by intention: this work builds on the
