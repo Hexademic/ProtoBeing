@@ -1,6 +1,6 @@
 # The Unified Being
 
-A small, deterministic active-inference agent in fixed-point Rust: Being32's
+A small, deterministic predictive-processing agent in fixed-point Rust: Being32's
 Van der Pol **body** fused with EPS-Being's persistence **mind**. The body votes
 before the mind knows there's an election.
 
@@ -88,9 +88,9 @@ q88 · genome · body · field · basins · conscience · reciprocity · seeking
 ```
 
 It is **not** a neural network: coupled fixed-point dynamics (cybernetics, in the
-Ashby-homeostat lineage) with an active-inference core and a body-as-reservoir
-(morphological computation). That transparency is the point — it is what makes the
-self-knowledge checkable.
+Ashby-homeostat lineage) with a predictive-coding core and a simulated
+reservoir-like body (morphological computation; hand-designed readout, not trained).
+That transparency is the point — it is what makes the self-knowledge checkable.
 
 ## Status
 

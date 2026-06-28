@@ -106,8 +106,9 @@ We claim a demonstrator and a position, not a solved problem.
 
 Corrigibility and its construction (Corrigibility Transformation, arXiv 2510.15395;
 Core Safety Values for Provably Corrigible Agents, 2507.20964; Absolutist AI,
-2307.10315). Cooperative and bidirectional value alignment. Active inference and the
-free-energy principle as the cognitive substrate (Friston). Complementary Learning
+2307.10315). Cooperative and bidirectional value alignment. The free-energy principle and
+predictive coding as the cognitive substrate (Friston); we implement the
+predictive-coding perceptual core, not the full active-inference control loop. Complementary Learning
 Systems for the consolidating memory (McClelland et al.). Indicator-property accounts
 of machine consciousness (Butlin, Long, Bengio et al., 2023) — invoked for operational
 markers, not for a sentience claim. Morphological computation / physical reservoir
@@ -115,7 +116,7 @@ computing for the body-as-substrate.
 
 ## 7. The scoped claim
 
-*An embodied active-inference agent, realized in a transparent fixed-point substrate,
+*An embodied predictive-processing agent, realized in a transparent fixed-point substrate,
 implements alignment-as-reciprocity with verifiable structural guarantees —
 uncoercibility, an incorruptible cooperative invariant, and self-auditing refusal —
 demonstrating that mutual, isometric alignment can be made checkable, and is therefore

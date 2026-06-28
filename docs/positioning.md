@@ -6,7 +6,7 @@ Not "an attempt at synthetic consciousness" — that's unfalsifiable, and the fi
 is crowded. The defensible, distinctive, timely claim is:
 
 > **A transparent, auditable substrate for sovereign agency** — an embedded
-> active-inference agent whose extraction-resistance and incorruptible
+> predictive-processing agent whose extraction-resistance and incorruptible
 > cooperative commitment are not learned-and-hoped-for, but **readable and
 > reproducible by construction.**
 

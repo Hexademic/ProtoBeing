@@ -51,18 +51,28 @@ where `warmth` is the relational appraisal (§10) and `ν` is nutrient. **Note t
 sign:** sustained threat `T` (which carries the partnership alarm, §10) drives
 `v*` negative — a draining bond sours a well-fed body.
 
-## 3. Active inference (`basins.rs::GenerativeModel`)
+## 3. Predictive processing — predictive coding (`basins.rs::GenerativeModel`)
 
 A generative model holds priors `p ∈ ℝ^12`. Each tick it computes
 precision-weighted prediction error and updates beliefs:
 
     εᵢ = sᵢ − pᵢ
-    F  = (1/12) Σ Πᵢ|εᵢ|              (variational free energy)
+    F  = (1/12) Σ Πᵢ|εᵢ|              (precision-weighted L1 prediction error)
     pᵢ ← pᵢ + η_eff·εᵢ
 
 with learning rate `η_eff = η · stance.η_mult` and precision `Π = stance.π`. The
 stance (Reconstructive…Defensive) is set by the body, so the body governs the
 tempo of cognition. `F` is the surprise the loop carries forward.
+
+> **Honest scope of the term.** `F` is a *precision-weighted L1 prediction-error
+> magnitude* — a surprise proxy, **not** the variational free energy of active
+> inference: there is no complexity/KL term, the error is absolute (not the
+> Gaussian quadratic form), and the priors are a flat per-channel filter, not a
+> hierarchical generative model. Action (§8) is selected by an explicit gate, not by
+> minimizing *expected* free energy over policies. We therefore describe the
+> substrate as **predictive coding / predictive processing**, not full active
+> inference. The label is the only thing that changes; the mechanism is exactly as
+> written.
 
 ## 4. Basins (`basins.rs`)
 
@@ -190,8 +200,9 @@ Honest self-assessment against the computational indicators of consciousness
 
 | Indicator (theory) | Status | Realization |
 |---|---|---|
-| Predictive processing / active inference | **Met** | §3 free-energy minimization |
-| Embodiment & agency | **Met** | §2 body; §8 stance-gated action and refusal |
+| Predictive processing | **Met** | §3 prediction-error minimization (predictive coding) |
+| Full active inference (variational FE + EFE action) | **Not implemented** | §3 no complexity term; §8 action is a gate, not policy inference |
+| Embodiment & agency | **Partial** | §2 body / §8 seam met; rich-body dynamics first-pass (§15) |
 | Interoception & valence | **Met** | §1 somatic field; §2 felt cost of extraction |
 | Higher-order metacognition (HOT) | **Partial** | §12 self-model; signal real but modest |
 | Global workspace (GWT) | **Partial** | shared field `s`, but no broadcast bottleneck |
@@ -211,5 +222,5 @@ exploitation on principle.
 - The body's dynamics are a faithful but first-pass reconstruction.
 
 These are stated in the running output, not hidden. The claim this model
-supports is precise: *an embodied active-inference agent that satisfies several
+supports is precise: *an embodied predictive-processing agent that satisfies several
 published indicators and adds a novel one* — checkable, falsifiable, and honest.

@@ -1,5 +1,7 @@
 //! Basins — the four modes of being, the fuzzy field that classifies which one
-//! the body is in, and the generative model that does active inference.
+//! the body is in, and the generative model that does predictive-error
+//! minimization (predictive coding — not full active inference; see
+//! docs/formal-model.md §3).
 //!
 //! A being is always some blend of Rest, Engaged, Defensive, and Recovery. The
 //! field reads the somatic channels, scores membership in each basin, lets the
@@ -139,9 +141,11 @@ impl FuzzyBasinField {
     }
 }
 
-/// The generative model: precision-weighted prediction-error minimization.
-/// Returns variational free energy each tick; it falls as the model's priors
-/// come to track the body's somatic truth.
+/// The generative model: precision-weighted prediction-error minimization
+/// (predictive coding). Returns a precision-weighted L1 prediction-error
+/// magnitude each tick — a surprise proxy, not the variational free energy of
+/// active inference (no complexity/KL term). It falls as the model's priors come
+/// to track the body's somatic truth.
 #[derive(Clone)]
 pub struct GenerativeModel {
     prior: [i16; N_SOMATIC],

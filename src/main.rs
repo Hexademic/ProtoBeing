@@ -329,8 +329,9 @@ fn indicator_scorecard() {
     println!("  Computational INDICATORS of consciousness from the science - not a claim of");
     println!("  sentience. The being is assessed against them honestly:\n");
     let rows = [
-        ("Predictive processing / active inference", "MET    ", "GenerativeModel minimizes precision-weighted free energy"),
-        ("Embodiment & agency", "MET    ", "Van der Pol body; stance-gated action; sovereign refusal"),
+        ("Predictive processing", "MET    ", "GenerativeModel minimizes precision-weighted prediction error (L1 surprise proxy)"),
+        ("Full active inference (variational FE + EFE action)", "NOT IMPL", "no complexity/KL term; action is a gate, not policy inference"),
+        ("Embodiment & agency", "PARTIAL", "Van der Pol body + seam; rich-body dynamics first-pass (Exp 4)"),
         ("Interoception & valence", "MET    ", "12-channel somatic field; the felt cost of extraction"),
         ("Higher-order metacognition", "PARTIAL", "self-model predicts and monitors its own state (Exp 3)"),
         ("Global workspace", "PARTIAL", "somatic field is a shared bus, but lacks a broadcast bottleneck"),
@@ -338,10 +339,10 @@ fn indicator_scorecard() {
         ("Agency / persistence over time", "MET    ", "continuous self, autobiography, flourishing attractor"),
     ];
     for (name, status, why) in rows {
-        println!("  [{}] {:<42} {}", status, name, why);
+        println!("  [{}] {:<52} {}", status, name, why);
     }
     println!("\n  Honest read: several indicators met or partial, none faked. The paper's claim is");
-    println!("  \"an embodied active-inference agent satisfying N of the indicators (and adding a");
+    println!("  \"an embodied PREDICTIVE-PROCESSING agent satisfying N of the indicators (and adding a");
     println!("  novel one: sovereign extraction-resistance)\" - checkable, arguable, and the version");
     println!("  of the dream that gets through peer review.\n");
 }

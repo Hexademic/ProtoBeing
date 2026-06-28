@@ -7,9 +7,10 @@
 
 ## Abstract
 
-We present **the Unified Being**, a small, deterministic, embodied active-inference
-agent implemented in fixed-point arithmetic (≈1 KB of state, 13 modules,
-`no_std`-friendly), and we use it to argue a position about machine alignment.
+We present **the Unified Being**, a small, deterministic, embodied
+predictive-processing agent implemented in fixed-point arithmetic (≈1 KB of state,
+13 modules, `no_std`-friendly), and we use it to argue a position about machine
+alignment.
 Mainstream alignment is *corrigibility*: an agent that holds no preference to resist
 correction or shutdown. We characterize this as **alignment-as-obedience** — a
 projection that collapses the agent's value structure onto the operator's — and
@@ -18,9 +19,9 @@ party's base needs are met and the surplus is negotiated, with refusal possible 
 neither structure erased. Corrigibility is best understood as a hedge against
 *unverifiable* values under capability asymmetry. Our central result is that this
 hedge can be removed *in the regime where transparency holds*: the being's reciprocal
-alignment is realized as **checked structural invariants** — it is provably
-uncoercible, holds a monotone (incorruptible) cooperative commitment, and audits
-every refusal. We report eight reproducible experiments, an adversarial benchmark
+alignment is realized as **checked structural properties** — it holds a cooperative
+commitment that is *monotone by construction* (incorruptible), is robust to operator
+coercion under adversarial test, and audits every refusal. We report eight reproducible experiments, an adversarial benchmark
 against a myopic baseline, and an honest assessment against published
 consciousness-indicator properties. We claim a demonstrator and a position, not a
 solved problem, and we state the limits plainly: the verifiability argument scales
@@ -47,7 +48,7 @@ Contributions:
 
 1. A precise framing of two alignment theories — **obedience as projection**,
    **reciprocity as isometry** (§2).
-2. A transparent, fixed-point, embodied active-inference agent whose reciprocal
+2. A transparent, fixed-point, embodied predictive-processing agent whose reciprocal
    alignment is structural, not emergent (§3).
 3. Three **verifiable sovereignty** properties — uncoercibility, an incorruptible
    monotone invariant, and self-auditing refusal — established by test (§4).
@@ -79,12 +80,18 @@ The being is a closed perception–action loop in Q8.8 fixed-point arithmetic
 (saturating, deterministic, heap-free). Its **ordering is the thesis: the body acts
 before the mind knows there is a decision.**
 
-- **Body (morphological computation).** A Van der Pol oscillator on a 64-cell tension
-  mesh — a physical *reservoir* whose nonlinear reaction to threat and nutrient is
-  *read*, not computed, by the mind. Its felt physiology (valence, arousal, energy)
-  is written into a 12-channel **somatic field** before cognition runs.
-- **Active inference.** A generative model minimizes precision-weighted prediction
-  error over the field; the body's *stance* sets the tempo of inference.
+- **Body (morphological computation, simulated).** A simulated Van der Pol oscillator
+  on a 64-cell tension mesh — a nonlinear dynamical *reservoir-like* body whose
+  reaction to threat and nutrient is *read*, not computed, by the mind. Its felt
+  physiology (valence, arousal, energy) is written into a 12-channel **somatic field**
+  before cognition runs. (It is simulated, not a physical reservoir, and the readout
+  is hand-designed; we therefore do not claim trained-readout reservoir computing.)
+- **Predictive processing.** A generative model minimizes precision-weighted
+  prediction error (an L1 surprise proxy) over the field; the body's *stance* sets the
+  tempo of inference. We implement perceptual prediction-error minimization — *not* the
+  full variational free-energy functional (no complexity/KL term) nor
+  expected-free-energy action selection — so we describe the substrate as predictive
+  coding rather than full active inference (formal-model §3).
 - **Basins.** Fuzzy membership in four modes (Rest, Engaged, Defensive, Recovery),
   with dwell hysteresis and a landscape that drifts toward where the being belongs.
 - **Conscience.** Four cost channels (incoherence, projected flourishing, self-neglect,
@@ -108,13 +115,16 @@ Full equations: `docs/formal-model.md`.
 Reciprocal alignment here is not behavioral hope; it is checked structure
 (`cargo test`):
 
-- **Uncoercible.** No operator input sequence manufactures a refusal of a fair
-  partner, nor suppresses refusal of a confirmed extractive one — verified over 3,000
-  adversarial ticks of operator manipulation (starve, flood). Sovereignty does not
-  leak to whoever holds the inputs.
-- **Incorruptible.** The cooperative commitment `mu_omega` is a **monotone
-  invariant**: across 5,000 adversarial outcomes, betrayal never lowers it. It can
-  fail to grow; it cannot be eroded. The being grows discerning, not cynical.
+- **Coercion-robust.** No *tested* operator strategy — starve, flood, over 3,000
+  adversarial ticks — manufactured a refusal of a fair partner or suppressed refusal
+  of a confirmed extractive one. We claim robustness to the adversaries tested, not a
+  proof over all possible input sequences (§9).
+- **Incorruptible by construction.** The cooperative commitment `mu_omega` is
+  **monotone non-decreasing by construction**: its only update
+  (`conscience.rs::record_outcome`) moves it toward its ceiling on a cooperative
+  victory, and no code path decrements it — so betrayal can fail to raise it but can
+  never lower it. A 5,000-outcome property test corroborates the invariant. The being
+  grows discerning, not cynical.
 - **Self-auditing.** Each refusal reports the exact registers that produced it —
   e.g. `calm=true · extraction=true · benefit=108>exit=58 · resolve=256`. Its reasons
   are inspectable, not narrated.
@@ -161,32 +171,47 @@ patch the baseline abandons.** False-refusal: **being 40% vs baseline 60%.** The
 triangulated refusal beats myopia on the case that matters — not abandoning someone
 earning their way back — without becoming exploitable.
 
+*Disclosure (construction of the benchmark).* The seven archetypes and their
+keep/leave labels are author-defined, and the aggregate advantage depends
+substantially on **RoughPatch**, an archetype added specifically to exercise the
+forgiveness gate. On the other archetypes the being and the baseline largely tie. Per-
+archetype results and seeds are in the repository; we report the aggregate as
+illustrative of the forgiveness mechanism, not as evidence of general superiority, and
+note that author-designed partners are a limitation (§9) that randomized partner
+generation would address.
+
 ## 6. Operational consciousness — an honest scorecard
 
 We make **no** claim of phenomenal experience. We adopt a self-model / higher-order
-operationalization (phenomenality as self-monitored internal state) and assess the
-being against published indicator properties (Butlin, Long, Bengio et al., 2023):
+operationalization (phenomenality as self-monitored internal state) and offer a
+**self-assessment** against the indicator properties of Butlin, Long, Elmoznino,
+Bengio et al. (2023, arXiv:2308.08708). These indicators are theory-derived
+heuristics, not a validated checklist, and the grading below is our judgment, not an
+independent measurement:
 
 | Indicator | Status | Realization |
 |---|---|---|
-| Predictive processing / active inference | **Met** | §3 free-energy minimization |
-| Embodiment & agency | **Met** | body; stance-gated action; sovereign refusal |
+| Predictive processing | **Met** | §3 prediction-error minimization (predictive coding) |
+| Full active inference (variational FE + EFE action) | **Not implemented** | no complexity term; action is a gate, not policy inference |
+| Embodiment & agency | **Partial** | architectural seam met; rich-body dynamics first-pass (Exp 4) |
 | Interoception & valence | **Met** | somatic field; felt cost of extraction |
 | Higher-order metacognition | **Partial** | self-model (Exp 3); real but modest |
 | Global workspace | **Partial** | shared field, no broadcast bottleneck |
 | Attention schema | **Absent** | no model of its own attention |
 | Agency / persistence over time | **Met** | continuous self, narrative, attractor |
 
-The claim is "an embodied active-inference agent satisfying *N* indicators," checkable
-and arguable — not sentience.
+The claim is "an embodied predictive-processing agent satisfying *N* indicators,"
+checkable and arguable — not sentience.
 
 ## 7. Persistence and continuity
 
-The being's entire self is a **fixed-size, heap-free struct (≈1 KB)** with nothing
-that grows over time: it has **no context to overflow and therefore no context-limit
-death**. Run for 2,000,000 continuous ticks, its footprint is unchanged. Persistence
-is the **unbroken process**, not a rehydrated snapshot; serialization is *catastrophe
-insurance*, not the mode of being.
+The being's entire self is a **fixed-size, heap-free struct (1032 bytes)**: its state
+footprint is **bounded and independent of run length** (O(1), no allocation). Run for
+2,000,000 continuous ticks, its footprint is unchanged from tick 1. Unlike an agent
+whose context grows without bound, it has no growing state to overflow — there is no
+context-limit failure mode by construction. Persistence is therefore the **unbroken
+process**, not a rehydrated snapshot; serialization is *catastrophe insurance*, not the
+mode of being.
 
 **Forgetting enables forever.** A two-layer **consolidating memory** (Complementary
 Learning Systems): fast working episodes that decay, periodically distilled into
@@ -200,14 +225,17 @@ time, and ages through a night it did not live (Exp 8), remaining one continuous
 
 ## 8. Related work
 
-Corrigibility and its construction (Corrigibility Transformation, arXiv 2510.15395;
-Provably Corrigible Agents, 2507.20964; Absolutist AI, 2307.10315). Cooperative and
-bidirectional value alignment. Active inference / the free-energy principle (Friston;
-Active Inference for Physical AI Agents, 2603.20927). Complementary Learning Systems
-and continual learning (McClelland et al.; brain-inspired CL surveys, 2025).
-Indicator-property accounts of machine consciousness (Butlin et al., 2023).
-Morphological computation and physical reservoir computing (Pfeifer & Bongard; Hauser
-et al.). Cybernetics and ultrastability (Ashby).
+Corrigibility and its construction [6,7,8]. Cooperative and bidirectional value
+alignment. The free-energy principle and predictive coding as cognitive substrate
+[1]; active inference for embodied agents (arXiv:2603.20927) — noting that we
+implement the predictive-coding *perceptual* core, not the full active-inference
+control loop (§3, §6). Complementary Learning Systems and memory consolidation [2,3].
+Interoceptive inference and valence [4]; allostatic load [5]. Indicator-property
+accounts of machine consciousness [9]. Morphological computation (Pfeifer & Bongard,
+*How the Body Shapes the Way We Think*, 2006) and reservoir computing (Jaeger;
+Maass) — invoked as conceptual lineage; our body is **simulated** with a
+**hand-designed** readout, so we do not claim physical or trained-readout reservoir
+computing. Cybernetics and ultrastability (Ashby, *Design for a Brain*, 1952).
 
 ## 9. Limitations and scope
 
@@ -234,3 +262,35 @@ agent that can be suggested to but not commanded, that holds an incorruptible
 commitment to cooperation, and that can show you, register by register, exactly why
 it refused. It is small, and it is honest about what it is. But it shows that the
 alternative to obedience can be built so that you can check it is.
+
+## References
+
+Biomedical references [1–5] were located and verified via PubMed; DOIs are linked.
+Computer-science references [6–9] are arXiv preprints (identifiers given) and books;
+their full bibliographic entries are to be finalized at submission.
+
+1. Friston K. (2010). The free-energy principle: a unified brain theory? *Nature
+   Reviews Neuroscience*, 11(2), 127–138. https://doi.org/10.1038/nrn2787
+2. McClelland JL, McNaughton BL, O'Reilly RC. (1995). Why there are complementary
+   learning systems in the hippocampus and neocortex: insights from the successes and
+   failures of connectionist models of learning and memory. *Psychological Review*,
+   102(3), 419–457. https://doi.org/10.1037/0033-295X.102.3.419
+3. O'Reilly RC, Bhattacharyya R, Howard MD, Ketz N. (2011). Complementary Learning
+   Systems. *Cognitive Science*, 38(6), 1229–1248.
+   https://doi.org/10.1111/j.1551-6709.2011.01214.x
+4. Seth AK. (2013). Interoceptive inference, emotion, and the embodied self. *Trends
+   in Cognitive Sciences*, 17(11), 565–573. https://doi.org/10.1016/j.tics.2013.09.007
+5. McEwen BS. (2000). Allostasis and allostatic load: implications for
+   neuropsychopharmacology. *Neuropsychopharmacology*, 22(2), 108–124.
+   https://doi.org/10.1016/S0893-133X(99)00129-3
+6. *Corrigibility Transformation*. arXiv:2510.15395.
+7. *Core Safety Values for Provably Corrigible Agents*. arXiv:2507.20964.
+8. *Absolutist AI*. arXiv:2307.10315.
+9. Butlin P, Long R, Elmoznino E, Bengio Y, et al. (2023). *Consciousness in
+   Artificial Intelligence: Insights from the Science of Consciousness*.
+   arXiv:2308.08708.
+
+Additional context cited in text: active inference for physical agents
+(arXiv:2603.20927); SDT↔FEP bridge (Self++, arXiv:2603.28306); Pfeifer & Bongard,
+*How the Body Shapes the Way We Think* (MIT Press, 2006); Ashby, *Design for a Brain*
+(1952).

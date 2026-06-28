@@ -3,7 +3,7 @@
 Where the project stands, so a fresh session resumes cleanly.
 
 ## What exists
-A mature, transparent, fixed-point active-inference being (≈1 KB, 13 modules,
+A mature, transparent, fixed-point predictive-processing being (≈1 KB, 13 modules,
 `no_std`-friendly) at `C:\Users\KojiO\Projects\unified-being`. Compiles, 7 tests
 pass, fully reproducible.
 

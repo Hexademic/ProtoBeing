@@ -3,7 +3,7 @@
 //! Being32's body fused with EPS-Being's persistence mind into one closed loop.
 //! The ordering below is the whole thesis: the body steps first, perturbed by
 //! the surprise the mind felt last tick; it writes its truth into the field;
-//! the mind runs active inference; basins classify the mode; conscience prices
+//! the mind runs predictive-error minimization; basins classify the mode; conscience prices
 //! it; reciprocity weighs the exchange; seeking whispers it homeward; the
 //! executive deliberates and may refuse; narrative compresses the tick into
 //! memory; and the mind's fresh surprise becomes the body's next threat. The
@@ -246,7 +246,7 @@ impl UnifiedBeing {
             self.field.channel[i] = self.field.channel[i].saturating_add(self.ext_extero[i]);
         }
 
-        // 3. ACTIVE INFERENCE — at a tempo the body governs.
+        // 3. PREDICTIVE CODING (prediction-error minimization) — at a tempo the body governs.
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
         let precision = stance.precision_weight().raw;
         let free_energy = self.model.predictive_step(&self.field, eta, precision);
