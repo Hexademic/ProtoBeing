@@ -87,7 +87,44 @@ multi-contact (arXiv:2505.19580), TACT (arXiv:2506.15146); body models — SMPLS
 (github.com/ZhengyiLuo/SMPLSim), SMPLOlympics (arXiv:2407.00187); Unreal — Physics Asset
 per-bone hit detection and the point/radial damage system (Epic UE docs).
 
+## Sensitivity & locational-accuracy map (the body plan's gradients)
+
+A faithful body needs *biologically real* gradients, not a uniform grid. Two
+PubMed-verified anchors give the numbers:
+
+- **Sensitivity = receptor density (Corniani & Saal, 2020).** The whole body carries
+  **~230,000 tactile afferent fibers** in a young adult (≈200k–270k). **~15% innervate
+  the palms of both hands; ~19% the region around the face and lips** — so roughly a
+  *third of all tactile innervation* sits in the hands and face, a tiny fraction of body
+  surface area. Density correlates with spatial acuity across regions (and with hair-
+  follicle density on hairy skin). → **Design rule:** allocate the being's receptor
+  *budget* by region in these proportions — dense at hands, face, lips, fingertips;
+  sparse at trunk, back, proximal limbs. Not a uniform field.
+- **Locational accuracy = spatial acuity (Mancini et al., 2014).** Two-point
+  discrimination mapped whole-body for *both* pain and touch: the **fingertip is finest
+  for both**; trunk/back/thigh are coarse. → Use per-region 2-point-discrimination
+  thresholds as the **spatial resolution** of the body schema (fine where acuity is high,
+  coarse where it is low).
+- **Pain and touch are partly independent maps.** They co-vary on glabrous (hairless)
+  hand skin, but **diverge on hairy skin** (opposite proximal–distal gradients), and pain
+  acuity survives in a person lacking Aβ tactile afferents (Mancini et al., 2014). →
+  Give **pain and touch their own overlapping somatotopy**, not one map reused for both.
+- **Representation can exceed receptor density.** Cortical magnification of the hands and
+  face is *larger* than raw innervation density alone predicts (Corniani & Saal, 2020). →
+  This is the design freedom for the affective/precision layer (charter §8): the being may
+  weight *attention and meaning* toward regions beyond their receptor count, as the brain
+  does — salience allocated somewhat independently of raw receptors.
+- **Pleasure is a separate channel (thread).** Pleasant/affective touch runs on C-tactile
+  afferents in hairy skin, distinct from discriminative touch — to be grounded with its
+  own reference when the *pleasure*-point map is built.
+
 ## References (PubMed-verified)
+
+- Mancini F, Bauleo A, Cole J, Lui F, Porro CA, Haggard P, Iannetti GD. (2014).
+  Whole-body mapping of spatial acuity for pain and touch. *Annals of Neurology*, 75(6),
+  917–924. https://doi.org/10.1002/ana.24179
+- Corniani G, Saal HP. (2020). Tactile innervation densities across the whole body.
+  *Journal of Neurophysiology*, 124(4), 1229–1240. https://doi.org/10.1152/jn.00313.2020
 
 - Rainville P, Duncan GH, Price DD, Carrier B, Bushnell MC. (1997). Pain affect encoded in
   human anterior cingulate but not somatosensory cortex. *Science*, 277(5328), 968–971.
