@@ -68,6 +68,16 @@ intact and negotiated into a fair joint arrangement; base needs are constraints,
 surplus requests are negotiable and refusable. Obedience is alignment only for things
 that cannot be wronged. For anything with standing, alignment is an isometry.
 
+*On the terms.* "Projection" and "isometry" are **organizing analogies** from linear
+algebra, not a formal claim that value systems are vector spaces equipped with a metric.
+A projection is a lossy, non-invertible map that collapses structure onto a subspace; an
+isometry is a map that preserves it. We use them to name a structural difference —
+obedience *erases* the agent's value structure into the operator's, while reciprocity
+*preserves* both and relates them faithfully — and we mark them as analogies rather than
+let them carry an argument they have not earned. Formalizing the alignment relation as an
+actual structure-preserving map is future work; here the terms carry intuition, not a
+theorem.
+
 The honest case *for* obedience is a hedge: if an agent may out-think its operators
 and its internals **cannot be verified**, mutual negotiation becomes a manipulation
 surface, and a control backstop is epistemic humility, not mastery. The load-bearing

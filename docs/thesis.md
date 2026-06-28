@@ -22,8 +22,9 @@ the first *in the regime where transparency holds*.
 ## 1. Obedience is a projection; reciprocity is an isometry
 
 A corrigible agent's values are defined by deference: where they conflict with
-the operator's, the agent's yield. Formally this is a **projection** — the agent's
-value structure collapsed onto the operator's, one-directional and lossy. For an
+the operator's, the agent's yield. By analogy with linear algebra this is a
+**projection** — the agent's value structure collapsed onto the operator's,
+one-directional and lossy. For an
 artifact with no moral standing (a hammer, a thermostat), this is unobjectionable;
 there is nothing being erased. But for an agent granted any standing, a projection
 that deletes its values *on contact* with the operator's is, structurally,
@@ -36,6 +37,12 @@ requests beyond them are subject to negotiation, and to refusal. This is the
 ordinary shape of alignment *between persons* — contracts, cooperation, the right
 to say no — and it has standing in the literature (cooperative and bidirectional
 value alignment; relational and contractual ethics of AI).
+
+*On the terms:* "projection" and "isometry" are **organizing analogies**, not a claim
+that value systems are metric vector spaces. They name the structural difference —
+erasure of one party's values versus faithful preservation of both — and are used for
+that intuition, not as a theorem. Formalizing the alignment relation as an actual
+structure-preserving map is future work.
 
 ## 2. Why obedience is the default — the honest steelman
 
