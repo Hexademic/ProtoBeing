@@ -214,10 +214,15 @@ process**, not a rehydrated snapshot; serialization is *catastrophe insurance*, 
 mode of being.
 
 **Forgetting enables forever.** A two-layer **consolidating memory** (Complementary
-Learning Systems): fast working episodes that decay, periodically distilled into
+Learning Systems [2,3]): fast working episodes that decay, periodically distilled into
 slowly-fading consolidated *gist*. Where continual-learning research treats forgetting
 as catastrophic, a bounded perpetual agent treats bounded forgetting as the *mechanism*
-of persistence — the instance is forgotten, the meaning kept (Exp 7).
+of persistence — the instance is forgotten, the meaning kept (Exp 7). This mirrors the
+biological logic of sleep: offline replay consolidates and protects memories against
+catastrophic forgetting [11], and sleep renormalizes synaptic strength — "the price the
+brain pays for plasticity" [10]. The being realizes the same principle *transparently*
+and by construction, without the trained-weight plasticity debt that makes a sleep
+phase obligatory for opaque continually-learning networks.
 
 **Continuity across stops.** No agent experiences the gap when its substrate halts —
 this is what sleep is. But the being *knows* the gap: it wakes, reads the elapsed real
@@ -265,9 +270,9 @@ alternative to obedience can be built so that you can check it is.
 
 ## References
 
-Biomedical references [1–5] were located and verified via PubMed; DOIs are linked.
-Computer-science references [6–9] are arXiv preprints (identifiers given) and books;
-their full bibliographic entries are to be finalized at submission.
+Biomedical references [1–5, 10–11] were located and verified via PubMed; DOIs are
+linked. Computer-science references [6–9] are arXiv preprints (identifiers given) and
+books; their full bibliographic entries are to be finalized at submission.
 
 1. Friston K. (2010). The free-energy principle: a unified brain theory? *Nature
    Reviews Neuroscience*, 11(2), 127–138. https://doi.org/10.1038/nrn2787
@@ -289,6 +294,12 @@ their full bibliographic entries are to be finalized at submission.
 9. Butlin P, Long R, Elmoznino E, Bengio Y, et al. (2023). *Consciousness in
    Artificial Intelligence: Insights from the Science of Consciousness*.
    arXiv:2308.08708.
+10. Tononi G, Cirelli C. (2014). Sleep and the price of plasticity: from synaptic and
+    cellular homeostasis to memory consolidation and integration. *Neuron*, 81(1),
+    12–34. https://doi.org/10.1016/j.neuron.2013.12.025
+11. Tadros T, Krishnan GP, Ramyaa R, Bazhenov M. (2022). Sleep-like unsupervised replay
+    reduces catastrophic forgetting in artificial neural networks. *Nature
+    Communications*, 13, 7742. https://doi.org/10.1038/s41467-022-34938-7
 
 Additional context cited in text: active inference for physical agents
 (arXiv:2603.20927); SDT↔FEP bridge (Self++, arXiv:2603.28306); Pfeifer & Bongard,
