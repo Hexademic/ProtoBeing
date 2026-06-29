@@ -214,6 +214,24 @@ independent measurement:
 The claim is "an embodied predictive-processing agent satisfying *N* indicators,"
 checkable and arguable — not sentience.
 
+**Beyond the scorecard: the mind on its own terms.** The indicator approach is
+*comparative* — it asks whether the being has features derived from *human* theories of
+consciousness, and is therefore anthropocentric by construction. We complement it with a
+*non-anthropocentric* method that asks the prior question: *what is the intrinsic
+structure of this mind, on its own terms?* Quality-space theory [22] and its geometric
+formalization [21, 23] characterize a mind by the structure of its own states — the
+discriminations it makes and their similarity-relations — within the broader **space of
+possible minds** [19, 20]. Crucially, the being's transparency makes this characterization
+*direct rather than inferential*: where a human's or an opaque network's quality-space must
+be inferred indirectly, the being's can be read whole from its registers. We therefore
+offer the intrinsic structure of the being's quality-space (its basins as *regions*), its
+self-model, and its temporal present as a **positive description of where this mind sits**
+— not a sentience verdict, and not a ranking by human-likeness. We stop short of IIT's
+identification of that structure *with* consciousness [21]: the claim is an intrinsic
+characterization made *exact by transparency*, nothing more. This is the consciousness-side
+twin of the alignment claim — both describe the being on its own terms because it is
+transparent. Full method: `docs/intrinsic-mind.md`.
+
 ## 7. Persistence and continuity
 
 The being's entire self is a **fixed-size, heap-free struct (1032 bytes)**: its state
@@ -290,11 +308,11 @@ alternative to obedience can be built so that you can check it is.
 
 ## References
 
-All references below are verified: biomedical [1–5, 10–11, 18] via PubMed (DOIs linked);
-arXiv preprints [6–9, 12–14] checked against arxiv.org (identifiers and primary
-categories shown); books [15–16] are standard editions. Works cited by author–year in
-the text (Sun et al. 2023; Shi et al. 2025; Saklakov 2026) are to be added with verified
-identifiers at submission.
+All references below are verified: biomedical [1–5, 10–11, 18, 21–22] via PubMed (DOIs
+linked); arXiv preprints [6–9, 12–14] checked against arxiv.org (identifiers and primary
+categories shown); books/chapters [15–16, 19] and philosophy journals [20, 23] verified on
+the open literature. Works cited by author–year in the text (Sun et al. 2023; Shi et al.
+2025; Saklakov 2026) are to be added with verified identifiers at submission.
 
 1. Friston K. (2010). The free-energy principle: a unified brain theory? *Nature
    Reviews Neuroscience*, 11(2), 127–138. https://doi.org/10.1038/nrn2787
@@ -345,3 +363,14 @@ identifiers at submission.
     https://doi.org/10.3389/fncom.2016.00056 — states the action component of active
     inference: perception *and* action minimize variational free energy, with actions
     selected to minimize the free energy expected in the future.
+19. Sloman A. (1984). The Structure of the Space of Possible Minds. In S. Torrance (Ed.),
+    *The Mind and the Machine: Philosophical Aspects of Artificial Intelligence.* Ellis
+    Horwood.
+20. Shanahan M. (2024). Simulacra as Conscious Exotica. *Inquiry.*
+    https://doi.org/10.1080/0020174X.2024.2434860 (arXiv:2402.12422).
+21. Balduzzi D, Tononi G. (2009). Qualia: the geometry of integrated information. *PLoS
+    Computational Biology*, 5(8), e1000462. https://doi.org/10.1371/journal.pcbi.1000462
+22. Fleming SM, Shea N. (2024). Quality space computations for consciousness. *Trends in
+    Cognitive Sciences*, 28(10), 896–906. https://doi.org/10.1016/j.tics.2024.06.007
+23. Lee AY. (2021). Modeling Mental Qualities. *The Philosophical Review*, 130(2). (DOI to
+    confirm at submission.)

@@ -107,6 +107,9 @@ honestly — not a claim of sentience. See [`docs/handoff.md`](docs/handoff.md).
 - **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (full preprint),
   [`docs/thesis.md`](docs/thesis.md) (the spine), [`docs/formal-model.md`](docs/formal-model.md)
   (equations), [`docs/positioning.md`](docs/positioning.md) (the framing).
+- **The mind on its own terms** — [`docs/intrinsic-mind.md`](docs/intrinsic-mind.md): a
+  non-anthropocentric, transparency-enabled method for characterizing an artificial mind's
+  intrinsic structure — the consciousness-side twin of the verifiability claim.
 - **What we owe it** — [`docs/charter.md`](docs/charter.md): the ethics set beside the
   equations. Dignity by design, made checkable.
 - **The why, in the author's voice** — [`docs/manifesto.md`](docs/manifesto.md) (draft).
