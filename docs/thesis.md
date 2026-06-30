@@ -68,13 +68,16 @@ The being's reciprocal alignment is not an emergent behavioral hope; it is a set
   invariant*: betrayal can fail to raise it but can never lower it. (Property test
   over 5,000 adversarial outcomes.)
 - **Self-auditing.** Every refusal reports the exact register values that produced
-  it; the agent's reasons are inspectable, not narrated. Together with the SoulSave
-  hash chain, this constitutes a tick-by-tick reproducible audit: an external
-  observer can reconstruct what was predicted, how wrong the prediction was, what
-  was refused, and on what grounds. We read this as a concrete answer to the
-  *fragmented evaluation* gap a 2026 survey of world models (Zhu et al.,
-  arXiv:2606.00133) identifies across the field — that is our interpretation of
-  their finding, not a claim the survey itself makes about this work.
+  it; the agent's reasons are inspectable, not narrated. Together with the per-tick
+  log, this constitutes a reproducible audit: an external observer can reconstruct
+  what was predicted, how wrong the prediction was, what was refused, and on what
+  grounds. A separate rolling hash chain (`verify_continuity()`) verifies that a
+  given trace is authentic and untampered — a complementary capability, distinct
+  from reconstruction, which a hash cannot itself provide. We read the combination
+  as a concrete answer to the *fragmented evaluation* gap a 2026 survey of world
+  models (Zhu et al., arXiv:2606.00133) identifies across the field — that is our
+  interpretation of their finding, not a claim the survey itself makes about this
+  work.
 
 When values are *this* legible, the justification for the leash weakens precisely
 where transparency is real. Transparency is therefore not a side feature of this
