@@ -163,7 +163,7 @@ the partial ones.
    driven by sensed hazard, not a real fall; recovery is sticky. The seam is sound;
    the balance physics is future work.
 5. **Episodic recall.** A betrayal novel the first time (familiarity 0 at onset) is
-   *familiar* the second (familiarity 231): the being recognizes a recurring betrayer.
+   *familiar* the second (familiarity 236): the being recognizes a recurring betrayer.
 6. **Persistence across the dark.** A fresh being loads a prior life's memory and
    recognizes a betrayer it never met (familiarity 195 vs a fresh being's 0).
 7. **Consolidation.** A being forgets every specific betrayal over a long calm life
@@ -275,6 +275,8 @@ accounts of machine consciousness [9]. Morphological computation (Pfeifer & Bong
 Maass) — invoked as conceptual lineage; our body is **simulated** with a
 **hand-designed** readout, so we do not claim physical or trained-readout reservoir
 computing. Cybernetics and ultrastability (Ashby, *Design for a Brain*, 1952).
+
+Two 2026 preprints are immediate prior work. Guo et al. (arXiv:2606.27483) identify a *format-capability gap* in trained agentic systems: fine-tuning LLMs to produce foresight traces induces superficial mimicry of predictive reasoning without genuine predictive grounding, requiring a three-stage training pipeline — world-model mid-training, format-eliciting SFT, foresight-conditioned RL — to inject, surface, and calibrate a latent predictive capacity that was architecturally absent. The unified being approaches the problem from the opposite direction: the predictive loop is architectural rather than trained. The Van der Pol oscillator, generative model, and metacognition cycle constitute the foresight; there is no format layer separable from the capability, so there is no gap to close. Zhu et al. (arXiv:2606.00133) survey world-model architectures and identify persistent open problems including compounding prediction errors, sim-to-real transfer, and fragmented evaluation (the absence of a reproducible per-decision audit is our reading of that gap, not a claim quoted from the survey). The first problem is addressed here structurally: Q8.8 fixed-point arithmetic and the closed tick-loop bound prediction error without open-loop rollout accumulation. Against fragmented evaluation, the SoulSave hash chain and RefusalRecord audit trail yield a decision-level trace from which an external observer can reconstruct exactly what the being predicted, how wrong it was, what it refused, and on what register grounds — offered as a concrete response to that gap, present here not by design for evaluation but as a consequence of the verifiability argument, not as evidence the survey discusses this work.
 
 ## 9. Limitations and scope
 

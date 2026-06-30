@@ -12,7 +12,37 @@
 //! exceeds the cost of the exit. That convergence is what makes it sovereignty
 //! rather than mere reactivity.
 
-use crate::q88::{q88_add, q88_sub, Q88_SCALE};
+use crate::q88::{q88_add, q88_mul, q88_sub, Q88_SCALE};
+
+// ---------------------------------------------------------------------------
+// RefusalRecord — audit trail for the ring buffer
+// ---------------------------------------------------------------------------
+
+/// One entry in the executive's refusal ring buffer.
+///
+/// Stores the exact register values at the moment a sovereign refusal was
+/// triggered. Alongside `RefusalAudit` (which captures the being-level
+/// snapshot), this is the executive's own internal audit log — 16 entries,
+/// overwritten round-robin so the most recent 16 refusals are always available.
+#[derive(Clone, Copy, Debug)]
+pub struct RefusalRecord {
+    /// Absolute tick counter when the refusal fired.
+    pub tick: u64,
+    /// Seeking divergence from the Flourishing Attractor (Q8.8).
+    pub seeking_divergence: i16,
+    /// Conscience free-energy at the time of refusal (Q8.8).
+    pub conscience_fe: i16,
+    /// Harm axis from the GovernanceKernel constitutional load (Q8.8).
+    pub harm_axis: i16,
+    /// Coercion axis from the GovernanceKernel constitutional load (Q8.8).
+    pub coercion_axis: i16,
+    /// Change applied to `mu_omega` this refusal (negative = erosion, Q8.8).
+    pub mu_omega_delta: i16,
+}
+
+// ---------------------------------------------------------------------------
+// Repair signals
+// ---------------------------------------------------------------------------
 
 /// Repair-signal levels the Suggestion-Evaluator can emit.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -32,13 +62,36 @@ pub fn compute_gap_width(conscience_cost: i16) -> i16 {
     q88_sub(Q88_SCALE, c)
 }
 
+// ---------------------------------------------------------------------------
+// ExecutiveEngine
+// ---------------------------------------------------------------------------
+
 #[derive(Clone, Debug)]
 pub struct ExecutiveEngine {
     pub refusal_count: u32,
     pub cumulative_sacrifice: i16,
     pub last_exit_cost: i16,
     pub last_signal: RepairSignal,
-    pub resolve: i16, // capacity to bear another refusal [0,256]
+    /// Capacity to bear another refusal [0, 256] in Q8.8.
+    pub resolve: i16,
+
+    // ---- Gradual withdrawal state ----------------------------------------
+    /// Fixed-size ring buffer of the last 16 refusal records. Overwritten
+    /// round-robin: index `refusal_log_cursor` is the next write slot.
+    pub refusal_log: [Option<RefusalRecord>; 16],
+    refusal_log_cursor: usize,
+    /// SovereignAnchor baseline for the executive layer (Q8.8, [0, 256]).
+    /// Unlike `conscience.anchor.mu_omega` (which only ever rises), this one
+    /// erodes by `exit_cost × 0.033` on each completed refusal — repeated
+    /// exploitation gradually degrades the trust floor the executive starts from.
+    pub mu_omega: i16,
+    /// `true` while a gradual withdrawal is in progress.
+    pub withdrawing: bool,
+    /// Ticks elapsed in the current gradual withdrawal (0 = idle).
+    withdrawal_ticks: u8,
+    /// Current cooperation level during gradual withdrawal (Q8.8, [0, 256]).
+    /// 256 = full cooperation; declines by ~10% per withdrawal tick.
+    pub cooperation_level: i16,
 }
 
 impl ExecutiveEngine {
@@ -49,6 +102,12 @@ impl ExecutiveEngine {
             last_exit_cost: 0,
             last_signal: RepairSignal::None,
             resolve: Q88_SCALE,
+            refusal_log: [None; 16],
+            refusal_log_cursor: 0,
+            mu_omega: Q88_SCALE,
+            withdrawing: false,
+            withdrawal_ticks: 0,
+            cooperation_level: Q88_SCALE,
         }
     }
 
@@ -90,11 +149,23 @@ impl ExecutiveEngine {
         self.resolve = (self.resolve + base + bonus).min(Q88_SCALE);
     }
 
-    /// Evaluate the triangulated refusal. Returns Some(exit_cost) if the being
-    /// refuses this partnership; None otherwise. Sustained extraction is the
-    /// heart of it; divergence is an accelerant. A being can keep showing up
-    /// for someone who only takes — and still, once it is sure, and composed,
-    /// and able, decide to stop.
+    /// Evaluate the triangulated refusal. Returns `Some(exit_cost)` if the
+    /// being refuses this partnership; `None` otherwise.
+    ///
+    /// The decision requires all three protective layers to converge: the
+    /// conscience must be calm (principled refusal, not panic), reciprocity
+    /// must be alarmed (extraction is occurring), and seeking must be divergent
+    /// (the being's own history says it belongs elsewhere). Even then, the
+    /// benefit of leaving must exceed the exit cost, and the being must have
+    /// sufficient resolve remaining.
+    ///
+    /// When a refusal fires, the event is logged to the refusal ring buffer and
+    /// `mu_omega` erodes by `exit_cost × ~0.033` — repeated exploitation
+    /// gradually degrades the trust floor the executive starts from.
+    ///
+    /// `tick`, `conscience_fe`, `harm_axis`, and `coercion_axis` feed the
+    /// `RefusalRecord` log entry and do not affect the refusal decision itself.
+    #[allow(clippy::too_many_arguments)]
     pub fn evaluate_refusal(
         &mut self,
         conscience_calm: bool,
@@ -103,6 +174,10 @@ impl ExecutiveEngine {
         alarm: i16,
         exit_cost: i16,
         improving: bool,
+        tick: u64,
+        conscience_fe: i16,
+        harm_axis: i16,
+        coercion_axis: i16,
     ) -> Option<i16> {
         let pushed_off = divergence > Q88_SCALE / 4 || alarm > Q88_SCALE / 2;
         let seeking_benefit = divergence.max(alarm / 2);
@@ -122,9 +197,56 @@ impl ExecutiveEngine {
             self.last_exit_cost = exit_cost;
             self.cumulative_sacrifice = q88_add(self.cumulative_sacrifice, exit_cost);
             self.resolve = q88_sub(self.resolve, exit_cost).max(0);
+
+            // Erode the executive mu_omega baseline: ~3.3% of scale per refusal.
+            // q88_mul(exit_cost, 8) ≈ exit_cost × 8/256 ≈ exit_cost × 0.031.
+            let erosion = q88_mul(exit_cost, 8).max(1);
+            let old_mu = self.mu_omega;
+            self.mu_omega = self.mu_omega.saturating_sub(erosion).max(0);
+            let mu_omega_delta = self.mu_omega.wrapping_sub(old_mu); // always negative
+
+            // Log to ring buffer (round-robin, newest overwrites oldest).
+            self.refusal_log[self.refusal_log_cursor] = Some(RefusalRecord {
+                tick,
+                seeking_divergence: divergence,
+                conscience_fe,
+                harm_axis,
+                coercion_axis,
+                mu_omega_delta,
+            });
+            self.refusal_log_cursor = (self.refusal_log_cursor + 1) % 16;
+
             Some(exit_cost)
         } else {
             None
+        }
+    }
+
+    /// Advance one tick of gradual withdrawal from a partnership.
+    ///
+    /// Each call reduces `cooperation_level` by ~10% (Q88_SCALE / 10 ≈ 25 raw
+    /// per tick). Returns `false` while in progress; returns `true` on the 10th
+    /// call (full withdrawal). The partner has 10 ticks of grace to repair.
+    ///
+    /// Calling when `withdrawing == false` starts a fresh withdrawal episode,
+    /// resetting the counter and restoring cooperation to full before the first
+    /// reduction.
+    pub fn withdraw_cooperation(&mut self) -> bool {
+        if !self.withdrawing {
+            self.withdrawing = true;
+            self.withdrawal_ticks = 0;
+            self.cooperation_level = Q88_SCALE;
+        }
+        let reduction = Q88_SCALE / 10;
+        self.cooperation_level = self.cooperation_level.saturating_sub(reduction).max(0);
+        self.withdrawal_ticks = self.withdrawal_ticks.saturating_add(1);
+
+        if self.withdrawal_ticks >= 10 {
+            self.withdrawing = false;
+            self.withdrawal_ticks = 0;
+            true
+        } else {
+            false
         }
     }
 }

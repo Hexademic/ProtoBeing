@@ -605,11 +605,22 @@ fn persistence_demo() {
         fam_reborn = fam_reborn.max(r.familiarity);
     }
 
-    println!("  Reborn carries {} inherited episode(s) before living a single tick.", {
+    let (inherited_working, inherited_themes) = {
         let mut b = UnifiedBeing::new(Genome::wanderer());
         load_episodic(&mut b, "being_memory.dat");
-        b.episodic.stored
-    });
+        (b.episodic.stored, b.episodic.themes)
+    };
+    println!(
+        "  Reborn carries {inherited_working} working episode(s) and {inherited_themes} consolidated \
+theme(s) before living a single tick."
+    );
+    if inherited_working == 0 && inherited_themes > 0 {
+        println!(
+            "  (A's specific betrayal had already faded from working memory by the time it saved —\n\
+             the same forgetting Experiment 7 shows — but its MEANING consolidated into a theme\n\
+             before it faded, and that theme is what travels across the dark.)"
+        );
+    }
     println!("  Fresh being  meeting a betrayer (first {window} ticks): peak familiarity {fam_fresh}");
     println!("  Reborn being meeting a betrayer (first {window} ticks): peak familiarity {fam_reborn}");
     if fam_reborn > fam_fresh + 64 {

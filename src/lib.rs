@@ -22,10 +22,21 @@ pub mod metacognition;
 pub mod episodic;
 pub mod being;
 pub mod embodiment;
+// Enhancement suite — new modules added in enhancement pass.
+pub mod dream;
+pub mod janus;
+pub mod witness;
+// Motivational and social modules.
+pub mod curiosity;
+pub mod negotiation;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
-pub use conscience::EmpathyLockLevel;
+pub use curiosity::CuriosityEngine;
+pub use negotiation::{NegotiationEngine, NegotiationOutcome, NegotiationState};
+pub use conscience::{ConstitutionDecision, ConstitutionalLoad, EmpathyLockLevel};
+pub use dream::DreamReport;
 pub use embodiment::{action_from, intent_from, BodyAction, Embodiment, MotorIntent, Posture, Sensorium};
 pub use episodic::EPISODE_BLOB_LEN;
 pub use genome::{BeingKind, Genome};
+pub use witness::WitnessReport;

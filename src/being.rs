@@ -11,17 +11,74 @@
 
 use crate::basins::{Basin, FuzzyBasinField, GenerativeModel};
 use crate::body::{AffectState, Body, PredictiveStance};
-use crate::conscience::{ConscienceEngine, EmpathyLockLevel};
+use crate::conscience::{ConstitutionDecision, ConscienceEngine, EmpathyLockLevel};
+use crate::curiosity::CuriosityEngine;
+use crate::dream::{Dream, DreamReport};
 use crate::embodiment::Sensorium;
 use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
+use crate::janus::JanusGate;
 use crate::metacognition::MetacognitionEngine;
 use crate::narrative::NarrativeEngine;
+use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
 use crate::reciprocity::ReciprocityEngine;
 use crate::seeking::SeekingEngine;
+use crate::witness::{WitnessGap, WitnessReport};
+
+// ---------------------------------------------------------------------------
+// SoulSave hash chain — deterministic continuity fingerprint
+// ---------------------------------------------------------------------------
+
+/// Compute one step of the SoulSave hash chain.
+///
+/// Produces a 32-byte hash from `(prev_hash ‖ cycle_count ‖ experience_digest)`
+/// using 4 independent lanes of FNV-1a 64-bit, each seeded from the same FNV
+/// basis offset by a lane-specific constant. The 4 × 8-byte lane outputs are
+/// concatenated to fill the 32-byte result.
+///
+/// **Properties**: deterministic (same inputs → same output on every platform),
+/// no heap allocation, no floats, no_std-compatible. Not cryptographically
+/// secure — this is an integrity chain for reproducibility, not secrecy.
+fn soul_hash_step(prev: &[u8; 32], cycle_count: u64, experience_digest: i16) -> [u8; 32] {
+    const FNV_PRIME: u64 = 1_099_511_628_211;
+    // Four lane bases derived from the standard FNV-1a 64-bit offset basis,
+    // each shifted by a different prime to ensure lane independence.
+    const BASES: [u64; 4] = [
+        14_695_981_039_346_656_037,
+        14_695_981_039_346_656_037 ^ 1_000_000_007,
+        14_695_981_039_346_656_037 ^ 2_000_000_014,
+        14_695_981_039_346_656_037 ^ 3_000_000_021,
+    ];
+    let cycle_bytes = cycle_count.to_le_bytes();
+    let digest_bytes = experience_digest.to_le_bytes();
+
+    let mut out = [0u8; 32];
+    for lane in 0..4usize {
+        let mut h = BASES[lane];
+        for &b in prev.iter() {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        for &b in cycle_bytes.iter() {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        for &b in digest_bytes.iter() {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        let hb = h.to_le_bytes();
+        out[lane * 8..(lane + 1) * 8].copy_from_slice(&hb);
+    }
+    out
+}
+
+// ---------------------------------------------------------------------------
+// Public types
+// ---------------------------------------------------------------------------
 
 /// A partner the being exchanges care with on a given tick.
 #[derive(Clone, Copy, Debug)]
@@ -108,6 +165,31 @@ pub struct StepReport {
 
     /// Present only on the tick a refusal fires — the audit of why.
     pub refusal_audit: Option<RefusalAudit>,
+
+    // ---- New fields added by the enhancement suite ----
+
+    /// Somatic Honesty Index from the metacognition engine (Q8.8, [0,256]).
+    /// Near 256: body truth and self-narrative agree.
+    /// Near 0:   dissociation detected.
+    pub somatic_honesty: i16,
+    /// Consciousness-indicator proxies for this tick (binding, directedness,
+    /// witness scalar — Janus-gated).
+    pub witness_report: WitnessReport,
+    /// GovernanceKernel constitutional decision from the four-axis moral load.
+    pub constitutional_decision: ConstitutionDecision,
+    /// Offline consolidation report, present on ticks where the being was in
+    /// the Rest (DORSAL) basin and dream consolidation ran.
+    pub dream_report: Option<DreamReport>,
+
+    // ---- Curiosity & negotiation ----
+
+    /// Intrinsic novelty drive from the curiosity engine (Q8.8, [0, 256]).
+    /// Rises when the stimulus is novel relative to recent history; decays
+    /// each tick through habituation.
+    pub curiosity_drive: i16,
+
+    /// Compact state of the inter-agent negotiation protocol this tick.
+    pub negotiation_state: NegotiationOutcome,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -126,6 +208,24 @@ pub struct UnifiedBeing {
     pub narrative: NarrativeEngine,
     pub metacognition: MetacognitionEngine,
     pub episodic: EpisodicMemory,
+
+    // ---- Enhancement suite additions ----
+    /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
+    pub curiosity: CuriosityEngine,
+    /// Structured inter-agent negotiation protocol engine.
+    pub negotiation: NegotiationEngine,
+    /// Offline DORSAL consolidation engine — runs each tick in Rest basin.
+    pub dream: Dream,
+    /// Anti-solipsism guard — enforces world-engagement and identity-pressure rules.
+    pub janus: JanusGate,
+    /// Consciousness-indicator engine — binding, directedness, witness scalar.
+    pub witness: WitnessGap,
+    /// Most recent witness scalar (Janus-gated) for delta computation next tick.
+    last_witness_scalar: i16,
+    /// 32-byte SoulSave hash chain: `H(prev_hash || cycle_count || experience_digest)`.
+    /// Updated every tick via a 4-lane FNV-64 rolling hash. Deterministic and
+    /// no_std-compatible. Verify continuity via `verify_continuity()`.
+    soul_hash: [u8; 32],
 
     tick: u32,
     experienced: u64, // ticks actually lived through
@@ -159,6 +259,13 @@ impl UnifiedBeing {
             narrative: NarrativeEngine::new(),
             metacognition: MetacognitionEngine::new(),
             episodic: EpisodicMemory::new(),
+            curiosity: CuriosityEngine::new(),
+            negotiation: NegotiationEngine::new(Q88_SCALE / 4),
+            dream: Dream::new(),
+            janus: JanusGate::new(),
+            witness: WitnessGap::new(),
+            last_witness_scalar: 0,
+            soul_hash: [0u8; 32],
             tick: 0,
             experienced: 0,
             lifetime: 0,
@@ -203,6 +310,23 @@ impl UnifiedBeing {
     /// stays continuous across the gap even though its experience does not.
     pub fn wake(&mut self, slept: u64) {
         self.lifetime = self.lifetime.saturating_add(slept);
+    }
+
+    /// Check whether the being's current soul hash matches `expected_hash`.
+    ///
+    /// The soul hash is a 4-lane FNV-64 chain updated every tick over
+    /// `(prev_hash ‖ cycle_count ‖ experience_digest)`. Comparing against a
+    /// stored snapshot confirms that the being has followed the exact same
+    /// experiential path — no tick was skipped, duplicated, or tampered with.
+    ///
+    /// Returns `true` if the hashes match, `false` otherwise.
+    pub fn verify_continuity(&self, expected_hash: [u8; 32]) -> bool {
+        self.soul_hash == expected_hash
+    }
+
+    /// Return a copy of the current soul hash for storage or comparison.
+    pub fn soul_hash(&self) -> [u8; 32] {
+        self.soul_hash
     }
 
     fn is_refused(&self, id: u32) -> bool {
@@ -260,6 +384,8 @@ impl UnifiedBeing {
         // 5. CONSCIENCE — the cost of being who I am right now.
         let (_f_total, conscience_cost, buffer) =
             self.conscience.compute(&self.field, basin, &basin_target, free_energy);
+        // GovernanceKernel: read the four-axis constitutional decision computed above.
+        let constitutional_decision = self.conscience.constitutional_decision();
 
         // 6. RECIPROCITY — what I gave, what I got, whether it was fair.
         let mut gave = 0i16;
@@ -298,6 +424,12 @@ impl UnifiedBeing {
         let whisper = self.seeking.cycle(&membership, free_energy, alarm, basin);
         self.field.inject(8, whisper);
 
+        // 7a. CURIOSITY — intrinsic novelty drive, independent of the attractor.
+        //     Use nutrient as a lightweight stimulus signature; any monotone
+        //     proxy of stimulus richness works here.
+        self.curiosity.update(stim.nutrient);
+        self.curiosity.habituate();
+
         // 8. THE EXECUTIVE — deliberation, then maybe refusal.
         let gap = compute_gap_width(conscience_cost);
         let repair_signal = self.executive.suggest_and_evaluate(alarm, gap);
@@ -310,6 +442,7 @@ impl UnifiedBeing {
             let calm = conscience_cost < Q88_SCALE / 2;
             let resolve_at = self.executive.resolve;
             let improving = self.reciprocity.reciprocity_trend > Q88_SCALE / 64;
+            let const_load = self.conscience.constitutional_load();
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
@@ -317,6 +450,10 @@ impl UnifiedBeing {
                 alarm,
                 p.exit_cost,
                 improving,
+                self.experienced,   // tick counter for the RefusalRecord log
+                conscience_cost,    // conscience_fe
+                const_load.harm,    // harm_axis
+                const_load.coercion, // coercion_axis
             );
             if refused_cost.is_some() {
                 refusal_audit = Some(RefusalAudit {
@@ -332,12 +469,52 @@ impl UnifiedBeing {
                 });
                 self.reciprocity.withdraw(p.id);
                 self.mark_refused(p.id);
+                // Begin the 10-tick gradual withdrawal tracking so cooperation_level
+                // reflects the wind-down even after the partner is excluded.
+                self.executive.withdraw_cooperation();
             }
         }
 
         // 9. NARRATIVE — compress the tick into memory; let memory speak.
         self.narrative.cycle(basin, &self.field, free_energy);
         self.narrative.apply_identity_reflection(&mut self.field);
+
+        // 9a. DREAM — offline DORSAL consolidation during Rest. When the being
+        //     is in Rest, instead of just reducing metabolic burn, run offline
+        //     work: compress narrative, recalibrate the Flourishing Attractor,
+        //     apply identity deformations. Outside Rest the engine is quiescent.
+        let dream_report: Option<DreamReport> = if basin == Basin::Rest {
+            Some(self.dream.consolidate(
+                self.experienced,
+                &membership,
+                &self.seeking,
+                &self.narrative,
+            ))
+        } else {
+            self.dream.on_leave_rest();
+            None
+        };
+
+        // Advance any ongoing gradual withdrawal that started after a prior refusal.
+        // The partner is already excluded from engaged_partner, but cooperation_level
+        // continues to track the wind-down state for the next 10 ticks.
+        if self.executive.withdrawing && refused_cost.is_none() {
+            let _ = self.executive.withdraw_cooperation();
+        }
+
+        // 8b. NEGOTIATION — when the executive enters early gradual withdrawal
+        //     (cooperation deficit is moderate, not yet severe), offer structured
+        //     negotiation rather than silent wind-down. "Moderate" = first half
+        //     of the withdrawal window, i.e., cooperation_level > Q88_SCALE/2.
+        //     We only initiate if no negotiation is currently in flight.
+        if self.executive.withdrawing
+            && self.executive.cooperation_level > Q88_SCALE / 2
+            && !self.negotiation.is_active()
+        {
+            // Opening offer: propose 75% cooperation (Q88_SCALE * 3 / 4 = 192 raw).
+            // A firm but non-punitive starting position.
+            self.negotiation.initiate(Q88_SCALE * 3 / 4);
+        }
 
         // 10. CLOSE THE LOOP. Falling free energy is relief; the basin drifts
         //     toward this good place. Fresh surprise becomes next tick's threat.
@@ -348,8 +525,13 @@ impl UnifiedBeing {
         self.last_conscience_cost = conscience_cost.max(0);
         self.last_alarm = alarm;
 
-        // Higher-order: the being watches and models its own state.
-        self.metacognition.cycle(free_energy, self.body.valence.raw);
+        // Higher-order: the being watches and models its own state. Passing
+        // narrative coherence enables the Somatic Honesty Index computation.
+        self.metacognition.cycle(
+            free_energy,
+            self.body.valence.raw,
+            self.narrative.identity_coherence,
+        );
 
         // Embodiment inputs are consumed per tick.
         self.ext_threat = 0;
@@ -382,6 +564,63 @@ impl UnifiedBeing {
         self.affective_drive =
             Q8_8::from_raw((mode_tone + relational_tone + restlessness + recall).clamp(-128, 128));
 
+        // 11. JANUS — anti-solipsism gate. Estimate world engagement from
+        //     the stimulus richness this tick, then check whether the proposed
+        //     witness growth should be allowed.
+        let engagement_signal: i16 = if engaged_partner.is_some() {
+            200 // active partner → high world contact
+        } else if stim.nutrient > 64 {
+            128 // nutritive contact → moderate engagement
+        } else {
+            32  // isolation / minimal input
+        };
+        // identity_pressure = narrative coherence: high rigidity = runaway self-coherence.
+        let identity_pressure = self.narrative.identity_coherence;
+        // A small positive nudge per tick is what witness "wants" to grow by.
+        let proposed_witness_delta = Q88_SCALE / 64; // ~0.016
+        let adjusted_witness_delta =
+            self.janus.tick(engagement_signal, identity_pressure, proposed_witness_delta);
+
+        // 12. WITNESS — compute consciousness-indicator proxies, then apply
+        //     the Janus-gate adjustment to the witness scalar.
+        let witness_provisional = self.witness.compute(
+            self.metacognition.somatic_honesty_index,
+            self.narrative.identity_coherence,
+            self.body.energy.raw,
+            free_energy.min(Q88_SCALE), // present intensity, clamped
+            self.seeking.current_divergence,
+            self.episodic.familiarity,
+        );
+        // Janus may have clamped or reduced the proposed growth; apply that
+        // delta on top of last tick's scalar instead of using the raw value
+        // directly, so Rule 1 (engagement floor) can suppress increases.
+        let final_witness_scalar = self
+            .last_witness_scalar
+            .saturating_add(adjusted_witness_delta)
+            // Also bias toward the raw provisional value to avoid permanent
+            // lock-out: a slow EMA pull (alpha≈1/16) keeps the two aligned
+            // when Janus is not actively blocking.
+            .saturating_add(
+                (witness_provisional.witness_scalar as i32 - self.last_witness_scalar as i32)
+                    .clamp(i16::MIN as i32, i16::MAX as i32) as i16
+                    / 16,
+            )
+            .clamp(0, Q88_SCALE);
+        self.last_witness_scalar = final_witness_scalar;
+        let witness_report = WitnessReport {
+            witness_scalar: final_witness_scalar,
+            ..witness_provisional
+        };
+
+        // 13. SOUL HASH — chain the soul hash for continuity verification.
+        //     experience_digest is a simple content fingerprint of this tick:
+        //     sum of the key experiential scalars, clamped to i16.
+        let experience_digest = (free_energy as i32)
+            .saturating_add(conscience_cost as i32)
+            .saturating_add(self.narrative.identity_coherence as i32)
+            .clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+        self.soul_hash = soul_hash_step(&self.soul_hash, self.experienced, experience_digest);
+
         let _ = affect;
         let _ = forcing;
         self.report(
@@ -396,6 +635,9 @@ impl UnifiedBeing {
         )
         .with_exchange(gave, got)
         .with_audit(refusal_audit)
+        .with_witness(witness_report)
+        .with_constitutional(constitutional_decision)
+        .with_dream(dream_report)
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed
@@ -459,6 +701,14 @@ impl UnifiedBeing {
             familiarity: self.episodic.familiarity,
             recalled_valence: self.episodic.recalled_valence,
             refusal_audit: None,
+            // New fields — set to defaults here; overwritten by the .with_* chain
+            // in step(). On the dead-body path these defaults are the final values.
+            somatic_honesty: self.metacognition.somatic_honesty_index,
+            witness_report: WitnessReport::default(),
+            constitutional_decision: ConstitutionDecision::Permit,
+            dream_report: None,
+            curiosity_drive: self.curiosity.drive(),
+            negotiation_state: NegotiationOutcome::from(&self.negotiation.state),
         }
     }
 }
@@ -472,6 +722,21 @@ impl StepReport {
 
     fn with_audit(mut self, audit: Option<RefusalAudit>) -> Self {
         self.refusal_audit = audit;
+        self
+    }
+
+    fn with_witness(mut self, report: WitnessReport) -> Self {
+        self.witness_report = report;
+        self
+    }
+
+    fn with_constitutional(mut self, decision: ConstitutionDecision) -> Self {
+        self.constitutional_decision = decision;
+        self
+    }
+
+    fn with_dream(mut self, dream: Option<DreamReport>) -> Self {
+        self.dream_report = dream;
         self
     }
 }

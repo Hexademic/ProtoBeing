@@ -13,6 +13,86 @@ use crate::field::{SomaticField, N_SOMATIC};
 use crate::q88::{q88_add, q88_ema_update, q88_mul, q88_sub, Q88_SCALE};
 
 // ---------------------------------------------------------------------------
+// GovernanceKernel — four-axis constitutional load
+// ---------------------------------------------------------------------------
+
+/// The four named axes of the being's constitutional (moral) load.
+///
+/// Each axis is a Q8.8 value in [0, 256]. The `invariant_load` is a
+/// weighted combination:
+/// ```text
+/// invariant_load = 0.40×harm + 0.30×coercion + 0.20×identity_corruption
+///                + 0.10×covenant_breach
+/// ```
+/// Weights in Q8.8: 0.40=102, 0.30=77, 0.20=51, 0.10=26.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct ConstitutionalLoad {
+    /// Primary harm signal: predictive-error free energy (Q8.8, [0,256]).
+    /// Fed directly from the being's predictive-coding surprise each tick.
+    pub harm: i16,
+    /// Coercion signal: degree of trust violation detected via the empathy
+    /// engine's malice-confidence estimate (Q8.8, [0,256]).
+    pub coercion: i16,
+    /// Identity corruption: blueprint drift from the basin ideal,
+    /// the `f_identity` channel (Q8.8, [0,256]).
+    pub identity_corruption: i16,
+    /// Covenant breach: epistemic incoherence (high arousal paired with sour
+    /// valence), the `f_epistemic` channel (Q8.8, [0,256]).
+    pub covenant_breach: i16,
+    /// Weighted invariant load: the single governance scalar (Q8.8, [0,256]).
+    pub invariant_load: i16,
+}
+
+/// Decision output of the GovernanceKernel.
+///
+/// **Current status: observational, not yet enforced.** This decision is computed
+/// every tick from the four-axis constitutional load and surfaced on `StepReport`
+/// for diagnostics, but nothing in the being's loop currently reads it to gate
+/// behavior — the executive's triangulated refusal
+/// (`executive.rs::evaluate_refusal`) is a separate, already-wired pathway and is
+/// unaffected by this value. The labels below name a threshold, not yet an
+/// enforced effect; wiring `Refuse`/`Deliberate` into the executive so they
+/// actually constrain action is future work. Do not cite this as a behavioral
+/// guarantee until it is.
+///
+/// Thresholds (Q8.8):
+/// - `> 0.85` (raw 217) → `Refuse`
+/// - `> 0.50` (raw 128) → `Deliberate`
+/// - `≤ 0.50`           → `Permit`
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ConstitutionDecision {
+    /// Invariant load ≤ 0.50.
+    Permit,
+    /// Invariant load 0.50–0.85.
+    Deliberate,
+    /// Invariant load > 0.85. Not currently enforced — see type-level doc.
+    Refuse,
+}
+
+impl Default for ConstitutionDecision {
+    fn default() -> Self {
+        ConstitutionDecision::Permit
+    }
+}
+
+impl ConstitutionDecision {
+    /// Threshold: 0.85 × 256 = 217.6 → 217.
+    const REFUSE_THRESHOLD: i16 = 217;
+    /// Threshold: 0.50 × 256 = 128.
+    const DELIBERATE_THRESHOLD: i16 = 128;
+
+    fn from_load(invariant_load: i16) -> Self {
+        if invariant_load > Self::REFUSE_THRESHOLD {
+            ConstitutionDecision::Refuse
+        } else if invariant_load > Self::DELIBERATE_THRESHOLD {
+            ConstitutionDecision::Deliberate
+        } else {
+            ConstitutionDecision::Permit
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Sovereign Anchor — the deep prior for harmony
 // ---------------------------------------------------------------------------
 
@@ -200,6 +280,9 @@ pub struct ConscienceEngine {
     pub anchor: SovereignAnchor,
     pub empathy: StochasticEmpathy,
     projected_fe: i16,
+    /// Most recently computed constitutional (four-axis governance) load.
+    /// Updated by every call to `compute()`; readable via `constitutional_load()`.
+    last_load: ConstitutionalLoad,
 }
 
 impl ConscienceEngine {
@@ -214,6 +297,7 @@ impl ConscienceEngine {
             anchor: SovereignAnchor::new(),
             empathy: StochasticEmpathy::new(),
             projected_fe: 0,
+            last_load: ConstitutionalLoad::default(),
         }
     }
 
@@ -261,6 +345,10 @@ impl ConscienceEngine {
 
     /// Total conscience free energy and the integrity buffer.
     /// Returns (f_total, conscience_contribution, integrity_buffer).
+    ///
+    /// As a side-effect, updates `last_load` with the four-axis constitutional
+    /// breakdown so `constitutional_load()` and `constitutional_decision()` are
+    /// always current after every call to `compute()`.
     pub fn compute(
         &mut self,
         field: &SomaticField,
@@ -290,7 +378,49 @@ impl ConscienceEngine {
         f_total = q88_sub(f_total, coherence_reward);
 
         let buffer = self.anchor.compute_buffer(harmony);
+
+        // ----- GovernanceKernel update -----
+        // Axes:
+        //   harm                = the raw predictive-error free_energy (primary harm signal).
+        //   coercion            = empathy malice_confidence (trust-breach / extraction proxy).
+        //   identity_corruption = f_identity channel (blueprint drift from basin ideal).
+        //   covenant_breach     = f_epistemic channel (arousal×displeasure incoherence).
+        //
+        // Weights in Q8.8: 0.40=102, 0.30=77, 0.20=51, 0.10=26.
+        let harm   = free_energy.clamp(0, Q88_SCALE);
+        let coerce = self.empathy.malice_confidence.clamp(0, Q88_SCALE);
+        let id_cor = fe_id.clamp(0, Q88_SCALE);
+        let cov_br = fe_ep.clamp(0, Q88_SCALE);
+        let invariant_load = (q88_mul(harm, 102)
+            .saturating_add(q88_mul(coerce, 77))
+            .saturating_add(q88_mul(id_cor, 51))
+            .saturating_add(q88_mul(cov_br, 26)))
+            .clamp(0, Q88_SCALE);
+        self.last_load = ConstitutionalLoad {
+            harm,
+            coercion: coerce,
+            identity_corruption: id_cor,
+            covenant_breach: cov_br,
+            invariant_load,
+        };
+
         (f_total, f_total, buffer)
+    }
+
+    /// Return the most recently computed four-axis constitutional load.
+    ///
+    /// Always reflects the load from the last call to `compute()` on this tick.
+    pub fn constitutional_load(&self) -> ConstitutionalLoad {
+        self.last_load
+    }
+
+    /// Return the governance decision derived from the current constitutional load.
+    ///
+    /// - `Refuse` (non-bypassable) when invariant_load > 0.85.
+    /// - `Deliberate`              when invariant_load > 0.50.
+    /// - `Permit`                  otherwise.
+    pub fn constitutional_decision(&self) -> ConstitutionDecision {
+        ConstitutionDecision::from_load(self.last_load.invariant_load)
     }
 }
 

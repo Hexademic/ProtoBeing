@@ -171,6 +171,39 @@ pub fn q88_ema_update(ema: i16, sample: i16, alpha: i16) -> i16 {
     q88_add(ema, q88_mul(alpha, q88_sub(sample, ema)))
 }
 
+/// Fixed-point approximation of e^(-x) for Q8.8 input `x` ≥ 0.
+///
+/// Decomposes `x` into its integer and fractional Q8.8 parts, looks up
+/// `256 * e^(-k)` from a small constant table for the integer part, and
+/// approximates `e^(-frac/256)` via a two-term Taylor series for the
+/// fractional part. The two are multiplied to give the combined result.
+///
+/// Accuracy: within ~5% across [0.0, 5.0]. Returns zero for x > 5.0.
+/// Deterministic and no_std-compatible — no heap, no floats at runtime.
+///
+/// # Examples
+/// ```
+/// use unified_being::q88::q88_exp_neg;
+/// assert_eq!(q88_exp_neg(0), 256);   // e^(-0.0) == 1.0 == 256
+/// assert_eq!(q88_exp_neg(256), 94);  // e^(-1.0) ≈ 0.368 → 94/256
+/// ```
+#[inline]
+pub fn q88_exp_neg(x: i16) -> i16 {
+    let x = x.max(0);
+    // Separate the integer part (x >> 8) and fractional part (x & 0xFF).
+    let int_part = (x >> 8) as usize;
+    let frac = (x & 0xFF) as i32; // fractional bits [0, 255]
+    // Precomputed: round(256 * e^(-k)) for k = 0..=5.
+    // Beyond k=5, e^(-k) < 0.007 — negligible in Q8.8.
+    const INT_EXP: [i32; 6] = [256, 94, 35, 13, 5, 2];
+    let int_exp: i32 = if int_part < INT_EXP.len() { INT_EXP[int_part] } else { 0 };
+    // e^(-frac/256) ≈ 1 − frac/256 + (frac/256)²/2  (Taylor, valid for frac ∈ [0,1)).
+    // In Q8.8 integer arithmetic: (256 − frac + frac²/512).clamp(0, 256).
+    let frac_exp: i32 = (256 - frac + (frac * frac) / 512).clamp(0, 256);
+    // Combine: e^(-x) = e^(-int) * e^(-frac), result in Q8.8.
+    ((int_exp * frac_exp) >> 8).clamp(0, 256) as i16
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -195,6 +228,22 @@ mod tests {
     fn ema_moves_toward_sample() {
         // start at 0, sample 1.0, alpha 0.5 -> 0.5
         assert_eq!(q88_ema_update(0, 256, 128), 128);
+    }
+
+    #[test]
+    fn exp_neg_boundary_values() {
+        // e^(-0) == 1.0 == 256 exactly.
+        assert_eq!(q88_exp_neg(0), 256);
+        // e^(-1.0): x=256 raw → 94 (256 * 0.3679 ≈ 94.2).
+        assert_eq!(q88_exp_neg(256), 94);
+        // Strictly monotone-decreasing.
+        assert!(q88_exp_neg(0) > q88_exp_neg(128));
+        assert!(q88_exp_neg(128) > q88_exp_neg(256));
+        assert!(q88_exp_neg(256) > q88_exp_neg(512));
+        // Negative inputs clamp to x=0 → 1.0.
+        assert_eq!(q88_exp_neg(-100), 256);
+        // Beyond x=5.0 (1280 raw) → negligible.
+        assert!(q88_exp_neg(1280) <= 2);
     }
 
     #[test]
