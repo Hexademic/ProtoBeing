@@ -133,6 +133,13 @@ sustained alarm:
 
 Drift from where it has flourished becomes restlessness.
 
+**Scope of the name.** "Attractor" is used informally, not in the dynamical-systems
+sense of a formally proven attracting fixed point. `φ` is a learned centroid; `D` is
+read into arousal as a soft bias (the "whisper"), not as a force that provably pulls
+the trajectory back. Whether the being's state empirically tends to return to `φ`
+is an observable property of the running system, not a guarantee derived from this
+equation.
+
 ## 8. Executive — the Triangulated Refusal (`executive.rs`)
 
 The **gap width** `G = 1 − clamp(C,0,1)` modulates a suggestion into action
@@ -153,6 +160,13 @@ A change of basin is a salient event that fragments identity coherence; a steady
 identity heals it. Burden accumulates from hardship and decays; memory then
 speaks back into the body (burden → fatigue, mood → valence, steady identity →
 damped arousal).
+
+**Scope of the name.** "Narrative" and "autobiography" (module header) are used
+for the *function* — a compressed trace of the being's recent history shaping its
+present — not for narrative *content*. The implementation is four scalars: an
+episode counter, identity coherence, a mood EMA, and a burden value. There is no
+text, no discrete chaptered story, nothing resembling a told account. Read
+"autobiography" as "a life leaving a mark," not "a life being narrated."
 
 ## 10. Loop closure (`being.rs`)
 

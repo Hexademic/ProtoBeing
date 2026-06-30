@@ -148,7 +148,12 @@ impl Default for SovereignAnchor {
 }
 
 // ---------------------------------------------------------------------------
-// Stochastic empathy — bounded exploration of another's interiority
+// Adaptive empathy — a deterministic, streak-gated openness toward a partner
+//
+// Renamed from "StochasticEmpathy" (the original whitepaper lineage's name):
+// there is no randomness anywhere in this crate (verified — zero dependencies,
+// no RNG). The mechanism is a deterministic streak counter and EMA, not
+// stochastic exploration. The name now matches the mechanism.
 // ---------------------------------------------------------------------------
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -159,7 +164,7 @@ pub enum EmpathyLockLevel {
 }
 
 #[derive(Clone, Debug)]
-pub struct StochasticEmpathy {
+pub struct AdaptiveEmpathy {
     pub streak_fail: u8,
     pub streak_max: u8,
     pub malice_confidence: i16,
@@ -170,7 +175,7 @@ pub struct StochasticEmpathy {
     penalty_max: i16,
 }
 
-impl StochasticEmpathy {
+impl AdaptiveEmpathy {
     pub fn new() -> Self {
         Self {
             streak_fail: 0,
@@ -259,7 +264,7 @@ impl StochasticEmpathy {
     }
 }
 
-impl Default for StochasticEmpathy {
+impl Default for AdaptiveEmpathy {
     fn default() -> Self {
         Self::new()
     }
@@ -278,7 +283,7 @@ pub struct ConscienceEngine {
     zeta_boundary: i16,
     eta_coherence: i16,
     pub anchor: SovereignAnchor,
-    pub empathy: StochasticEmpathy,
+    pub empathy: AdaptiveEmpathy,
     projected_fe: i16,
     /// Most recently computed constitutional (four-axis governance) load.
     /// Updated by every call to `compute()`; readable via `constitutional_load()`.
@@ -295,7 +300,7 @@ impl ConscienceEngine {
             zeta_boundary: Q88_SCALE / 4,
             eta_coherence: Q88_SCALE / 4,
             anchor: SovereignAnchor::new(),
-            empathy: StochasticEmpathy::new(),
+            empathy: AdaptiveEmpathy::new(),
             projected_fe: 0,
             last_load: ConstitutionalLoad::default(),
         }

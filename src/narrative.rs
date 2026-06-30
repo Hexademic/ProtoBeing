@@ -4,6 +4,11 @@
 //! that fragments coherence; a steadily-held identity heals it. Accumulated
 //! burden raises fatigue; a sour mood drags valence; a steadily-held identity
 //! damps arousal. The being's past leans on its present body.
+//!
+//! "Autobiography" names the *function* (a trace of history shaping the
+//! present), not narrative *content*: there is no text, no story, no chapters
+//! — four scalars (episode count, identity coherence, a mood EMA, a burden
+//! value). See `docs/formal-model.md` §9.
 
 use crate::basins::Basin;
 use crate::field::SomaticField;

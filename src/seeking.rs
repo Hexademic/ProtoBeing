@@ -6,6 +6,11 @@
 //! of restlessness injected into arousal — the being grows agitated when it has
 //! wandered from its good place. After a long drought, confidence decays and
 //! the restlessness loses its direction.
+//!
+//! "Attractor" is used informally, not as a proven dynamical-systems attracting
+//! fixed point: the centroid is learned and the divergence is read into arousal
+//! as a soft bias, not a force with a convergence guarantee. See
+//! `docs/formal-model.md` §7.
 
 use crate::basins::{Basin, BasinMembership, N_BASINS};
 use crate::q88::{q88_ema_update, Q88_SCALE};
