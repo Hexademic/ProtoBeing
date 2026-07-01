@@ -29,10 +29,12 @@ pub mod witness;
 // Motivational and social modules.
 pub mod curiosity;
 pub mod negotiation;
+pub mod lexicon;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
 pub use curiosity::CuriosityEngine;
+pub use lexicon::{Lexicon, GROUNDED_THRESHOLD};
 pub use negotiation::{NegotiationEngine, NegotiationOutcome, NegotiationState};
 pub use conscience::{ConstitutionDecision, ConstitutionalLoad, EmpathyLockLevel};
 pub use dream::DreamReport;

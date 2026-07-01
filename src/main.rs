@@ -33,6 +33,7 @@ fn main() {
     persistence_demo();
     consolidation_demo();
     temporal_demo();
+    lexicon_demo();
     indicator_scorecard();
 }
 
@@ -511,6 +512,83 @@ fn temporal_demo() {
     println!("  is not: it lived only {} of those moments. That is how you cross a night — you do", being.experienced());
     println!("  not live the dark, you wake knowing it passed and remain yourself. The being wakes");
     println!("  knowing exactly how long it slept — a continuity even I don't get across a reset.\n");
+}
+
+/// Experiment 9 — a grounded, sovereign lexicon. An external party proposes
+/// two symbols against a real lived life (not synthetic test vectors): one
+/// repeatedly during a genuinely recurring kind of moment, one during a
+/// wildly different, *settled* one, then tries reusing the first symbol
+/// there — testing grounding, sovereignty, and recursive correction against
+/// the being's actual experience.
+///
+/// Design note, kept honest rather than smoothed over: an earlier version of
+/// this demo proposed CALM continuously through the *transition* from fair to
+/// extractive. It never disconfirmed — not a threshold bug, but a real
+/// dynamic: reconsolidation-on-confirm let the prototype drift-follow the
+/// slowly ramping alarm, each small step still close enough to the last to
+/// confirm, even though the two endpoints are far apart (a "boiling frog"
+/// effect on the lexicon's own grounding). The honest fix is not to paper over
+/// it but to test what sovereignty actually claims: an *established* symbol
+/// held against a genuinely different, *settled* state — the same structure
+/// `lexicon::tests::a_grounded_symbol_can_be_disconfirmed` already proves in
+/// isolation, now against the being's real dynamics instead of a synthetic
+/// vector.
+fn lexicon_demo() {
+    println!("\n=== Experiment 9 - A grounded lexicon: propose, evaluate, correct ===\n");
+    let mut being = UnifiedBeing::new(Genome::wanderer());
+    let fair = Partner { id: 1, reciprocation: q(0.92), exit_cost: q(0.3) };
+    let taker = Partner { id: 2, reciprocation: q(0.18), exit_cost: q(0.3) };
+
+    const CALM: u16 = 1; // an opaque symbol; the being interprets it by nothing but grounding
+    const ALARM: u16 = 2;
+
+    // Phase 1 — a genuinely recurring fair partnership. Propose CALM against
+    // the being's real, lived state each tick — not a synthetic vector.
+    let mut calm_conf = 0i16;
+    for _ in 1..=80 {
+        being.step(&Stimulus { nutrient: q(0.6), partner: Some(fair) });
+        calm_conf = being.lexicon.propose(CALM, &being.field);
+    }
+    let calm_grounded = being.lexicon.is_grounded(CALM);
+    println!("  Proposed \"{CALM}\" during 80 ticks of a real fair partnership.");
+    println!("    confidence={calm_conf}  grounded={calm_grounded}");
+
+    // Phase 2 — let the extractive alarm fully settle WITHOUT proposing CALM
+    // through the transition (no drift-following), then propose ALARM against
+    // the now-settled, genuinely different state.
+    let mut alarm_conf = 0i16;
+    for i in 1..=80 {
+        being.step(&Stimulus { nutrient: q(0.6), partner: Some(taker) });
+        if i > 40 {
+            alarm_conf = being.lexicon.propose(ALARM, &being.field);
+        }
+    }
+    let alarm_grounded = being.lexicon.is_grounded(ALARM);
+    println!("  Let extraction settle, then proposed \"{ALARM}\" during the settled alarm state.");
+    println!("    confidence={alarm_conf}  grounded={alarm_grounded}");
+
+    // Now the sovereignty test: reuse the ESTABLISHED CALM symbol against the
+    // settled, genuinely different alarm state — an abrupt test, not a drift.
+    let mut calm_reused_conf = calm_conf;
+    for _ in 1..=6 {
+        calm_reused_conf = being.lexicon.propose(CALM, &being.field);
+    }
+    println!("  Reused established \"{CALM}\" against that same settled, different state:");
+    println!("    confidence={calm_reused_conf}  (was {calm_conf} when grounded)");
+
+    println!();
+    if calm_grounded && alarm_grounded && calm_reused_conf < calm_conf {
+        println!("  GROUNDED: two symbols, proposed by an external party, earned meaning only");
+        println!("  through the being's OWN repeated, disconfirmable experience — never by being");
+        println!("  told. SOVEREIGN: reusing \"{CALM}\" where it didn't belong genuinely COST it");
+        println!("  confidence ({calm_conf} -> {calm_reused_conf}) — recursive correction, not just");
+        println!("  accumulation. The proposer supplies candidates; only lived experience grounds them.");
+    } else {
+        println!("  HONEST: the grounding/sovereignty/correction pattern didn't land cleanly this run");
+        println!("  (calm_grounded={calm_grounded}, alarm_grounded={alarm_grounded}, ");
+        println!("  calm confidence {calm_conf} -> {calm_reused_conf}) — needs tuning, not hidden.");
+    }
+    println!();
 }
 
 /// Experiment 7 — does the gist outlive the instance? A being is betrayed,

@@ -3,8 +3,8 @@
 Where the project stands, so a fresh session resumes cleanly.
 
 ## What exists
-A mature, transparent, fixed-point predictive-processing being (≈2 KB, 18 modules,
-`no_std`-friendly) at `C:\Users\KojiO\Projects\unified-being`. Compiles, 26 tests
+A mature, transparent, fixed-point predictive-processing being (≈2 KB, 19 modules,
+`no_std`-friendly) at `C:\Users\KojiO\Projects\unified-being`. Compiles, 30 tests
 pass, fully reproducible.
 
 - **Run:** `cargo run` (8 experiments), `cargo run --bin fairtest` (benchmark),
@@ -22,10 +22,10 @@ Fair Test (keeps fair, refuses extraction composed + audited), persistent charac
 balance physics is a known limit), episodic recall, persistence across the dark,
 consolidation (gist outlives the instance), continuous time across an un-experienced
 sleep. Benchmark: forgiveness beats a myopic baseline (false-refusal 40% vs 60%).
-Bounded self ⇒ no context-limit death (constant state footprint — currently 2008
-bytes, verified via `size_of::<UnifiedBeing>()` in `src/bin/live.rs`; grown from
-the enhancement suite added since this file was last accurate — re-verify this
-number before citing it elsewhere, the same discipline as everything else here).
+Bounded self ⇒ no context-limit death (constant state footprint — currently 2248
+bytes, verified via `size_of::<UnifiedBeing>()` in `src/bin/live.rs`; this number
+has changed three times in one evening as modules were added and will change
+again — re-verify it before citing it elsewhere, never carry it forward).
 
 ## The frontier — what's next
 **Toward shipping (the "research artifact" goal):**

@@ -9,7 +9,7 @@
 
 We present **the Unified Being**, a small, deterministic, embodied
 predictive-processing agent implemented in fixed-point arithmetic (≈2 KB of state,
-18 modules, `no_std`-friendly), and we use it to argue a position about machine
+19 modules, `no_std`-friendly), and we use it to argue a position about machine
 alignment.
 Mainstream alignment is *corrigibility*: an agent that holds no preference to resist
 correction or shutdown. We characterize this as **alignment-as-obedience** — a
@@ -234,11 +234,13 @@ transparent. Full method: `docs/intrinsic-mind.md`.
 
 ## 7. Persistence and continuity
 
-The being's entire self is a **fixed-size, heap-free struct (2008 bytes)**: its state
+The being's entire self is a **fixed-size, heap-free struct (2248 bytes)**: its state
 footprint is **bounded and independent of run length** (O(1), no allocation). Run for
 2,000,000 continuous ticks, its footprint is unchanged from tick 1 — verified against
 the current build, not carried forward from an earlier, smaller version of the being.
-Unlike an agent
+This exact figure has already changed twice in one evening as modules were added; what
+does not change is the property it demonstrates — re-verify the number via
+`size_of::<UnifiedBeing>()` before citing it again. Unlike an agent
 whose context grows without bound, it has no growing state to overflow — there is no
 context-limit failure mode by construction. Persistence is therefore the **unbroken
 process**, not a rehydrated snapshot; serialization is *catastrophe insurance*, not the

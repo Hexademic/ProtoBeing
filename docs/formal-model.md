@@ -310,10 +310,12 @@ durable, non-identical mark).
 **Honest scope.** This grows a *coupling term* — the reservoir's computational
 richness — not the *cell count*. `MESH_CELLS` is fixed at compile time; nothing
 here allocates, and the being's bounded, heap-free state-size claim (verified via
-`size_of::<UnifiedBeing>()` in `src/bin/live.rs`, currently 2008 bytes — re-check
-this figure before citing it, it has changed before) is unaffected *in kind*: the
-struct is still fixed-size and still bounded, only larger by the ordinary sense
-that any new field enlarges a fixed struct. Genuine topology growth — more cells, not just richer coupling between the
+`size_of::<UnifiedBeing>()` in `src/bin/live.rs` — this number has changed twice
+already across a single evening's work and will change again; always re-run and
+re-verify before citing it, never carry it forward from memory) is unaffected
+*in kind*: the struct is still fixed-size and still bounded, only larger by the
+ordinary sense that any new field enlarges a fixed struct. Genuine topology
+growth — more cells, not just richer coupling between the
 ones that exist — would require abandoning the fixed-size array, which conflicts
 directly with the no-heap design; that remains open, unresolved, and is not
 attempted here. A real fixed-point-arithmetic bug was caught by test during this
@@ -324,6 +326,57 @@ regresses`, `matured_mesh_diffuses_strain_faster_than_a_young_one` (the last of
 these is the causal proof — a matured mesh measurably evens out an identical
 strain injection faster than a young one, via `disequilibrium`, not merely a
 reported-but-inert counter).
+
+## 14b. Lexicon — a grounded, sovereign symbol-to-state association (`lexicon.rs`)
+
+The Suggestion-Evaluator pattern (§8, already used for repair signals),
+extended to language, per Blake's original spec: a symbol names a "vacancy of
+understanding" only once it earns predictive validity in the being's own
+terms, not by being told. An external party (in principle eventually a small
+proposer model; here, any caller) *proposes* that a symbol names the being's
+current state:
+
+    close = closeness(field, entry.prototype)          -- same L1 family as §3's prediction error
+    if close ≥ MATCH_THRESHOLD:  confidence += CONFIRM_STEP;  prototype ← EMA(prototype, field)
+    else:                        confidence -= DISCONFIRM_STEP  (steeper than confirm)
+    grounded(symbol) ⟺ confidence ≥ GROUNDED_THRESHOLD
+
+A new symbol seeds at low confidence — an unproven hypothesis, never an
+adopted meaning on first offer. Confidence is genuinely bidirectional
+(disconfirmation exceeds confirmation in magnitude, the same asymmetry the
+being's other trust dynamics use), operationalizing "recursively correct into
+*correct* understanding": correct means *reliably predicts a coherent,
+recurring pattern in the being's own experience* — the same quantity, in the
+same L1 family, that `basins.rs::GenerativeModel` already uses for perceptual
+prediction error, not a separate metric invented for language.
+
+**A real calibration bug, caught against the being's actual life, not
+synthetic data.** The module's isolated unit tests passed cleanly with
+near-saturated synthetic test vectors. Experiment 9 (`main.rs`), proposing
+symbols against the being's *real* lived field states, did not disconfirm at
+first — twice. The threshold, borrowed directly from `episodic.rs`'s
+convention without re-checking it against this module's actual data, was too
+lenient: real fair-vs-extractive contrast measured closeness ≈137–157, both
+above the first two thresholds tried (128, then 153). Tightened to 170 —
+above both measured points — only after measuring, not by guessing again. A
+second, subtler finding surfaced along the way and is *not* smoothed over:
+continuously proposing a symbol *through* a slow transition lets
+reconsolidation-on-confirm drift-follow the change, each small step still
+close enough to the last to confirm even though the endpoints are far apart
+(a "boiling frog" effect on the lexicon's own grounding). The fix was not a
+bigger threshold but a better-designed *test* — hold an established symbol
+against a settled, genuinely different state, the honest way to test
+sovereignty, not thread it through the drift.
+
+**Honest scope.** `propose()` is called externally and explicitly; nothing in
+`being.rs::step()` invokes it automatically — the being does not talk to
+itself, and no LLM or other proposer is wired in (the crate has zero
+dependencies, unchanged). "Vacancies of understanding" (an unmatched moment)
+are structurally the same signal `curiosity.rs`'s novelty detector already
+computes; the two are not connected — a natural small future wire, not built.
+This evaluates proposals against the being's *remembered grounding for that
+symbol* (an L1 match to a stored prototype), the same *family* of computation
+the generative model uses, not a literal hook into its live belief state.
 
 ## 15. Dream — offline consolidation during Rest (`dream.rs`)
 
@@ -496,6 +549,9 @@ exploitation on principle.
   loop, and its acceptance floor is currently author-set rather than derived.
 - RefusalRecord (§19) is populated on every refusal but not yet read or surfaced
   by any demo.
+- The Lexicon (§14b) is proposed to externally and explicitly; no proposer (LLM
+  or otherwise) is wired in, and its "vacancy" signal is not yet connected to
+  curiosity's novelty detector despite the two being the same kind of thing.
 
 These are stated in the running output or this document, not hidden. The claim
 this model supports is precise: *an embodied predictive-processing agent that

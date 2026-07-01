@@ -20,6 +20,7 @@ use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
 use crate::janus::JanusGate;
+use crate::lexicon::Lexicon;
 use crate::metacognition::MetacognitionEngine;
 use crate::narrative::NarrativeEngine;
 use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
@@ -214,6 +215,9 @@ pub struct UnifiedBeing {
     pub curiosity: CuriosityEngine,
     /// Structured inter-agent negotiation protocol engine.
     pub negotiation: NegotiationEngine,
+    /// Grounded, sovereign symbol-to-state lexicon. External-facing only:
+    /// nothing in `step()` proposes to it automatically — see `lexicon.rs`.
+    pub lexicon: Lexicon,
     /// Offline DORSAL consolidation engine — runs each tick in Rest basin.
     pub dream: Dream,
     /// Anti-solipsism guard — enforces world-engagement and identity-pressure rules.
@@ -266,6 +270,7 @@ impl UnifiedBeing {
             episodic: EpisodicMemory::new(),
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
+            lexicon: Lexicon::new(),
             dream: Dream::new(),
             janus: JanusGate::new(),
             witness: WitnessGap::new(),

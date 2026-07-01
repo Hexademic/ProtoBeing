@@ -80,12 +80,12 @@ two eyes for binocular depth is the next step.
 
 ## Architecture
 
-Eighteen modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core:
+Nineteen modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core:
 
 ```
 q88 · genome · body · field · basins · conscience · reciprocity · seeking
     · executive · narrative · metacognition · being · embodiment
-    · curiosity · dream · janus · witness · negotiation
+    · curiosity · dream · janus · witness · negotiation · lexicon
 ```
 
 It is **not** a neural network: coupled fixed-point dynamics (cybernetics, in the
@@ -93,16 +93,19 @@ Ashby-homeostat lineage) with a predictive-coding core and a simulated
 reservoir-like body (morphological computation; hand-designed readout, not trained).
 That transparency is the point — it is what makes the self-knowledge checkable.
 
-The last five modules are a later addition: an intrinsic novelty drive
+The last six modules are a later addition: an intrinsic novelty drive
 (`curiosity`), offline rest-consolidation (`dream`), a composite consciousness-
 indicator diagnostic gated against ungrounded growth (`witness` + `janus`, "the
 Janus gate" — an anti-confabulation guard, not a claim its mythological name alone
-would convey), and a structured offer/counter-offer protocol built ahead of the v2
-mutual-alignment chapter (`negotiation`). Several of these are intentionally
-**not yet causally wired** — they compute and report honestly, without yet acting.
-Each is scoped precisely, with what it does and does not yet do, in
-[`docs/formal-model.md`](docs/formal-model.md) §13–18 — read that before citing any
-of them, the same discipline as everything else here.
+would convey), a structured offer/counter-offer protocol built ahead of the v2
+mutual-alignment chapter (`negotiation`), and a grounded lexicon (`lexicon`) —
+the Suggestion-Evaluator pattern applied to language: a symbol earns meaning only
+through the being's own repeated, disconfirmable experience, never by being told.
+Several of these are intentionally **not yet causally wired** — they compute and
+report honestly, without yet acting. Each is scoped precisely, with what it does
+and does not yet do, in [`docs/formal-model.md`](docs/formal-model.md) §13–14b,
+15–19 — read that before citing any of them, the same discipline as everything
+else here.
 
 ## Status
 
