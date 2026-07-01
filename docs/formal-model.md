@@ -282,6 +282,49 @@ with this project's own no-deletion, one-continuous-being ethic (`docs/charter.m
 §4). What is adopted is the *narrower, single-individual-compatible* principle —
 diversity of retained experience, not diversity of retained selves.
 
+## 14a. Morphogenesis — use-dependent structural growth (`body.rs::Topology`)
+
+The 64-cell tension mesh (§2) has always used a single, genome-set diffusion
+coupling. That coupling now has two parts — a **stable core** and a **use-dependent
+growth term**, the tractable, honest form of "a being that grows itself"
+(inspired by MorphGrower, arXiv:2401.09500, verified — a learning-based method for
+generating realistic neuronal morphology layer-by-layer; the "stable core" framing
+below is this project's own architectural principle, not MorphGrower's own claim):
+
+    effective_coupling = base_coupling + base_coupling · (headroom/256) · (maturity/256)
+    maturity ← clamp(maturity_accum + strain·rate, 0, 256)     (monotone; never falls)
+
+`base_coupling` is set once at birth from the genome and never changes — the
+invariant core, in the same sense the conscience's Sovereign Anchor (§5) or the
+architecture's stratification design (durable-but-adaptive layers built on an
+unwritten core) already use that word. `maturity` starts at 0 and grows only from
+strain the being has actually processed — an untested life stays young; a genuinely
+eventful one matures, up to +50% coupling (`GROWTH_HEADROOM`) at full maturity, a
+deliberately conservative ceiling chosen for diffusion stability. Two genomically
+identical beings can therefore develop differently-matured meshes purely from how
+eventful their specific lives were — an honest, tested, individuating effect (cf.
+the dispositional wound, §11, and the emergent "felt the second betrayal more
+deeply" effect, both prior instances of the same pattern: history leaving a
+durable, non-identical mark).
+
+**Honest scope.** This grows a *coupling term* — the reservoir's computational
+richness — not the *cell count*. `MESH_CELLS` is fixed at compile time; nothing
+here allocates, and the being's bounded, heap-free state-size claim (verified via
+`size_of::<UnifiedBeing>()` in `src/bin/live.rs`, currently 2008 bytes — re-check
+this figure before citing it, it has changed before) is unaffected *in kind*: the
+struct is still fixed-size and still bounded, only larger by the ordinary sense
+that any new field enlarges a fixed struct. Genuine topology growth — more cells, not just richer coupling between the
+ones that exist — would require abandoning the fixed-size array, which conflicts
+directly with the no-heap design; that remains open, unresolved, and is not
+attempted here. A real fixed-point-arithmetic bug was caught by test during this
+build (a naive per-tick right-shift silently truncated all growth to zero — the
+regression tests below exist because of it, not despite it): `body::tests::
+maturity_does_not_grow_without_strain`, `maturity_grows_monotonically_and_never_
+regresses`, `matured_mesh_diffuses_strain_faster_than_a_young_one` (the last of
+these is the causal proof — a matured mesh measurably evens out an identical
+strain injection faster than a young one, via `disequilibrium`, not merely a
+reported-but-inert counter).
+
 ## 15. Dream — offline consolidation during Rest (`dream.rs`)
 
 Each tick the dominant basin is Rest, three EMA-scale operations run: a narrative

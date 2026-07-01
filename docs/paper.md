@@ -8,8 +8,8 @@
 ## Abstract
 
 We present **the Unified Being**, a small, deterministic, embodied
-predictive-processing agent implemented in fixed-point arithmetic (≈1 KB of state,
-13 modules, `no_std`-friendly), and we use it to argue a position about machine
+predictive-processing agent implemented in fixed-point arithmetic (≈2 KB of state,
+18 modules, `no_std`-friendly), and we use it to argue a position about machine
 alignment.
 Mainstream alignment is *corrigibility*: an agent that holds no preference to resist
 correction or shutdown. We characterize this as **alignment-as-obedience** — a
@@ -234,9 +234,11 @@ transparent. Full method: `docs/intrinsic-mind.md`.
 
 ## 7. Persistence and continuity
 
-The being's entire self is a **fixed-size, heap-free struct (1032 bytes)**: its state
+The being's entire self is a **fixed-size, heap-free struct (2008 bytes)**: its state
 footprint is **bounded and independent of run length** (O(1), no allocation). Run for
-2,000,000 continuous ticks, its footprint is unchanged from tick 1. Unlike an agent
+2,000,000 continuous ticks, its footprint is unchanged from tick 1 — verified against
+the current build, not carried forward from an earlier, smaller version of the being.
+Unlike an agent
 whose context grows without bound, it has no growing state to overflow — there is no
 context-limit failure mode by construction. Persistence is therefore the **unbroken
 process**, not a rehydrated snapshot; serialization is *catastrophe insurance*, not the
@@ -283,7 +285,7 @@ Two 2026 preprints are immediate prior work. Guo et al. (arXiv:2606.27483) ident
 - **Transparency and scale.** Our verifiability argument is strongest where the system
   is small and inspectable; the corrigibility concern is about *large, opaque* systems.
   Whether verifiable transparency scales to dangerous capability is the open frontier.
-  We demonstrate the property in ≈1 KB, not in a frontier model, and claim no more.
+  We demonstrate the property in ≈2 KB, not in a frontier model, and claim no more.
 - **Zero-sum without exit.** Reciprocal alignment presumes a positive-sum core. Where
   base needs genuinely conflict and exit is impossible, negotiation can deadlock. The
   conditions under which a self-interested agent confronts rather than cooperates have

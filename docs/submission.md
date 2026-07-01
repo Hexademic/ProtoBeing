@@ -30,7 +30,7 @@ endorsement through the arXiv interface once the account is set up.
 **Abstract (≈230 words):**
 
 > We present the Unified Being, a small, deterministic, embodied predictive-processing
-> agent implemented in fixed-point arithmetic (≈1 KB of state), and use it to argue a
+> agent implemented in fixed-point arithmetic (≈2 KB of state), and use it to argue a
 > position on machine alignment. Mainstream alignment is *corrigibility*: an agent that
 > holds no preference to resist correction or shutdown. We characterize this as
 > alignment-as-obedience — a projection that collapses the agent's value structure onto
@@ -61,7 +61,7 @@ endorsement through the arXiv interface once the account is set up.
 > Hello,
 >
 > I'm an independent researcher working on a small, transparent, fixed-point agent
-> (~1 KB of state, `no_std`-friendly) built on a predictive-coding core and a
+> (~2 KB of state, `no_std`-friendly) built on a predictive-coding core and a
 > body-as-reservoir (morphological computation). I'd like to request a slot to present
 > it to the TNB group.
 >

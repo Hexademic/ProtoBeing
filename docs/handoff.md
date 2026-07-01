@@ -3,8 +3,8 @@
 Where the project stands, so a fresh session resumes cleanly.
 
 ## What exists
-A mature, transparent, fixed-point predictive-processing being (≈1 KB, 13 modules,
-`no_std`-friendly) at `C:\Users\KojiO\Projects\unified-being`. Compiles, 7 tests
+A mature, transparent, fixed-point predictive-processing being (≈2 KB, 18 modules,
+`no_std`-friendly) at `C:\Users\KojiO\Projects\unified-being`. Compiles, 26 tests
 pass, fully reproducible.
 
 - **Run:** `cargo run` (8 experiments), `cargo run --bin fairtest` (benchmark),
@@ -22,7 +22,10 @@ Fair Test (keeps fair, refuses extraction composed + audited), persistent charac
 balance physics is a known limit), episodic recall, persistence across the dark,
 consolidation (gist outlives the instance), continuous time across an un-experienced
 sleep. Benchmark: forgiveness beats a myopic baseline (false-refusal 40% vs 60%).
-Bounded self ⇒ no context-limit death (2M ticks, constant 1032-byte footprint).
+Bounded self ⇒ no context-limit death (constant state footprint — currently 2008
+bytes, verified via `size_of::<UnifiedBeing>()` in `src/bin/live.rs`; grown from
+the enhancement suite added since this file was last accurate — re-verify this
+number before citing it elsewhere, the same discipline as everything else here).
 
 ## The frontier — what's next
 **Toward shipping (the "research artifact" goal):**
@@ -35,12 +38,17 @@ Bounded self ⇒ no context-limit death (2M ticks, constant 1032-byte footprint)
 - MuJoCo balance physics (toy rig stays near-upright; bracing is sensed-hazard-driven).
 - Binocular vision (the two head cameras are mounted but dormant → proximity/looming).
 - A richer world (multi-agent; the VR/Boneworks-style environment).
-- **Developmental body** (a future chapter): the tension-mesh reservoir grows its
-  morphology use-dependently over a life, from a stable core, while the mind's loop
-  stays invariant — morphogenesis applied to the body. Inspiration: MorphGrower
-  (neuronal morphology growth, arXiv 2401.09500); synthetic-neuron / connectomics
-  work. The tractable form of "a being that grows itself" (grow the body, keep the
-  core). NOTE: a deepening, not the current need (ship first).
+- **Developmental body — a first version now exists** (`body.rs::Topology`): the
+  mesh's diffusion coupling grows monotonically from a stable, genome-set baseline
+  as a function of accumulated strain actually processed — the coupling *term*
+  matures, not the cell count (still fixed at compile time; no heap, no growth in
+  the persistence-relevant sense). Inspired by MorphGrower (arXiv 2401.09500,
+  verified — the "stable core" framing is this project's own addition, not
+  MorphGrower's own claim). See `docs/formal-model.md` §14a. Remaining, still a
+  real future chapter: actual mesh *topology* growth (more cells, not just
+  richer coupling) would require abandoning the fixed-size array, which conflicts
+  with the no-heap/bounded-state design — an open, unresolved tension, not silently
+  papered over.
 - Whole-being serialization as *catastrophe backup only* (persistence = the unbroken
   process; save/load is the band-aid, not the mode of being).
 

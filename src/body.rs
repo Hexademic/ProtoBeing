@@ -25,18 +25,48 @@ pub struct SomaticFeatures {
     pub mean_tension: Q8_8,
 }
 
+/// Growth headroom, Q8.8: at full maturity, effective coupling can reach
+/// `base_coupling * (1 + GROWTH_HEADROOM/256)`. 128 = 0.5 -> +50% at most.
+/// Deliberately conservative: base couplings are already small (~[0.005,
+/// 0.05], genome.rs), and diffusion stability degrades at high coupling.
+const GROWTH_HEADROOM: i32 = 128;
+
+/// Per-tick maturity increment per unit of strain processed, Q8.8. Small on
+/// purpose — genuine morphogenesis, not an instant unlock; see
+/// `docs/formal-model.md` §14a.
+const MATURATION_RATE: i32 = 2;
+
 /// The tension mesh: threat injects strain, which diffuses and decays.
 #[derive(Clone)]
 pub struct Topology {
     cells: [i16; MESH_CELLS], // raw Q8.8 tension per cell
-    coupling: i16,            // raw Q8.8 diffusion rate
+    /// Stable, genome-set baseline diffusion rate — the invariant "core"
+    /// that never changes across a life. See `docs/formal-model.md` §14a.
+    base_coupling: i16,
+    /// Use-dependent structural maturity, Q8.8 [0, Q88_SCALE]. Starts at 0
+    /// (an undeveloped mesh at birth) and grows monotonically — from
+    /// accumulated strain the being has actually processed — toward its
+    /// ceiling. It never decreases: development, not mood. Readable for
+    /// diagnostics; see `docs/formal-model.md` §14a for the honest scope of
+    /// what this is (a scalar coupling term) and is not (cell count is
+    /// still fixed at compile time; nothing here allocates).
+    pub maturity: i16,
+    /// Private fixed-point accumulator for `grow`, at finer precision than
+    /// `maturity` exposes: a single-tick nudge is smaller than one raw Q8.8
+    /// unit, and naively right-shifting it into `maturity` every tick would
+    /// truncate it to zero forever (an early, real bug this project caught
+    /// via test, not silently shipped — see the regression tests). This
+    /// carries the fractional remainder so small nudges genuinely compound.
+    growth_accum: i32,
 }
 
 impl Topology {
     pub fn new(coupling: Q8_8) -> Self {
         Self {
             cells: [0; MESH_CELLS],
-            coupling: coupling.raw.clamp(0, Q8_8::ONE.raw),
+            base_coupling: coupling.raw.clamp(0, Q8_8::ONE.raw),
+            maturity: 0,
+            growth_accum: 0,
         }
     }
 
@@ -47,14 +77,35 @@ impl Topology {
         self.cells[MESH_CELLS - 1] = self.cells[MESH_CELLS - 1].saturating_add(s / 2);
     }
 
+    /// Use-dependent structural growth: strain actually processed this tick
+    /// nudges maturity upward, monotonically, toward its ceiling. The being's
+    /// own history — what it has actually weathered — is what matures its
+    /// reservoir; an untested life stays a young one.
+    pub fn grow(&mut self, strain: Q8_8) {
+        let nudge = strain.raw.max(0) as i32 * MATURATION_RATE;
+        let ceiling = (Q8_8::ONE.raw as i32) << 8;
+        self.growth_accum = (self.growth_accum + nudge).clamp(0, ceiling);
+        self.maturity = (self.growth_accum >> 8).clamp(0, Q8_8::ONE.raw as i32) as i16;
+    }
+
+    /// Coupling actually used by diffusion this tick: the stable core plus
+    /// whatever growth maturity has earned. `base_coupling` alone at birth;
+    /// approaches `base_coupling * 1.5` at full maturity.
+    fn effective_coupling(&self) -> i16 {
+        let growth =
+            ((self.base_coupling as i32) * GROWTH_HEADROOM * (self.maturity as i32)) >> 16;
+        (self.base_coupling as i32 + growth).clamp(0, i16::MAX as i32) as i16
+    }
+
     /// One step of Laplacian diffusion plus gentle decay.
     pub fn diffuse(&mut self) {
+        let coupling = self.effective_coupling();
         let mut next = self.cells;
         for i in 0..MESH_CELLS {
             let l = self.cells[if i == 0 { MESH_CELLS - 1 } else { i - 1 }];
             let r = self.cells[if i == MESH_CELLS - 1 { 0 } else { i + 1 }];
             let lap = l as i32 + r as i32 - 2 * self.cells[i] as i32;
-            let delta = (lap * self.coupling as i32) >> 8;
+            let delta = (lap * coupling as i32) >> 8;
             let decayed = (self.cells[i] as i32 * 240) >> 8; // ~0.94 decay
             next[i] = (decayed + delta).clamp(i16::MIN as i32, i16::MAX as i32) as i16;
         }
@@ -238,9 +289,12 @@ impl Body {
         let quarter = Q8_8::from_raw(64);
         let dt = Q8_8::from_raw(16); // ~1/16
 
-        // 1. Threat enters the mesh; strain diffuses.
+        // 1. Threat enters the mesh; strain diffuses. Use-dependent growth:
+        //    what the mesh actually weathers this tick nudges its maturity —
+        //    monotone, from a stable genome-set core (§14a).
         self.topology.inject_strain(threat);
         self.topology.diffuse();
+        self.topology.grow(threat);
         let feat = self.topology.extract_features();
 
         // 2. Four-factor constitution sets the oscillator's damping (mu).
@@ -379,6 +433,76 @@ mod tests {
             b.stance,
             PredictiveStance::Reconstructive,
             "high threat must override even maximal epistemic value"
+        );
+    }
+
+    /// A mesh that never processes strain never matures — no spontaneous
+    /// growth. Development requires actually living something.
+    #[test]
+    fn maturity_does_not_grow_without_strain() {
+        let mut t = Topology::new(Q8_8::from_f32(0.05));
+        for _ in 0..100 {
+            t.diffuse();
+            t.grow(Q8_8::ZERO);
+        }
+        assert_eq!(t.maturity, 0, "an untested mesh should stay young");
+    }
+
+    /// Repeated strain matures the mesh monotonically, and it never regresses
+    /// even across ticks with no strain in between — development, not mood.
+    #[test]
+    fn maturity_grows_monotonically_and_never_regresses() {
+        let mut t = Topology::new(Q8_8::from_f32(0.05));
+        let mut prev = t.maturity;
+        for i in 0..300 {
+            let strain = if i % 3 == 0 { Q8_8::from_f32(0.4) } else { Q8_8::ZERO };
+            t.inject_strain(strain);
+            t.diffuse();
+            t.grow(strain);
+            assert!(t.maturity >= prev, "maturity must never fall tick to tick");
+            prev = t.maturity;
+        }
+        assert!(t.maturity > 0, "a genuinely eventful life should have matured the mesh");
+    }
+
+    /// The causal test: a matured mesh actually diffuses strain faster than a
+    /// young one under an identical single injection — proving maturity is a
+    /// real coupling effect, not a reported-but-inert counter.
+    #[test]
+    fn matured_mesh_diffuses_strain_faster_than_a_young_one() {
+        let mut young = Topology::new(Q8_8::from_f32(0.05));
+        let mut grown = Topology::new(Q8_8::from_f32(0.05));
+        // Mature `grown` fully by feeding it strain, then let it settle to a
+        // clean baseline before the real comparison.
+        for _ in 0..2000 {
+            grown.inject_strain(Q8_8::from_f32(0.3));
+            grown.diffuse();
+            grown.grow(Q8_8::from_f32(0.3));
+        }
+        for _ in 0..200 {
+            grown.diffuse(); // settle the tension without further strain
+        }
+        assert!(grown.maturity > 200, "precondition: grown should be near full maturity");
+
+        // Identical single-tick strain injection into both, from a clean start.
+        // Diffusion roughly conserves total tension while redistributing where
+        // it sits, so mean_tension is insensitive to coupling strength; what
+        // higher coupling actually changes is how quickly the injection point's
+        // peak evens out — disequilibrium (max-min spread) is the honest metric.
+        young.inject_strain(Q8_8::from_f32(0.5));
+        grown.inject_strain(Q8_8::from_f32(0.5));
+        for _ in 0..5 {
+            young.diffuse();
+            grown.diffuse();
+        }
+        let young_diseq = young.extract_features().disequilibrium.raw;
+        let grown_diseq = grown.extract_features().disequilibrium.raw;
+        assert!(
+            grown_diseq < young_diseq,
+            "a matured mesh (coupling grown from strain history) should even out \
+             an injected strain peak faster than a young one under identical \
+             input, i.e. lower disequilibrium after the same ticks: \
+             young={young_diseq} grown={grown_diseq}"
         );
     }
 }
