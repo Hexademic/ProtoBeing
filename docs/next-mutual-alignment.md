@@ -54,7 +54,21 @@ analogy and becomes a theorem-shaped claim, and the title earns itself completel
   condition the agents satisfy), not a target we hand-pick to flatter the result.
 - **Negotiation without a free-talking LLM.** Meaning is exchanged through grounded
   signals and the suggestion-evaluator pattern (propose/accept/revise by each being's own
-  free energy), never ventriloquized.
+  free energy), never ventriloquized. **This mechanism now exists** (`lexicon.rs`,
+  direction 4 of the enhancement work) — each being can propose a symbol to the other and
+  evaluate it against its own remembered grounding, exactly this pattern, already tested.
+  What v2 adds is making the *proposer* a second sovereign being instead of an operator.
+  Related literature, verified: the classic emergent-communication results (Mordatch et
+  al., 2017; Havrylov et al., 2017) and, more recently, *AI Mother Tongue:
+  Self-Emergent Communication in MARL via Endogenous Symbol Systems* (Liu, 2025,
+  arXiv:2507.10566) — agents develop shared symbols via a trained VQ-VAE embedding,
+  achieving convergence without external inductive bias. The honest contrast to hold:
+  their shared meaning lives in an opaque, trained representation; ours would live in an
+  L1-distance grounding against stored, readable prototypes — the same emergence
+  phenomenon, opposite epistemics. A concrete, checkable convergence test for two beings:
+  do their independently-grounded symbols' *prototypes* end up close to each other for
+  the same recurring joint pattern, even under different symbol IDs? That is a
+  computable, auditable analogue of their "semantic convergence," without a black box.
 - **World design.** A minimal two-agent ecology: shared nutrient, give/take actions, and
   two variants — *exit available* (the clean case) and *exit unavailable* (the deadlock
   case) — so both the result and its honest limit are shown.
