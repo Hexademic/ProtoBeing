@@ -25,6 +25,27 @@ const N_EPISODES: usize = 16;
 const N_SCHEMAS: usize = 8;
 const CONSOLIDATE_EVERY: u32 = 16;
 
+/// Number of affective niches for quality-diversity eviction (below).
+const N_NICHES: usize = 4;
+
+/// Which of the four affective niches a fingerprint falls in — Russell's
+/// circumplex model of affect (valence × arousal, independent dimensions;
+/// PubMed-verified, Tseng et al. 2014, 10.1007/s10803-013-1993-6), applied
+/// as a cheap, already-available memory-diversity signature. Derived, never
+/// stored: `fingerprint[8]` is arousal, `fingerprint[9]` is valence — the
+/// same channels the somatic field already carries. No new persisted state,
+/// no change to `EPISODE_BLOB_LEN` or the export/import format.
+fn niche_of(fingerprint: &[i16; N_SOMATIC]) -> usize {
+    let high_arousal = fingerprint[8] > Q88_SCALE / 2;
+    let positive_valence = fingerprint[9] >= 0;
+    match (high_arousal, positive_valence) {
+        (false, false) => 0, // low arousal, negative — e.g. depleted, heavy
+        (false, true) => 1,  // low arousal, positive — e.g. calm, content
+        (true, false) => 2,  // high arousal, negative — e.g. threatened, tense
+        (true, true) => 3,   // high arousal, positive — e.g. engaged, bright
+    }
+}
+
 /// Flat durable-memory record: working episodes followed by consolidated schemas.
 pub const EPISODE_BLOB_LEN: usize = N_EPISODES * (N_SOMATIC + 2) + N_SCHEMAS * (N_SOMATIC + 2);
 
@@ -96,30 +117,78 @@ impl EpisodicMemory {
         ((1536 - Self::l1(a, b).min(1536)) * Q88_SCALE as i32 / 1536) as i16
     }
 
-    fn weakest_episode(&self) -> usize {
-        let mut slot = 0;
-        let mut min = i16::MAX;
+    /// Pick the slot to evict for an incoming episode in `new_niche`.
+    ///
+    /// Quality-diversity, minimal and honest: any inactive slot is used first
+    /// (unchanged). Once full, if `new_niche` has no living representative,
+    /// evict from the *most-crowded* niche (tie-broken by lowest salience
+    /// within it) rather than blindly taking the globally weakest slot — a
+    /// dominant kind of moment (many similar betrayals, say) should not be
+    /// able to crowd out the being's only memory of a rare but real kind of
+    /// moment. If `new_niche` is already represented, this reduces exactly to
+    /// the original behavior: ordinary quality competition, globally weakest
+    /// slot. See `docs/formal-model.md` §13a for scope — this preserves
+    /// *representation*, not the *specific* memory; it is not full MAP-Elites
+    /// (no per-niche champion is separately maintained or protected forever).
+    fn weakest_episode(&self, new_niche: usize) -> usize {
         for (i, e) in self.episodes.iter().enumerate() {
             if !e.active {
                 return i;
             }
-            if e.salience < min {
-                min = e.salience;
-                slot = i;
+        }
+        let mut niche_counts = [0u8; N_NICHES];
+        for e in self.episodes.iter() {
+            niche_counts[niche_of(&e.fingerprint)] += 1;
+        }
+        let mut slot = 0;
+        let mut min = i16::MAX;
+        if niche_counts[new_niche] == 0 {
+            let crowded = (0..N_NICHES).max_by_key(|&n| niche_counts[n]).unwrap();
+            for (i, e) in self.episodes.iter().enumerate() {
+                if niche_of(&e.fingerprint) == crowded && e.salience < min {
+                    min = e.salience;
+                    slot = i;
+                }
+            }
+        } else {
+            for (i, e) in self.episodes.iter().enumerate() {
+                if e.salience < min {
+                    min = e.salience;
+                    slot = i;
+                }
             }
         }
         slot
     }
-    fn weakest_schema(&self) -> usize {
-        let mut slot = 0;
-        let mut min = i16::MAX;
+
+    /// Same quality-diversity rule as `weakest_episode`, over consolidated
+    /// schemas' prototypes and strengths.
+    fn weakest_schema(&self, new_niche: usize) -> usize {
         for (i, s) in self.schemas.iter().enumerate() {
             if !s.active {
                 return i;
             }
-            if s.strength < min {
-                min = s.strength;
-                slot = i;
+        }
+        let mut niche_counts = [0u8; N_NICHES];
+        for s in self.schemas.iter() {
+            niche_counts[niche_of(&s.prototype)] += 1;
+        }
+        let mut slot = 0;
+        let mut min = i16::MAX;
+        if niche_counts[new_niche] == 0 {
+            let crowded = (0..N_NICHES).max_by_key(|&n| niche_counts[n]).unwrap();
+            for (i, s) in self.schemas.iter().enumerate() {
+                if niche_of(&s.prototype) == crowded && s.strength < min {
+                    min = s.strength;
+                    slot = i;
+                }
+            }
+        } else {
+            for (i, s) in self.schemas.iter().enumerate() {
+                if s.strength < min {
+                    min = s.strength;
+                    slot = i;
+                }
             }
         }
         slot
@@ -190,7 +259,7 @@ impl EpisodicMemory {
         // --- Encode a new working episode if this moment mattered. ---
         let sig = surprise.saturating_add(boost);
         if sig > Q88_SCALE / 4 {
-            let slot = self.weakest_episode();
+            let slot = self.weakest_episode(niche_of(fc));
             self.episodes[slot] = Episode {
                 fingerprint: *fc,
                 valence: fc[9],
@@ -253,7 +322,7 @@ impl EpisodicMemory {
                 self.schemas[si].valence = q88_ema_update(self.schemas[si].valence, val, Q88_SCALE / 4);
                 self.schemas[si].strength = (self.schemas[si].strength as i32 + 32).min(Q88_SCALE as i32) as i16;
             } else {
-                let si = self.weakest_schema();
+                let si = self.weakest_schema(niche_of(&fp));
                 self.schemas[si] = Schema {
                     prototype: fp,
                     valence: val,
@@ -348,5 +417,86 @@ impl EpisodicMemory {
 impl Default for EpisodicMemory {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn field_with(arousal: i16, valence: i16) -> [i16; N_SOMATIC] {
+        let mut fc = [0i16; N_SOMATIC];
+        fc[8] = arousal;
+        fc[9] = valence;
+        fc
+    }
+
+    /// The mechanism this actually tests, precisely: when a *new* niche needs
+    /// its first representative and the store is full, eviction targets the
+    /// most-crowded niche rather than the single globally-weakest slot — so a
+    /// numerically-low-salience-but-behaviorally-unique memory is not
+    /// destroyed just because a dominant niche happens to have flooded the
+    /// store with many higher-salience copies. This does NOT claim to protect
+    /// an already-established rare niche from later erosion by more of the
+    /// same dominant niche — that is full MAP-Elites (permanent per-niche
+    /// champions), which this minimal version does not implement. See the
+    /// honest scope note on `weakest_episode`.
+    #[test]
+    fn quality_diversity_protects_a_rare_niche_when_a_new_niche_arrives() {
+        let mut m = EpisodicMemory::new();
+
+        // Fill the store to capacity: 14 dominant-niche (high-arousal,
+        // negative — niche 2) episodes at high salience, one low-arousal-
+        // negative (niche 0) at LOW salience (the global minimum), one
+        // high-arousal-positive (niche 3).
+        for _ in 0..14 {
+            let idx = m.weakest_episode(niche_of(&field_with(200, -100)));
+            m.episodes[idx] = Episode {
+                fingerprint: field_with(200, -100),
+                valence: -100,
+                salience: 200,
+                active: true,
+            };
+        }
+        let rare_idx = m.weakest_episode(niche_of(&field_with(0, -50)));
+        m.episodes[rare_idx] = Episode {
+            fingerprint: field_with(0, -50),
+            valence: -50,
+            salience: 50, // deliberately the global minimum
+            active: true,
+        };
+        let other_idx = m.weakest_episode(niche_of(&field_with(200, 100)));
+        m.episodes[other_idx] = Episode {
+            fingerprint: field_with(200, 100),
+            valence: 100,
+            salience: 100,
+            active: true,
+        };
+        assert_eq!(m.active_episodes(), 16, "precondition: store is full");
+        assert_eq!(
+            niche_of(&m.episodes[rare_idx].fingerprint),
+            0,
+            "precondition: the rare episode really is the lowest-salience slot"
+        );
+
+        // A genuinely new niche (1: low-arousal, positive) arrives. The old
+        // pure-salience policy would evict the global minimum — the rare
+        // niche-0 episode. The new policy should evict from the crowded
+        // niche (2) instead, preserving the rare one.
+        let new_niche = niche_of(&field_with(0, 50));
+        assert_eq!(new_niche, 1, "test setup: confirm the new arrival's niche");
+        let evicted = m.weakest_episode(new_niche);
+
+        assert_ne!(
+            evicted, rare_idx,
+            "quality-diversity eviction must not sacrifice the rare niche's only \
+             representative to make room for a new niche, when a dominant niche \
+             holds redundant copies"
+        );
+        assert_eq!(
+            niche_of(&m.episodes[evicted].fingerprint),
+            2,
+            "eviction should target the crowded niche (2), not the global minimum"
+        );
     }
 }

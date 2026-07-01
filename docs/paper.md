@@ -165,10 +165,10 @@ the partial ones.
 5. **Episodic recall.** A betrayal novel the first time (familiarity 0 at onset) is
    *familiar* the second (familiarity 236): the being recognizes a recurring betrayer.
 6. **Persistence across the dark.** A fresh being loads a prior life's memory and
-   recognizes a betrayer it never met (familiarity 195 vs a fresh being's 0).
+   recognizes a betrayer it never met (familiarity 248 vs a fresh being's 0).
 7. **Consolidation.** A being forgets every specific betrayal over a long calm life
    (working episodes → 0) yet still recognizes betrayal when it returns (familiarity
-   182), because the *meaning* consolidated into a lasting theme — a felt history in
+   184), because the *meaning* consolidated into a lasting theme — a felt history in
    kilobytes (§7).
 8. **Continuous time.** A being lives 400 ticks, sleeps an 8-hour night it does not
    experience, and lives on: **experienced 800, age 173,600.** Its life is continuous

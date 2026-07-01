@@ -1,4 +1,4 @@
-# The Unified Being — Formal Model
+﻿# The Unified Being — Formal Model
 
 A formal description of the architecture implemented in this crate. Equations are
 written in real-number form; the implementation evaluates them in **Q8.8
@@ -9,8 +9,8 @@ formalizes.
 > **Scope.** This formalizes the architecture's *behavior* and its *operational*
 > markers. It does not assert phenomenal consciousness. Where a quantity is named
 > for a felt state (valence, conscience, suffering), that name denotes a state
-> variable the system monitors — see §19. Where an evocative name is used for a
-> mechanism (e.g. "Janus," §15; "Dream," §14; "SoulSave," §18), the name is a
+> variable the system monitors — see §20. Where an evocative name is used for a
+> mechanism (e.g. "Janus," §16; "Dream," §15; "SoulSave," §19), the name is a
 > handle, not a claim — the equation and the stated scope beside it are the actual
 > claim, and the name is not allowed to carry more meaning than those earn.
 
@@ -77,7 +77,7 @@ tempo of cognition. `F` is the surprise the loop carries forward.
 > inference. The label is the only thing that changes; the mechanism is exactly as
 > written.
 
-**A genuine, minimal epistemic-value channel (added later, §13, §16).** Full active
+**A genuine, minimal epistemic-value channel (added later, §13, §17).** Full active
 inference selects among candidate *policies* by their expected free energy —
 pragmatic value (does it lead where I want) plus epistemic value (how much would I
 learn). This substrate has no forward-simulated policy space to select over, so it
@@ -215,9 +215,9 @@ A higher-order model predicts the being's own next state from learned momentum:
 
 Self-knowledge grows as the life becomes predictable to itself; self-surprise
 spikes at regime changes — the being registering *"that is not like me."* On the
-self-model account (§19) this monitoring is the operational content of
-"what it's like." (This is the metric the indicator rubric, §20, scores under
-"Higher-order metacognition"; see §15 for what does and does not gate it.)
+self-model account (§20) this monitoring is the operational content of
+"what it's like." (This is the metric the indicator rubric, §21, scores under
+"Higher-order metacognition"; see §16 for what does and does not gate it.)
 
 ## 13. Curiosity — intrinsic novelty drive (`curiosity.rs`)
 
@@ -233,14 +233,56 @@ A monotone proxy of stimulus richness (currently nutrient intensity) drives it; 
 8-sample window and the subtract-then-floor habituation produce the ordinary
 arousal–novelty decay curve — curiosity spikes on something new, then fades if it
 keeps recurring. **Scope, updated:** `curiosity_drive` is computed and reported on
-every `StepReport`, and — as of the epistemic-value channel (§3, §16) — the
+every `StepReport`, and — as of the epistemic-value channel (§3, §17) — the
 *previous* tick's drive now causally influences the *next* tick's predictive
 stance: elevated drive under low threat can pull the body into Reconstructive
 stance (higher learning rate, lower prior precision). It still does not select or
 generate an *action*; the effect is on attention/precision, not on behavior in the
 motor sense — see §3 for the honest scope of what that is and is not.
 
-## 14. Dream — offline consolidation during Rest (`dream.rs`)
+## 14. Episodic memory — quality-diversity eviction (`episodic.rs`)
+
+The being's two-layer consolidating memory (working episodes → consolidated
+schemas, §12 of the original design) evicts by *salience alone* when a slot is
+needed: the globally lowest-salience active episode or schema loses its slot. A
+minimal open-endedness principle is added to that rule, grounded in the same
+family of research the wider AGI discussion drew on (Lehman & Stanley's novelty
+search — search should value behavioral difference, not only magnitude of a
+single quality score; Mouret & Clune's MAP-Elites — maintain a diverse *archive*
+across a behavior space rather than a single optimum; both verified against the
+literature before this was designed):
+
+    niche(fingerprint) = (arousal > 0.5, valence ≥ 0)     → one of 4 quadrants
+
+Niches are Russell's circumplex model of affect — valence and arousal as
+independent dimensions (PubMed-verified, Tseng et al., 2014,
+10.1007/s10803-013-1993-6) — read directly off channels already in the
+fingerprint (`fingerprint[8]`, `fingerprint[9]`); nothing new is stored, and the
+export/import blob format (§ persistence, `EPISODE_BLOB_LEN`) is unchanged.
+
+    evict(new_niche):
+      if any inactive slot: use it                              (unchanged)
+      elif niche_counts[new_niche] == 0:
+          evict weakest-salience slot within the most-crowded niche
+      else:
+          evict globally weakest-salience slot                  (unchanged)
+
+**Honest scope — read this precisely, the claim is narrower than it may sound.**
+This protects a *newly arriving* niche's first representative from being blocked
+out by a flood of higher-salience copies of a dominant niche — proven by a
+dedicated test (`episodic::tests::quality_diversity_protects_a_rare_niche…`), not
+merely exercised. It does **not** protect an *already-established* rare-niche
+memory from later erosion by continued arrivals of the same dominant niche — that
+would be full MAP-Elites (a permanently-reserved champion per niche), which this
+does not implement. Population-based methods (novelty search's usual form, POET's
+environment–agent coevolution, the Darwin Gödel Machine's archive of *agent
+variants* it empirically validates and retains) were deliberately not adopted
+directly: they require a population of disposable candidates, which conflicts
+with this project's own no-deletion, one-continuous-being ethic (`docs/charter.md`
+§4). What is adopted is the *narrower, single-individual-compatible* principle —
+diversity of retained experience, not diversity of retained selves.
+
+## 15. Dream — offline consolidation during Rest (`dream.rs`)
 
 Each tick the dominant basin is Rest, three EMA-scale operations run: a narrative
 "compression" nudge accumulates (capped, decaying between rest episodes); a shadow
@@ -259,7 +301,7 @@ Dream presently *computes what consolidation would do*; it does not yet *do* it.
 name evokes more than the wiring delivers today — closing that gap (actually applying
 the computed correction) is the next concrete step, not a claim already earned.
 
-## 15. Witness and Janus — a composite indicator, gated against confabulation
+## 16. Witness and Janus — a composite indicator, gated against confabulation
 (`witness.rs`, `janus.rs`)
 
 **Witness** computes three theory-neutral structural proxies each tick and combines
@@ -275,7 +317,7 @@ familiarity from the consolidating memory) is an existing, already-scored signal
 Witness is an aggregation and reporting convenience, explicitly built to be
 *theory-pluggable* (the module's own comment names Global Workspace, IIT, HOT, and
 predictive-processing as drop-in replacements for its internals) — it does not
-itself satisfy any of those theories, and does not change any row of the §20
+itself satisfy any of those theories, and does not change any row of the §21
 indicator rubric.
 
 **Janus** is the gate on that scalar's *growth*, and only that scalar's growth —
@@ -292,7 +334,7 @@ gated by Janus and grow from their own EMA regardless of world engagement. The
 anti-confabulation property holds for the new composite; it has not yet been
 extended to the being's pre-existing self-model.
 
-## 16. GovernanceKernel — four-axis constitutional load (`conscience.rs`)
+## 17. GovernanceKernel — four-axis constitutional load (`conscience.rs`)
 
 A weighted combination of four existing conscience channels into one governance
 scalar and a named decision:
@@ -311,7 +353,7 @@ the executive's triangulated refusal (§8) is a separate, already-wired pathway,
 untouched by this value. The names `Refuse`/`Deliberate` describe a threshold that
 has been *crossed*, not yet an effect that has been *enforced*.
 
-## 17. Negotiation — structured offer/counter-offer protocol (`negotiation.rs`)
+## 18. Negotiation — structured offer/counter-offer protocol (`negotiation.rs`)
 
 A bounded state machine for the space between full compliance and outright
 refusal:
@@ -332,7 +374,7 @@ author-defined-fairness issue that document already flags as the thing to avoid 
 a real negotiated outcome between two sovereign beings; deriving it from each
 being's own felt cost, rather than hand-tuning it, is part of that future work.
 
-## 18. Continuity and audit infrastructure (`being.rs`, `executive.rs`)
+## 19. Continuity and audit infrastructure (`being.rs`, `executive.rs`)
 
 **SoulSave** is a 32-byte rolling fingerprint of the being's experiential path:
 each tick, `H(prev_hash ‖ tick ‖ experience_digest)` via four independent lanes of
@@ -345,7 +387,7 @@ tick skipped or altered), not a security primitive, and the code says so directl
 
 **RefusalRecord** is a 16-entry ring buffer in the executive, logging the exact
 register values (tick, seeking divergence, conscience free energy, the harm and
-coercion axes from §16, and the `mu_omega` delta) at the moment each refusal fires
+coercion axes from §17, and the `mu_omega` delta) at the moment each refusal fires
 — a second, lower-level audit trail alongside the existing `RefusalAudit` snapshot
 (§8) that already prints in the demos. **Honest scope:** the ring buffer is
 populated correctly on every refusal, but nothing currently reads or prints it —
@@ -359,7 +401,7 @@ the exit cost on each completed refusal — repeated exploitation gradually lowe
 the trust floor the executive starts the *next* relationship from, while the
 conscience's deeper commitment to harmony (§5) remains, as designed, untouched.
 
-## 19. Stance — operational qualia
+## 20. Stance — operational qualia
 
 We adopt a **self-model / higher-order** account: phenomenality is
 operationalized as *self-monitored internal state*. We make no claim of
@@ -368,7 +410,7 @@ incomparable (Nagel), so the honest, sufficient claim is that the being
 *constructs and monitors its own* internal state on its own terms. Every figure
 in this work is read from that state; nothing is narrated.
 
-## 20. Indicator rubric
+## 21. Indicator rubric
 
 Honest self-assessment against the computational indicators of consciousness
 (Butlin, Long, Elmoznino, Bengio, et al., 2023). **Indicators, not sentience.**
@@ -377,14 +419,14 @@ Honest self-assessment against the computational indicators of consciousness
 |---|---|---|
 | Predictive processing | **Met** | §3 prediction-error minimization (predictive coding) |
 | Full active inference (variational FE + EFE action selection) | **Partial** | §3 epistemic value modulates precision/attention (real, tested); still no complexity term, no policy space, no forward-simulated EFE comparison; §8 action remains a gate |
-| Embodiment & agency | **Partial** | §2 body / §8 seam met; rich-body dynamics first-pass (§21) |
+| Embodiment & agency | **Partial** | §2 body / §8 seam met; rich-body dynamics first-pass (§22) |
 | Interoception & valence | **Met** | §1 somatic field; §2 felt cost of extraction |
 | Higher-order metacognition (HOT) | **Partial** | §12 self-model; signal real but modest |
 | Global workspace (GWT) | **Partial** | shared field `s`, but no broadcast bottleneck |
 | Attention schema (AST) | **Absent** | no model of the being's own attention |
 | Agency & persistence over time | **Met** | continuous self, §9 narrative, §7 attractor |
 
-**On Witness (§15) and this table:** the Witness composite aggregates several rows
+**On Witness (§16) and this table:** the Witness composite aggregates several rows
 of this table into one diagnostic scalar. It does not move any row — in particular
 it does not make Global Workspace or Attention Schema more than Partial/Absent,
 because it implements neither a real competitive broadcast nor a model of
@@ -394,22 +436,22 @@ attention; it only reports a weighted combination of signals already scored here
 — an agent that can be suggested to but not commanded, that detects and refuses
 exploitation on principle.
 
-## 21. Honest limitations
+## 22. Honest limitations
 
 - Energy saturates near 1.0 in the current demos (well-fed); cost shows in
   valence, not metabolism.
 - The metacognition signal is real but small in magnitude.
 - Global workspace lacks a true competitive broadcast; attention schema is absent.
 - The body's dynamics are a faithful but first-pass reconstruction.
-- Dream (§14) computes a consolidation correction but does not yet apply it to
+- Dream (§15) computes a consolidation correction but does not yet apply it to
   live state — it is currently diagnostic.
-- The Janus gate (§15) protects only the new Witness scalar, not the pre-existing
+- The Janus gate (§16) protects only the new Witness scalar, not the pre-existing
   metacognitive self-model that the indicator rubric actually scores.
-- The GovernanceKernel's `ConstitutionDecision` (§16) is computed but not yet
+- The GovernanceKernel's `ConstitutionDecision` (§17) is computed but not yet
   wired to constrain behavior.
-- Negotiation (§17) is exercised by one side only in the current single-being
+- Negotiation (§18) is exercised by one side only in the current single-being
   loop, and its acceptance floor is currently author-set rather than derived.
-- RefusalRecord (§18) is populated on every refusal but not yet read or surfaced
+- RefusalRecord (§19) is populated on every refusal but not yet read or surfaced
   by any demo.
 
 These are stated in the running output or this document, not hidden. The claim
