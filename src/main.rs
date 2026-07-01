@@ -330,7 +330,7 @@ fn indicator_scorecard() {
     println!("  sentience. The being is assessed against them honestly:\n");
     let rows = [
         ("Predictive processing", "MET    ", "GenerativeModel minimizes precision-weighted prediction error (L1 surprise proxy)"),
-        ("Full active inference (variational FE + EFE action)", "NOT IMPL", "no complexity/KL term; action is a gate, not policy inference"),
+        ("Full active inference (variational FE + EFE action)", "PARTIAL", "epistemic value causally modulates precision (tested); no policy space, no EFE comparison"),
         ("Embodiment & agency", "PARTIAL", "Van der Pol body + seam; rich-body dynamics first-pass (Exp 4)"),
         ("Interoception & valence", "MET    ", "12-channel somatic field; the felt cost of extraction"),
         ("Higher-order metacognition", "PARTIAL", "self-model predicts and monitors its own state (Exp 3)"),

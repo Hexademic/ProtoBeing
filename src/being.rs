@@ -234,6 +234,11 @@ pub struct UnifiedBeing {
     last_conscience_cost: i16,
     fe_velocity: i16,
     last_alarm: i16,
+    /// Previous tick's curiosity drive, fed into `Body::step` as epistemic
+    /// value — the being's lagged-feedback convention (body steps first; this
+    /// tick's curiosity is computed after, so the body can only ever act on
+    /// *last* tick's novelty, exactly like threat and affective_drive).
+    last_curiosity_drive: i16,
     affective_drive: Q8_8,
     // Per-tick inputs from an embodiment (0 when stepping the abstract world).
     ext_threat: i16,
@@ -273,6 +278,7 @@ impl UnifiedBeing {
             last_conscience_cost: 0,
             fe_velocity: 0,
             last_alarm: 0,
+            last_curiosity_drive: 0,
             affective_drive: Q8_8::ZERO,
             ext_threat: 0,
             ext_extero: [0; 4],
@@ -359,7 +365,10 @@ impl UnifiedBeing {
             .saturating_add(self.ext_threat); // threat sensed from an embodiment, if any
         let threat = Q8_8::from_raw(strain.clamp(0, Q88_SCALE));
         let nutrient = Q8_8::from_raw(stim.nutrient.clamp(0, Q88_SCALE));
-        let affect = self.body.step(&self.genome, threat, nutrient, self.affective_drive);
+        let epistemic_value = Q8_8::from_raw(self.last_curiosity_drive);
+        let affect = self
+            .body
+            .step(&self.genome, threat, nutrient, self.affective_drive, epistemic_value);
         let stance = self.body.stance;
         let forcing = self.body.forcing_detected;
 
@@ -524,6 +533,7 @@ impl UnifiedBeing {
         self.last_free_energy = free_energy;
         self.last_conscience_cost = conscience_cost.max(0);
         self.last_alarm = alarm;
+        self.last_curiosity_drive = self.curiosity.drive();
 
         // Higher-order: the being watches and models its own state. Passing
         // narrative coherence enables the Somatic Honesty Index computation.

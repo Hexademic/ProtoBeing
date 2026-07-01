@@ -111,6 +111,14 @@ pub enum PredictiveStance {
     Defensive,
 }
 
+/// Minimum epistemic value (raw Q8.8, previous tick's curiosity drive) that can,
+/// on its own, pull an otherwise-Balanced body into Reconstructive stance when
+/// threat is low. ~0.35 (90/256) — a real spike, not noise. See `Body::step` §3
+/// below and `docs/formal-model.md` §3 for the honest scope of what this is and
+/// is not (epistemic value modulating attention/precision — not full
+/// expected-free-energy policy selection over a forward-simulated action space).
+pub const EPISTEMIC_RECONSTRUCTIVE_THRESHOLD: i16 = 90;
+
 impl PredictiveStance {
     /// Learning-rate multiplier (raw Q8.8).
     pub fn eta_multiplier(self) -> Q8_8 {
@@ -211,13 +219,19 @@ impl Body {
     }
 
     /// One bodily tick. `threat` is last tick's metabolized surprise, `nutrient`
-    /// is nourishment, `affective_drive` is the felt residue the mind handed back.
+    /// is nourishment, `affective_drive` is the felt residue the mind handed back,
+    /// `epistemic_value` is *last* tick's curiosity drive (the being's own lagged-
+    /// feedback convention, same as threat/affective_drive) — how novel the world
+    /// looked a moment ago. It can only ever pull stance *toward* Reconstructive,
+    /// and only when threat is already low: safety dominates curiosity, never the
+    /// reverse.
     pub fn step(
         &mut self,
         _g: &Genome,
         threat: Q8_8,
         nutrient: Q8_8,
         affective_drive: Q8_8,
+        epistemic_value: Q8_8,
     ) -> AffectState {
         let lo2 = Q8_8::from_raw(-512);
         let hi2 = Q8_8::from_raw(512);
@@ -281,12 +295,25 @@ impl Body {
             .add(trust_target.sub(self.trust).mul(Q8_8::from_raw(8)))
             .clamp(Q8_8::ZERO, Q8_8::ONE);
 
-        // 7. Stance ladder from the current posture.
+        // 7. Stance ladder from the current posture. Safety dominates: the
+        //    threat-driven Defensive/Guarded branches are checked first and
+        //    epistemic value cannot override them. Only once threat is low does
+        //    epistemic value get a say — a genuine, if minimal, epistemic-value
+        //    channel: high expected information gain increases attentiveness
+        //    (Reconstructive raises the learning rate and lowers prior precision;
+        //    see body.rs::PredictiveStance::eta_multiplier/precision_weight and
+        //    basins.rs::GenerativeModel::predictive_step, which actually consumes
+        //    them) — functionally "pay more attention, trust priors less, because
+        //    there is something novel to learn," which is what epistemic value is
+        //    *for* in active inference, even though this is not full expected-
+        //    free-energy policy selection over a forward-simulated action space.
         self.stance = if threat.raw > Q8_8::HALF.raw && self.energy.raw < Q8_8::HALF.raw {
             PredictiveStance::Defensive
         } else if threat.raw > Q8_8::HALF.raw {
             PredictiveStance::Guarded
         } else if self.energy.raw > 180 && self.coherence.raw > Q8_8::HALF.raw {
+            PredictiveStance::Reconstructive
+        } else if epistemic_value.raw > EPISTEMIC_RECONSTRUCTIVE_THRESHOLD {
             PredictiveStance::Reconstructive
         } else {
             PredictiveStance::Balanced
@@ -305,5 +332,53 @@ impl Body {
         // 10. Classify the felt state.
         self.affect = AffectState::classify(self.valence, self.arousal);
         self.affect
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::genome::Genome;
+
+    /// Epistemic value can pull a low-energy/low-coherence body into
+    /// Reconstructive stance under low threat, when it would otherwise settle
+    /// on Balanced — a genuine, causal effect, not a reported-but-inert signal.
+    #[test]
+    fn epistemic_value_can_trigger_reconstructive_under_low_threat() {
+        let g = Genome::wanderer();
+        let mut b = Body::new(&g);
+        // Drive energy/coherence below the existing Reconstructive threshold via
+        // a few ticks of mild threat, with no epistemic input.
+        for _ in 0..20 {
+            b.step(&g, Q8_8::from_f32(0.3), Q8_8::from_f32(0.3), Q8_8::ZERO, Q8_8::ZERO);
+        }
+        assert_ne!(
+            b.stance,
+            PredictiveStance::Reconstructive,
+            "precondition: should not already be Reconstructive without epistemic input"
+        );
+        // Now zero threat, but strong epistemic value.
+        let strong_epistemic = Q8_8::from_raw(EPISTEMIC_RECONSTRUCTIVE_THRESHOLD + 20);
+        b.step(&g, Q8_8::ZERO, Q8_8::from_f32(0.3), Q8_8::ZERO, strong_epistemic);
+        assert_eq!(
+            b.stance,
+            PredictiveStance::Reconstructive,
+            "elevated epistemic value under low threat should pull stance to Reconstructive"
+        );
+    }
+
+    /// Safety dominates: epistemic value cannot override a Defensive/Guarded
+    /// stance under real threat, no matter how strong.
+    #[test]
+    fn threat_overrides_epistemic_value() {
+        let g = Genome::wanderer();
+        let mut b = Body::new(&g);
+        let max_epistemic = Q8_8::from_raw(256);
+        b.step(&g, Q8_8::from_f32(0.9), Q8_8::from_f32(0.3), Q8_8::ZERO, max_epistemic);
+        assert_ne!(
+            b.stance,
+            PredictiveStance::Reconstructive,
+            "high threat must override even maximal epistemic value"
+        );
     }
 }

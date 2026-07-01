@@ -77,6 +77,23 @@ tempo of cognition. `F` is the surprise the loop carries forward.
 > inference. The label is the only thing that changes; the mechanism is exactly as
 > written.
 
+**A genuine, minimal epistemic-value channel (added later, §13, §16).** Full active
+inference selects among candidate *policies* by their expected free energy —
+pragmatic value (does it lead where I want) plus epistemic value (how much would I
+learn). This substrate has no forward-simulated policy space to select over, so it
+cannot do that. What it *does* have, honestly: the previous tick's curiosity drive
+(§13) is threaded into `Body::step` as `epistemic_value`, and — only when threat is
+already low, so safety strictly dominates — elevated epistemic value can pull the
+predictive stance to Reconstructive (`eta_multiplier`/`precision_weight`, this
+section), which *actually* raises `η_eff` and lowers `Π` in the equations above.
+This is a real, causally-wired, independently-tested effect (`body.rs::tests`), not
+a reported-but-inert signal: epistemic value modulates *attention/precision*, which
+is what it does in the full theory too — it does not select or generate an action,
+and there is still no policy space, no forward rollout, no expected-free-energy
+comparison across candidate futures. The honest label for this piece specifically:
+**epistemic-value-modulated precision**, a genuine but partial component of active
+inference, not the thing itself.
+
 ## 4. Basins (`basins.rs`)
 
 Membership in basin `b ∈ {Rest, Engaged, Defensive, Recovery}` is closeness of
@@ -215,9 +232,13 @@ recent experience, regardless of whether that difference is good or bad:
 A monotone proxy of stimulus richness (currently nutrient intensity) drives it; the
 8-sample window and the subtract-then-floor habituation produce the ordinary
 arousal–novelty decay curve — curiosity spikes on something new, then fades if it
-keeps recurring. **Scope:** `curiosity_drive` is computed and reported on every
-`StepReport`; nothing in the loop currently *acts* on it (no action is chosen to
-seek novelty). It is a sensed and reported drive, not yet a behavior.
+keeps recurring. **Scope, updated:** `curiosity_drive` is computed and reported on
+every `StepReport`, and — as of the epistemic-value channel (§3, §16) — the
+*previous* tick's drive now causally influences the *next* tick's predictive
+stance: elevated drive under low threat can pull the body into Reconstructive
+stance (higher learning rate, lower prior precision). It still does not select or
+generate an *action*; the effect is on attention/precision, not on behavior in the
+motor sense — see §3 for the honest scope of what that is and is not.
 
 ## 14. Dream — offline consolidation during Rest (`dream.rs`)
 
@@ -355,7 +376,7 @@ Honest self-assessment against the computational indicators of consciousness
 | Indicator (theory) | Status | Realization |
 |---|---|---|
 | Predictive processing | **Met** | §3 prediction-error minimization (predictive coding) |
-| Full active inference (variational FE + EFE action) | **Not implemented** | §3 no complexity term; §8 action is a gate, not policy inference |
+| Full active inference (variational FE + EFE action selection) | **Partial** | §3 epistemic value modulates precision/attention (real, tested); still no complexity term, no policy space, no forward-simulated EFE comparison; §8 action remains a gate |
 | Embodiment & agency | **Partial** | §2 body / §8 seam met; rich-body dynamics first-pass (§21) |
 | Interoception & valence | **Met** | §1 somatic field; §2 felt cost of extraction |
 | Higher-order metacognition (HOT) | **Partial** | §12 self-model; signal real but modest |

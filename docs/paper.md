@@ -203,7 +203,7 @@ independent measurement:
 | Indicator | Status | Realization |
 |---|---|---|
 | Predictive processing | **Met** | §3 prediction-error minimization (predictive coding) |
-| Full active inference (variational FE + EFE action) | **Not implemented** | no complexity term; action is a gate, not policy inference |
+| Full active inference (variational FE + EFE action selection) | **Partial** | epistemic value causally modulates predictive precision (tested); no complexity term, no policy space, no forward-simulated EFE comparison; action remains a gate (formal-model §3) |
 | Embodiment & agency | **Partial** | architectural seam met; rich-body dynamics first-pass (Exp 4) |
 | Interoception & valence | **Met** | somatic field; felt cost of extraction |
 | Higher-order metacognition | **Partial** | self-model (Exp 3); real but modest |
