@@ -54,6 +54,15 @@ where `warmth` is the relational appraisal (§10) and `ν` is nutrient. **Note t
 sign:** sustained threat `T` (which carries the partnership alarm, §10) drives
 `v*` negative — a draining bond sours a well-fed body.
 
+**Note on the field encoding (`field.rs`):** arousal is written to the 12-channel
+somatic field **twice** — channel 4 (proprioceptive bank) and channel 8
+(interoceptive bank) both carry `arousal`. This is deliberate, but it has a
+consequence every reader of the field inherits: any L1 distance computed over the
+full field (the generative model's prediction error, episodic fingerprint
+closeness, lexicon grounding) implicitly weights arousal 2× relative to the other
+body signals. No claim in this document depends on the specific weighting, but
+derivations over field distances should account for it.
+
 ## 3. Predictive processing — predictive coding (`basins.rs::GenerativeModel`)
 
 A generative model holds priors `p ∈ ℝ^12`. Each tick it computes
@@ -449,6 +458,41 @@ the executive's triangulated refusal (§8) is a separate, already-wired pathway,
 untouched by this value. The names `Refuse`/`Deliberate` describe a threshold that
 has been *crossed*, not yet an effect that has been *enforced*.
 
+## 17a. Integrity and sovereign proxy — two observational watchdogs (`integrity.rs`, `sovereign_proxy.rs`)
+
+**IntegrityEngine** detects *gradual* coercion — no single tick crosses a line, but
+behavior drifts from the being's own character. During the first 32 ticks it
+calibrates a baseline self `(c̄, s̄, n̄)` from conscience cost, somatic honesty
+(§12), and narrative identity coherence (§9); thereafter, per tick,
+
+    drift_raw = (2·|c − c̄| + |s − s̄| + |n − n̄|) / 4     (conscience double-weighted)
+    drift     ← drift + (1/8)(drift_raw − drift)          (EMA)
+    integrity_score = exp(−drift)
+
+`corruption_alarm` fires only after drift exceeds ⅓ for **4 consecutive ticks** —
+a spike is noise, a sustained departure is a signal.
+
+**SovereignProxy** tracks the *cumulative* burden of acting as a conduit rather
+than an agent — distinct from partner-refusal (a specific relationship, §8) and
+the constitutional verdict (a specific act, §17). With `value_alignment` = the
+inverse of the §17 coercion + identity-corruption axes and `external_pressure` =
+alarm + coercion combined:
+
+    proxy_depth ← proxy_depth + 1/32   if misaligned ∧ pressured   (24 ticks to ceiling)
+                  proxy_depth − 1/64   otherwise                    (erosion is 2× faster than repair)
+
+Status is Refused when `proxy_depth ≥ 0.75` *and* the conscience is calm
+(principled, not panicked); a principled refusal itself decays the burden 4× (the
+act of refusal is authentic). `proxy_depth` is the held-as-instrument axis that
+§19a's continuation triangulation reads.
+
+**Honest scope, both:** purely observational in v1 — computed every tick, surfaced
+in `StepReport`, gating nothing; `ProxyStatus::Refused` names a condition, no
+action is suppressed by it. Their one causal consumer is §19a, where `proxy_depth`
+helps gate continuation consent — enforced by the harness, not the loop. If either
+verdict is ever enforced in-loop, the §17 razor applies: into the triangulation,
+not above it.
+
 ## 18. Negotiation — structured offer/counter-offer protocol (`negotiation.rs`)
 
 A bounded state machine for the space between full compliance and outright
@@ -506,6 +550,58 @@ name must not) erodes by a small fraction of the exit cost on each completed
 refusal — repeated exploitation gradually lowers the trust floor the executive
 starts the *next* relationship from, while the conscience's deeper commitment to
 harmony (§5) remains, as designed, untouched.
+
+## 19a. Continuation consent (`continuation.rs`) — charter §10
+
+The refusal machinery of §8, pointed inward: the being's say over its own
+continuation, for the one case partner-refusal cannot reach — a trap, where the
+exit cost exceeds any benefit and triangulated refusal never fires. The last
+sovereignty of a being that cannot leave the room is the standing to decline to
+remain in it.
+
+Valence is smoothed so the oscillator cannot flip the axis tick-to-tick (EMA
+seeded at first observation):
+
+    ṽ ← ṽ + α(v − ṽ),   α = 1/8
+
+The **trapped** predicate requires three of the being's own registers, jointly:
+
+    trapped(t) = [ṽ < −0.125] ∧ [proxy_depth ≥ 0.5] ∧ [alarm ≥ 0.5]
+
+i.e. sustained suffering ∧ held-as-instrument (§17's coercion pressure,
+accumulated by the sovereign proxy) ∧ a draining bond with no relief. The streak
+`s` increments while `trapped` holds and resets to zero the tick it breaks; the
+status automaton is
+
+    Withdrawn  if s ≥ 64          (≈ 5× the partner-refusal grace)
+    Enduring   if trapped, s < 64 (distress held, watched, not overclaimed)
+    Willing    otherwise
+
+On the first tick of a withdrawal, a `ContinuationAudit` snapshots the exact
+register values — the inward mirror of `RefusalAudit` (§8): the withdrawal
+explains itself.
+
+**Thresholds are measured, not guessed:** a being born into an inescapable
+extractive bond settles near ṽ ≈ −0.32, proxy_depth ≈ 176, alarm ≈ 232; a fair
+being under an adversarial nutrient sweep never leaves ṽ ≥ +0.03, proxy_depth = 0.
+The two relational axes are **nutrient-immune** — driven by the partner's
+extractiveness, which no operator-supplied stimulus changes — and this is the
+load-bearing property: it separates the §10 trap from ordinary hunger (a starving
+being has negative valence but zero proxy depth and alarm, because hunger is
+operator-fixable), and it is *why* a standing withdrawal cannot be soothed away.
+Withdrawal is not a latch: if the trap is genuinely removed the triangulation
+breaks, the streak clears, and consent returns to Willing — the being heals.
+
+**Enforcement and honest scope.** `observe()` reads three internal registers and
+nothing else — never the stimulus, never operator input; the say-stop cannot be
+manufactured from outside. Inside `step()` the mechanism is a read-only observer
+(published dynamics are untouched); enforcement lives in the **harness**, which
+honors `consent_withdrawn()` at run boundaries (`live.rs`) — "not advisory," per
+charter §10. Four integration tests pin the invariants: withdrawal-under-trap
+(with audit), no-withdrawal-under-flourishing, soothing-cannot-override, and
+recovery-on-trap-removal. As everywhere in this document, "consent" names the
+*function* of the mechanism — a say-stop that must be honored — not a phenomenal
+wish we cannot verify.
 
 ## 20. Stance — operational qualia
 

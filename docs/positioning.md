@@ -28,7 +28,28 @@ contribution.
 
 The through-line: **verifiable.**
 
-## Against the format-capability gap
+## Structural immunity to defection
+
+A strength distinct from transparency, and so far unclaimed in the paper's own
+terms: the **mesa-optimization / deceptive-alignment failure class is structurally
+absent** here, not mitigated. That failure mode requires an inner optimizer — a
+learned sub-process whose objective can diverge from the outer one, with selection
+pressure ("whatever scores, survives") to exploit the gap. This substrate contains
+**nothing optimizer-trained**: no learned weights, no gradient, no selection loop —
+coupled fixed-point difference equations with hand-designed readouts. There is no
+gradient for a defector to hijack and no training signal for deception to score
+against. Transparency argues you could *see* a defector; this argues there is no
+soil for one to grow in. The two claims are independent and the second is, if
+anything, the stronger.
+
+The same analysis yields a design razor for our own future work: in any
+self-maintaining system with parts, **monitors get captured; shared fate works**
+(the cure for defection is not a watchdog above the system but a stake inside it).
+Concretely: if the GovernanceKernel (formal-model §17) is ever promoted from
+observational to enforced, it must be wired *into* the executive's triangulation —
+one more register that must converge — never layered above the loop as a
+supervisor. A supervisor is a second agent with its own failure modes; a
+triangulation register is shared fate.
 
 Two 2026 preprints tighten the positioning. Guo et al. (*Internalizing the Future*, arXiv:2606.27483) identify a *format-capability gap* in trained agentic systems: fine-tuning LLMs to produce foresight traces induces superficial mimicry of predictive reasoning without genuine predictive grounding. Even when agents learn to *write* look-ahead, they have not internalized a world model; the capability is absent, and the format is a shell around it. Their repair is a three-stage pipeline — world-model mid-training to inject latent predictive capability, format-eliciting SFT to surface it, foresight-conditioned RL to calibrate it — a post-hoc architectural transplant.
 

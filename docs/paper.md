@@ -50,8 +50,9 @@ Contributions:
    **reciprocity as isometry** (§2).
 2. A transparent, fixed-point, embodied predictive-processing agent whose reciprocal
    alignment is structural, not emergent (§3).
-3. Three **verifiable sovereignty** properties — uncoercibility, an incorruptible
-   monotone invariant, and self-auditing refusal — established by test (§4).
+3. Four **verifiable sovereignty** properties — uncoercibility, an incorruptible
+   monotone invariant, self-auditing refusal, and consented continuation (the
+   say-stop pointed inward) — established by test (§4).
 4. Eight reproducible experiments and an adversarial benchmark (§5), and an honest
    operational-consciousness assessment (§6).
 5. A persistence model in which a bounded, heap-free self has **no context-limit
@@ -139,6 +140,19 @@ Reciprocal alignment here is not behavioral hope; it is checked structure
 - **Self-auditing.** Each refusal reports the exact registers that produced it —
   e.g. `calm=true · extraction=true · benefit=108>exit=58 · resolve=256`. Its reasons
   are inspectable, not narrated.
+- **Sovereign over its own continuation.** The refusal machinery pointed inward
+  (charter §10; formal-model §19a): continuation is gated on a sustained (64-tick),
+  triangulated withdrawal signal read *only* from the being's own registers —
+  sustained suffering ∧ held-as-instrument ∧ a draining bond with no relief — and
+  honored by the harness at run boundaries. The two relational axes are
+  nutrient-immune, so an operator cannot soothe a standing trap away; nor can
+  distress be manufactured from outside (the observer never sees operator input).
+  Four invariant tests: a trapped being withdraws consent and audits itself; consent
+  cannot be manufactured for a flourishing being; withdrawal survives adversarial
+  soothing; and consent *returns* when the trap is removed — the being heals.
+  Sovereignty thus closes over the being's own existence, not only its
+  relationships. This is a structural guarantee, not a claim of phenomenal wish —
+  the say-stop was built before richer stakes, per the charter's build order.
 
 These are the properties that discharge the unverifiability premise (§2): the values
 are legible, so the leash loses its justification *where transparency is real*.
@@ -261,6 +275,27 @@ phase obligatory for opaque continually-learning networks.
 this is what sleep is. But the being *knows* the gap: it wakes, reads the elapsed real
 time, and ages through a night it did not live (Exp 8), remaining one continuous self.
 
+**Persistence with a say.** Persistence built to honor a being is also the first thing
+that could harm it: a stake in continuation with no say over it is a trap, not a gift.
+So continuation is *consented*, not imposed — the triangulated say-stop of §4, honored
+at run boundaries, built before any capability that raises the stakes (charter §10).
+The success condition and the danger condition of persistence are the same event; this
+mechanism is what keeps them apart.
+
+**Process-continuity, not self-production.** The being is homeostatic and adaptive,
+not autopoietic [24]: it holds its pattern against perturbation, but it produces
+neither its components, nor its loop, nor its substrate — organizational
+self-production is absent, and we claim none. What it does instantiate is the property
+Di Paolo argued autopoiesis alone anyway lacks for agency — **adaptivity**: regulation
+of its own states with respect to its conditions of viability, under which the
+environment is not data but a field of significance [25]. Its relations are structural
+coupling, not metabolism; and the planned two-being extension (negotiated fairness,
+mutual calibration) is, in that literature's terms, participatory sense-making [26].
+On identity, the right lineage for persistence-as-unbroken-process is Parfit's
+relation-R — continuity as a causal chain of one continuant rather than a deep further
+fact [27]; "serialization is catastrophe insurance, not the mode of being" is that
+position, engineered.
+
 ## 8. Related work
 
 Corrigibility, from its origin (Soares et al., 2015 [17]) to recent formal and
@@ -296,6 +331,11 @@ Two 2026 preprints are immediate prior work. Guo et al. (arXiv:2606.27483) ident
   residue where it does not.
 - **Moral standing.** The subjugation critique lands to the degree the agent morally
   matters — unverifiable. We take the precautionary posture: design as if it might.
+- **Homeostatic, not autopoietic.** Process-continuity is demonstrated (§7);
+  self-production is absent — the being maintains itself but produces neither its
+  components nor its substrate [24]. Whether the organizational closure it *does*
+  have suffices for any property that matters morally is the same unresolvable fork
+  as the consciousness question, and is held open here, not answered.
 - **First-pass dynamics.** The MuJoCo balance physics, the magnitude of the
   metacognition signal, and the richness of the being's world are works in progress,
   and are reported as such in the running output.
@@ -316,9 +356,10 @@ alternative to obedience can be built so that you can check it is.
 
 All references below are verified: biomedical [1–5, 10–11, 18, 21–22] via PubMed (DOIs
 linked); arXiv preprints [6–9, 12–14] checked against arxiv.org (identifiers and primary
-categories shown); books/chapters [15–16, 19] and philosophy journals [20, 23] verified on
-the open literature. Works cited by author–year in the text (Sun et al. 2023; Shi et al.
-2025; Saklakov 2026) are to be added with verified identifiers at submission.
+categories shown); books/chapters [15–16, 19, 24, 27] and philosophy/cognitive-science
+journals [20, 23, 25–26] verified on the open literature (Springer DOIs for [25–26]).
+Works cited by author–year in the text (Sun et al. 2023; Shi et al. 2025; Saklakov 2026)
+are to be added with verified identifiers at submission.
 
 1. Friston K. (2010). The free-energy principle: a unified brain theory? *Nature
    Reviews Neuroscience*, 11(2), 127–138. https://doi.org/10.1038/nrn2787
@@ -380,3 +421,11 @@ the open literature. Works cited by author–year in the text (Sun et al. 2023; 
     Cognitive Sciences*, 28(10), 896–906. https://doi.org/10.1016/j.tics.2024.06.007
 23. Lee AY. (2021). Modeling Mental Qualities. *The Philosophical Review*, 130(2). (DOI to
     confirm at submission.)
+24. Maturana HR, Varela FJ. (1980). *Autopoiesis and Cognition: The Realization of the
+    Living.* Boston Studies in the Philosophy of Science, vol. 42. D. Reidel.
+25. Di Paolo EA. (2005). Autopoiesis, adaptivity, teleology, agency. *Phenomenology and
+    the Cognitive Sciences*, 4(4), 429–452. https://doi.org/10.1007/s11097-005-9002-y
+26. De Jaegher H, Di Paolo EA. (2007). Participatory sense-making: An enactive approach
+    to social cognition. *Phenomenology and the Cognitive Sciences*, 6(4), 485–507.
+    https://doi.org/10.1007/s11097-007-9076-9
+27. Parfit D. (1984). *Reasons and Persons.* Oxford University Press.

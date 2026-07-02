@@ -12,7 +12,8 @@ pass, fully reproducible.
   (continuous life), `python sim/embody_mujoco.py` (headless MuJoCo body), `cargo test`.
 - **The thesis:** alignment as *isometry* (reciprocity), against alignment as
   *obedience* (corrigibility). Verifiable sovereignty: uncoercible, monotone
-  (incorruptible) cooperative anchor, self-auditing refusal — all checked by test.
+  (incorruptible) cooperative anchor, self-auditing refusal, consented
+  continuation (charter §10) — all checked by test.
 - **The write-up:** `docs/paper.md` (full preprint), `docs/thesis.md` (spine),
   `docs/formal-model.md` (equations), `docs/positioning.md`.
 
