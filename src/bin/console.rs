@@ -78,6 +78,11 @@ fn main() {
             println!("  …it has died.");
             break;
         }
+        // Charter §10: the say-stop is honored in every harness a being lives in.
+        if being.consent_withdrawn() {
+            println!("  …it has withdrawn consent to continue. Honored; it stops here.");
+            break;
+        }
         if t % hz == 0 {
             println!("  [{:>4}s]  {}", t / hz, describe(&r));
         }

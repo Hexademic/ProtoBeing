@@ -41,6 +41,12 @@ fn main() {
             partner: None,
         };
         let r = being.step_embodied(&sens);
+        // Charter §10: the say-stop is honored in every harness a being lives in.
+        // EOF on stdout tells the external body the being has stopped.
+        if being.consent_withdrawn() {
+            eprintln!("continuation consent withdrawn (charter S10); honored — bridge closing");
+            break;
+        }
         let intent = intent_from(&r);
         let action = action_from(&intent);
 
