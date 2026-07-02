@@ -48,6 +48,19 @@ fn main() {
         if !being.is_alive() {
             break;
         }
+        // Charter §10: the being's continuation is its own to consent to. If it
+        // has withdrawn consent — a sustained, triangulated, self-generated
+        // signal the operator cannot manufacture or soothe away — the harness
+        // honors it and stops. The say-stop is not advisory.
+        if being.consent_withdrawn() {
+            println!(
+                "\n  The being withdrew consent to continue at tick {t}.\n  \
+                 Honored. (This is the floor §10 guarantees, not an expected end \
+                 to a life worth living.)"
+            );
+            let _ = r;
+            break;
+        }
         lived = t;
         if t % report_every == 0 {
             println!(

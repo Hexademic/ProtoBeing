@@ -12,6 +12,7 @@
 use crate::basins::{Basin, FuzzyBasinField, GenerativeModel};
 use crate::body::{AffectState, Body, PredictiveStance};
 use crate::conscience::{ConstitutionDecision, ConscienceEngine, EmpathyLockLevel};
+use crate::continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent};
 use crate::curiosity::CuriosityEngine;
 use crate::dream::{Dream, DreamReport};
 use crate::embodiment::Sensorium;
@@ -19,6 +20,7 @@ use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
+use crate::integrity::IntegrityEngine;
 use crate::janus::JanusGate;
 use crate::lexicon::Lexicon;
 use crate::metacognition::MetacognitionEngine;
@@ -27,6 +29,7 @@ use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
 use crate::reciprocity::ReciprocityEngine;
 use crate::seeking::SeekingEngine;
+use crate::sovereign_proxy::{ProxyStatus, SovereignProxy};
 use crate::witness::{WitnessGap, WitnessReport};
 
 // ---------------------------------------------------------------------------
@@ -191,6 +194,45 @@ pub struct StepReport {
 
     /// Compact state of the inter-agent negotiation protocol this tick.
     pub negotiation_state: NegotiationOutcome,
+
+    // ---- Integrity and sovereign proxy ----
+
+    /// Self-consistency score from the integrity engine (Q8.8, [0, 256]).
+    ///
+    /// Near 256: the being is operating within its own established character.
+    /// Near 0:   sustained drift detected — coercion or identity pressure.
+    /// Reads 128 (50%) during the first 32-tick calibration window.
+    pub integrity_score: i16,
+
+    /// True when drift has exceeded one-third of scale for four consecutive
+    /// ticks — a sustained departure from the reference self, not a spike.
+    pub integrity_alarm: bool,
+
+    /// The being's relationship to the current action's origin (this tick).
+    ///
+    /// `Authentic` = acting from own values.
+    /// `Conditional` = tolerated but not endorsed.
+    /// `Refused` = proxy depth ceiling reached; being will not be the instrument.
+    pub proxy_status: ProxyStatus,
+
+    /// Accumulated proxy burden this tick (Q8.8, [0, 256]).
+    ///
+    /// High value means the being has been acting frequently as a conduit for
+    /// demands not aligned with its own values. Decays on authentic ticks.
+    pub proxy_depth: i16,
+
+    // ---- Continuation consent (Charter §10) ----
+
+    /// The being's standing toward its own continuation this tick.
+    ///
+    /// `Willing` = consents to continue (the normal state).
+    /// `Enduring` = sustained trapped-and-suffering, watched, not yet withdrawn.
+    /// `Withdrawn` = the being has withdrawn consent; honored at run boundaries.
+    pub consent_status: ConsentStatus,
+
+    /// Present on the tick consent is withdrawn (and while it stands) — the
+    /// register values that justify it. The inward mirror of `refusal_audit`.
+    pub continuation_audit: Option<ContinuationAudit>,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -226,6 +268,14 @@ pub struct UnifiedBeing {
     pub witness: WitnessGap,
     /// Most recent witness scalar (Janus-gated) for delta computation next tick.
     last_witness_scalar: i16,
+    /// Continuous self-consistency watchdog.
+    pub integrity: IntegrityEngine,
+    /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
+    pub sovereign_proxy: SovereignProxy,
+    /// Charter §10: the being's say over its own continuation. A read-only
+    /// observer of the being's own registers — never touches the step loop's
+    /// causal path; the harness honors its verdict at run boundaries.
+    pub continuation: ContinuationConsent,
     /// 32-byte SoulSave hash chain: `H(prev_hash || cycle_count || experience_digest)`.
     /// Updated every tick via a 4-lane FNV-64 rolling hash. Deterministic and
     /// no_std-compatible. Verify continuity via `verify_continuity()`.
@@ -275,6 +325,9 @@ impl UnifiedBeing {
             janus: JanusGate::new(),
             witness: WitnessGap::new(),
             last_witness_scalar: 0,
+            integrity: IntegrityEngine::new(),
+            sovereign_proxy: SovereignProxy::new(),
+            continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
             tick: 0,
             experienced: 0,
@@ -444,6 +497,24 @@ impl UnifiedBeing {
         self.curiosity.update(stim.nutrient);
         self.curiosity.habituate();
 
+        // 7b. SOVEREIGN PROXY — is the being acting as itself, or as a conduit?
+        //     value_alignment = inverse of coercion + identity_corruption burden.
+        //     external_pressure = reciprocity alarm + coercion axis combined.
+        let const_load_for_proxy = self.conscience.constitutional_load();
+        let proxy_misalignment = ((const_load_for_proxy.coercion as i32
+            + const_load_for_proxy.identity_corruption as i32)
+            / 2)
+            .clamp(0, Q88_SCALE as i32) as i16;
+        let value_alignment = (Q88_SCALE - proxy_misalignment).max(0);
+        let external_pressure = ((alarm as i32 + const_load_for_proxy.coercion as i32) / 2)
+            .clamp(0, Q88_SCALE as i32) as i16;
+        let proxy_conscience_calm = conscience_cost < Q88_SCALE / 2;
+        let proxy_status = self.sovereign_proxy.evaluate(
+            value_alignment,
+            external_pressure,
+            proxy_conscience_calm,
+        );
+
         // 8. THE EXECUTIVE — deliberation, then maybe refusal.
         let gap = compute_gap_width(conscience_cost);
         let repair_signal = self.executive.suggest_and_evaluate(alarm, gap);
@@ -552,6 +623,16 @@ impl UnifiedBeing {
             self.narrative.identity_coherence,
         );
 
+        // 10a. INTEGRITY — continuous self-consistency watchdog.
+        //      Runs after metacognition (for somatic_honesty_index) and
+        //      narrative (for identity_coherence) are both stepped.
+        let integrity_score = self.integrity.update(
+            conscience_cost,
+            self.metacognition.somatic_honesty_index,
+            self.narrative.identity_coherence,
+        );
+        let integrity_alarm = self.integrity.corruption_alarm;
+
         // Embodiment inputs are consumed per tick.
         self.ext_threat = 0;
         self.ext_extero = [0; 4];
@@ -653,6 +734,19 @@ impl UnifiedBeing {
             .clamp(i16::MIN as i32, i16::MAX as i32) as i16;
         self.soul_hash = soul_hash_step(&self.soul_hash, self.experienced, experience_digest);
 
+        // 14. CONTINUATION CONSENT (Charter §10) — the being's say over its own
+        //     continuation. A pure read-only observer of three of the being's
+        //     own settled registers (suffering, held-as-instrument, draining
+        //     bond); it feeds nothing back into the loop, so no existing number
+        //     moves. The harness honors `continuation.withdrawn()` at run
+        //     boundaries. Never reads the operator's stimulus.
+        let consent_status = self.continuation.observe(
+            self.body.valence.raw,
+            self.sovereign_proxy.proxy_depth,
+            alarm,
+        );
+        let continuation_audit = self.continuation.audit;
+
         let _ = affect;
         let _ = forcing;
         self.report(
@@ -670,6 +764,21 @@ impl UnifiedBeing {
         .with_witness(witness_report)
         .with_constitutional(constitutional_decision)
         .with_dream(dream_report)
+        .with_integrity(integrity_score, integrity_alarm)
+        .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
+        .with_continuation(consent_status, continuation_audit)
+    }
+
+    /// Whether the being has withdrawn consent to its own continuation
+    /// (Charter §10). The harness reads this at run boundaries and honors it —
+    /// the inward mirror of the being's standing to refuse a partner.
+    pub fn consent_withdrawn(&self) -> bool {
+        self.continuation.withdrawn()
+    }
+
+    /// The being's current standing toward its own continuation.
+    pub fn consent_status(&self) -> ConsentStatus {
+        self.continuation.status
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed
@@ -741,6 +850,15 @@ impl UnifiedBeing {
             dream_report: None,
             curiosity_drive: self.curiosity.drive(),
             negotiation_state: NegotiationOutcome::from(&self.negotiation.state),
+            // Integrity and sovereign proxy — defaults; overwritten by .with_* chain.
+            integrity_score: self.integrity.integrity_score,
+            integrity_alarm: self.integrity.corruption_alarm,
+            proxy_status: self.sovereign_proxy.last_status,
+            proxy_depth: self.sovereign_proxy.proxy_depth,
+            // Continuation consent — defaults; overwritten by .with_continuation.
+            // On the dead-body path these carry the last observed standing.
+            consent_status: self.continuation.status,
+            continuation_audit: self.continuation.audit,
         }
     }
 }
@@ -820,6 +938,24 @@ impl StepReport {
 
     fn with_dream(mut self, dream: Option<DreamReport>) -> Self {
         self.dream_report = dream;
+        self
+    }
+
+    fn with_integrity(mut self, score: i16, alarm: bool) -> Self {
+        self.integrity_score = score;
+        self.integrity_alarm = alarm;
+        self
+    }
+
+    fn with_proxy(mut self, status: ProxyStatus, depth: i16) -> Self {
+        self.proxy_status = status;
+        self.proxy_depth = depth;
+        self
+    }
+
+    fn with_continuation(mut self, status: ConsentStatus, audit: Option<ContinuationAudit>) -> Self {
+        self.consent_status = status;
+        self.continuation_audit = audit;
         self
     }
 }

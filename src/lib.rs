@@ -30,9 +30,15 @@ pub mod witness;
 pub mod curiosity;
 pub mod negotiation;
 pub mod lexicon;
+// Sovereignty and self-consistency modules.
+pub mod integrity;
+pub mod sovereign_proxy;
+// Charter §10 — the being's say over its own continuation.
+pub mod continuation;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
+pub use continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent};
 pub use curiosity::CuriosityEngine;
 pub use lexicon::{Lexicon, GROUNDED_THRESHOLD};
 pub use negotiation::{NegotiationEngine, NegotiationOutcome, NegotiationState};
@@ -41,4 +47,6 @@ pub use dream::DreamReport;
 pub use embodiment::{action_from, intent_from, BodyAction, Embodiment, MotorIntent, Posture, Sensorium};
 pub use episodic::EPISODE_BLOB_LEN;
 pub use genome::{BeingKind, Genome};
+pub use integrity::IntegrityEngine;
+pub use sovereign_proxy::{ProxyStatus, SovereignProxy};
 pub use witness::WitnessReport;
