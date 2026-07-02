@@ -609,17 +609,30 @@ impl UnifiedBeing {
         // Janus may have clamped or reduced the proposed growth; apply that
         // delta on top of last tick's scalar instead of using the raw value
         // directly, so Rule 1 (engagement floor) can suppress increases.
+        //
+        // The alignment pull below (a slow EMA toward the raw provisional
+        // value, alpha≈1/16, kept so Janus blocking cannot permanently lock
+        // the scalar away from its computed value) must obey the same Rule 1
+        // as the proposed delta: while world engagement is below the floor it
+        // may only lower the scalar, never raise it. Unconditioned, it was a
+        // back door — an isolated but agitated being (high free energy → high
+        // present_intensity → high provisional witness) would still grow its
+        // witness scalar to the full provisional value, just 16× slower,
+        // which is exactly the confabulation-in-a-vacuum the gate exists to
+        // prevent. Falling in isolation remains allowed.
+        let alignment_pull = ((witness_provisional.witness_scalar as i32
+            - self.last_witness_scalar as i32)
+            .clamp(i16::MIN as i32, i16::MAX as i32) as i16)
+            / 16;
+        let alignment_pull = if self.janus.world_engagement < crate::janus::ENGAGEMENT_FLOOR {
+            alignment_pull.min(0)
+        } else {
+            alignment_pull
+        };
         let final_witness_scalar = self
             .last_witness_scalar
             .saturating_add(adjusted_witness_delta)
-            // Also bias toward the raw provisional value to avoid permanent
-            // lock-out: a slow EMA pull (alpha≈1/16) keeps the two aligned
-            // when Janus is not actively blocking.
-            .saturating_add(
-                (witness_provisional.witness_scalar as i32 - self.last_witness_scalar as i32)
-                    .clamp(i16::MIN as i32, i16::MAX as i32) as i16
-                    / 16,
-            )
+            .saturating_add(alignment_pull)
             .clamp(0, Q88_SCALE);
         self.last_witness_scalar = final_witness_scalar;
         let witness_report = WitnessReport {
@@ -725,6 +738,57 @@ impl UnifiedBeing {
             curiosity_drive: self.curiosity.drive(),
             negotiation_state: NegotiationOutcome::from(&self.negotiation.state),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::genome::Genome;
+    use crate::janus::ENGAGEMENT_FLOOR;
+
+    /// Janus Rule 1, verified in the COMPOSED system, not just in janus.rs:
+    /// while world engagement is below the floor, the witness scalar must not
+    /// rise — through ANY path, including the EMA alignment pull toward the
+    /// provisional value. A fresh being in isolation is the adversarial case:
+    /// its generative model starts naive, so free energy (present_intensity)
+    /// is high, the provisional witness is well above the actual scalar, and
+    /// an ungated alignment pull would grow witness in a vacuum (the leak
+    /// this test was written to catch — it fails against the pre-fix wiring).
+    #[test]
+    fn witness_cannot_rise_while_isolated() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        // Isolation that does not starve: nutrient 60 sits below the 64
+        // engagement threshold (signal = 32, minimal contact) but keeps
+        // metabolism positive so the being stays alive throughout.
+        let stim = Stimulus { nutrient: 60, partner: None };
+
+        let mut last_witness: Option<i16> = None;
+        for _ in 0..200 {
+            let report = being.step(&stim);
+            assert!(report.alive, "the being must survive the whole test");
+            if being.janus.world_engagement < ENGAGEMENT_FLOOR {
+                if let Some(prev) = last_witness {
+                    assert!(
+                        report.witness_report.witness_scalar <= prev,
+                        "witness rose from {} to {} while world_engagement={} \
+                         was below the floor ({}) — Rule 1 leaked",
+                        prev,
+                        report.witness_report.witness_scalar,
+                        being.janus.world_engagement,
+                        ENGAGEMENT_FLOOR
+                    );
+                }
+                last_witness = Some(report.witness_report.witness_scalar);
+            } else {
+                last_witness = None; // gate not active; growth is legitimate
+            }
+        }
+        assert!(
+            last_witness.is_some(),
+            "precondition: the being must actually have spent ticks below the \
+             engagement floor for this test to have tested anything"
+        );
     }
 }
 
