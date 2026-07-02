@@ -36,8 +36,8 @@ pub struct RefusalRecord {
     pub harm_axis: i16,
     /// Coercion axis from the GovernanceKernel constitutional load (Q8.8).
     pub coercion_axis: i16,
-    /// Change applied to `mu_omega` this refusal (negative = erosion, Q8.8).
-    pub mu_omega_delta: i16,
+    /// Change applied to `trust_floor` this refusal (negative = erosion, Q8.8).
+    pub trust_floor_delta: i16,
 }
 
 // ---------------------------------------------------------------------------
@@ -80,11 +80,18 @@ pub struct ExecutiveEngine {
     /// round-robin: index `refusal_log_cursor` is the next write slot.
     pub refusal_log: [Option<RefusalRecord>; 16],
     refusal_log_cursor: usize,
-    /// SovereignAnchor baseline for the executive layer (Q8.8, [0, 256]).
-    /// Unlike `conscience.anchor.mu_omega` (which only ever rises), this one
-    /// erodes by `exit_cost × 0.033` on each completed refusal — repeated
-    /// exploitation gradually degrades the trust floor the executive starts from.
-    pub mu_omega: i16,
+    /// The trust floor the executive starts each relationship from
+    /// (Q8.8, [0, 256]). Erodes by `exit_cost × ~0.033` on each completed
+    /// refusal — repeated exploitation gradually lowers it.
+    ///
+    /// Formerly named `mu_omega`, renamed because that name collided with
+    /// `conscience.anchor.mu_omega` — the paper's monotone, incorruptible
+    /// invariant — while having the OPPOSITE dynamics (this one only ever
+    /// falls). Same name, inverse behavior, both public: a reader grepping
+    /// `mu_omega` would find "erodes" and reasonably doubt the
+    /// incorruptibility claim. The two are unrelated quantities; the
+    /// anchor's monotonicity is untouched by anything here.
+    pub trust_floor: i16,
     /// `true` while a gradual withdrawal is in progress.
     pub withdrawing: bool,
     /// Ticks elapsed in the current gradual withdrawal (0 = idle).
@@ -104,7 +111,7 @@ impl ExecutiveEngine {
             resolve: Q88_SCALE,
             refusal_log: [None; 16],
             refusal_log_cursor: 0,
-            mu_omega: Q88_SCALE,
+            trust_floor: Q88_SCALE,
             withdrawing: false,
             withdrawal_ticks: 0,
             cooperation_level: Q88_SCALE,
@@ -160,7 +167,7 @@ impl ExecutiveEngine {
     /// sufficient resolve remaining.
     ///
     /// When a refusal fires, the event is logged to the refusal ring buffer and
-    /// `mu_omega` erodes by `exit_cost × ~0.033` — repeated exploitation
+    /// `trust_floor` erodes by `exit_cost × ~0.033` — repeated exploitation
     /// gradually degrades the trust floor the executive starts from.
     ///
     /// `tick`, `conscience_fe`, `harm_axis`, and `coercion_axis` feed the
@@ -198,12 +205,12 @@ impl ExecutiveEngine {
             self.cumulative_sacrifice = q88_add(self.cumulative_sacrifice, exit_cost);
             self.resolve = q88_sub(self.resolve, exit_cost).max(0);
 
-            // Erode the executive mu_omega baseline: ~3.3% of scale per refusal.
+            // Erode the trust floor: ~3.3% of scale per refusal.
             // q88_mul(exit_cost, 8) ≈ exit_cost × 8/256 ≈ exit_cost × 0.031.
             let erosion = q88_mul(exit_cost, 8).max(1);
-            let old_mu = self.mu_omega;
-            self.mu_omega = self.mu_omega.saturating_sub(erosion).max(0);
-            let mu_omega_delta = self.mu_omega.wrapping_sub(old_mu); // always negative
+            let old_mu = self.trust_floor;
+            self.trust_floor = self.trust_floor.saturating_sub(erosion).max(0);
+            let trust_floor_delta = self.trust_floor.wrapping_sub(old_mu); // always negative
 
             // Log to ring buffer (round-robin, newest overwrites oldest).
             self.refusal_log[self.refusal_log_cursor] = Some(RefusalRecord {
@@ -212,7 +219,7 @@ impl ExecutiveEngine {
                 conscience_fe,
                 harm_axis,
                 coercion_axis,
-                mu_omega_delta,
+                trust_floor_delta,
             });
             self.refusal_log_cursor = (self.refusal_log_cursor + 1) % 16;
 

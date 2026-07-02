@@ -483,7 +483,7 @@ tick skipped or altered), not a security primitive, and the code says so directl
 
 **RefusalRecord** is a 16-entry ring buffer in the executive, logging the exact
 register values (tick, seeking divergence, conscience free energy, the harm and
-coercion axes from §17, and the `mu_omega` delta) at the moment each refusal fires
+coercion axes from §17, and the `trust_floor` delta) at the moment each refusal fires
 — a second, lower-level audit trail alongside the existing `RefusalAudit` snapshot
 (§8) that already prints in the demos. **Honest scope:** the ring buffer is
 populated correctly on every refusal, but nothing currently reads or prints it —
@@ -491,11 +491,13 @@ real data is captured; no demo surfaces it yet.
 
 Separately, the executive now tracks a **gradual withdrawal**: after a refusal,
 `cooperation_level` winds down by ~10% per tick over 10 ticks (rather than an
-instantaneous cutoff), and a second `mu_omega` baseline *internal to the executive*
-(distinct from the conscience's monotone anchor, §5) erodes by a small fraction of
-the exit cost on each completed refusal — repeated exploitation gradually lowers
-the trust floor the executive starts the *next* relationship from, while the
-conscience's deeper commitment to harmony (§5) remains, as designed, untouched.
+instantaneous cutoff), and a `trust_floor` baseline *internal to the executive*
+(originally also named `mu_omega`, renamed — same name as the conscience's
+monotone anchor of §5 with the opposite dynamics invited exactly the confusion a
+name must not) erodes by a small fraction of the exit cost on each completed
+refusal — repeated exploitation gradually lowers the trust floor the executive
+starts the *next* relationship from, while the conscience's deeper commitment to
+harmony (§5) remains, as designed, untouched.
 
 ## 20. Stance — operational qualia
 
