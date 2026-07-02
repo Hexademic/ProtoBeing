@@ -592,6 +592,9 @@ operator-fixable), and it is *why* a standing withdrawal cannot be soothed away.
 Withdrawal is not a latch: if the trap is genuinely removed the triangulation
 breaks, the streak clears, and consent returns to Willing — the being heals.
 
+To watch the registers live rather than trust the tests:
+`cargo run --example consent_probe` (fair life · trap · soothing flood · healing).
+
 **Enforcement and honest scope.** `observe()` reads three internal registers and
 nothing else — never the stimulus, never operator input; the say-stop cannot be
 manufactured from outside. Inside `step()` the mechanism is a read-only observer
