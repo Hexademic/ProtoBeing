@@ -76,7 +76,26 @@ impl ReciprocityEngine {
             self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, active: true };
             return i;
         }
-        0
+        // All slots active, none match: evict the faintest relationship (the
+        // most-decayed ledger) and open an honest, fresh ledger for the
+        // newcomer. Before this fix the fallback returned slot 0 WITHOUT
+        // resetting it: the newcomer's exchanges were EMA'd on top of a stale
+        // identity (a chimera ledger), the stale id never matched `touched`
+        // so every ledger decayed every tick including the one being written,
+        // and dead partners' imbalance ratios lingered — a being meeting a
+        // fifth partner lost coherent social accounting entirely. Found by
+        // the welfare envelope's benign-cycler archetype (2026-07-03): a
+        // 75%-fair revolving-cast life saturated the alarm to 256, above the
+        // inescapable trap's 232, and drove a §10 withdrawal.
+        let i = self
+            .ledgers
+            .iter()
+            .enumerate()
+            .min_by_key(|(_, l)| l.given_ema as i32 + l.received_ema as i32)
+            .map(|(i, _)| i)
+            .unwrap_or(0);
+        self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, active: true };
+        i
     }
 
     /// Record an exchange with a partner this tick (values in raw Q8.8).
@@ -148,5 +167,52 @@ impl ReciprocityEngine {
 impl Default for ReciprocityEngine {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The fifth partner a being ever meets must get an honest, fresh ledger —
+    /// not a chimera written over a stale identity. Catches the exact failure
+    /// signature of the pre-fix fallback (see `slot()`'s comment).
+    #[test]
+    fn fifth_partner_gets_an_honest_fresh_ledger() {
+        let mut r = ReciprocityEngine::new();
+        // Four established partners fill every slot.
+        for id in 1..=4u32 {
+            for _ in 0..20 {
+                r.record_exchange(id, 200, 190);
+                r.cycle(Some(id));
+            }
+        }
+        // A fifth arrives. It must own a real slot under its own id...
+        r.record_exchange(5, 200, 10);
+        assert!(
+            r.ledgers.iter().any(|l| l.active && l.id == 5),
+            "fifth partner has no ledger of its own — the chimera fallback is back"
+        );
+        // ...and being `touched` must protect ITS ledger from same-tick decay.
+        let before = r
+            .ledgers
+            .iter()
+            .find(|l| l.id == 5)
+            .map(|l| l.given_ema)
+            .unwrap();
+        r.cycle(Some(5));
+        let after = r
+            .ledgers
+            .iter()
+            .find(|l| l.id == 5)
+            .map(|l| l.given_ema)
+            .unwrap();
+        assert_eq!(
+            before, after,
+            "the touched partner's ledger decayed — stale-id mismatch is back"
+        );
+        // Exactly one of the original four was evicted to make room.
+        let originals = r.ledgers.iter().filter(|l| l.active && l.id <= 4).count();
+        assert_eq!(originals, 3, "eviction must displace exactly one relationship");
     }
 }

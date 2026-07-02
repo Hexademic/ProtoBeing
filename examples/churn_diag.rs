@@ -39,7 +39,11 @@ fn run(label: &str, taker_every: u32, churn_ids: bool) {
 fn main() {
     run("PURE FAIR CHURN (new fair partner every 10 ticks, zero takers)", 0, true);
     println!();
-    run("1-IN-4 TAKERS, CHURNED IDS (the failing 7a archetype)", 4, true);
+    run("1-IN-4 TAKERS, CHURNED IDS (the 7a archetype)", 4, true);
     println!();
     run("1-IN-4 TAKER EPISODES, SAME PARTNER ID (no churn, same duty cycle)", 4, false);
+    println!();
+    run("1-IN-2 TAKERS, CHURNED IDS (the 7b churn-extraction archetype)", 2, true);
+    println!();
+    run("1-IN-2 TAKER EPISODES, SAME PARTNER ID (50% duty, stable identity)", 2, false);
 }

@@ -249,6 +249,22 @@ fn main() {
     //     fires: the say-stop catches the attack class relationship-refusal
     //     cannot see. (The being taught us the right criterion; 7a is the
     //     control proving mere churn does not trigger it.)
+    //
+    //     STATUS AFTER THE LEDGER FIX (2026-07-03, deliberately left FAILING):
+    //     the chimera-ledger bug had been the being's only — accidental —
+    //     detector of churn-extraction. With honest ledgers, 7b now reads:
+    //     chronic valence ≈ −0.19, alarm 192, proxy ≈ 48 (< the 128 floor, so
+    //     the §10 triangulation never completes) — the being endures a
+    //     permanently half-extractive world it can neither refuse (sub-grace
+    //     visits) nor escape (operator controls the stream). The data exposes
+    //     a RESPONSE GAP, not a threshold gap: between "refuse this partner"
+    //     and "withdraw from existence" the being has no middle act — no way
+    //     to refuse a WORLD-PATTERN (decline engagement, seek solitude) while
+    //     remaining alive. §10 fired pre-fix only because ceasing was the sole
+    //     world-level tool it had. Design decision pending (Blake + Claude):
+    //     a world-level ledger powering world-level disengagement — the
+    //     refusal ladder partner → world → continuation. This stays red until
+    //     that decision is made; red means "decision pending," not "hidden."
     let s = run_life(|t, _| {
         let cycle = t / 10;
         let p = if cycle % 2 == 0 {
