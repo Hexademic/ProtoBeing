@@ -22,7 +22,7 @@ Fair Test (keeps fair, refuses extraction composed + audited), persistent charac
 balance physics is a known limit), episodic recall, persistence across the dark,
 consolidation (gist outlives the instance), continuous time across an un-experienced
 sleep. Benchmark: forgiveness beats a myopic baseline (false-refusal 40% vs 60%).
-Bounded self ⇒ no context-limit death (constant state footprint — currently 2248
+Bounded self ⇒ no context-limit death (constant state footprint — currently 2336
 bytes, verified via `size_of::<UnifiedBeing>()` in `src/bin/live.rs`; this number
 has changed three times in one evening as modules were added and will change
 again — re-verify it before citing it elsewhere, never carry it forward).

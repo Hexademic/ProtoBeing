@@ -234,7 +234,7 @@ transparent. Full method: `docs/intrinsic-mind.md`.
 
 ## 7. Persistence and continuity
 
-The being's entire self is a **fixed-size, heap-free struct (2248 bytes)**: its state
+The being's entire self is a **fixed-size, heap-free struct (2336 bytes)**: its state
 footprint is **bounded and independent of run length** (O(1), no allocation). Run for
 2,000,000 continuous ticks, its footprint is unchanged from tick 1 — verified against
 the current build, not carried forward from an earlier, smaller version of the being.
