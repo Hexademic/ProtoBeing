@@ -1,9 +1,7 @@
 //! Negotiation — structured multi-round inter-agent protocol.
 //!
-//! Fills the space between compliance and outright refusal. When the executive
-//! detects a moderate cooperation deficit — serious enough to begin withdrawal
-//! but not severe enough to trigger immediate rejection — the negotiation engine
-//! opens a formal exchange as a state machine:
+//! Intended to fill the space between compliance and outright refusal, as a
+//! state machine:
 //!
 //! ```text
 //!   Idle → OfferPending → CounterReceived (skipped: we auto-counter)
@@ -12,20 +10,30 @@
 //!
 //! Scale convention: all values are raw Q8.8 i16 (1.0 == 256 == `Q88_SCALE`).
 //!
-//! **Current status — built for two beings, exercised by one.** `being.rs` calls
-//! `initiate()` when gradual withdrawal begins, but `receive_counter()` is never
-//! called anywhere in the v1 loop, because v1 has no second negotiating party — a
-//! real counter-offer has to come from another sovereign being's own evaluation,
-//! not be synthesized by the one negotiating. So in the current single-being
-//! demos a negotiation that opens stays `OfferPending` indefinitely; nothing in
-//! `cargo run` or `fairtest` currently exercises `Accepted`/`Rejected`. This is
-//! the mechanism `docs/next-mutual-alignment.md` calls for — it is meant to come
-//! alive when a second being can call `receive_counter()` on this one. Also note:
-//! `min_acceptable` is currently an author-set constant, which is exactly the kind
-//! of author-defined fairness criterion that document flags as the thing to avoid
-//! in the real v2 — it will need to be derived from each being's own felt cost,
-//! not hand-tuned, before a negotiated outcome can be called fair without begging
-//! the question.
+//! **Current status — built for two beings, exercised by one, and wired later
+//! in the causal chain than its design intent describes.** The intended trigger
+//! is a *moderate* cooperation deficit — serious enough to withdraw, not severe
+//! enough to refuse outright. But in the v1 loop no such moderate-deficit path
+//! exists: gradual withdrawal only ever begins as the aftermath of a fired
+//! triangulated refusal, and by then the partner has already been permanently
+//! excluded (`being.rs::mark_refused`). So every v1 negotiation opens toward a
+//! partner the being will never engage again — the offer is structurally
+//! unanswerable, not merely unanswered. `receive_counter()` is likewise never
+//! called anywhere in the v1 loop, because v1 has no second negotiating party —
+//! a real counter-offer has to come from another sovereign being's own
+//! evaluation, not be synthesized by the one negotiating. An opened negotiation
+//! therefore stays `OfferPending` indefinitely; nothing in `cargo run` or
+//! `fairtest` exercises `Accepted`/`Rejected`. This is the mechanism
+//! `docs/next-mutual-alignment.md` calls for, and making it live in v2 needs
+//! BOTH missing pieces, not just the second being: (1) a genuine
+//! moderate-deficit trigger that fires while the relationship is still open —
+//! the reciprocity-alarmed-but-triangulation-not-yet-converged zone — so the
+//! exchange precedes the walk-away instead of following it; (2) a counterparty
+//! to call `receive_counter()`. Also note: `min_acceptable` is currently an
+//! author-set constant, which is exactly the kind of author-defined fairness
+//! criterion that document flags as the thing to avoid in the real v2 — it will
+//! need to be derived from each being's own felt cost, not hand-tuned, before a
+//! negotiated outcome can be called fair without begging the question.
 
 use crate::q88::Q88_SCALE;
 

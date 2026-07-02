@@ -516,11 +516,15 @@ impl UnifiedBeing {
             let _ = self.executive.withdraw_cooperation();
         }
 
-        // 8b. NEGOTIATION — when the executive enters early gradual withdrawal
-        //     (cooperation deficit is moderate, not yet severe), offer structured
-        //     negotiation rather than silent wind-down. "Moderate" = first half
-        //     of the withdrawal window, i.e., cooperation_level > Q88_SCALE/2.
-        //     We only initiate if no negotiation is currently in flight.
+        // 8b. NEGOTIATION — opens during the first half of a gradual
+        //     withdrawal (cooperation_level > Q88_SCALE/2), if none is in
+        //     flight. HONEST SEQUENCING NOTE: in v1 the only way a withdrawal
+        //     ever begins is the refusal branch above, which has already
+        //     mark_refused() the partner — so this offer opens toward a
+        //     partner the being will never engage again. The design-intent
+        //     trigger (a moderate deficit while the relationship is still
+        //     open, before triangulation converges) does not exist yet; see
+        //     negotiation.rs's module doc. Kept as v2 scaffolding.
         if self.executive.withdrawing
             && self.executive.cooperation_level > Q88_SCALE / 2
             && !self.negotiation.is_active()

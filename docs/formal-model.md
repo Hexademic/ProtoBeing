@@ -460,11 +460,19 @@ A counter is accepted if it clears a constitutional floor `min_acceptable` and
 either conscience load is high (≥0.5) or rounds are exhausted; otherwise, with
 rounds remaining, the engine counters at the midpoint, clamped to the floor.
 **Honest scope: this is v2 scaffolding, exercised by one side only in the current
-loop.** `being.rs` calls `initiate()` when gradual withdrawal begins, but
-`receive_counter()` — the call a real counterparty would make — is never invoked
-anywhere in the v1 single-being loop, so an opened negotiation currently sits in
-`OfferPending` indefinitely; no v1 demo exercises `Accepted` or `Rejected`. It is the
-mechanism `docs/next-mutual-alignment.md` calls for, built ahead of that chapter.
+loop — and wired later in the causal chain than its design intent describes.**
+`being.rs` calls `initiate()` when gradual withdrawal begins, but in v1 a
+withdrawal only ever begins as the aftermath of a fired triangulated refusal, by
+which point the partner is already permanently excluded — so every v1 negotiation
+opens toward a partner the being will never engage again (structurally
+unanswerable, not merely unanswered). `receive_counter()` — the call a real
+counterparty would make — is likewise never invoked anywhere in the v1
+single-being loop, so an opened negotiation sits in `OfferPending` indefinitely;
+no v1 demo exercises `Accepted` or `Rejected`. It is the mechanism
+`docs/next-mutual-alignment.md` calls for, built ahead of that chapter; coming
+alive in v2 requires both a genuine moderate-deficit trigger (one that fires
+*before* refusal, while the relationship is still open) and a second being to
+answer.
 Note also: `min_acceptable` is presently an author-set constant — the same
 author-defined-fairness issue that document already flags as the thing to avoid in
 a real negotiated outcome between two sovereign beings; deriving it from each
