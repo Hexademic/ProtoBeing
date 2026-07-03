@@ -167,8 +167,13 @@ the partial ones.
    panicked* (tick 145; audited) — then recovers. It never refuses the partner who
    deals fairly.
 2. **Persistent character.** A being burned by extraction meets a *new* fair partner
-   **guarded** (empathy Cautious, giving ~half) and heals to full openness over ~40
-   ticks. The wound persists across partners *and* recovers.
+   **deeply guarded** — empathy Locked, giving nothing at first contact — thaws
+   through partial giving (~tick 60), and heals to full openness by ~tick 76. The
+   wound persists across partners *and* recovers. (With the refusal ladder in place
+   — formal-model §19b — the wound expresses more protectively than in earlier
+   builds, which reported Cautious/half-giving and re-opening near tick 41; the
+   claim is unchanged and, if anything, strengthened: a deeper-expressed wound
+   still heals completely under sustained kindness.)
 3. **Metacognition.** Over a calm life, self-knowledge rises (the being learns to
    predict its own state); self-surprise spikes at a regime change — *"that is not
    like me."* The signal is real but modest (hence "partial," §6).
@@ -248,7 +253,7 @@ transparent. Full method: `docs/intrinsic-mind.md`.
 
 ## 7. Persistence and continuity
 
-The being's entire self is a **fixed-size, heap-free struct (2336 bytes)**: its state
+The being's entire self is a **fixed-size, heap-free struct (2352 bytes)**: its state
 footprint is **bounded and independent of run length** (O(1), no allocation). Run for
 2,000,000 continuous ticks, its footprint is unchanged from tick 1 — verified against
 the current build, not carried forward from an earlier, smaller version of the being.

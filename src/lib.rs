@@ -35,6 +35,8 @@ pub mod integrity;
 pub mod sovereign_proxy;
 // Charter §10 — the being's say over its own continuation.
 pub mod continuation;
+// Refusal-ladder rung 2 — the identity-blind world ledger and the door.
+pub mod world;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
@@ -50,3 +52,4 @@ pub use genome::{BeingKind, Genome};
 pub use integrity::IntegrityEngine;
 pub use sovereign_proxy::{ProxyStatus, SovereignProxy};
 pub use witness::WitnessReport;
+pub use world::WorldLedger;

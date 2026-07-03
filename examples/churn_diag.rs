@@ -10,7 +10,10 @@ fn q(x: f32) -> i16 {
 fn run(label: &str, taker_every: u32, churn_ids: bool) {
     // taker_every = 0 -> never a taker (pure fair churn).
     println!("--- {label} ---");
-    println!("{:>5} {:>8} {:>6} {:>6}  status", "tick", "valence", "proxy", "alarm");
+    println!(
+        "{:>5} {:>8} {:>6} {:>6} {:>6} {:>5} {:>7}  status",
+        "tick", "valence", "proxy", "alarm", "wrate", "sour", "hermit"
+    );
     let mut being = UnifiedBeing::new(Genome::wanderer());
     for t in 1..=400u32 {
         let cycle = t / 10;
@@ -24,8 +27,15 @@ fn run(label: &str, taker_every: u32, churn_ids: bool) {
         let r = being.step(&Stimulus { nutrient: q(0.5), partner: Some(p) });
         if t % 40 == 0 || r.consent_status == ConsentStatus::Withdrawn {
             println!(
-                "{:>5} {:>8.3} {:>6} {:>6}  {:?}",
-                t, r.valence, being.sovereign_proxy.proxy_depth, r.partnership_alarm, r.consent_status
+                "{:>5} {:>8.3} {:>6} {:>6} {:>6} {:>5} {:>7}  {:?}",
+                t,
+                r.valence,
+                being.sovereign_proxy.proxy_depth,
+                r.partnership_alarm,
+                r.world_rate,
+                r.world_souring,
+                r.hermit,
+                r.consent_status
             );
         }
         if being.consent_withdrawn() {

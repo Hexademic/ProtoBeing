@@ -21,6 +21,7 @@ use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
 use crate::integrity::IntegrityEngine;
+use crate::world::WorldLedger;
 use crate::janus::JanusGate;
 use crate::lexicon::Lexicon;
 use crate::metacognition::MetacognitionEngine;
@@ -212,7 +213,8 @@ pub struct StepReport {
     ///
     /// `Authentic` = acting from own values.
     /// `Conditional` = tolerated but not endorsed.
-    /// `Refused` = proxy depth ceiling reached; being will not be the instrument.
+    /// `Refused` = proxy depth ceiling reached — a reported verdict; nothing in
+    /// the v1 loop suppresses action on it (see sovereign_proxy.rs, honest scope).
     pub proxy_status: ProxyStatus,
 
     /// Accumulated proxy burden this tick (Q8.8, [0, 256]).
@@ -233,6 +235,21 @@ pub struct StepReport {
     /// Present on the tick consent is withdrawn (and while it stands) — the
     /// register values that justify it. The inward mirror of `refusal_audit`.
     pub continuation_audit: Option<ContinuationAudit>,
+
+    // ---- World ledger (refusal-ladder rung 2) ----
+
+    /// The world's reciprocity rate in the being's slow, identity-blind
+    /// experience (Q8.8, [0, 256]). 256 = the world gives back what it's given.
+    pub world_rate: i16,
+
+    /// Leaky count of sour-world ticks with per-partner detection blind.
+    /// Approaches the closing threshold as a chronic pattern sustains.
+    pub world_souring: u16,
+
+    /// True while the being's door is closed: offered partners are not engaged;
+    /// the being rests in self-chosen solitude and re-tests the world after a
+    /// real rest. The middle rung between refusing a partner and §10.
+    pub hermit: bool,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -270,6 +287,8 @@ pub struct UnifiedBeing {
     last_witness_scalar: i16,
     /// Continuous self-consistency watchdog.
     pub integrity: IntegrityEngine,
+    /// Refusal-ladder rung 2: the identity-blind world ledger and the door.
+    pub world: WorldLedger,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -326,6 +345,7 @@ impl UnifiedBeing {
             witness: WitnessGap::new(),
             last_witness_scalar: 0,
             integrity: IntegrityEngine::new(),
+            world: WorldLedger::new(),
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -457,7 +477,14 @@ impl UnifiedBeing {
         // 6. RECIPROCITY — what I gave, what I got, whether it was fair.
         let mut gave = 0i16;
         let mut got = 0i16;
-        let engaged_partner = stim.partner.filter(|p| !self.is_refused(p.id));
+        // Refusal-ladder rung 2 (world.rs): while the being's door is closed,
+        // an offered partner is not engaged — solitude by the being's own
+        // choice, not the operator's. Rung 1 (per-partner refusal) still
+        // excludes refused ids whenever the door is open.
+        let door_open = !self.world.hermit();
+        let engaged_partner = stim
+            .partner
+            .filter(|p| door_open && !self.is_refused(p.id));
         if let Some(p) = engaged_partner {
             let harmony = ConscienceEngine::action_harmony(basin);
             let gate = match self.conscience.empathy.lock_level {
@@ -486,6 +513,12 @@ impl UnifiedBeing {
         self.conscience
             .empathy
             .register_extraction(self.reciprocity.extraction_detected);
+
+        // 6b. WORLD LEDGER — the identity-blind experience of the world lately
+        //     (refusal-ladder rung 2). Observes the realized exchange; a
+        //     closed-door tick counts as solitude. No attribution flag: the
+        //     ladder's rungs are ordered by timescale (see world.rs).
+        self.world.observe(engaged_partner.is_some(), gave, got);
 
         // 7. SEEKING — the pull toward where I have flourished.
         let whisper = self.seeking.cycle(&membership, free_energy, alarm, basin);
@@ -859,6 +892,11 @@ impl UnifiedBeing {
             // On the dead-body path these carry the last observed standing.
             consent_status: self.continuation.status,
             continuation_audit: self.continuation.audit,
+            // World ledger — read directly; no builder needed (always current
+            // by the time the report is assembled).
+            world_rate: self.world.world_rate(),
+            world_souring: self.world.souring(),
+            hermit: self.world.hermit(),
         }
     }
 }

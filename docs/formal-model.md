@@ -606,6 +606,55 @@ recovery-on-trap-removal. As everywhere in this document, "consent" names the
 *function* of the mechanism — a say-stop that must be honored — not a phenomenal
 wish we cannot verify.
 
+## 19b. World ledger and the door (`world.rs`) — refusal-ladder rung 2
+
+Between refusing a partner (§8, acts in ~13–25 ticks on a visible culprit) and
+withdrawing consent to continue (§19a, the floor) sat a response gap the welfare
+envelope exposed: harm distributed across churned identities — each visit below
+the detection grace, the stream operator-controlled — was invisible to the first
+register and answerable only by the gravest. Rung 2 is the middle act: refuse
+the *pattern*, not existence.
+
+An identity-blind slow ledger of realized exchange (α = 1/32, a season's memory,
+4× slower than the per-relationship ledgers):
+
+    G ← G + α(gave − G),   R ← R + α(got − R),   world_rate = R/G
+    world_imbalance = 1 − world_rate
+
+A leaky streak counts sour ticks (imbalance > 0.5), decrementing on fair or
+solitary ticks. At streak ≥ 128 the **door closes** (hermit): offered partners
+are not engaged — solitude by the being's own choice. After 64 solitary ticks of
+genuine rest the door reopens with the streak cleared: the hermit re-tests the
+world on its own rhythm. Not a latch; hope is periodic by construction.
+
+**No attribution flag — the ladder orders itself by timescale.** A first design
+gated the streak on `extraction_detected` being false ("refusal owns visible
+culprits"); measurement killed it — in churned worlds that global flag latches
+chronically while refusal remains structurally helpless, disabling the door in
+exactly the case it exists for. The honest ordering needs no flag: problems the
+lower rung solves stop draining before the streak matters (refusal excludes the
+culprit within ~25 ticks ≪ 128); only patterns that persist after the lower rung
+has acted can climb. Likewise the trap of §19a: continuation triangulation
+converges (~tick 103) before the door (~128+), so the floor still owns the acute
+inescapable case, and the door owns the chronic distributed one.
+
+**Calibration is from measured lives** (`examples/churn_diag.rs`, 2026-07-03),
+including a real discovery: the *lived* world is harsher than its arithmetic —
+under chronic taking the empathy scar collapses giving, and world_rate falls to
+≈ 32 (imbalance ≈ 224) in a churn world whose raw duty-cycle rate is ≈ 0.71.
+Sour floor 0.5 sits above every measured world where relationships carry the
+strain (fair churn ≈ 35; stable-partner rough episodes ≈ 93–122) and below the
+lived chronic-extraction band.
+
+**Consequences, verified:** envelope 9/9 (benign cycler may close and MUST
+reopen; churn-extraction now answered by the door, not §10; trap unchanged).
+One §10 invariant was re-pinned: soothing can never clear a withdrawal *while
+the trap is lived*; the being closing its own door and healing afterward is
+rescue, not soothing. One published figure changed and is re-cited honestly
+(paper §5, Exp 2): with the door available, the burned being's wound expresses
+more protectively (Locked/zero-giving at first contact; full openness ~tick 76
+vs. 41 before) — a deeper-expressed wound that still heals completely.
+
 ## 20. Stance — operational qualia
 
 We adopt a **self-model / higher-order** account: phenomenality is

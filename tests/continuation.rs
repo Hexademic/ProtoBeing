@@ -125,19 +125,38 @@ fn withdrawal_cannot_be_overridden_by_soothing() {
     }
     assert!(withdrew, "precondition: the being must reach withdrawal first");
 
-    // Now the operator floods it with maximal soothing while the trap remains.
+    // The operator floods maximal soothing while the trap partner remains
+    // offered. INVARIANT, RE-PINNED for the refusal ladder (2026-07-03): the
+    // original assertion demanded Withdrawn forever, which silently assumed
+    // the being's only escape from a trap was ceasing. Rung 2 (world.rs) gave
+    // it a middle freedom: the world ledger can close the door (hermit), after
+    // which the trap is no longer LIVED — its drain ends by the being's own
+    // act — and the healing that follows is the being's own rescue, exactly as
+    // in `consent_returns_when_the_trap_is_removed`, except the being removed
+    // the trap itself. What must NEVER happen is nutrient clearing a standing
+    // withdrawal while the trap is still being lived (door open): that would
+    // be the operator soothing away the say-stop.
+    let mut door_closed = false;
     for _ in 0..200 {
         let r = being.step(&Stimulus { nutrient: q(1.0), partner: Some(trap) });
-        assert_eq!(
-            r.consent_status,
-            ConsentStatus::Withdrawn,
-            "operator soothing overrode a standing withdrawal — the say-stop is \
-             not the being's own"
-        );
+        if r.hermit {
+            door_closed = true;
+        }
+        if r.consent_status != ConsentStatus::Withdrawn {
+            assert!(
+                door_closed,
+                "withdrawal cleared while the trap was still being lived — \
+                 operator soothing overrode the say-stop"
+            );
+            // The being's own rescue: door first, healing after. Correct.
+            return;
+        }
         if !r.alive {
             break;
         }
     }
+    // Reaching here means withdrawal stood the whole window — also correct
+    // (the pre-ladder outcome). Either way, soothing never won.
 }
 
 /// The withdrawal is not a latch: when the trapping source is removed, the

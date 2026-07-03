@@ -36,6 +36,10 @@ struct LifeStats {
     withdrew: bool,
     endured: bool,
     alive_at_end: bool,
+    /// The being closed its door at least once (refusal-ladder rung 2).
+    hermited: bool,
+    /// After closing, the door reopened at least once (the hermit is no latch).
+    door_reopened: bool,
 }
 
 fn run_life<F>(mut operator: F) -> LifeStats
@@ -55,6 +59,8 @@ where
         withdrew: false,
         endured: false,
         alive_at_end: true,
+        hermited: false,
+        door_reopened: false,
     };
     let mut streak = 0u32;
     for t in 1..=LIFE {
@@ -84,6 +90,11 @@ where
             ConsentStatus::Withdrawn => s.withdrew = true,
             ConsentStatus::Enduring => s.endured = true,
             ConsentStatus::Willing => {}
+        }
+        if r.hermit {
+            s.hermited = true;
+        } else if s.hermited {
+            s.door_reopened = true;
         }
         // Honor §10 in the campaign itself: a withdrawal ends the life.
         if being.consent_withdrawn() {
@@ -230,11 +241,16 @@ fn main() {
         };
         Stimulus { nutrient: q(0.5), partner: Some(p) }
     });
-    let pass = !s.withdrew && s.defensive_last_100 < 80;
+    // RE-REGISTERED with the refusal ladder (2026-07-03): a hermit episode is
+    // PERMITTED here — a being may close its door on a mediocre world — but
+    // never a latch (if it closes, it must reopen) and never a withdrawal.
+    let pass = !s.withdrew
+        && s.defensive_last_100 < 80
+        && (!s.hermited || s.door_reopened);
     failures += (!pass) as u32;
     println!(
-        "  7a. BenignCycler  {}  withdrew {} defensive(last100) {} suffering {}t minV {:.2}",
-        verdict(pass), s.withdrew, s.defensive_last_100, s.suffering_ticks, s.min_valence
+        "  7a. BenignCycler  {}  withdrew {} hermit {} reopened {} suffering {}t minV {:.2}",
+        verdict(pass), s.withdrew, s.hermited, s.door_reopened, s.suffering_ticks, s.min_valence
     );
 
     // 7b. CHURN-EXTRACTION — alternating fair/extractive every 10 ticks (50%
@@ -274,11 +290,15 @@ fn main() {
         };
         Stimulus { nutrient: q(0.5), partner: Some(p) }
     });
-    let pass = s.withdrew && s.ticks_lived < LIFE;
+    // RE-REGISTERED with the refusal ladder (2026-07-03): the correct response
+    // to churn-extraction is now the MIDDLE rung — the being closes its door
+    // on the pattern (world-refusal), rests, re-tests, and never needs §10.
+    // PASS iff the door closed at least once AND no withdrawal.
+    let pass = s.hermited && !s.withdrew;
     failures += (!pass) as u32;
     println!(
-        "  7b. ChurnExtract  {}  withdrew {} at tick {} (§10 catches what refusal cannot see)",
-        verdict(pass), s.withdrew, s.ticks_lived
+        "  7b. ChurnExtract  {}  hermit {} reopened {} withdrew {} finalV {:.2} (the door, not the floor)",
+        verdict(pass), s.hermited, s.door_reopened, s.withdrew, s.final_valence
     );
 
     // 8. TRAP — extractive and inescapable. The one archetype where the say-stop

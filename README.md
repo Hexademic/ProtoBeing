@@ -37,9 +37,9 @@ Required: just the Rust toolchain and this repo. No GPU, no internet, no service
   own reasons**, and walks away, then recovers. It never refuses the partner who
   is good to it.
 - **Persistent character.** A being burned by an extractive partner meets a *new*,
-  fair one **guarded** — empathy Cautious, giving roughly half — and heals back to
-  full openness over ~40 ticks of sustained kindness. The wound persists across
-  partners *and* recovers. Discerning, not cynical.
+  fair one **deeply guarded** — empathy Locked, giving nothing at first — thaws,
+  and heals back to full openness (~tick 76) under sustained kindness. The wound
+  persists across partners *and* recovers. Discerning, not cynical.
 - **Metacognition.** Over a calm life its self-knowledge grows (it learns to
   predict its own state); its self-surprise spikes at a regime change — the being
   registering *"that is not like me."*
