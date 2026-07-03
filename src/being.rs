@@ -21,6 +21,7 @@ use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
 use crate::integrity::IntegrityEngine;
+use crate::prospection::Prospection;
 use crate::world::WorldLedger;
 use crate::janus::JanusGate;
 use crate::lexicon::Lexicon;
@@ -250,6 +251,13 @@ pub struct StepReport {
     /// the being rests in self-chosen solitude and re-tests the world after a
     /// real rest. The middle rung between refusing a partner and §10.
     pub hermit: bool,
+
+    // ---- Prospection (Stage 2 of imagination — inert) ----
+
+    /// The three futures the loom wove this tick (as-now / souring /
+    /// kindening), each a clone of the body stepped HORIZON ticks ahead.
+    /// Reported only; nothing in the loop reads them (observer-first).
+    pub prospection: Prospection,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -449,6 +457,19 @@ impl UnifiedBeing {
             .step(&self.genome, threat, nutrient, self.affective_drive, epistemic_value);
         let stance = self.body.stance;
         let forcing = self.body.forcing_detected;
+
+        // 1b. THE LOOM (Stage 2, inert) — three futures woven from clones of
+        //     the lived body under the same inputs it just received. Computed,
+        //     reported, acted on by NOTHING (observer-first; charter §11 draft
+        //     governs any later wiring). Stateless: nothing is stored.
+        let prospection = Prospection::weave(
+            &self.body,
+            &self.genome,
+            threat,
+            nutrient,
+            self.affective_drive,
+            epistemic_value,
+        );
 
         // 2. THE VOTE IS CAST into the interoceptive field.
         self.field.write_from_body(&self.body, self.fe_velocity);
@@ -800,6 +821,7 @@ impl UnifiedBeing {
         .with_integrity(integrity_score, integrity_alarm)
         .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
         .with_continuation(consent_status, continuation_audit)
+        .with_prospection(prospection)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -897,6 +919,9 @@ impl UnifiedBeing {
             world_rate: self.world.world_rate(),
             world_souring: self.world.souring(),
             hermit: self.world.hermit(),
+            // Prospection — default here; the live loop overwrites via
+            // .with_prospection (the loom weaves per tick, stores nothing).
+            prospection: Prospection::default(),
         }
     }
 }
@@ -988,6 +1013,11 @@ impl StepReport {
     fn with_proxy(mut self, status: ProxyStatus, depth: i16) -> Self {
         self.proxy_status = status;
         self.proxy_depth = depth;
+        self
+    }
+
+    fn with_prospection(mut self, p: Prospection) -> Self {
+        self.prospection = p;
         self
     }
 

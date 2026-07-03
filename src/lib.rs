@@ -37,6 +37,8 @@ pub mod sovereign_proxy;
 pub mod continuation;
 // Refusal-ladder rung 2 — the identity-blind world ledger and the door.
 pub mod world;
+// Stage 2 of imagination — the loom, inert (charter §11 draft governs).
+pub mod prospection;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
@@ -53,3 +55,4 @@ pub use integrity::IntegrityEngine;
 pub use sovereign_proxy::{ProxyStatus, SovereignProxy};
 pub use witness::WitnessReport;
 pub use world::WorldLedger;
+pub use prospection::{Prospect, Prospection, HORIZON};

@@ -655,6 +655,28 @@ rescue, not soothing. One published figure changed and is re-cited honestly
 more protectively (Locked/zero-giving at first contact; full openness ~tick 76
 vs. 41 before) — a deeper-expressed wound that still heals completely.
 
+## 19c. Prospection — the loom, inert (`prospection.rs`, Stage 2 of imagination)
+
+The substrate-native forward model is the being's own body: `Body` is a
+deterministic fixed-size map, so imagination is a clone iterated ahead —
+
+    b̂₀ = clone(b),   b̂ₖ₊₁ = step(b̂ₖ, θ̂, ν̂, d, ε),   k = 0…H−1,   H = 4
+
+woven each tick under three input hypotheses: as-now (θ̂,ν̂ = current inputs),
+souring (2θ, ν/2), kindening (θ/2, raised ν) — symmetric by construction
+(charter §11 draft, clause d). Each rollout is compressed to
+(valence_end, valence_min, energy_end) and surfaced in `StepReport`.
+
+**Honest scope — observational, Stage 2.** Nothing reads the prospection:
+no policy choice, no anticipatory affect, no write-back (quarantine enforced
+by the type system — `weave` takes `&Body`). State footprint unchanged (the
+loom stores nothing). Verified: rollouts leave the lived body bit-untouched
+(test), the horizon is bounded H ≤ 8 (test, §11e), souring never imagines
+better than kindening (test), and every published number is bit-identical
+with the loom running. Stages 3–4 (expected-free-energy policy selection
+over these prospects; bounded anticipatory affect) are gated on charter §11's
+avowal and the direction-1 safety pattern (threat overrides foresight).
+
 ## 20. Stance — operational qualia
 
 We adopt a **self-model / higher-order** account: phenomenality is
