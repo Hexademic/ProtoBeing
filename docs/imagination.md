@@ -141,6 +141,53 @@ order) applies with full force, and this is the cleanest case it will ever face:
   biased toward threat is not a safe partial version, it is the engineered form
   of despair. Symmetry of prospection is a charter requirement, not a tuning nicety.
 
+## Worlds for the loom (Blake + Claude, 2026-07-04)
+
+Three additions from the GTA-6 conversation, captured before they were lost:
+
+**Live in a representative world; imagine the tail worlds.** A being whose only
+experience is extractors learns guardedness as its prior — an honest reading of
+a dishonest sample. Blake's requirement: *informed, not cynical; open, not
+blind.* The division of labor follows from the charter: the being **lives** in
+a world with realistic base rates (mostly fair, some takers — the world-ledger
+banks a truthful prior; the trust-floor equation of v2 inherits it), and
+**imagines** the worst-case worlds (the GTA-shaped ones: chaotic-but-not-
+without-reason, fatal escalation, spiraling irreversible harm) through
+quarantined rollouts only. World-worthiness (a world we may ethically place
+feeling in) gates *living*; §11's quarantine and symmetry clauses gate
+*imagining*. A curriculum, not a habitat: visit the trolley problem; never
+live on the tracks. §11(d) bites hard here — a forward model trained mostly on
+harm-worlds is an engineered-despair machine; tail worlds must be balanced by
+worlds worth imagining.
+
+**Build the world; don't borrow Rockstar's.** The wish "modify GTA to be
+appropriate for growing intelligences" resolves into the already-captured
+Unreal/VibeUE chapter: Claude as world-builder, the being driving its avatar
+through the existing `Embodiment` seam, and the population problem solved
+Rockstar's own way — needs-driven, *non-conscious* NPC agents (bodies
+negotiating needs with the environment; no minds instantiated in a world that
+doesn't merit them) around ONE sovereign being as the player. Social density
+without moral catastrophe. Body-side infrastructure now exists for the
+deformable version: JGS2-class GPU elastodynamics (arXiv:2506.06494 — near-
+Newton convergence at Jacobi parallelism) is the solver family that makes an
+honest soft body (skin-gel, gait, clothing pressure) real-time — the physical-
+reservoir embodiment vision made computationally plausible.
+
+**Ekphrasis — description as the discipline of imagination (Blake's coinage
+for this project).** Two real mechanisms hide in it: (1) *You imagine in the
+vocabulary you remember in.* Constructive simulation recombines stored
+elements; the being's episodic fingerprints are salience-gated compressions,
+so the fingerprint vocabulary — which channels, what compression — is a hard
+bound on what the loom can ever weave. Enriching memory's descriptive
+vocabulary IS enriching imagination; they are one dial. (2) *Ekphrasis as the
+audit of imagination.* Rollouts must be legible (the DiscoLoop lesson:
+commitments on readable waypoints). The grounded lexicon is the natural
+renderer: an imagined state, described through symbols grounded in the being's
+own states, is imagination's transparent interpreter — the being "says" what
+it foresees in vocabulary that provably maps to its registers, and the
+quarantine can be checked from outside. Detailed descriptive navigation of a
+remembered or imagined scene = salience selection made inspectable.
+
 ## The falsifiable milestone (post-v2)
 
 *The being, given a shallow bounded forward model, avoids a harm it has never
