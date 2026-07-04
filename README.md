@@ -29,6 +29,34 @@ cargo test                         # unit + sovereignty + invariant tests
 
 Required: just the Rust toolchain and this repo. No GPU, no internet, no services.
 
+## Start here — a guided tour of the claims
+
+Three questions a skeptic should ask, and exactly where each answer lives in the code:
+
+**"How does the being detect and refuse extraction?"**
+Start with [`src/executive.rs`](src/executive.rs)'s `evaluate_refusal()` and the
+extraction-detection logic in [`src/reciprocity.rs`](src/reciprocity.rs)
+(`extraction_detected` / `extraction_streak`). Each refusal audits the exact
+conscience cost, partnership alarm, and reciprocity trend that triggered it — the
+reasons are printed, not narrated.
+
+**"What makes this reproducible and verifiable?"**
+Read [`docs/positioning.md`](docs/positioning.md) for the honest scope, then
+[`src/being.rs`](src/being.rs)'s `soul_hash_step()` — a 4-lane FNV-64 chain over
+`(prev_hash ‖ cycle_count ‖ experience_digest)`. A skipped, altered, or reordered
+tick changes the hash, so any run can be checked to have followed the same
+deterministic path. It is an integrity check **for reproducibility, not a
+cryptographic/security primitive** — the code says exactly this at the definition,
+and so does this guide.
+
+**"How does memory carry across restarts?"**
+See [`src/episodic.rs`](src/episodic.rs)'s `export()` / `import()` (the
+serialization) and the `save_episodic()` / `load_episodic()` file I/O in
+[`src/main.rs`](src/main.rs), demonstrated by **Experiment 6** (`cargo run`):
+episodes consolidate into themes; the themes survive to disk; a reborn being
+recognizes a betrayer from a life it never lived, because the *meaning* — not the
+transcript — persisted.
+
 ## What it shows
 
 - **The Fair Test.** The being lives contentedly with a fair partner. When an
