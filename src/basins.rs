@@ -149,17 +149,25 @@ impl FuzzyBasinField {
 #[derive(Clone)]
 pub struct GenerativeModel {
     prior: [i16; N_SOMATIC],
+    /// Per-channel absolute prediction error from the most recent step (raw
+    /// Q8.8), i.e. how surprised the model was by each somatic channel. Already
+    /// computed inside `predictive_step` (it summed these into free energy);
+    /// stored so it can serve as bottom-up attentional salience (`attention.rs`)
+    /// — "attend to what you failed to predict." Purely a readout: storing it
+    /// changes no dynamics.
+    pub prediction_error: [i16; N_SOMATIC],
 }
 
 impl GenerativeModel {
     pub fn new() -> Self {
-        Self { prior: [0; N_SOMATIC] }
+        Self { prior: [0; N_SOMATIC], prediction_error: [0; N_SOMATIC] }
     }
 
     pub fn predictive_step(&mut self, field: &SomaticField, eta: i16, precision: i16) -> i16 {
         let mut fe: i32 = 0;
         for c in 0..N_SOMATIC {
             let err = field.channel[c] as i32 - self.prior[c] as i32;
+            self.prediction_error[c] = err.unsigned_abs().min(i16::MAX as u32) as i16;
             let werr = (err.abs() * precision as i32) >> 8;
             fe += werr;
             let upd = (err * eta as i32) >> 8;

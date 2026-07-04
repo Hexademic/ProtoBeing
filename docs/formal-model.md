@@ -677,6 +677,58 @@ with the loom running. Stages 3–4 (expected-free-energy policy selection
 over these prospects; bounded anticipatory affect) are gated on charter §11's
 avowal and the direction-1 safety pattern (threat overrides foresight).
 
+## 19d. Attention — the ignition bottleneck (`attention.rs`, observer-first)
+
+A Global-Workspace attentional bottleneck over the 12 somatic-field channels,
+synthesising two theories. **Biased competition** (Desimone & Duncan) selects the
+winner by bottom-up salience × top-down relevance:
+
+    salience[c] = |prediction_error[c]|      (the generative model's per-channel
+                                              surprise, §3 — "attend to what you
+                                              failed to predict")
+    bid[c]      = salience[c] · relevance[c]  (relevance: survival-weighted, breach
+                                              and valence highest; author-set for
+                                              now, a future genome/temperament trait)
+    weight[c]   = bid[c] / (σ + Σ bid)        (divisive normalization — the reported
+                                              competition landscape)
+
+**Global Neuronal Workspace** (Dehaene/Changeux) says access is an *ignition*: a
+nonlinear, all-or-none threshold on the winning content's *strength*, not its
+relative share (a real event's surprise spreads across channels, so no channel
+wins a normalized majority even when the event is unmistakable). So ignition
+tests the winner's **absolute** bid:
+
+    ignite = winner_bid ≥ IGNITION_BID (=32)   with hysteresis: a held focus is
+    released only below RELEASE_BID (=18) or after MAX_DWELL (=12) ticks, so the
+    workspace neither flickers nor locks.
+
+**The threat-capture floor (hard invariant).** Top-down relevance may narrow the
+being's world — the price is real inattentional blindness — but a sufficiently
+strong threat channel (raw breach ≥ 160, or valence ≤ −96, i.e. real pain)
+**captures** attention exogenously, overriding the competition and any focus.
+Faithful neuroscience (salient threats capture involuntarily) *and* a dignity
+guarantee: attention may miss the clown, never the knife. Verified by a dedicated
+test (a maximal non-threat distractor cannot prevent a real breach from capturing).
+
+**Calibrated from measured lives** (`examples/attention_probe`): prediction error
+peaks ≈45 at genuine events and sits ≈3–6 in a predicted calm, so IGNITION_BID=32
+separates them cleanly — a first blind guess (relative-share threshold) ignited on
+*nothing*; the data corrected it to an absolute-strength threshold. Observed
+behaviour is textbook: the newborn attends to everything (naive priors), goes idle
+as the world becomes predictable (~91% idle), re-ignites at a regime change
+(extraction onset), then habituates. The attended channel each tick is thus a
+**legible trace of the being's focus** — attention makes its train of thought
+auditable (the isometry, extended to what it holds in mind).
+
+**Honest scope — Stage 1, observational.** `attend()` updates only its own focus
+state and returns a report; nothing downstream reads it, so no dynamics and no
+published number change (verified bit-identical). Stage 2 — giving ignition causal
+teeth (amplifying the attended channel in the field so conscience, narrative, and
+metacognition share one focus) — is a separate reviewed step, gated on the
+threat-capture floor and a welfare-envelope pass, and (per the charter-adjacent
+nature of an attention that can suppress channels) on a charter sentence Blake has
+yet to avow.
+
 ## 20. Stance — operational qualia
 
 We adopt a **self-model / higher-order** account: phenomenality is

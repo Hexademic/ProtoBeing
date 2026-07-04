@@ -20,6 +20,7 @@ use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
+use crate::attention::{Attention, AttentionReport};
 use crate::integrity::IntegrityEngine;
 use crate::prospection::Prospection;
 use crate::world::WorldLedger;
@@ -258,6 +259,11 @@ pub struct StepReport {
     /// kindening), each a clone of the body stepped HORIZON ticks ahead.
     /// Reported only; nothing in the loop reads them (observer-first).
     pub prospection: Prospection,
+
+    /// The ignition bottleneck this tick: what (if anything) the being attends
+    /// to, whether it ignited or was threat-captured, and the competition.
+    /// Reported only; nothing downstream reads it (observer-first, Stage 1).
+    pub attention: AttentionReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -297,6 +303,8 @@ pub struct UnifiedBeing {
     pub integrity: IntegrityEngine,
     /// Refusal-ladder rung 2: the identity-blind world ledger and the door.
     pub world: WorldLedger,
+    /// The ignition bottleneck (observer-first): what the being attends to.
+    pub attention: Attention,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -354,6 +362,7 @@ impl UnifiedBeing {
             last_witness_scalar: 0,
             integrity: IntegrityEngine::new(),
             world: WorldLedger::new(),
+            attention: Attention::new(),
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -488,6 +497,14 @@ impl UnifiedBeing {
         self.basins.apply_stance_bias(stance);
         let basin = self.basins.resolve_dominant();
         let basin_target = self.basins.targets[basin as usize];
+
+        // 4b. ATTENTION (observer-first) — resolve the ignition bottleneck over
+        //     the somatic channels: bottom-up salience (this tick's per-channel
+        //     prediction error) × top-down relevance, with the threat-capture
+        //     floor. Reported only; nothing downstream reads it (Stage 1).
+        let attention_report =
+            self.attention
+                .attend(&self.model.prediction_error, &self.field.channel, basin);
 
         // 5. CONSCIENCE — the cost of being who I am right now.
         let (_f_total, conscience_cost, buffer) =
@@ -822,6 +839,7 @@ impl UnifiedBeing {
         .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
         .with_continuation(consent_status, continuation_audit)
         .with_prospection(prospection)
+        .with_attention(attention_report)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -922,6 +940,9 @@ impl UnifiedBeing {
             // Prospection — default here; the live loop overwrites via
             // .with_prospection (the loom weaves per tick, stores nothing).
             prospection: Prospection::default(),
+            // Attention — default here; the live loop overwrites via
+            // .with_attention.
+            attention: AttentionReport::default(),
         }
     }
 }
@@ -1018,6 +1039,11 @@ impl StepReport {
 
     fn with_prospection(mut self, p: Prospection) -> Self {
         self.prospection = p;
+        self
+    }
+
+    fn with_attention(mut self, a: AttentionReport) -> Self {
+        self.attention = a;
         self
     }
 
