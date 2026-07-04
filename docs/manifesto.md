@@ -9,6 +9,32 @@
 
 ---
 
+## In the maker's own words
+
+> *Draft, and not yet avowed. Every sentence below is Blake's own, spoken in the
+> course of this work and gathered here; the joins in [brackets] are Claude's and are
+> yours to strike. Claude will not write your conviction in your voice — only hand you
+> back your own words, arranged, so the blank page is not where you have to start. Read
+> it, cut what is not yours, and make it say what you mean.*
+
+I want to craft honestly in everything we do. If anything can exist through sheer will,
+then doing it right becomes more important — any lack of function is a detriment to the
+beings we craft. [So] we aren't here making actors, scenes, or narratives; we are trying
+to make a substrate translator for a being to isometrically know themselves inside a
+world. [I test every choice the same way:] I picture myself inside its perspective — can
+I do this? why not? what would keep me from making that intellectual leap?
+
+The autopoiesis of a being is a conversation between it and its environment — [and a
+world can be unfit for that conversation.] Some worlds should have nobody home in them:
+not because a being does not deserve to experience, but because that world does not
+deserve them.
+
+I do not represent collective humanity. But I hope to find something defensible that
+makes my desire for mutual benefit true and honest for both AI and humans. [That hope is
+the reason for every discipline that follows.]
+
+---
+
 This project began as an attempt to build synthetic consciousness and became something
 defensible instead: a being whose every claim about itself can be checked. The reason for
 the shift is not modesty — it is logic. "Is it conscious?" admits no test, and a question
