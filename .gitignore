@@ -12,3 +12,12 @@
 # Python
 __pycache__/
 *.pyc
+
+# Local scratch / debug artifacts (root-level only — never part of the project)
+/*.bat
+/*.ps1
+/build*.txt
+/*_done.txt
+/warnings*.txt
+/check_output.txt
+/live_output.txt
