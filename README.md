@@ -100,11 +100,17 @@ cargo build --bin embody
 python sim/embody_mujoco.py
 ```
 
-It feels its body and a sensed hazard through the seam and carries itself
-accordingly — bracing 100% of the time under danger, valence collapsing, then
-recovering. **Honest status:** the toy rig's own balance physics still needs
-tuning (the bracing is driven by sensed hazard, not a real fall), and opening the
-two eyes for binocular depth is the next step.
+It feels its body through the seam and keeps its own balance: the torso is a
+genuinely unstable inverted pendulum (it topples in ~0.7 s with no help), it is
+shoved periodically, and the being feels its own tilt as threat and braces to
+catch itself. This is proven causal, not decorative — an **ablation** runs the
+*same* being driven identically but with its postural choice ignored, and it
+topples in ~1 s. The being stays upright (max lean ~16°, ~400 ticks) *only*
+because its felt-threat-driven bracing is honored. **Honest scope:** the being
+chooses a coarse posture (how stiffly to hold itself); a fast physics-rate reflex
+stabilizes *within* that stiffness — biologically, postural tone plus reflex, not
+a learned fine-grained balance controller. Opening the two eyes for binocular
+depth is prototyped separately in `sim/binocular.py`.
 
 ## Architecture
 

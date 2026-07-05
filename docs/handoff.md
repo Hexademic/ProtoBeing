@@ -19,8 +19,9 @@ pass, fully reproducible.
 
 ## What's demonstrated (honest)
 Fair Test (keeps fair, refuses extraction composed + audited), persistent character
-(wound that heals across partners), metacognition (modest), embodiment (works; toy
-balance physics is a known limit), episodic recall, persistence across the dark,
+(wound that heals across partners), metacognition (modest), embodiment (the being
+keeps its own balance on a genuinely unstable inverted pendulum — ablation-proven
+causal), episodic recall, persistence across the dark,
 consolidation (gist outlives the instance), continuous time across an un-experienced
 sleep. Benchmark: forgiveness beats a myopic baseline (false-refusal 40% vs 60%).
 Bounded self ⇒ no context-limit death (constant state footprint — currently 2408
@@ -36,8 +37,8 @@ again — re-verify it before citing it elsewhere, never carry it forward).
 4. **Community demo** — Active Inference Institute / IWAI / ALIFE / AI-safety.
 
 **Open builds (deepening the being):**
-- MuJoCo balance physics (toy rig stays near-upright; bracing is sensed-hazard-driven).
-- Binocular vision (the two head cameras are mounted but dormant → proximity/looming).
+- Binocular vision (prototyped in `sim/binocular.py` — disparity→proximity/looming/
+  lateral, validated corr ~0.93 with true distance; not yet wired into the live seam).
 - A richer world (multi-agent; the VR/Boneworks-style environment).
 - **Developmental body — a first version now exists** (`body.rs::Topology`): the
   mesh's diffusion coupling grows monotonically from a stable, genome-set baseline

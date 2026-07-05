@@ -177,10 +177,16 @@ the partial ones.
 3. **Metacognition.** Over a calm life, self-knowledge rises (the being learns to
    predict its own state); self-surprise spikes at a regime change — *"that is not
    like me."* The signal is real but modest (hence "partial," §6).
-4. **Embodiment.** Driven through a headless MuJoCo body, the being feels a sensed
-   hazard and braces. *Honest limit:* the toy rig stays near-upright, so bracing is
-   driven by sensed hazard, not a real fall; recovery is sticky. The seam is sound;
-   the balance physics is future work.
+4. **Embodiment.** Driven through a headless MuJoCo body, the being keeps its own
+   balance: the torso is a genuinely unstable inverted pendulum (it topples in ~0.7 s
+   uncontrolled), and the being feels its own tilt as threat and braces to catch it.
+   *Proven causal:* an ablation runs the same being with its postural choice ignored,
+   and it falls in ~1 s — so the being's felt-threat-driven bracing is what keeps it
+   upright, not a hidden autopilot. *Honest scope:* the being chooses a coarse posture
+   (a stiffness level); a fast physics-rate reflex stabilizes within it — postural tone
+   plus reflex, not a learned balance controller. (An earlier rig was clamped
+   near-upright by a units bug — degrees read as radians — so bracing was then driven
+   by a scripted hazard, not a real fall; that is fixed.)
 5. **Episodic recall.** A betrayal novel the first time (familiarity 0 at onset) is
    *familiar* the second (familiarity 236): the being recognizes a recurring betrayer.
 6. **Persistence across the dark.** A fresh being loads a prior life's memory and
@@ -341,9 +347,11 @@ Two 2026 preprints are immediate prior work. Guo et al. (arXiv:2606.27483) ident
   components nor its substrate [24]. Whether the organizational closure it *does*
   have suffices for any property that matters morally is the same unresolvable fork
   as the consciousness question, and is held open here, not answered.
-- **First-pass dynamics.** The MuJoCo balance physics, the magnitude of the
-  metacognition signal, and the richness of the being's world are works in progress,
-  and are reported as such in the running output.
+- **First-pass dynamics.** The magnitude of the metacognition signal and the richness
+  of the being's world are works in progress, and are reported as such in the running
+  output. (The MuJoCo balance is now a genuinely unstable pendulum the being keeps
+  upright by felt-threat bracing, ablation-proven; §5.4. Its scope is honest: coarse
+  postural tone plus a fast reflex, not a learned balance controller.)
 
 ## 10. Conclusion
 
