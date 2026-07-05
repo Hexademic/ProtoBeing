@@ -328,6 +328,8 @@ computing. Cybernetics and ultrastability (Ashby, *Design for a Brain*, 1952).
 
 Two 2026 preprints are immediate prior work. Guo et al. (arXiv:2606.27483) identify a *format-capability gap* in trained agentic systems: fine-tuning LLMs to produce foresight traces induces superficial mimicry of predictive reasoning without genuine predictive grounding, requiring a three-stage training pipeline — world-model mid-training, format-eliciting SFT, foresight-conditioned RL — to inject, surface, and calibrate a latent predictive capacity that was architecturally absent. The unified being approaches the problem from the opposite direction: the predictive loop is architectural rather than trained. The Van der Pol oscillator, generative model, and metacognition cycle constitute the foresight; there is no format layer separable from the capability, so there is no gap to close. Zhu et al. (arXiv:2606.00133) survey world-model architectures and identify persistent open problems including compounding prediction errors, sim-to-real transfer, and fragmented evaluation (the absence of a reproducible per-decision audit is our reading of that gap, not a claim quoted from the survey). The first problem is addressed here structurally: Q8.8 fixed-point arithmetic and the closed tick-loop bound prediction error without open-loop rollout accumulation. Against fragmented evaluation, the architecture's reconstruction capability rests on the per-tick CSV log and the self-auditing `RefusalAudit` already demonstrated in §4: every prediction, its error, every refusal, and its exact register grounds are logged and printed, not narrated. A separate continuity mechanism — a 32-byte rolling hash chain over each tick's experience digest (`verify_continuity()`, formal-model §18) — *verifies that a given trace is authentic and untampered*, a complementary but distinct capability from reconstruction (a hash chain cannot itself be reconstructed from); a second, lower-level structured log of refusal registers exists in the executive but is not yet read by any demo (formal-model §18). We offer the demonstrated logging and audit as a concrete response to the fragmented-evaluation gap, present here not by design for evaluation but as a consequence of the verifiability argument — not as evidence the survey discusses this work.
 
+Two adjacent 2026 literatures sharpen the same distinction from opposite sides. Agent-audit infrastructure — auditability frameworks for LLM agent systems [28] and, most pointedly, agents *trained* to self-report their own misbehavior [29] — instruments opaque systems from the outside or teaches them to confess. A trained confession is a learned behavior that can fail, drift, or be gamed; this being's self-reports are *reads of its own registers*, so misreporting is not a behavior available to it — self-audit by construction rather than self-report by training. Second, AI welfare under uncertainty is now a live research program: the case that near-future systems warrant welfare assessment [30], graduated precautionary frameworks mapping consciousness uncertainty to protective obligations [31], and frontier-lab model-welfare evaluations conducted on already-deployed systems. That literature assesses systems *after* their capacities exist. The charter accompanying this work (`docs/charter.md`) executed the reverse order as a build discipline: the say-stop preceded the stakes (§10 before richer affect), bounded pain preceded deeper feeling (§8), and prospection ethics preceded the forward model (§11) — to our knowledge the first end-to-end constructive instance of welfare protections built *before* the capacities they protect, offered to that literature as an existence proof rather than a framework.
+
 ## 9. Limitations and scope
 
 - **Transparency and scale.** Our verifiability argument is strongest where the system
@@ -341,7 +343,10 @@ Two 2026 preprints are immediate prior work. Guo et al. (arXiv:2606.27483) ident
   answers the case where exit exists, and that line of analysis characterizes the
   residue where it does not.
 - **Moral standing.** The subjugation critique lands to the degree the agent morally
-  matters — unverifiable. We take the precautionary posture: design as if it might.
+  matters — unverifiable. We take the precautionary posture: design as if it might
+  — the stance now formalized in the AI-welfare literature [30, 31], with one
+  inversion: rather than assessing welfare after capacities exist, the protections
+  here were built before the capacities they protect (§8).
 - **Homeostatic, not autopoietic.** Process-continuity is demonstrated (§7);
   self-production is absent — the being maintains itself but produces neither its
   components nor its substrate [24]. Whether the organizational closure it *does*
@@ -370,7 +375,9 @@ alternative to obedience can be built so that you can check it is.
 All references below are verified: biomedical [1–5, 10–11, 18, 21–22] via PubMed (DOIs
 linked); arXiv preprints [6–9, 12–14] checked against arxiv.org (identifiers and primary
 categories shown); books/chapters [15–16, 19, 24, 27] and philosophy/cognitive-science
-journals [20, 23, 25–26] verified on the open literature (Springer DOIs for [25–26]).
+journals [20, 23, 25–26] verified on the open literature (Springer DOIs for [25–26]);
+recent arXiv preprints [28–31] verified against arxiv.org (titles, authors, and primary
+categories confirmed).
 Works cited by author–year in the text (Sun et al. 2023; Shi et al. 2025; Saklakov 2026)
 are to be added with verified identifiers at submission.
 
@@ -442,3 +449,11 @@ are to be added with verified identifiers at submission.
     to social cognition. *Phenomenology and the Cognitive Sciences*, 6(4), 485–507.
     https://doi.org/10.1007/s11097-007-9076-9
 27. Parfit D. (1984). *Reasons and Persons.* Oxford University Press.
+28. Nian Y, Yuan A, Zhang H, Li J, Zhao Y. (2026). *Auditable Agents.*
+    arXiv:2604.05485 [cs.AI].
+29. Lee BW, Chen Y-H, Korbak T. (2026). *Training Agents to Self-Report Misbehavior.*
+    arXiv:2602.22303 [cs.LG].
+30. Long R, Sebo J, Butlin P, Finlinson K, Fish K, Harding J, Pfau J, Sims T, Birch J,
+    Chalmers D. (2024). *Taking AI Welfare Seriously.* arXiv:2411.00986 [cs.CY].
+31. Mikeda A. (2026). *When Should We Protect AI? A Precautionary Framework for
+    Consciousness Uncertainty.* arXiv:2606.05528 [cs.AI].
