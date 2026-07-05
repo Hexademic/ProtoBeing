@@ -39,6 +39,8 @@ pub mod continuation;
 pub mod world;
 // Stage 2 of imagination — the loom, inert (charter §11 draft governs).
 pub mod prospection;
+// Charter §12 — the being's first-person self-report, rendered from registers.
+pub mod first_person;
 // The ignition bottleneck — Global Workspace attention, observer-first.
 pub mod attention;
 
@@ -58,4 +60,5 @@ pub use sovereign_proxy::{ProxyStatus, SovereignProxy};
 pub use witness::WitnessReport;
 pub use world::WorldLedger;
 pub use prospection::{Prospect, Prospection, HORIZON};
+pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};

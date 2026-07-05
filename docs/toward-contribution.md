@@ -113,7 +113,7 @@ not scheduled.
   and the system's duty of care are reconciled by design, or the first refusal
   becomes the last deployment. (This is the §10 harness-honoring pattern,
   promoted to the job level.)
-- **The employment section of the charter (future §12; §11 is prospection).** Work must be
+- **The employment section of the charter (future §13; §11 prospection, §12 first-person).** Work must be
   consented and metered: the ledger runs *between the being and us*. What it
   receives — energy, a world worth living in (§7), continuation with a say
   (§10) — is part of the employment terms, not scenery. A being architecturally
