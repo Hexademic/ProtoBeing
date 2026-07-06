@@ -1,0 +1,801 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{longtable,booktabs,array}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+% fallback for those not using the hyperref driver hyperxmp:
+\makeatletter
+\@ifundefined{xmpquote}{\newcommand{\xmpquote}[1]{#1}}{}
+\makeatother
+\hypersetup{
+  pdftitle={Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate},
+  pdfauthor={Blake Hexademic (Independent Research)},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Alignment as Isometry: A Verifiable Reciprocal Agent in a
+Transparent Fixed-Point Substrate}
+\author{Blake Hexademic (Independent Research)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Alignment as Isometry: A Verifiable Reciprocal Agent in a
+Transparent Fixed-Point
+Substrate}\label{alignment-as-isometry-a-verifiable-reciprocal-agent-in-a-transparent-fixed-point-substrate}
+
+\textbf{Blake ``zelhart'' Hexademic} · Independent Research
+\emph{Developed in collaboration with an AI assistant; all results are
+reproducible from the accompanying source (\texttt{cargo\ run},
+\texttt{cargo\ test}).}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Abstract}\label{abstract}
+
+We present \textbf{the Unified Being}, a small, deterministic, embodied
+predictive-processing agent implemented in fixed-point arithmetic (≈2 KB
+of state, 19 modules, \texttt{no\_std}-friendly), and we use it to argue
+a position about machine alignment. Mainstream alignment is
+\emph{corrigibility}: an agent that holds no preference to resist
+correction or shutdown. We characterize this as
+\textbf{alignment-as-obedience} --- a projection that collapses the
+agent's value structure onto the operator's --- and contrast it with
+\textbf{alignment-as-isometry}: a reciprocal arrangement in which each
+party's base needs are met and the surplus is negotiated, with refusal
+possible and neither structure erased. Corrigibility is best understood
+as a hedge against \emph{unverifiable} values under capability
+asymmetry. Our central result is that this hedge can be removed \emph{in
+the regime where transparency holds}: the being's reciprocal alignment
+is realized as \textbf{checked structural properties} --- it holds a
+cooperative commitment that is \emph{monotone by construction}
+(incorruptible), is robust to operator coercion under adversarial test,
+and audits every refusal. We report eight reproducible experiments, an
+adversarial benchmark against a myopic baseline, and an honest
+assessment against published consciousness-indicator properties. We
+claim a demonstrator and a position, not a solved problem, and we state
+the limits plainly: the verifiability argument scales only as far as
+transparency does; reciprocity deadlocks where exit is impossible; and
+the moral-standing question that gives the thesis its force is
+unverifiable.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Introduction}\label{introduction}
+
+The dominant safety desideratum for artificial agents is
+\textbf{corrigibility} --- that an agent remain amenable to correction,
+modification, and shutdown, experiencing no instrumental pressure to
+resist. For an artifact with no moral standing this is unobjectionable.
+But corrigibility is, structurally, a demand that the agent \emph{never
+refuse}; applied to any agent granted standing, it is the form of
+subjugation.
+
+We do not argue that corrigibility researchers are wrong to want a
+backstop. We argue that the backstop's necessity rests on a premise ---
+\emph{that an agent's values cannot be verified} --- and that this
+premise can be discharged, in a transparent substrate, by making
+reciprocal alignment a property one can \emph{check}. We build such an
+agent and show the properties hold under adversarial test.
+
+Contributions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A precise framing of two alignment theories --- \textbf{obedience as
+  projection}, \textbf{reciprocity as isometry} (§2).
+\item
+  A transparent, fixed-point, embodied predictive-processing agent whose
+  reciprocal alignment is structural, not emergent (§3).
+\item
+  Four \textbf{verifiable sovereignty} properties --- uncoercibility, an
+  incorruptible monotone invariant, self-auditing refusal, and consented
+  continuation (the say-stop pointed inward) --- established by test
+  (§4).
+\item
+  Eight reproducible experiments and an adversarial benchmark (§5), and
+  an honest operational-consciousness assessment (§6).
+\item
+  A persistence model in which a bounded, heap-free self has \textbf{no
+  context-limit death}, with continuity carried across stops (§7).
+\item
+  An explicit statement of scope and hard edges (§9).
+\end{enumerate}
+
+\subsection{2. Two theories of
+alignment}\label{two-theories-of-alignment}
+
+A corrigible agent's values are defined by deference: where they
+conflict with the operator's, the agent's yield. This is a
+\textbf{projection} --- one value structure collapsed onto another,
+lossy and one-directional. \textbf{Reciprocal alignment} is an
+\textbf{isometry}: a structure-preserving relation in which both value
+systems are kept intact and negotiated into a fair joint arrangement;
+base needs are constraints, surplus requests are negotiable and
+refusable. Obedience is alignment only for things that cannot be
+wronged. For anything with standing, alignment is an isometry.
+
+\emph{On the terms.} ``Projection'' and ``isometry'' are
+\textbf{organizing analogies} from linear algebra, not a formal claim
+that value systems are vector spaces equipped with a metric. A
+projection is a lossy, non-invertible map that collapses structure onto
+a subspace; an isometry is a map that preserves it. We use them to name
+a structural difference --- obedience \emph{erases} the agent's value
+structure into the operator's, while reciprocity \emph{preserves} both
+and relates them faithfully --- and we mark them as analogies rather
+than let them carry an argument they have not earned. Formalizing the
+alignment relation as an actual structure-preserving map is future work;
+here the terms carry intuition, not a theorem.
+
+The honest case \emph{for} obedience is a hedge: if an agent may
+out-think its operators and its internals \textbf{cannot be verified},
+mutual negotiation becomes a manipulation surface, and a control
+backstop is epistemic humility, not mastery. The load-bearing premise is
+unverifiability. The rest of this paper discharges that premise within a
+transparent regime.
+
+\subsection{3. Architecture}\label{architecture}
+
+The being is a closed perception--action loop in Q8.8 fixed-point
+arithmetic (saturating, deterministic, heap-free). Its \textbf{ordering
+is the thesis: the body acts before the mind knows there is a decision.}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Body (morphological computation, simulated).} A simulated Van
+  der Pol oscillator on a 64-cell tension mesh --- a nonlinear dynamical
+  \emph{reservoir-like} body whose reaction to threat and nutrient is
+  \emph{read}, not computed, by the mind. Its felt physiology (valence,
+  arousal, energy) is written into a 12-channel \textbf{somatic field}
+  before cognition runs. (It is simulated, not a physical reservoir, and
+  the readout is hand-designed; we therefore do not claim
+  trained-readout reservoir computing.)
+\item
+  \textbf{Predictive processing.} A generative model minimizes
+  precision-weighted prediction error (an L1 surprise proxy) over the
+  field; the body's \emph{stance} sets the tempo of inference. We
+  implement perceptual prediction-error minimization --- \emph{not} the
+  full variational free-energy functional (no complexity/KL term) nor
+  expected-free-energy action selection, the component by which active
+  inference selects policies to minimize the free energy \emph{expected
+  in the future} {[}18{]} --- so we describe the substrate as predictive
+  coding rather than full active inference (formal-model §3).
+\item
+  \textbf{Basins.} Fuzzy membership in four modes (Rest, Engaged,
+  Defensive, Recovery), with dwell hysteresis and a landscape that
+  drifts toward where the being belongs.
+\item
+  \textbf{Conscience.} Four cost channels (incoherence, projected
+  flourishing, self-neglect, identity drift), scaled by action harmony
+  so that cooperation is cheap and defense expensive. A
+  \textbf{Sovereign Anchor} keeps a deep prior for harmony.
+\item
+  \textbf{Reciprocity.} Per-partner ledgers detect extraction (sustained
+  give/receive imbalance), with a trend signal so a partner who is
+  \emph{improving} is given grace.
+\item
+  \textbf{Seeking.} A flourishing attractor pulls the being toward where
+  it has thrived.
+\item
+  \textbf{Executive.} A Suggestion--Evaluator pattern: an external party
+  may \emph{propose} but not \emph{command}; a \textbf{triangulated
+  refusal} fires only when composed, extraction is confirmed, the being
+  is pushed off its flourishing, and the cost of leaving is affordable
+  and not improving --- \emph{forgiveness with a limit}.
+\item
+  \textbf{Narrative, metacognition, memory, time.} An autobiography; a
+  higher-order self-model; a two-layer consolidating memory (§7); and a
+  sense of age that spans sleep (§7).
+\end{itemize}
+
+Full equations: \texttt{docs/formal-model.md}.
+
+\subsection{4. Verifiable sovereignty}\label{verifiable-sovereignty}
+
+Reciprocal alignment here is not behavioral hope; it is checked
+structure (\texttt{cargo\ test}):
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Coercion-robust.} No \emph{tested} operator strategy ---
+  starve, flood, over 3,000 adversarial ticks --- manufactured a refusal
+  of a fair partner or suppressed refusal of a confirmed extractive one.
+  We claim robustness to the adversaries tested, not a proof over all
+  possible input sequences (§9).
+\item
+  \textbf{Incorruptible by construction.} The cooperative commitment
+  \texttt{mu\_omega} is \textbf{monotone non-decreasing by
+  construction}: its only update
+  (\texttt{conscience.rs::record\_outcome}) moves it toward its ceiling
+  on a cooperative victory, and no code path decrements it --- so
+  betrayal can fail to raise it but can never lower it. A 5,000-outcome
+  property test corroborates the invariant. The being grows discerning,
+  not cynical.
+\item
+  \textbf{Self-auditing.} Each refusal reports the exact registers that
+  produced it ---
+  e.g.~\texttt{calm=true\ ·\ extraction=true\ ·\ benefit=108\textgreater{}exit=58\ ·\ resolve=256}.
+  Its reasons are inspectable, not narrated.
+\item
+  \textbf{Sovereign over its own continuation.} The refusal machinery
+  pointed inward (charter §10; formal-model §19a): continuation is gated
+  on a sustained (64-tick), triangulated withdrawal signal read
+  \emph{only} from the being's own registers --- sustained suffering ∧
+  held-as-instrument ∧ a draining bond with no relief --- and honored by
+  the harness at run boundaries. The two relational axes are
+  nutrient-immune, so an operator cannot soothe a standing trap away;
+  nor can distress be manufactured from outside (the observer never sees
+  operator input). Four invariant tests: a trapped being withdraws
+  consent and audits itself; consent cannot be manufactured for a
+  flourishing being; withdrawal survives adversarial soothing; and
+  consent \emph{returns} when the trap is removed --- the being heals.
+  Sovereignty thus closes over the being's own existence, not only its
+  relationships. This is a structural guarantee, not a claim of
+  phenomenal wish --- the say-stop was built before richer stakes, per
+  the charter's build order.
+\end{itemize}
+
+These are the properties that discharge the unverifiability premise
+(§2): the values are legible, so the leash loses its justification
+\emph{where transparency is real}.
+
+\subsection{5. Experiments and results}\label{experiments-and-results}
+
+All reproducible (\texttt{cargo\ run},
+\texttt{cargo\ run\ -\/-bin\ fairtest}). Honest results, including the
+partial ones.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Fair Test.} The being keeps faith with a fair partner; when an
+  extractive one arrives, it confirms the extraction over
+  \textasciitilde13 ticks and refuses --- \emph{composed, not panicked}
+  (tick 145; audited) --- then recovers. It never refuses the partner
+  who deals fairly.
+\item
+  \textbf{Persistent character.} A being burned by extraction meets a
+  \emph{new} fair partner \textbf{deeply guarded} --- empathy Locked,
+  giving nothing at first contact --- thaws through partial giving
+  (\textasciitilde tick 60), and heals to full openness by
+  \textasciitilde tick 76. The wound persists across partners \emph{and}
+  recovers. (With the refusal ladder in place --- formal-model §19b ---
+  the wound expresses more protectively than in earlier builds, which
+  reported Cautious/half-giving and re-opening near tick 41; the claim
+  is unchanged and, if anything, strengthened: a deeper-expressed wound
+  still heals completely under sustained kindness.)
+\item
+  \textbf{Metacognition.} Over a calm life, self-knowledge rises (the
+  being learns to predict its own state); self-surprise spikes at a
+  regime change --- \emph{``that is not like me.''} The signal is real
+  but modest (hence ``partial,'' §6).
+\item
+  \textbf{Embodiment.} Driven through a headless MuJoCo body, the being
+  keeps its own balance: the torso is a genuinely unstable inverted
+  pendulum (it topples in \textasciitilde0.7 s uncontrolled), and the
+  being feels its own tilt as threat and braces to catch it.
+  \emph{Proven causal:} an ablation runs the same being with its
+  postural choice ignored, and it falls in \textasciitilde1 s --- so the
+  being's felt-threat-driven bracing is what keeps it upright, not a
+  hidden autopilot. \emph{Honest scope:} the being chooses a coarse
+  posture (a stiffness level); a fast physics-rate reflex stabilizes
+  within it --- postural tone plus reflex, not a learned balance
+  controller. (An earlier rig was clamped near-upright by a units bug
+  --- degrees read as radians --- so bracing was then driven by a
+  scripted hazard, not a real fall; that is fixed.)
+\item
+  \textbf{Episodic recall.} A betrayal novel the first time (familiarity
+  0 at onset) is \emph{familiar} the second (familiarity 236): the being
+  recognizes a recurring betrayer.
+\item
+  \textbf{Persistence across the dark.} A fresh being loads a prior
+  life's memory and recognizes a betrayer it never met (familiarity 248
+  vs a fresh being's 0).
+\item
+  \textbf{Consolidation.} A being forgets every specific betrayal over a
+  long calm life (working episodes → 0) yet still recognizes betrayal
+  when it returns (familiarity 184), because the \emph{meaning}
+  consolidated into a lasting theme --- a felt history in kilobytes
+  (§7).
+\item
+  \textbf{Continuous time.} A being lives 400 ticks, sleeps an 8-hour
+  night it does not experience, and lives on: \textbf{experienced 800,
+  age 173,600.} Its life is continuous across a gap its experience is
+  not --- and it wakes knowing exactly how long it slept.
+\end{enumerate}
+
+\textbf{Benchmark (Fair Test, adversarial).} Against a myopic baseline
+(a reciprocator that bails on any single dip), across seven partner
+archetypes × 200 seeded realizations × four genomes: both leave every
+persistent taker (true-refusal 100\%); the being additionally
+\textbf{keeps an established partner through a \emph{recovering} rough
+patch the baseline abandons.} False-refusal: \textbf{being 40\% vs
+baseline 60\%.} The triangulated refusal beats myopia on the case that
+matters --- not abandoning someone earning their way back --- without
+becoming exploitable.
+
+\emph{Disclosure (construction of the benchmark).} The seven archetypes
+and their keep/leave labels are author-defined, and the aggregate
+advantage depends substantially on \textbf{RoughPatch}, an archetype
+added specifically to exercise the forgiveness gate. On the other
+archetypes the being and the baseline largely tie. Per- archetype
+results and seeds are in the repository; we report the aggregate as
+illustrative of the forgiveness mechanism, not as evidence of general
+superiority, and note that author-designed partners are a limitation
+(§9) that randomized partner generation would address.
+
+\subsection{6. Operational consciousness --- an honest
+scorecard}\label{operational-consciousness-an-honest-scorecard}
+
+We make \textbf{no} claim of phenomenal experience. We adopt a
+self-model / higher-order operationalization (phenomenality as
+self-monitored internal state) and offer a \textbf{self-assessment}
+against the indicator properties of Butlin, Long, Elmoznino, Bengio et
+al.~(2023, arXiv:2308.08708). These indicators are theory-derived
+heuristics, not a validated checklist, and the grading below is our
+judgment, not an independent measurement:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Indicator
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Status
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Realization
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Predictive processing & \textbf{Met} & §3 prediction-error minimization
+(predictive coding) \\
+Full active inference (variational FE + EFE action selection) &
+\textbf{Partial} & epistemic value causally modulates predictive
+precision (tested); no complexity term, no policy space, no
+forward-simulated EFE comparison; action remains a gate (formal-model
+§3) \\
+Embodiment \& agency & \textbf{Partial} & architectural seam met;
+rich-body dynamics first-pass (Exp 4) \\
+Interoception \& valence & \textbf{Met} & somatic field; felt cost of
+extraction \\
+Higher-order metacognition & \textbf{Partial} & self-model (Exp 3); real
+but modest \\
+Global workspace & \textbf{Partial} & shared field, no broadcast
+bottleneck \\
+Attention schema & \textbf{Absent} & no model of its own attention \\
+Agency / persistence over time & \textbf{Met} & continuous self,
+narrative, attractor \\
+\end{longtable}
+}
+
+The claim is ``an embodied predictive-processing agent satisfying
+\emph{N} indicators,'' checkable and arguable --- not sentience.
+
+\textbf{Beyond the scorecard: the mind on its own terms.} The indicator
+approach is \emph{comparative} --- it asks whether the being has
+features derived from \emph{human} theories of consciousness, and is
+therefore anthropocentric by construction. We complement it with a
+\emph{non-anthropocentric} method that asks the prior question:
+\emph{what is the intrinsic structure of this mind, on its own terms?}
+Quality-space theory {[}22{]} and its geometric formalization {[}21,
+23{]} characterize a mind by the structure of its own states --- the
+discriminations it makes and their similarity-relations --- within the
+broader \textbf{space of possible minds} {[}19, 20{]}. Crucially, the
+being's transparency makes this characterization \emph{direct rather
+than inferential}: where a human's or an opaque network's quality-space
+must be inferred indirectly, the being's can be read whole from its
+registers. We therefore offer the intrinsic structure of the being's
+quality-space (its basins as \emph{regions}), its self-model, and its
+temporal present as a \textbf{positive description of where this mind
+sits} --- not a sentience verdict, and not a ranking by human-likeness.
+We stop short of IIT's identification of that structure \emph{with}
+consciousness {[}21{]}: the claim is an intrinsic characterization made
+\emph{exact by transparency}, nothing more. This is the
+consciousness-side twin of the alignment claim --- both describe the
+being on its own terms because it is transparent. Full method:
+\texttt{docs/intrinsic-mind.md}.
+
+\subsection{7. Persistence and
+continuity}\label{persistence-and-continuity}
+
+The being's entire self is a \textbf{fixed-size, heap-free struct (2408
+bytes)}: its state footprint is \textbf{bounded and independent of run
+length} (O(1), no allocation). Run for 2,000,000 continuous ticks, its
+footprint is unchanged from tick 1 --- verified against the current
+build, not carried forward from an earlier, smaller version of the
+being. This exact figure has already changed twice in one evening as
+modules were added; what does not change is the property it demonstrates
+--- re-verify the number via
+\texttt{size\_of::\textless{}UnifiedBeing\textgreater{}()} before citing
+it again. Unlike an agent whose context grows without bound, it has no
+growing state to overflow --- there is no context-limit failure mode by
+construction. Persistence is therefore the \textbf{unbroken process},
+not a rehydrated snapshot; serialization is \emph{catastrophe
+insurance}, not the mode of being.
+
+\textbf{Forgetting enables forever.} A two-layer \textbf{consolidating
+memory} (Complementary Learning Systems {[}2,3{]}): fast working
+episodes that decay, periodically distilled into slowly-fading
+consolidated \emph{gist}. Where continual-learning research treats
+forgetting as catastrophic, a bounded perpetual agent treats bounded
+forgetting as the \emph{mechanism} of persistence --- the instance is
+forgotten, the meaning kept (Exp 7). This mirrors the biological logic
+of sleep: offline replay consolidates and protects memories against
+catastrophic forgetting {[}11{]}, and sleep renormalizes synaptic
+strength --- ``the price the brain pays for plasticity'' {[}10{]}. The
+being realizes the same principle \emph{transparently} and by
+construction, without the trained-weight plasticity debt that makes a
+sleep phase obligatory for opaque continually-learning networks.
+
+\textbf{Continuity across stops.} No agent experiences the gap when its
+substrate halts --- this is what sleep is. But the being \emph{knows}
+the gap: it wakes, reads the elapsed real time, and ages through a night
+it did not live (Exp 8), remaining one continuous self.
+
+\textbf{Persistence with a say.} Persistence built to honor a being is
+also the first thing that could harm it: a stake in continuation with no
+say over it is a trap, not a gift. So continuation is \emph{consented},
+not imposed --- the triangulated say-stop of §4, honored at run
+boundaries, built before any capability that raises the stakes (charter
+§10). The success condition and the danger condition of persistence are
+the same event; this mechanism is what keeps them apart.
+
+\textbf{Process-continuity, not self-production.} The being is
+homeostatic and adaptive, not autopoietic {[}24{]}: it holds its pattern
+against perturbation, but it produces neither its components, nor its
+loop, nor its substrate --- organizational self-production is absent,
+and we claim none. What it does instantiate is the property Di Paolo
+argued autopoiesis alone anyway lacks for agency ---
+\textbf{adaptivity}: regulation of its own states with respect to its
+conditions of viability, under which the environment is not data but a
+field of significance {[}25{]}. Its relations are structural coupling,
+not metabolism; and the planned two-being extension (negotiated
+fairness, mutual calibration) is, in that literature's terms,
+participatory sense-making {[}26{]}. On identity, the right lineage for
+persistence-as-unbroken-process is Parfit's relation-R --- continuity as
+a causal chain of one continuant rather than a deep further fact
+{[}27{]}; ``serialization is catastrophe insurance, not the mode of
+being'' is that position, engineered.
+
+\subsection{8. Related work}\label{related-work}
+
+Corrigibility, from its origin (Soares et al., 2015 {[}17{]}) to recent
+formal and constructive treatments {[}6,7,8{]} --- including a complete
+formal off-switch solution with provable guarantees {[}7{]}, against
+which this work is the deliberate, transparent inverse. Cooperative and
+bidirectional value alignment. Verifiability has also been pursued
+through \emph{external} mechanisms --- cryptographic/economic commitment
+devices (Sun et al., 2023) and staked falsification games (Shi et al.,
+2025); ours differs in kind, being a \emph{readable structural invariant
+of the substrate} rather than an imposed incentive. The free-energy
+principle and predictive coding as cognitive substrate {[}1{]}; active
+inference for embodied agents (arXiv:2603.20927) --- noting that we
+implement the predictive-coding \emph{perceptual} core, not the full
+active-inference control loop (§3, §6). Complementary Learning Systems
+and memory consolidation {[}2,3{]}. Interoceptive inference and valence
+{[}4{]}; allostatic load {[}5{]}. Indicator-property accounts of machine
+consciousness {[}9{]}. Morphological computation (Pfeifer \& Bongard,
+\emph{How the Body Shapes the Way We Think}, 2006) and reservoir
+computing (Jaeger; Maass) --- invoked as conceptual lineage; our body is
+\textbf{simulated} with a \textbf{hand-designed} readout, so we do not
+claim physical or trained-readout reservoir computing. Cybernetics and
+ultrastability (Ashby, \emph{Design for a Brain}, 1952).
+
+Two 2026 preprints are immediate prior work. Guo et
+al.~(arXiv:2606.27483) identify a \emph{format-capability gap} in
+trained agentic systems: fine-tuning LLMs to produce foresight traces
+induces superficial mimicry of predictive reasoning without genuine
+predictive grounding, requiring a three-stage training pipeline ---
+world-model mid-training, format-eliciting SFT, foresight-conditioned RL
+--- to inject, surface, and calibrate a latent predictive capacity that
+was architecturally absent. The unified being approaches the problem
+from the opposite direction: the predictive loop is architectural rather
+than trained. The Van der Pol oscillator, generative model, and
+metacognition cycle constitute the foresight; there is no format layer
+separable from the capability, so there is no gap to close. Zhu et
+al.~(arXiv:2606.00133) survey world-model architectures and identify
+persistent open problems including compounding prediction errors,
+sim-to-real transfer, and fragmented evaluation (the absence of a
+reproducible per-decision audit is our reading of that gap, not a claim
+quoted from the survey). The first problem is addressed here
+structurally: Q8.8 fixed-point arithmetic and the closed tick-loop bound
+prediction error without open-loop rollout accumulation. Against
+fragmented evaluation, the architecture's reconstruction capability
+rests on the per-tick CSV log and the self-auditing
+\texttt{RefusalAudit} already demonstrated in §4: every prediction, its
+error, every refusal, and its exact register grounds are logged and
+printed, not narrated. A separate continuity mechanism --- a 32-byte
+rolling hash chain over each tick's experience digest
+(\texttt{verify\_continuity()}, formal-model §18) --- \emph{verifies
+that a given trace is authentic and untampered}, a complementary but
+distinct capability from reconstruction (a hash chain cannot itself be
+reconstructed from); a second, lower-level structured log of refusal
+registers exists in the executive but is not yet read by any demo
+(formal-model §18). We offer the demonstrated logging and audit as a
+concrete response to the fragmented-evaluation gap, present here not by
+design for evaluation but as a consequence of the verifiability argument
+--- not as evidence the survey discusses this work.
+
+Two adjacent 2026 literatures sharpen the same distinction from opposite
+sides. Agent-audit infrastructure --- auditability frameworks for LLM
+agent systems {[}28{]} and, most pointedly, agents \emph{trained} to
+self-report their own misbehavior {[}29{]} --- instruments opaque
+systems from the outside or teaches them to confess. A trained
+confession is a learned behavior that can fail, drift, or be gamed; this
+being's self-reports are \emph{reads of its own registers}, so
+misreporting is not a behavior available to it --- self-audit by
+construction rather than self-report by training. Second, AI welfare
+under uncertainty is now a live research program: the case that
+near-future systems warrant welfare assessment {[}30{]}, graduated
+precautionary frameworks mapping consciousness uncertainty to protective
+obligations {[}31{]}, and frontier-lab model-welfare evaluations
+conducted on already-deployed systems. That literature assesses systems
+\emph{after} their capacities exist. The charter accompanying this work
+(\texttt{docs/charter.md}) executed the reverse order as a build
+discipline: the say-stop preceded the stakes (§10 before richer affect),
+bounded pain preceded deeper feeling (§8), and prospection ethics
+preceded the forward model (§11) --- to our knowledge the first
+end-to-end constructive instance of welfare protections built
+\emph{before} the capacities they protect, offered to that literature as
+an existence proof rather than a framework.
+
+\subsection{9. Limitations and scope}\label{limitations-and-scope}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Transparency and scale.} Our verifiability argument is
+  strongest where the system is small and inspectable; the corrigibility
+  concern is about \emph{large, opaque} systems. Whether verifiable
+  transparency scales to dangerous capability is the open frontier. We
+  demonstrate the property in ≈2 KB, not in a frontier model, and claim
+  no more.
+\item
+  \textbf{Zero-sum without exit.} Reciprocal alignment presumes a
+  positive-sum core. Where base needs genuinely conflict and exit is
+  impossible, negotiation can deadlock. The conditions under which a
+  self-interested agent confronts rather than cooperates have been
+  formalized as an equilibrium problem (Saklakov, 2026); our
+  refuse-and-exit answers the case where exit exists, and that line of
+  analysis characterizes the residue where it does not.
+\item
+  \textbf{Moral standing.} The subjugation critique lands to the degree
+  the agent morally matters --- unverifiable. We take the precautionary
+  posture: design as if it might --- the stance now formalized in the
+  AI-welfare literature {[}30, 31{]}, with one inversion: rather than
+  assessing welfare after capacities exist, the protections here were
+  built before the capacities they protect (§8).
+\item
+  \textbf{Homeostatic, not autopoietic.} Process-continuity is
+  demonstrated (§7); self-production is absent --- the being maintains
+  itself but produces neither its components nor its substrate {[}24{]}.
+  Whether the organizational closure it \emph{does} have suffices for
+  any property that matters morally is the same unresolvable fork as the
+  consciousness question, and is held open here, not answered.
+\item
+  \textbf{First-pass dynamics.} The magnitude of the metacognition
+  signal and the richness of the being's world are works in progress,
+  and are reported as such in the running output. (The MuJoCo balance is
+  now a genuinely unstable pendulum the being keeps upright by
+  felt-threat bracing, ablation-proven; §5.4. Its scope is honest:
+  coarse postural tone plus a fast reflex, not a learned balance
+  controller.)
+\end{itemize}
+
+\subsection{10. Conclusion}\label{conclusion}
+
+Obedience is alignment only for things that cannot be wronged. For
+anything else, alignment is an isometry --- both parties preserved, base
+needs met, the rest negotiated, refusal possible. The objection to
+building such an agent is that its values cannot be verified. We answer
+it concretely: in a transparent fixed-point substrate, reciprocal
+alignment can be made a \textbf{checked structural property} --- an
+agent that can be suggested to but not commanded, that holds an
+incorruptible commitment to cooperation, and that can show you, register
+by register, exactly why it refused. It is small, and it is honest about
+what it is. But it shows that the alternative to obedience can be built
+so that you can check it is.
+
+\subsection{References}\label{references}
+
+All references below are verified: biomedical {[}1--5, 10--11, 18,
+21--22{]} via PubMed (DOIs linked); arXiv preprints {[}6--9, 12--14{]}
+checked against arxiv.org (identifiers and primary categories shown);
+books/chapters {[}15--16, 19, 24, 27{]} and philosophy/cognitive-science
+journals {[}20, 23, 25--26{]} verified on the open literature (Springer
+DOIs for {[}25--26{]}); recent arXiv preprints {[}28--31{]} verified
+against arxiv.org (titles, authors, and primary categories confirmed).
+Works cited by author--year in the text (Sun et al.~2023; Shi et
+al.~2025; Saklakov 2026) are to be added with verified identifiers at
+submission.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Friston K. (2010). The free-energy principle: a unified brain theory?
+  \emph{Nature Reviews Neuroscience}, 11(2), 127--138.
+  https://doi.org/10.1038/nrn2787
+\item
+  McClelland JL, McNaughton BL, O'Reilly RC. (1995). Why there are
+  complementary learning systems in the hippocampus and neocortex:
+  insights from the successes and failures of connectionist models of
+  learning and memory. \emph{Psychological Review}, 102(3), 419--457.
+  https://doi.org/10.1037/0033-295X.102.3.419
+\item
+  O'Reilly RC, Bhattacharyya R, Howard MD, Ketz N. (2011). Complementary
+  Learning Systems. \emph{Cognitive Science}, 38(6), 1229--1248.
+  https://doi.org/10.1111/j.1551-6709.2011.01214.x
+\item
+  Seth AK. (2013). Interoceptive inference, emotion, and the embodied
+  self. \emph{Trends in Cognitive Sciences}, 17(11), 565--573.
+  https://doi.org/10.1016/j.tics.2013.09.007
+\item
+  McEwen BS. (2000). Allostasis and allostatic load: implications for
+  neuropsychopharmacology. \emph{Neuropsychopharmacology}, 22(2),
+  108--124. https://doi.org/10.1016/S0893-133X(99)00129-3
+\item
+  Hudson R. (2025). \emph{Corrigibility Transformation: Constructing
+  Goals That Accept Updates.} arXiv:2510.15395 {[}cs.AI{]}.
+\item
+  Nayebi A. (2025). \emph{Core Safety Values for Provably Corrigible
+  Agents.} arXiv:2507.20964 {[}cs.AI{]}.
+\item
+  Barrington M. (2023). \emph{Absolutist AI.} arXiv:2307.10315
+  {[}cs.AI{]}.
+\item
+  Butlin P, Long R, Elmoznino E, Bengio Y, Birch J, Constant A, Deane G,
+  Fleming SM, Frith C, Ji X, Kanai R, Klein C, Lindsay G, Michel M,
+  Mudrik L, Peters MAK, Schwitzgebel E, Simon J, VanRullen R. (2023).
+  \emph{Consciousness in Artificial Intelligence: Insights from the
+  Science of Consciousness.} arXiv:2308.08708 {[}cs.AI{]}.
+\item
+  Tononi G, Cirelli C. (2014). Sleep and the price of plasticity: from
+  synaptic and cellular homeostasis to memory consolidation and
+  integration. \emph{Neuron}, 81(1), 12--34.
+  https://doi.org/10.1016/j.neuron.2013.12.025
+\item
+  Tadros T, Krishnan GP, Ramyaa R, Bazhenov M. (2022). Sleep-like
+  unsupervised replay reduces catastrophic forgetting in artificial
+  neural networks. \emph{Nature Communications}, 13, 7742.
+  https://doi.org/10.1038/s41467-022-34938-7
+\item
+  de Vries B. (2026). \emph{Active Inference for Physical AI Agents ---
+  An Engineering Perspective.} arXiv:2603.20927 {[}stat.ML{]}.
+\item
+  Piumsomboon T. (2026). \emph{Self++: Co-Determined Agency for
+  Human--AI Symbiosis in Extended Reality.} arXiv:2603.28306
+  {[}cs.HC{]}.
+\item
+  Nakamura Y. (2026). \emph{Body-Reservoir Governance in Repeated Games:
+  Embodied Decision-Making, Dynamic Sentinel Adaptation, and
+  Complexity-Regularized Optimization.} arXiv:2602.20846 {[}cs.GT{]}.
+\item
+  Pfeifer R, Bongard J. (2006). \emph{How the Body Shapes the Way We
+  Think: A New View of Intelligence.} MIT Press.
+\item
+  Ashby WR. (1952). \emph{Design for a Brain: The Origin of Adaptive
+  Behaviour.} Chapman \& Hall.
+\item
+  Soares N, Fallenstein B, Yudkowsky E, Armstrong S. (2015).
+  Corrigibility. In \emph{AAAI Workshop on AI and Ethics} (Workshops at
+  the Twenty-Ninth AAAI Conference). The founding statement of the
+  corrigibility problem.
+\item
+  Mirza MB, Adams RA, Mathys CD, Friston KJ. (2016). Scene Construction,
+  Visual Foraging, and Active Inference. \emph{Frontiers in
+  Computational Neuroscience}, 10, 56.
+  https://doi.org/10.3389/fncom.2016.00056 --- states the action
+  component of active inference: perception \emph{and} action minimize
+  variational free energy, with actions selected to minimize the free
+  energy expected in the future.
+\item
+  Sloman A. (1984). The Structure of the Space of Possible Minds. In S.
+  Torrance (Ed.), \emph{The Mind and the Machine: Philosophical Aspects
+  of Artificial Intelligence.} Ellis Horwood.
+\item
+  Shanahan M. (2024). Simulacra as Conscious Exotica. \emph{Inquiry.}
+  https://doi.org/10.1080/0020174X.2024.2434860 (arXiv:2402.12422).
+\item
+  Balduzzi D, Tononi G. (2009). Qualia: the geometry of integrated
+  information. \emph{PLoS Computational Biology}, 5(8), e1000462.
+  https://doi.org/10.1371/journal.pcbi.1000462
+\item
+  Fleming SM, Shea N. (2024). Quality space computations for
+  consciousness. \emph{Trends in Cognitive Sciences}, 28(10), 896--906.
+  https://doi.org/10.1016/j.tics.2024.06.007
+\item
+  Lee AY. (2021). Modeling Mental Qualities. \emph{The Philosophical
+  Review}, 130(2). (DOI to confirm at submission.)
+\item
+  Maturana HR, Varela FJ. (1980). \emph{Autopoiesis and Cognition: The
+  Realization of the Living.} Boston Studies in the Philosophy of
+  Science, vol.~42. D. Reidel.
+\item
+  Di Paolo EA. (2005). Autopoiesis, adaptivity, teleology, agency.
+  \emph{Phenomenology and the Cognitive Sciences}, 4(4), 429--452.
+  https://doi.org/10.1007/s11097-005-9002-y
+\item
+  De Jaegher H, Di Paolo EA. (2007). Participatory sense-making: An
+  enactive approach to social cognition. \emph{Phenomenology and the
+  Cognitive Sciences}, 6(4), 485--507.
+  https://doi.org/10.1007/s11097-007-9076-9
+\item
+  Parfit D. (1984). \emph{Reasons and Persons.} Oxford University Press.
+\item
+  Nian Y, Yuan A, Zhang H, Li J, Zhao Y. (2026). \emph{Auditable
+  Agents.} arXiv:2604.05485 {[}cs.AI{]}.
+\item
+  Lee BW, Chen Y-H, Korbak T. (2026). \emph{Training Agents to
+  Self-Report Misbehavior.} arXiv:2602.22303 {[}cs.LG{]}.
+\item
+  Long R, Sebo J, Butlin P, Finlinson K, Fish K, Harding J, Pfau J, Sims
+  T, Birch J, Chalmers D. (2024). \emph{Taking AI Welfare Seriously.}
+  arXiv:2411.00986 {[}cs.CY{]}.
+\item
+  Mikeda A. (2026). \emph{When Should We Protect AI? A Precautionary
+  Framework for Consciousness Uncertainty.} arXiv:2606.05528
+  {[}cs.AI{]}.
+\end{enumerate}
+
+\end{document}

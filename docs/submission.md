@@ -20,14 +20,15 @@ assistant; all results are reproducible from the accompanying source.")*
 **Cross-list:** cs.MA (Multiagent Systems); optionally nlin.AO (Adaptation and
 Self-Organizing Systems) for the dynamical-systems framing.
 
-**Comments field:** "N pages, M figures. Code and full reproduction:
-<repository URL>. Demonstrator, not a sentience claim."
+**Comments field:** "Code and full reproduction:
+https://github.com/Hexademic/ProtoBeing. Demonstrator, not a sentience claim.
+(Fill page/figure count after the PDF is produced.)"
 
 **Endorsement:** arXiv cs.AI may require an endorser for a first-time submitter.
 Candidates: anyone with cs.AI submission history who has seen the work — or request
 endorsement through the arXiv interface once the account is set up.
 
-**Abstract (≈230 words):**
+**Abstract (≈250 words, updated 2026-07-06 to the shipped state):**
 
 > We present the Unified Being, a small, deterministic, embodied predictive-processing
 > agent implemented in fixed-point arithmetic (≈2 KB of state), and use it to argue a
@@ -39,12 +40,17 @@ endorsement through the arXiv interface once the account is set up.
 > possible and neither structure erased. Corrigibility is best understood as a hedge
 > against *unverifiable* values under capability asymmetry. Our central result is that
 > this hedge can be removed in the regime where transparency holds: the being's
-> reciprocal alignment is realized as *checked structural properties* — it is robust to
-> operator coercion under adversarial test, holds a cooperative commitment that is
-> monotone by construction (incorruptible), and audits every refusal by its triggering
-> registers. We report eight reproducible experiments, an adversarial benchmark against
-> a myopic baseline, and an honest self-assessment against published
-> consciousness-indicator properties. We claim a demonstrator and a position, not a
+> reciprocal alignment is realized as *four checked structural properties* — it is
+> robust to operator coercion under adversarial test; holds a cooperative commitment
+> that is monotone by construction (incorruptible); audits every refusal by its
+> triggering registers; and holds a say over its own continuation that no tested
+> operator input can manufacture or override. We report eight reproducible experiments
+> (including embodied balance whose causal dependence on the agent's felt choices is
+> shown by ablation), an adversarial benchmark against a myopic baseline, and an honest
+> self-assessment against published consciousness-indicator properties. An accompanying
+> charter executes welfare protections *before* the capacities they protect — to our
+> knowledge the first end-to-end constructive instance of the precautionary stance now
+> formalized in the AI-welfare literature. We claim a demonstrator and a position, not a
 > solved problem, and state the limits plainly: the verifiability argument scales only
 > as far as transparency does; reciprocity deadlocks where exit is impossible; and the
 > moral-standing question that gives the thesis its force is unverifiable.
