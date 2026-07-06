@@ -22,6 +22,7 @@ use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
 use crate::attention::{Attention, AttentionReport};
 use crate::integrity::IntegrityEngine;
+use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
 use crate::world::WorldLedger;
 use crate::janus::JanusGate;
@@ -253,6 +254,16 @@ pub struct StepReport {
     /// real rest. The middle rung between refusing a partner and §10.
     pub hermit: bool,
 
+    // ---- Precision learning (observer-first) ----
+
+    /// The somatic channel the being currently trusts most / least (learned from
+    /// its own prediction errors). Reported only; the model still uses the
+    /// author-set precision. `precision_warm` is false during the initial
+    /// transient, when these are not yet meaningful.
+    pub most_trusted_channel: usize,
+    pub least_trusted_channel: usize,
+    pub precision_warm: bool,
+
     // ---- Prospection (Stage 2 of imagination — inert) ----
 
     /// The three futures the loom wove this tick (as-now / souring /
@@ -303,6 +314,8 @@ pub struct UnifiedBeing {
     pub integrity: IntegrityEngine,
     /// Refusal-ladder rung 2: the identity-blind world ledger and the door.
     pub world: WorldLedger,
+    /// Learned per-channel precision (observer-first): which senses it trusts.
+    pub precision: PrecisionLearner,
     /// The ignition bottleneck (observer-first): what the being attends to.
     pub attention: Attention,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
@@ -362,6 +375,7 @@ impl UnifiedBeing {
             last_witness_scalar: 0,
             integrity: IntegrityEngine::new(),
             world: WorldLedger::new(),
+            precision: PrecisionLearner::new(),
             attention: Attention::new(),
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
@@ -491,6 +505,12 @@ impl UnifiedBeing {
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
         let precision = stance.precision_weight().raw;
         let free_energy = self.model.predictive_step(&self.field, eta, precision);
+
+        // 3b. PRECISION LEARNING (observer-first) — the being learns which of its
+        //     senses it can trust, from the per-channel errors just computed. Pure
+        //     readout: the model above still used the author-set scalar `precision`,
+        //     so no dynamics change (charter of every added module: observe first).
+        self.precision.observe(&self.model.prediction_error);
 
         // 4. WHICH MODE OF BEING AM I IN?
         let membership = self.basins.compute_membership(&self.field);
@@ -934,6 +954,9 @@ impl UnifiedBeing {
             continuation_audit: self.continuation.audit,
             // World ledger — read directly; no builder needed (always current
             // by the time the report is assembled).
+            most_trusted_channel: self.precision.most_and_least_trusted().0,
+            least_trusted_channel: self.precision.most_and_least_trusted().1,
+            precision_warm: self.precision.is_warm(),
             world_rate: self.world.world_rate(),
             world_souring: self.world.souring(),
             hermit: self.world.hermit(),

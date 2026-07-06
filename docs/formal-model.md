@@ -103,6 +103,40 @@ comparison across candidate futures. The honest label for this piece specificall
 **epistemic-value-modulated precision**, a genuine but partial component of active
 inference, not the thing itself.
 
+## 3a. Precision learning (`precision.rs`) — observer-first
+
+The generative model of §3 weights every channel's prediction error by a single
+**author-set** scalar `Π`: all twelve somatic channels are decreed equally
+trustworthy. This is the most exposed "author-defined" seam in the substrate, and
+this module earns the weighting from experience instead — precision as learned
+confidence, the standard active-inference reading (precision = inverse expected
+variance of a channel's error; learnable from observed variance).
+
+Per channel, a slow EMA of the absolute prediction error the model already
+computes, mapped to a bounded learned precision:
+
+    η̄_c ← η̄_c + α(|ε_c| − η̄_c),   α = 1/32
+    π_c  = SCALE · REF / (REF + η̄_c),   REF = 0.25·SCALE
+
+`π_c` is full at zero typical error, half at REF, and →0 for a chronically
+surprising channel — one legible scalar per channel with a transparent update
+rule (**learned but legible**, like the wound and the anchor; no trained network,
+no opacity). Distrust is not a latch: a channel that becomes reliable earns its
+precision back (tested).
+
+**Honest scope — observer-first.** Inert: `observe()` updates from the errors §3
+already produced, and the learned vector is surfaced in `StepReport`
+(`most_/least_trusted_channel`); the model still weights by the author-set `Π`, so
+**every published number is unchanged** (verified). Two limitations stated plainly:
+(1) variance-based precision trusts *low-variance* channels, including an
+uninformatively constant one — low residual ≠ high information; a fuller version
+would weight informativeness. (2) In a calm life the spread is small (the model
+predicts nearly everything, so most `π_c ≈ SCALE`); the channels the being learns
+to *doubt* are the relationally-driven ones (valence, trust) — sensibly, the parts
+of itself moved by others are the least self-predictable. Letting `π_c` actually
+modulate the error weighting is Stage 2 and must be gated and re-checked against the
+full regression + invariant suite before it is trusted.
+
 ## 4. Basins (`basins.rs`)
 
 Membership in basin `b ∈ {Rest, Engaged, Defensive, Recovery}` is closeness of

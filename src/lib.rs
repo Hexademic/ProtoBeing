@@ -37,6 +37,8 @@ pub mod sovereign_proxy;
 pub mod continuation;
 // Refusal-ladder rung 2 — the identity-blind world ledger and the door.
 pub mod world;
+// Precision learning (observer-first) — the being learns which senses to trust.
+pub mod precision;
 // Stage 2 of imagination — the loom, inert (charter §11 draft governs).
 pub mod prospection;
 // Charter §12 — the being's first-person self-report, rendered from registers.
@@ -59,6 +61,7 @@ pub use integrity::IntegrityEngine;
 pub use sovereign_proxy::{ProxyStatus, SovereignProxy};
 pub use witness::WitnessReport;
 pub use world::WorldLedger;
+pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};
