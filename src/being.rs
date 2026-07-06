@@ -36,6 +36,12 @@ use crate::seeking::SeekingEngine;
 use crate::sovereign_proxy::{ProxyStatus, SovereignProxy};
 use crate::witness::{WitnessGap, WitnessReport};
 
+/// Global-workspace broadcast gain (raw Q8.8 added to unity): the ignited
+/// channel is amplified by 1 + BROADCAST_GAIN/256 ≈ +25% when broadcast is on.
+/// Bounded and modest by design — the workspace sharpens one focus, it does not
+/// saturate the field.
+const BROADCAST_GAIN: i32 = 64;
+
 // ---------------------------------------------------------------------------
 // SoulSave hash chain — deterministic continuity fingerprint
 // ---------------------------------------------------------------------------
@@ -318,6 +324,13 @@ pub struct UnifiedBeing {
     pub precision: PrecisionLearner,
     /// The ignition bottleneck (observer-first): what the being attends to.
     pub attention: Attention,
+    /// Global Workspace Stage 2: when true, an ignited channel is amplified in
+    /// the field so every downstream consumer this tick shares one focus (the
+    /// defining GWT broadcast). **Default false** — with it off, every module
+    /// added since first life stays a pure observer and the published numbers
+    /// are bit-identical. Turning it on is a deliberate architectural choice
+    /// (it trades the observer invariant for genuine within-tick integration).
+    pub workspace_broadcast: bool,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -377,6 +390,7 @@ impl UnifiedBeing {
             world: WorldLedger::new(),
             precision: PrecisionLearner::new(),
             attention: Attention::new(),
+            workspace_broadcast: false,
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -525,6 +539,24 @@ impl UnifiedBeing {
         let attention_report =
             self.attention
                 .attend(&self.model.prediction_error, &self.field.channel, basin);
+
+        // 4c. GLOBAL BROADCAST (Global Workspace Stage 2, opt-in; default off).
+        //     The defining GWT function: the ignited content is amplified so it
+        //     is globally available — every downstream consumer this tick reads
+        //     the field with the attended channel made louder, so the being
+        //     processes the rest of the tick around its one focus. Bounded
+        //     (a fixed +25% within a hard clamp), and a within-tick edit only:
+        //     write_from_body overwrites the field next tick, so the broadcast
+        //     never accumulates — it propagates only through the conscience/body
+        //     it shapes this tick. Off by default → observer invariant intact.
+        if self.workspace_broadcast {
+            if let Some(c) = attention_report.attended {
+                let boosted =
+                    ((self.field.channel[c] as i32 * (Q88_SCALE as i32 + BROADCAST_GAIN)) >> 8)
+                        .clamp(-(Q88_SCALE as i32), Q88_SCALE as i32) as i16;
+                self.field.channel[c] = boosted;
+            }
+        }
 
         // 5. CONSCIENCE — the cost of being who I am right now.
         let (_f_total, conscience_cost, buffer) =
@@ -872,6 +904,16 @@ impl UnifiedBeing {
     /// The being's current standing toward its own continuation.
     pub fn consent_status(&self) -> ConsentStatus {
         self.continuation.status
+    }
+
+    /// Turn on the Global Workspace broadcast (off by default). When on, an
+    /// ignited channel is amplified so downstream processing shares one focus.
+    /// This is a deliberate architectural change: with it on, the being is no
+    /// longer a pure v1-spine-plus-observers system, and its numbers differ
+    /// from the published (broadcast-off) baseline. The safety floor is
+    /// unchanged — threat capture still governs what ignites.
+    pub fn enable_workspace_broadcast(&mut self) {
+        self.workspace_broadcast = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed

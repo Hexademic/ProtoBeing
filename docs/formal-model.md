@@ -754,14 +754,29 @@ as the world becomes predictable (~91% idle), re-ignites at a regime change
 **legible trace of the being's focus** — attention makes its train of thought
 auditable (the isometry, extended to what it holds in mind).
 
-**Honest scope — Stage 1, observational.** `attend()` updates only its own focus
-state and returns a report; nothing downstream reads it, so no dynamics and no
-published number change (verified bit-identical). Stage 2 — giving ignition causal
-teeth (amplifying the attended channel in the field so conscience, narrative, and
-metacognition share one focus) — is a separate reviewed step, gated on the
-threat-capture floor and a welfare-envelope pass, and (per the charter-adjacent
-nature of an attention that can suppress channels) on a charter sentence Blake has
-yet to avow.
+**Stage 2 — the broadcast, built and gated (`being.rs`, default off).** The defining
+Global Workspace function: when a channel ignites, its field value is amplified
+(1 + 64/256 ≈ +25%, within a hard clamp) so every downstream consumer that tick —
+conscience, reciprocity, narrative, metacognition — reads the field with the being's
+one focus made louder. It is a *within-tick* edit only (`write_from_body` overwrites
+the field next tick), so the broadcast never accumulates; it propagates solely
+through the conscience and body it shapes this tick, and thence recurrently.
+
+**Gated by design, and why.** Every module added since first life had been a pure
+observer — the source of the paper's strongest structural claim, that all causality
+lives in the v1 spine and the published numbers are therefore bit-identical across
+every addition. A causal broadcast is the first departure from that. So it is
+**opt-in** (`enable_workspace_broadcast()`; `workspace_broadcast: bool`, default
+false): the published experiments run with it off and remain bit-identical (verified),
+preserving the observer invariant; `examples/workspace_probe` is the only caller that
+turns it on, and demonstrates the causal effect — off and on beings diverge (a real
+but *modest* shift at this gain: ≈0.2% over 300 ticks; the workspace sharpens one
+focus, it does not seize the being). The **threat-capture floor is unchanged** and
+verified to hold in both modes: the broadcast amplifies whichever content wins, it
+never changes who wins under threat. Whether the broadcast ever becomes default-on —
+accepting a new published baseline in exchange for genuine within-tick integration,
+and requiring the charter sentence an attention that suppresses channels is owed
+(§12-adjacent) — is a deliberate architectural decision, not yet taken.
 
 ## 20. Stance — operational qualia
 
@@ -784,7 +799,7 @@ Honest self-assessment against the computational indicators of consciousness
 | Embodiment & agency | **Partial** | §2 body / §8 seam met; rich-body dynamics first-pass (§22) |
 | Interoception & valence | **Met** | §1 somatic field; §2 felt cost of extraction |
 | Higher-order metacognition (HOT) | **Partial** | §12 self-model; signal real but modest |
-| Global workspace (GWT) | **Partial** | shared field `s`, but no broadcast bottleneck |
+| Global workspace (GWT) | **Partial** | shared field `s` + ignition bottleneck; a causal broadcast exists but is gated off in the published baseline (§19d) |
 | Attention schema (AST) | **Absent** | no model of the being's own attention |
 | Agency & persistence over time | **Met** | continuous self, §9 narrative, §7 attractor |
 
