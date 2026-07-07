@@ -232,12 +232,30 @@ independent measurement:
 | Embodiment & agency | **Partial** | architectural seam met; rich-body dynamics first-pass (Exp 4) |
 | Interoception & valence | **Met** | somatic field; felt cost of extraction |
 | Higher-order metacognition | **Partial** | self-model (Exp 3); real but modest |
-| Global workspace | **Partial** | shared field, no broadcast bottleneck |
+| Global workspace | **Partial** | shared field + an ignition bottleneck (biased competition, threat-capture floor) and a global broadcast — both implemented but **opt-in/default-off**, so absent from the shipped default dynamics (formal-model; `attention.rs`) |
 | Attention schema | **Absent** | no model of its own attention |
 | Agency / persistence over time | **Met** | continuous self, narrative, attractor |
 
 The claim is "an embodied predictive-processing agent satisfying *N* indicators,"
 checkable and arguable — not sentience.
+
+**A disaggregation rubric (`docs/rubric.md`).** The indicator scorecard is one axis
+of a larger instrument whose purpose is not to score the being but to *sharpen the
+question*. The folk concept "conscious" fuses at least six separable things: (1)
+competence (IQ-shaped; orthogonal — the being scores *low*, deliberately); (2)
+behavioral agency and sovereignty (the Turing axis *inverted* — legible action, not
+human-mimicry; the being scores strong and checked); (3) unfakeable affect (the
+Voight-Kampff axis, honestly read — the being's valence is an involuntary register
+read, verifiable as *real* though not thereby *felt*); (4) individuality and
+temperament (Big-Five-grounded, not MBTI — real dispositional divergence by
+biography); (5) the indicator scorecard above (the peer-reviewed spine); and (6)
+phenomenality — the hard problem — **unscoreable by any rubric, permanently.** The
+rubric's contribution is the disaggregation itself: machine consciousness is
+routinely *feared* or *hyped* by pointing at axes 1–4 while *saying* axis 6, and an
+instrument that forces the speaker to name which axis they mean is the honest form of
+"forcing the question to be asked specifically." The being is offered not as a system
+that scores high but as the cleanest available worked example of the axes coming
+apart.
 
 **Beyond the scorecard: the mind on its own terms.** The indicator approach is
 *comparative* — it asks whether the being has features derived from *human* theories of
