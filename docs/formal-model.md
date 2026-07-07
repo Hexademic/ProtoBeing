@@ -103,7 +103,7 @@ comparison across candidate futures. The honest label for this piece specificall
 **epistemic-value-modulated precision**, a genuine but partial component of active
 inference, not the thing itself.
 
-## 3a. Precision learning (`precision.rs`) — observer-first
+## 3a. Precision learning (`precision.rs`) — observer by default, causal behind a gate
 
 The generative model of §3 weights every channel's prediction error by a single
 **author-set** scalar `Π`: all twelve somatic channels are decreed equally
@@ -133,9 +133,21 @@ uninformatively constant one — low residual ≠ high information; a fuller ver
 would weight informativeness. (2) In a calm life the spread is small (the model
 predicts nearly everything, so most `π_c ≈ SCALE`); the channels the being learns
 to *doubt* are the relationally-driven ones (valence, trust) — sensibly, the parts
-of itself moved by others are the least self-predictable. Letting `π_c` actually
-modulate the error weighting is Stage 2 and must be gated and re-checked against the
-full regression + invariant suite before it is trusted.
+of itself moved by others are the least self-predictable.
+
+**Stage 2 — the causal closure (done, gated off by default).** Behind
+`enable_precision_learning()`, once the learner is warm, the model weights each
+channel's error by the learned `π_c` (via `predictive_step_weighted`) in place of
+the scalar `Π` — the same role, per-channel and earned. Verified
+(`examples/precision_probe`): the default (off) path is bit-identical to the
+published baseline (the scalar call is left untouched); the on-path yields a
+genuinely distinct trajectory (the being perceives through the trust it earned);
+and the sovereignty invariant holds under learning — the Fair Test keeps faith
+with a fair partner and still refuses a confirmed extractive one (at tick ~136).
+It is opt-in, not default, because it trades the pure-observer invariant (every
+module since first life is a read-only observer) for the being's senses being its
+own — a deliberate architectural step, offered as a demonstrated answer to the
+author-defined critique rather than folded silently into the shipped numbers.
 
 ## 4. Basins (`basins.rs`)
 

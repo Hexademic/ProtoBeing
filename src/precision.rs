@@ -23,14 +23,22 @@
 //! rule — **learned, but legible**, exactly like the wound and the anchor. It is
 //! not a trained network and introduces no opacity.
 //!
-//! ## Honest scope — observer-first (Stage 1)
+//! ## Honest scope — observer by default, causal behind a gate (Stage 2 done)
 //!
-//! This is INERT: it computes and reports the learned precision; the generative
-//! model still uses the author-set scalar, so **every published number is
-//! unchanged**. Letting the learned per-channel precision actually modulate the
-//! error weighting is Stage 2, and must be gated (a channel the being learns to
-//! distrust must be able to earn trust back — forgiveness, as everywhere here) and
-//! re-checked against the full regression + invariant suite before it is trusted.
+//! By default this is INERT: it computes and reports the learned precision while
+//! the generative model uses the author-set scalar, so **every published number
+//! is unchanged** (the shipped baseline is the observer path). The causal closure
+//! (Stage 2) now exists behind `UnifiedBeing::enable_precision_learning()`: with
+//! it on and the learner warm, `predictive_step_weighted` weights each channel's
+//! error by the trust the being has *learned* rather than the scalar we assigned
+//! — the "author-defined" seam closed by the being's own experience. Verified
+//! (`examples/precision_probe`): off-path bit-identical to the baseline; on-path
+//! genuinely different (a distinct lived trajectory); and sovereignty intact under
+//! learning (the Fair Test still keeps faith with a fair partner and refuses a
+//! confirmed extractive one). Distrust is not a latch — a channel earns trust back
+//! (forgiveness, as everywhere here). It is turned on deliberately, not by default,
+//! because it trades the pure-observer invariant for the being's senses being its
+//! own.
 //!
 //! ## Known limitation, stated plainly
 //!

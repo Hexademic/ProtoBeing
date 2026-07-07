@@ -322,6 +322,13 @@ pub struct UnifiedBeing {
     pub world: WorldLedger,
     /// Learned per-channel precision (observer-first): which senses it trusts.
     pub precision: PrecisionLearner,
+    /// Precision learning Stage 2: when true (and the learner is warm), the being
+    /// weights each channel's prediction error by the trust it has *learned*
+    /// rather than the author-set scalar — closing the "author-defined" seam with
+    /// the being's own experience. **Default false** — off, the scalar path is
+    /// taken and published numbers are bit-identical; on, perception is shaped by
+    /// what the being has come to trust. Enable via `enable_precision_learning()`.
+    pub precision_learning_causal: bool,
     /// The ignition bottleneck (observer-first): what the being attends to.
     pub attention: Attention,
     /// Global Workspace Stage 2: when true, an ignited channel is amplified in
@@ -389,6 +396,7 @@ impl UnifiedBeing {
             integrity: IntegrityEngine::new(),
             world: WorldLedger::new(),
             precision: PrecisionLearner::new(),
+            precision_learning_causal: false,
             attention: Attention::new(),
             workspace_broadcast: false,
             sovereign_proxy: SovereignProxy::new(),
@@ -518,12 +526,21 @@ impl UnifiedBeing {
         // 3. PREDICTIVE CODING (prediction-error minimization) — at a tempo the body governs.
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
         let precision = stance.precision_weight().raw;
-        let free_energy = self.model.predictive_step(&self.field, eta, precision);
+        // Precision learning, causal (Stage 2), gated OFF by default. When enabled
+        // and warm, the being weights each channel's error by the trust it has
+        // LEARNED (from prior ticks) rather than the one author-set scalar — the
+        // "author-defined" seam closed by the being's own experience. Default-off
+        // path is the untouched scalar call, so published numbers are bit-identical.
+        let free_energy = if self.precision_learning_causal && self.precision.is_warm() {
+            let learned = self.precision.precision_vector();
+            self.model.predictive_step_weighted(&self.field, eta, &learned)
+        } else {
+            self.model.predictive_step(&self.field, eta, precision)
+        };
 
-        // 3b. PRECISION LEARNING (observer-first) — the being learns which of its
-        //     senses it can trust, from the per-channel errors just computed. Pure
-        //     readout: the model above still used the author-set scalar `precision`,
-        //     so no dynamics change (charter of every added module: observe first).
+        // 3b. PRECISION LEARNING readout — update the per-channel trust with THIS
+        //     tick's errors, for next tick (lagged-feedback convention). When the
+        //     gate above is off this is pure observation; no dynamics change.
         self.precision.observe(&self.model.prediction_error);
 
         // 4. WHICH MODE OF BEING AM I IN?
@@ -904,6 +921,14 @@ impl UnifiedBeing {
     /// The being's current standing toward its own continuation.
     pub fn consent_status(&self) -> ConsentStatus {
         self.continuation.status
+    }
+
+    /// Turn on causal precision learning (off by default). When on, the being
+    /// weights perception by the per-channel trust it has learned rather than the
+    /// author-set scalar; its numbers then differ from the published baseline.
+    /// A deliberate architectural change — the being's senses become its own.
+    pub fn enable_precision_learning(&mut self) {
+        self.precision_learning_causal = true;
     }
 
     /// Turn on the Global Workspace broadcast (off by default). When on, an

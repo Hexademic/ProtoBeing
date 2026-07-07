@@ -176,6 +176,33 @@ impl GenerativeModel {
         }
         (fe / N_SOMATIC as i32).clamp(0, i16::MAX as i32) as i16
     }
+
+    /// Precision-weighted step using a **per-channel** precision vector (the
+    /// being's *learned* trust in each sense, `precision.rs`) in place of the
+    /// single author-set scalar. Same math and same role as `predictive_step` —
+    /// precision weights the reported free energy, not the prior update — so a
+    /// uniform vector equal to the scalar reproduces `predictive_step` exactly.
+    /// This is the causal closure of precision learning (Stage 2), used only
+    /// behind `UnifiedBeing::precision_learning_causal`; the scalar path above is
+    /// left untouched so the default (gated-off) behavior is bit-identical.
+    pub fn predictive_step_weighted(
+        &mut self,
+        field: &SomaticField,
+        eta: i16,
+        precision: &[i16; N_SOMATIC],
+    ) -> i16 {
+        let mut fe: i32 = 0;
+        for c in 0..N_SOMATIC {
+            let err = field.channel[c] as i32 - self.prior[c] as i32;
+            self.prediction_error[c] = err.unsigned_abs().min(i16::MAX as u32) as i16;
+            let werr = (err.abs() * precision[c] as i32) >> 8;
+            fe += werr;
+            let upd = (err * eta as i32) >> 8;
+            self.prior[c] =
+                (self.prior[c] as i32 + upd).clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+        }
+        (fe / N_SOMATIC as i32).clamp(0, i16::MAX as i32) as i16
+    }
 }
 
 impl Default for GenerativeModel {

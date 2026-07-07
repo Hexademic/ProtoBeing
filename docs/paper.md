@@ -352,6 +352,15 @@ Two adjacent 2026 literatures sharpen the same distinction from opposite sides. 
   components nor its substrate [24]. Whether the organizational closure it *does*
   have suffices for any property that matters morally is the same unresolvable fork
   as the consciousness question, and is held open here, not answered.
+- **Author-set internal structure.** Beyond the benchmark's author-designed partners
+  (§5), the substrate's parameters — thresholds, basin targets, and the precision that
+  weights perception — are hand-set. The most exposed of these, perceptual precision,
+  now has a demonstrated learned alternative: the being can weight each sense by a trust
+  it earns from its own prediction errors rather than a scalar we assign
+  (formal-model §3a, `enable_precision_learning()`), verified to leave sovereignty
+  intact. It is opt-in, not the shipped default, so it answers the critique by
+  construction without altering the reported baseline; extending learning to the
+  remaining author-set parameters is open work.
 - **First-pass dynamics.** The magnitude of the metacognition signal and the richness
   of the being's world are works in progress, and are reported as such in the running
   output. (The MuJoCo balance is now a genuinely unstable pendulum the being keeps
