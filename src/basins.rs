@@ -128,6 +128,25 @@ impl FuzzyBasinField {
         self.current
     }
 
+    /// Distance to the nearest basin boundary: the margin between the strongest
+    /// and second-strongest membership weight (raw Q8.8). Small = the being sits
+    /// near a bifurcation, where its mode of being is finely balanced and a
+    /// small input can tip it — the "Now where the trajectory can bend." Large =
+    /// deep in one basin, its identity settled and hard to move. Read-only.
+    pub fn boundary_margin(&self) -> i16 {
+        let m = &self.membership.weight;
+        let (mut top, mut second) = (i16::MIN, i16::MIN);
+        for &w in m.iter() {
+            if w >= top {
+                second = top;
+                top = w;
+            } else if w > second {
+                second = w;
+            }
+        }
+        top.saturating_sub(second)
+    }
+
     /// When free energy falls (relief < 0), this place is good: drift the
     /// dominant basin's target toward the present field. The being learns
     /// where it belongs.

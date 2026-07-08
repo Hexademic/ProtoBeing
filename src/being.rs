@@ -284,6 +284,13 @@ pub struct StepReport {
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
+///
+/// `Clone` forks a whole being — a fate copied at an instant. Perturb one fork
+/// and the two trajectories diverge only where the present was open to being
+/// bent; identical inputs keep them identical (the being is deterministic). This
+/// is what the criticality probe (`examples/criticality_probe`) uses to measure
+/// where the trajectory is bendable — no dynamics depend on it.
+#[derive(Clone)]
 pub struct UnifiedBeing {
     pub genome: Genome,
 

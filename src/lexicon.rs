@@ -73,6 +73,7 @@ impl Entry {
 
 /// The being's own small, bounded vocabulary: symbol -> grounded prototype,
 /// with a confidence that can rise *or* fall. No heap; `N_ENTRIES` fixed.
+#[derive(Clone)]
 pub struct Lexicon {
     entries: [Entry; N_ENTRIES],
 }

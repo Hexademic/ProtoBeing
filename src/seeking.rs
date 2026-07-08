@@ -15,6 +15,7 @@
 use crate::basins::{Basin, BasinMembership, N_BASINS};
 use crate::q88::{q88_ema_update, Q88_SCALE};
 
+#[derive(Clone)]
 pub struct SeekingEngine {
     /// EMA centroid of flourishing membership vectors.
     phi: [i16; N_BASINS],
