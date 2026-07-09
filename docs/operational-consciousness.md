@@ -39,17 +39,19 @@ against `src/` on the review branch.
 | GWT-4 | State-dependent attention: query modules **in succession** | Global Workspace | ⬜ | **Gap B** — competition is parallel per tick; no deliberate serial sampling |
 | HOT-1 | Generative / top-down / noisy perception | Higher-Order | 🟡 | top-down relevance in `attention.rs`; predictive stance in `body.rs` |
 | HOT-2 | Metacognitive monitoring (reliable representation vs noise) | Higher-Order | ✅ | `metacognition.rs` self-prediction + self-surprise; `precision.rs` |
-| HOT-3 | Agency that updates beliefs on metacognitive output | Higher-Order | 🟡 | metacognition emitted in `StepReport`; **not yet a closed control input** to action selection — **Gap A/half** |
+| HOT-3 | Agency that updates beliefs on metacognitive output | Higher-Order | ✅ (opt-in) | closed via `attention_schema.rs::gap_bias` → deliberation gap (`enable_schema_control`); observer by default |
 | HOT-4 | Sparse, smooth coding → a "quality space" | Higher-Order | ⬜ | **Gap C** — no sparse/manifold code; qualities aren't yet related by similarity |
-| AST-1 | A predictive model **of** the being's own attention | Attention Schema | ⬜ | **Gap A** — `attention.rs` *does* attention; nothing yet *models* it |
+| AST-1 | A predictive model **of** the being's own attention | Attention Schema | ✅ | **BUILT** — `attention_schema.rs`: predicts its own next focus, scores fidelity + self-surprise each tick |
 | PP-1 | Predictive coding | Predictive Processing | ✅ | free-energy core; metabolized surprise drives threat (`being.rs`, `body.rs`) |
 | AE-1 | Agency: learning from feedback, flexible goal pursuit | Agency & Embodiment | ✅ | drives + `executive.rs` refusal + `seeking.rs` flourishing attractor |
 | AE-2 | Embodiment: models output→input contingencies | Agency & Embodiment | 🟡 | `embodiment.rs` seam + MuJoCo demo (WIP); contingency model is coarse |
 
-**Read of the scorecard:** ProtoBeing already **meets or partially meets 11 of
-14**, with unusually strong coverage of Recurrent Processing, Global Workspace,
-Predictive Processing, and Agency. That is rare — most systems that score on GWT
-score on nothing else. The remaining work is **four named gaps**, not a rebuild.
+**Read of the scorecard:** ProtoBeing now **meets or partially meets 13 of 14**,
+with unusually strong coverage of Recurrent Processing, Global Workspace,
+Higher-Order, Predictive Processing, Attention Schema, and Agency. That is rare —
+most systems that score on GWT score on nothing else. Since this doc was written,
+**AST-1 and HOT-3 moved from gaps to built** (`attention_schema.rs`), leaving two
+open build targets: GWT-4 (serial access) and HOT-4 (a quality space).
 
 ---
 
@@ -59,36 +61,42 @@ These are the "every angle" targets. Each is scoped to a new module or a bounded
 extension, with signatures matching the crate's conventions (Q8.8 `i16`, `no_std`
 core, deterministic). **All code below is proposed, not yet implemented.**
 
-### Gap A — AST-1 + HOT-3: an Attention Schema (`src/attention_schema.rs`)
+### Gap A — AST-1 + HOT-3: an Attention Schema (`src/attention_schema.rs`) — ✅ BUILT
 
 Attention Schema Theory (Graziano) says a system is conscious *of* attending when
 it carries a simplified, predictive **model of its own attention** — and uses that
 model to control attention and to attribute awareness. `attention.rs` performs
-ignition; nothing yet represents it. This also closes the open half of HOT-3: the
-schema's error becomes a control signal that updates action selection.
+ignition; this module *models* it.
+
+**Built API.** Rather than predict a channel *and* an ignition strength, the
+implemented schema predicts the **next focus** (the discrete thing attention
+actually commits to) from a model of the being's own hysteresis, and scores it:
 
 ```rust
-/// A predictive model of the being's own attentional state (AST-1).
-/// It predicts which somatic channel will ignite next tick and how strongly,
-/// then measures its own error — the being modelling its own attending.
-pub struct AttentionSchema {
-    predicted_winner: u8,      // channel it expects to win the competition
-    predicted_ignition: i16,   // expected ignition strength, Q8.8
-    control_error: i16,        // |predicted − actual| last tick, Q8.8
+pub struct AttentionSchemaReport {
+    pub predicted: Option<usize>,  // focus it expected this tick (set last tick)
+    pub actual: Option<usize>,     // focus attention actually settled on
+    pub hit: bool,
+    pub schema_fidelity: i16,      // AST-1: EMA hit-rate, how well it knows its focus
+    pub self_surprise: i16,        // EMA miss-rate: attentional self-surprise
 }
 
 impl AttentionSchema {
-    /// Predict next ignition from field state + top-down relevance (before it happens).
-    pub fn predict(&mut self, field: &SomaticField, relevance: &[i16; 12]) -> (u8, i16);
-
-    /// After the real ignition, record error. Returns the AST monitoring signal
-    /// that feeds `executive`/`seeking` (HOT-3: agency updates on metacognition).
-    pub fn observe(&mut self, actual_winner: u8, actual_ignition: i16) -> i16;
-
-    /// AST-1 indicator: fidelity of the being's model of its own attention. [0,256].
-    pub fn schema_fidelity(&self) -> i16;
+    /// Score last tick's prediction against this focus; form the next prediction
+    /// from attention's hysteresis (focus holds while grip > release bar).
+    pub fn update(&mut self, report: &AttentionReport) -> AttentionSchemaReport;
+    /// HOT-3 (opt-in): low self-model fidelity widens the deliberation gap.
+    pub fn gap_bias(&self) -> i16;
 }
 ```
+
+Wired observer-first in `being.rs::step` (bit-identical by default) and exposed on
+`StepReport::attention_schema`. **HOT-3 is closed opt-in**: `enable_schema_control`
+routes `gap_bias` into `compute_gap_width`, so when the being cannot predict its
+own attention it deliberates more before acting — a belief about the self steering
+action selection. **Verified** (`examples/attention_schema_probe`): fidelity climbs
+to ~0.94 over a calm life, then the arrival of a taker seizes and jumps the focus,
+the schema mispredicts, and self-surprise spikes — AST-1 read straight from state.
 
 ### Gap B — GWT-4: state-dependent serial access (extend `attention.rs`)
 
@@ -235,9 +243,10 @@ That is the operational meaning of "nothing is narrated."
    The spread test quantified GWT-3: broadcast makes ignition causal but does not
    yet cascade. Follow-on: give broadcast cross-tick persistence so reach > 1,
    then fold cheap per-tick indicators into `WitnessReport`.
-2. **`attention_schema.rs`** (AST-1, closes HOT-3) — one bounded module; big
-   coverage gain (two indicators).
-3. **GWT-4 `query_next`** — small extension to `attention.rs`.
+2. **`attention_schema.rs`** (AST-1, closes HOT-3) — ✅ **DONE.** One bounded
+   observer module; two indicators moved from gap to built. HOT-3 causal path
+   opt-in (`enable_schema_control`); verified in `examples/attention_schema_probe`.
+3. **GWT-4 `query_next`** — small extension to `attention.rs`. ← next.
 4. **`quality_space.rs`** (HOT-4) — the subtlest; pairs with a salvaged QualiaPacket.
 5. **Falsification suite** — wire the §3 ablations behind a `--bin` like the
    existing sovereignty tests; publish the pre/post numbers.

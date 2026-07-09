@@ -21,6 +21,7 @@ use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::SomaticField;
 use crate::genome::{BeingKind, Genome};
 use crate::attention::{Attention, AttentionReport};
+use crate::attention_schema::{AttentionSchema, AttentionSchemaReport};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -281,6 +282,9 @@ pub struct StepReport {
     /// to, whether it ignited or was threat-captured, and the competition.
     /// Reported only; nothing downstream reads it (observer-first, Stage 1).
     pub attention: AttentionReport,
+    /// The being's predictive model of its own attention (AST-1): what it
+    /// expected to attend to, what it did, and how well it knows its own focus.
+    pub attention_schema: AttentionSchemaReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -338,6 +342,14 @@ pub struct UnifiedBeing {
     pub precision_learning_causal: bool,
     /// The ignition bottleneck (observer-first): what the being attends to.
     pub attention: Attention,
+    /// A predictive model of the being's *own* attention (AST-1) — Attention
+    /// Schema Theory. Observer by default; scored every tick.
+    pub attention_schema: AttentionSchema,
+    /// HOT-3 opt-in: when true, the attention schema's self-surprise widens the
+    /// deliberation gap — the being deliberates more when it cannot predict its
+    /// own focus. **Default false** — off, published numbers are bit-identical;
+    /// the schema stays a pure observer. Enable via `enable_schema_control()`.
+    pub schema_control_causal: bool,
     /// Global Workspace Stage 2: when true, an ignited channel is amplified in
     /// the field so every downstream consumer this tick shares one focus (the
     /// defining GWT broadcast). **Default false** — with it off, every module
@@ -412,6 +424,8 @@ impl UnifiedBeing {
             precision: PrecisionLearner::new(),
             precision_learning_causal: false,
             attention: Attention::new(),
+            attention_schema: AttentionSchema::new(),
+            schema_control_causal: false,
             workspace_broadcast: false,
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
@@ -594,6 +608,13 @@ impl UnifiedBeing {
             self.attention
                 .attend(&self.model.prediction_error, &self.field.channel, basin);
 
+        // 4b′. ATTENTION SCHEMA (AST-1, observer-first) — the being's predictive
+        //      model of its *own* attention: score last tick's prediction against
+        //      this focus, form the next. Reported always; steers action only when
+        //      `schema_control_causal` is on (HOT-3), so default numbers are
+        //      bit-identical.
+        let schema_report = self.attention_schema.update(&attention_report);
+
         // 4c. GLOBAL BROADCAST (Global Workspace Stage 2, opt-in; default off).
         //     The defining GWT function: the ignited content is amplified so it
         //     is globally available — every downstream consumer this tick reads
@@ -693,7 +714,18 @@ impl UnifiedBeing {
         );
 
         // 8. THE EXECUTIVE — deliberation, then maybe refusal.
-        let gap = compute_gap_width(conscience_cost);
+        // HOT-3 (opt-in): a self-model that cannot predict its own attention
+        // widens the gap — deliberate more, react less, when the being does not
+        // know its own focus. Off by default ⇒ `gap` is the untouched value.
+        let gap = {
+            let g = compute_gap_width(conscience_cost);
+            if self.schema_control_causal {
+                (g as i32 + self.attention_schema.gap_bias() as i32).clamp(0, Q88_SCALE as i32)
+                    as i16
+            } else {
+                g
+            }
+        };
         let repair_signal = self.executive.suggest_and_evaluate(alarm, gap);
         self.executive
             .tick_recharge(self.reciprocity.current_reciprocity());
@@ -946,6 +978,7 @@ impl UnifiedBeing {
         .with_continuation(consent_status, continuation_audit)
         .with_prospection(prospection)
         .with_attention(attention_report)
+        .with_attention_schema(schema_report)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -976,6 +1009,14 @@ impl UnifiedBeing {
     /// unchanged — threat capture still governs what ignites.
     pub fn enable_workspace_broadcast(&mut self) {
         self.workspace_broadcast = true;
+    }
+
+    /// Turn on the HOT-3 causal path: the attention schema's self-surprise widens
+    /// the deliberation gap, so the being deliberates more when it cannot predict
+    /// its own attention. Off by default (the schema is a pure observer). Turning
+    /// it on trades bit-identical numbers for a higher-order self-model with teeth.
+    pub fn enable_schema_control(&mut self) {
+        self.schema_control_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed
@@ -1070,6 +1111,8 @@ impl UnifiedBeing {
             // Attention — default here; the live loop overwrites via
             // .with_attention.
             attention: AttentionReport::default(),
+            // Attention schema — default here; overwritten via .with_attention_schema.
+            attention_schema: AttentionSchemaReport::default(),
         }
     }
 }
@@ -1171,6 +1214,11 @@ impl StepReport {
 
     fn with_attention(mut self, a: AttentionReport) -> Self {
         self.attention = a;
+        self
+    }
+
+    fn with_attention_schema(mut self, a: AttentionSchemaReport) -> Self {
+        self.attention_schema = a;
         self
     }
 
