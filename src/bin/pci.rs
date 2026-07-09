@@ -68,6 +68,52 @@ fn main() {
         );
     }
 
+    // --- The sharper GWT test: a within-being localized spread perturbation. ---
+    // Inject a salience impulse into ONE channel of the perturbed twin only, so
+    // broadcast has a single ignited focus to spread — and the effect cannot
+    // cancel under twin-subtraction (the baseline twin is never armed).
+    println!("\n  -- spread: does broadcast carry a localized ignition further? --");
+    let probe = Perturbation::channel_probe(8, 220); // channel 8 (arousal/intero), strong impulse
+    // A sensitive harness: broadcast's footprint is a within-tick +25% on one
+    // channel that write_from_body overwrites, so we lower the significance
+    // threshold to see whether it registers at all before asking how far it goes.
+    let fine = PciHarness { threshold: 1, ticks: 64, settle: 128 };
+
+    let off = UnifiedBeing::new(Genome::wanderer());
+    let mut on = UnifiedBeing::new(Genome::wanderer());
+    on.enable_workspace_broadcast();
+
+    let s_off = fine.measure(&off, &probe);
+    let s_on = fine.measure(&on, &probe);
+    show("1-channel probe, broadcast OFF", &s_off);
+    show("1-channel probe, broadcast ON", &s_on);
+
+    let d_reach = s_on.channels_reached as i32 - s_off.channels_reached as i32;
+    println!(
+        "\n  reach: OFF {}/12 → ON {}/12   (Δ {:+})   [PCI is unreliable at this near-zero density]",
+        s_off.channels_reached, s_on.channels_reached, d_reach
+    );
+    if d_reach > 0 && s_on.channels_reached <= 1 {
+        println!(
+            "  → broadcast makes the ignited channel *causal*: OFF, ignition is a passive\n  \
+             readout (0 reach); ON, the focus registers in the field. But it does NOT yet\n  \
+             cascade to other channels — a real but SHALLOW footprint. Cross-channel spread\n  \
+             needs Stage-2 'teeth' (persistence past the tick), per attention.rs. Measured,\n  \
+             not asserted — and honestly bounded."
+        );
+    } else if d_reach > 1 {
+        println!(
+            "  → broadcast carries one ignition across {} channels: genuine multi-channel\n  \
+             integration, now measured.",
+            s_on.channels_reached
+        );
+    } else {
+        println!(
+            "  → no measurable broadcast footprint on this channel/impulse. Per attention.rs,\n  \
+             Stage-2 teeth are deliberately gentle; this quantifies that."
+        );
+    }
+
     println!(
         "\n  Note: compare these values *relatively*. The clinical 0.31 threshold is for\n  \
          a human cortex, not a 12-channel substrate — the science here is the Δ under\n  \

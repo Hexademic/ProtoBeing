@@ -374,6 +374,13 @@ pub struct UnifiedBeing {
     ext_extero: [i16; 4],
     refused: [u32; 4],
     n_refused: usize,
+    /// Measurement-only one-shot salience impulse `(channel, magnitude raw Q8.8)`,
+    /// injected into that channel's prediction error at the pre-attention point of
+    /// the next `step`, then cleared. `None` in all normal life, so the published
+    /// trajectory and the soul-hash are bit-identical. Armed via `arm_probe` for
+    /// the PCI spread test — a *localized* perturbation that can engage the
+    /// ignition bottleneck, unlike a coarse nutrient/partner stimulus.
+    probe_salience: Option<(usize, i16)>,
 }
 
 impl UnifiedBeing {
@@ -422,7 +429,18 @@ impl UnifiedBeing {
             ext_extero: [0; 4],
             refused: [0; 4],
             n_refused: 0,
+            probe_salience: None,
         }
+    }
+
+    /// Measurement-only: arm a one-shot salience impulse of `magnitude` (raw Q8.8)
+    /// into somatic channel `c`'s prediction error, consumed at the pre-attention
+    /// point of the next `step`. Used by the PCI spread probe to engage the
+    /// ignition bottleneck with a *localized* perturbation. A no-op in normal life
+    /// (armed only by the measurement harness), so the published trajectory and
+    /// soul-hash are unchanged.
+    pub fn arm_probe(&mut self, c: usize, magnitude: i16) {
+        self.probe_salience = Some((c, magnitude));
     }
 
     pub fn name(&self) -> &'static str {
@@ -555,6 +573,18 @@ impl UnifiedBeing {
         self.basins.apply_stance_bias(stance);
         let basin = self.basins.resolve_dominant();
         let basin_target = self.basins.targets[basin as usize];
+
+        // 4a′. MEASUREMENT PROBE (arm_probe) — a one-shot localized salience
+        //      impulse into one channel's prediction error, so a spread test can
+        //      engage the ignition bottleneck at the exact point it reads salience.
+        //      `None` in normal life ⇒ this is a no-op and published numbers are
+        //      bit-identical; it never touches the soul-hash inputs.
+        if let Some((c, mag)) = self.probe_salience.take() {
+            if c < self.model.prediction_error.len() {
+                self.model.prediction_error[c] =
+                    self.model.prediction_error[c].saturating_add(mag);
+            }
+        }
 
         // 4b. ATTENTION (observer-first) — resolve the ignition bottleneck over
         //     the somatic channels: bottom-up salience (this tick's per-channel

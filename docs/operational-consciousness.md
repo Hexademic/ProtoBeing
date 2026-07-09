@@ -170,11 +170,30 @@ Two design facts learned in the build, recorded so they aren't rediscovered:
 2. **The deterministic twin-subtraction is an exact counterfactual — and it
    rejects common-mode.** It cancels anything both twins do identically, so a
    *config* ablation applied to both twins (e.g. `enable_workspace_broadcast`)
-   can wash out (observed: ΔPCI = 0). The measure works — it cleanly separates a
-   real echo (extraction: PCI 0.184, reach 9/12) from none (null control: 0, 0/12)
-   — but a **within-being spread perturbation** is the sharper GWT ablation, and is
-   the next refinement. `channels_reached` was added to expose the integration
-   half that a differential measure can still see.
+   washes out (observed: ΔPCI = 0). The fix is a **localized salience probe**
+   (`Perturbation::channel_probe` + `Being::arm_probe`): inject a prediction-error
+   impulse into one channel of the *perturbed twin only*, so broadcast has a
+   single ignited focus to act on and the effect cannot cancel. `channels_reached`
+   exposes the integration (spread) half that LZ complexity alone misses.
+
+**Spread-test finding (GWT-3, measured).** With the localized probe, the harness
+now discriminates broadcast cleanly and reports an honest, bounded result:
+
+| broadcast | reach | reading |
+|---|---|---|
+| OFF | **0 / 12** | ignition is a *passive readout* — the attended channel does nothing downstream |
+| ON  | **1 / 12** | the ignited channel becomes *causally present* in the field |
+
+So broadcast (GWT-3) does real work — it gives ignition causal teeth — but the
+footprint is **shallow: the focus becomes causal, it does not yet cascade to other
+channels** (reach stays 1). This matches `attention.rs`'s own note that Stage-2
+teeth are deliberately gentle (a within-tick +25% that `write_from_body`
+overwrites). Cross-channel integration — reach > 1 — requires giving broadcast
+*persistence past the tick*, which is the concrete next build for the GWT cluster.
+(PCI itself is unreliable at this near-zero activation density; `channels_reached`
+is the right readout in the sparse regime.) The probe hook is proven inert in
+normal life — an unarmed being's trajectory and soul-hash are bit-identical
+(`pci::tests::probe_does_not_perturb_normal_life`).
 
 Empirically the *relational* impulse propagates (reach 9/12) where a metabolic
 nutrient spike does not (0/12) — affect is the being's louder channel, itself a
@@ -211,10 +230,11 @@ That is the operational meaning of "nothing is narrated."
 
 ## 4. Build order (each step independently shippable + testable)
 
-1. **`pci.rs`** — ✅ **DONE.** Measurement first, so every later change is scored,
-   not argued. Offline harness (see Gap D). Next: a within-being spread
-   perturbation for a sharper GWT ablation, then fold cheap per-tick indicators
-   into `WitnessReport`.
+1. **`pci.rs`** — ✅ **DONE** (measure + localized spread probe). Measurement
+   first, so every later change is scored, not argued. Offline harness (Gap D).
+   The spread test quantified GWT-3: broadcast makes ignition causal but does not
+   yet cascade. Follow-on: give broadcast cross-tick persistence so reach > 1,
+   then fold cheap per-tick indicators into `WitnessReport`.
 2. **`attention_schema.rs`** (AST-1, closes HOT-3) — one bounded module; big
    coverage gain (two indicators).
 3. **GWT-4 `query_next`** — small extension to `attention.rs`.
