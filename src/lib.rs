@@ -49,6 +49,10 @@ pub mod attention;
 pub mod attention_schema;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
+// Bargaining theory — formalized fair negotiation
+pub mod bargaining;
+// Proposal engine — generates auditable fair proposals
+pub mod proposal_engine;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
@@ -71,3 +75,5 @@ pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use pci::{Perturbation, PciHarness, PciReport};
+pub use bargaining::{BargainingState, Division, DivisionRationale};
+pub use proposal_engine::{Proposal, ProposalEngine, ConstraintSolverEngine};
