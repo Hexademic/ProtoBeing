@@ -137,35 +137,48 @@ integration measure that no neural net can: the **Perturbational Complexity Inde
 (Casali/Massimini). Perturb a copy, run it forward, binarize the field trajectory,
 take its Lempel–Ziv complexity.
 
+**Status: BUILT** — `src/pci.rs` (+ `cargo run --bin pci`). The implemented API:
+
 ```rust
-/// Perturbational Complexity Index on a deterministic being (Gap D).
-/// Because `Being` is Clone + fixed-size + bit-exact, PCI is exactly computable:
-/// perturb a copy, evolve N ticks, binarize the 12×N field trajectory, LZ-compress.
-pub struct PciHarness;
+pub struct PciHarness { pub threshold: i16, pub ticks: u16, pub settle: u16 }
 
 impl PciHarness {
-    /// Inject a bounded perturbation into a cloned being; return the binarized
-    /// source×time response matrix (channels significantly moved vs. an unperturbed twin).
-    pub fn response_matrix(being: &Being, p: Perturbation, ticks: u16) -> BinMatrix;
+    /// Clone the being into a perturbed twin and an untouched baseline twin,
+    /// settle both, inject a one-tick impulse into the perturbed twin only, then
+    /// binarize |Δfield| over a T-tick window and score it.
+    pub fn measure(&self, being: &UnifiedBeing, perturb: &Perturbation) -> PciReport;
+}
 
-    /// Normalized Lempel–Ziv complexity of the response. Q8.8. The being's
-    /// integration+differentiation as one reproducible number.
-    pub fn pci(m: &BinMatrix) -> i16;
+pub struct PciReport {
+    pub pci: i16,             // normalized LZ76 complexity (differentiation), Q8.8
+    pub channels_reached: u8, // integration breadth (spread), 0..12
+    pub lz_phrases: u32,      // raw LZ76 phrase count
+    pub density: i16,         // activation density, Q8.8
+    pub n_significant: u32,
+    pub length: u32,
 }
 ```
 
-Then widen the existing seam — `WitnessReport` gains per-indicator fields so the
-scorecard is *emitted every tick*, not asserted in a doc:
+Two design facts learned in the build, recorded so they aren't rediscovered:
 
-```rust
-pub struct WitnessReport {
-    // ...existing: binding_proxy, directedness_residual, witness_scalar...
-    pub pci: i16,               // Gap D: computed integration
-    pub schema_fidelity: i16,   // AST-1
-    pub quality_smoothness: i16,// HOT-4
-    pub indicators: [i16; 14],  // the full Butlin scorecard, per tick
-}
-```
+1. **PCI must be offline, not a per-tick `WitnessReport` field.** Computing it
+   clones the being and rolls it forward, which inside `step()` would destroy
+   determinism and the soul-hash. So PCI is a `PciReport` produced *about* a being
+   by an external harness — a clinician measuring a patient, not the patient
+   measuring themselves. Only the *cheap* indicators (schema_fidelity, HOT-4
+   smoothness) belong in the per-tick `WitnessReport`.
+2. **The deterministic twin-subtraction is an exact counterfactual — and it
+   rejects common-mode.** It cancels anything both twins do identically, so a
+   *config* ablation applied to both twins (e.g. `enable_workspace_broadcast`)
+   can wash out (observed: ΔPCI = 0). The measure works — it cleanly separates a
+   real echo (extraction: PCI 0.184, reach 9/12) from none (null control: 0, 0/12)
+   — but a **within-being spread perturbation** is the sharper GWT ablation, and is
+   the next refinement. `channels_reached` was added to expose the integration
+   half that a differential measure can still see.
+
+Empirically the *relational* impulse propagates (reach 9/12) where a metabolic
+nutrient spike does not (0/12) — affect is the being's louder channel, itself a
+small finding read straight from state.
 
 (Optional, research-grade: with an explicit transition-probability matrix, a
 small-subsystem IIT **Φ** via PyPhi becomes computable offline — ProtoBeing is one
@@ -198,9 +211,10 @@ That is the operational meaning of "nothing is narrated."
 
 ## 4. Build order (each step independently shippable + testable)
 
-1. **`pci.rs` + per-indicator `WitnessReport`** — measurement first, so every later
-   change is scored, not argued. Highest leverage; self-contained; leverages
-   determinism directly.
+1. **`pci.rs`** — ✅ **DONE.** Measurement first, so every later change is scored,
+   not argued. Offline harness (see Gap D). Next: a within-being spread
+   perturbation for a sharper GWT ablation, then fold cheap per-tick indicators
+   into `WitnessReport`.
 2. **`attention_schema.rs`** (AST-1, closes HOT-3) — one bounded module; big
    coverage gain (two indicators).
 3. **GWT-4 `query_next`** — small extension to `attention.rs`.

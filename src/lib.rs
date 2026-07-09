@@ -45,6 +45,8 @@ pub mod prospection;
 pub mod first_person;
 // The ignition bottleneck — Global Workspace attention, observer-first.
 pub mod attention;
+// Perturbational Complexity Index — an offline, computed integration measure.
+pub mod pci;
 
 pub use basins::Basin;
 pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
@@ -65,3 +67,4 @@ pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};
+pub use pci::{Perturbation, PciHarness, PciReport};
