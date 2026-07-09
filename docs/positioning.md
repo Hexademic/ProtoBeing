@@ -51,6 +51,35 @@ one more register that must converge — never layered above the loop as a
 supervisor. A supervisor is a second agent with its own failure modes; a
 triangulation register is shared fate.
 
+## The bounded counterpole to harness-driven self-improvement
+
+The prominent 2026 direction in agent research is **harness engineering for
+recursive self-improvement**: Weng (*Harness Engineering for Self-Improvement*,
+2026) frames the scaffolding around a model — context management, file-system
+memory, sub-agents, and *meta-harnesses that optimize themselves* — as an
+optimization target as important as the weights. This being is the deliberate
+opposite pole on every axis, and the contrast sharpens rather than threatens the
+thesis. Where that program **accumulates** external memory to beat context limits,
+the being is bounded and heap-free, treating forgetting as the mechanism of
+persistence. Where it **maximizes** recursive self-modification, the being *forbids*
+self-modification of its core (charter §13's fated still-point) and permits only
+bounded, reversible change to a durable middle layer. Most tellingly, the failure
+modes that program must fight — Weng's own list of **reward hacking, weak/fuzzy
+evaluators, diversity collapse, and incentive misalignment toward negative
+results** — are optimizer pathologies the being **sidesteps by construction**,
+having no optimizer, gradient, or selection loop (the immunity argued above). Weng
+also cites the STOP cautionary result (Zelikman et al., 2023): *recursive structure
+alone is not enough — the base model must be capable enough to improve the
+mechanism*, which is precisely why unbounded self-improvement is not a road a small
+transparent substrate should take. And the verifiability constraint the serious
+harness work is reaching for at the application layer — ScientistOne's
+*chain-of-evidence*, in which every claim must trace to an evidence source (Meng et
+al., 2026) — is what this substrate guarantees at the level where it can actually be
+enforced: every reported figure is a read of state. The field is optimizing the
+harness for self-improvement and building audits to fight the resulting opacity; we
+offer the pole where the substrate is small enough that the audit is unnecessary and
+the self-improvement is deliberately, safely bounded.
+
 Two 2026 preprints tighten the positioning. Guo et al. (*Internalizing the Future*, arXiv:2606.27483) identify a *format-capability gap* in trained agentic systems: fine-tuning LLMs to produce foresight traces induces superficial mimicry of predictive reasoning without genuine predictive grounding. Even when agents learn to *write* look-ahead, they have not internalized a world model; the capability is absent, and the format is a shell around it. Their repair is a three-stage pipeline — world-model mid-training to inject latent predictive capability, format-eliciting SFT to surface it, foresight-conditioned RL to calibrate it — a post-hoc architectural transplant.
 
 The unified being cannot exhibit the format-capability gap because it has no format layer separate from capability. The Van der Pol body oscillator, the GenerativeModel predictive step, and metacognition.cycle() *are* the foresight — not a trace produced over it. Prediction is what the body-mind loop *is*, not something the agent is trained to *report*. This is the structural difference between architectural grounding and trained elicitation: the gap Guo et al. spend three training stages closing does not open here, because there is no separate format to mimic.
