@@ -36,7 +36,7 @@ against `src/` on the review branch.
 | GWT-1 | Parallel specialised modules | Global Workspace | ✅ | 30 modules operating per tick (`lib.rs`) |
 | GWT-2 | Limited-capacity workspace / bottleneck + selective attention | Global Workspace | ✅ | `attention.rs` — ignition bottleneck, biased competition, divisive normalization |
 | GWT-3 | Global broadcast to all modules | Global Workspace | ✅ | all-or-none ignition broadcast; `Being::enable_workspace_broadcast()` |
-| GWT-4 | State-dependent attention: query modules **in succession** | Global Workspace | ⬜ | **Gap B** — competition is parallel per tick; no deliberate serial sampling |
+| GWT-4 | State-dependent attention: query modules **in succession** | Global Workspace | ✅ (opt-in) | **BUILT** — `attention.rs` inhibition-of-return (`enable_serial_access`): the workspace walks a succession of foci from its own state |
 | HOT-1 | Generative / top-down / noisy perception | Higher-Order | 🟡 | top-down relevance in `attention.rs`; predictive stance in `body.rs` |
 | HOT-2 | Metacognitive monitoring (reliable representation vs noise) | Higher-Order | ✅ | `metacognition.rs` self-prediction + self-surprise; `precision.rs` |
 | HOT-3 | Agency that updates beliefs on metacognitive output | Higher-Order | ✅ (opt-in) | closed via `attention_schema.rs::gap_bias` → deliberation gap (`enable_schema_control`); observer by default |
@@ -46,12 +46,14 @@ against `src/` on the review branch.
 | AE-1 | Agency: learning from feedback, flexible goal pursuit | Agency & Embodiment | ✅ | drives + `executive.rs` refusal + `seeking.rs` flourishing attractor |
 | AE-2 | Embodiment: models output→input contingencies | Agency & Embodiment | 🟡 | `embodiment.rs` seam + MuJoCo demo (WIP); contingency model is coarse |
 
-**Read of the scorecard:** ProtoBeing now **meets or partially meets 13 of 14**,
-with unusually strong coverage of Recurrent Processing, Global Workspace,
-Higher-Order, Predictive Processing, Attention Schema, and Agency. That is rare —
-most systems that score on GWT score on nothing else. Since this doc was written,
-**AST-1 and HOT-3 moved from gaps to built** (`attention_schema.rs`), leaving two
-open build targets: GWT-4 (serial access) and HOT-4 (a quality space).
+**Read of the scorecard:** ProtoBeing now **meets or partially meets 14 of 14** —
+every indicator has at least a partial, and most are met. That is rare: most
+systems that score on Global Workspace score on nothing else. Since this doc was
+written, **AST-1, HOT-3, and GWT-4 moved from gaps to built** (`attention_schema.rs`,
+`attention.rs` inhibition-of-return). The one remaining *build target* (not a
+missing indicator, but the shallowest coverage) is **HOT-4 — a quality space**; the
+partials worth deepening are RPT-2, HOT-1, and AE-2 (richer perceptual hierarchy,
+generative top-down perception, a finer embodiment contingency model).
 
 ---
 
@@ -98,22 +100,21 @@ action selection. **Verified** (`examples/attention_schema_probe`): fidelity cli
 to ~0.94 over a calm life, then the arrival of a taker seizes and jumps the focus,
 the schema mispredicts, and self-surprise spikes — AST-1 read straight from state.
 
-### Gap B — GWT-4: state-dependent serial access (extend `attention.rs`)
+### Gap B — GWT-4: state-dependent serial access (`attention.rs`) — ✅ BUILT
 
-GWT-4 is the workspace *querying modules in succession* — deliberate serial
-sampling, the difference between a spotlight that only ever lands where salience
-shoves it and one the being can *steer* across ticks. Implement by letting the
-current broadcast bias **next** tick's relevance vector.
+GWT-4 is the workspace *querying modules in succession* — the difference between a
+spotlight that only lands where salience shoves it and one the being can *steer*
+across ticks. Built as **inhibition of return**: an endogenous per-channel
+`query_bias` transiently suppresses whatever was just attended, so the next
+competition is biased to move on to unattended content. Opt-in
+(`Being::enable_serial_access`), default-off ⇒ bit-identical; and the
+threat-capture floor still overrides, so serial querying never blinds the being to
+danger (`attention::tests::threat_still_captures_under_serial_access`).
 
-```rust
-/// After broadcast, let the ignited content set an endogenous relevance bias for
-/// the NEXT competition, so the workspace can walk a query across modules over
-/// ticks instead of only resolving one parallel competition (GWT-4).
-pub fn query_next(&self, broadcast: &Broadcast) -> [i16; 12];   // endogenous relevance
-```
-
-Guard it with the existing threat-capture floor invariant in `attention.rs`: serial
-querying may narrow focus, but must never blind the being to danger.
+**Verified** (`attention::tests::serial_access_produces_succession`): under a fixed
+two-channel landscape, parallel attention locks on the single loudest content
+(1 distinct focus) while serial access walks a succession (> 1) — the workspace
+querying its contents over time rather than only reacting.
 
 ### Gap C — HOT-4: a quality space (`src/quality_space.rs`)
 
@@ -246,8 +247,9 @@ That is the operational meaning of "nothing is narrated."
 2. **`attention_schema.rs`** (AST-1, closes HOT-3) — ✅ **DONE.** One bounded
    observer module; two indicators moved from gap to built. HOT-3 causal path
    opt-in (`enable_schema_control`); verified in `examples/attention_schema_probe`.
-3. **GWT-4 `query_next`** — small extension to `attention.rs`. ← next.
-4. **`quality_space.rs`** (HOT-4) — the subtlest; pairs with a salvaged QualiaPacket.
+3. **GWT-4 serial access** — ✅ **DONE.** Inhibition of return in `attention.rs`
+   (`enable_serial_access`); opt-in, threat-floor preserved; verified in-tests.
+4. **`quality_space.rs`** (HOT-4) — the subtlest; pairs with a salvaged QualiaPacket. ← next.
 5. **Falsification suite** — wire the §3 ablations behind a `--bin` like the
    existing sovereignty tests; publish the pre/post numbers.
 

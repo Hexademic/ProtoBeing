@@ -113,11 +113,41 @@ pub struct Attention {
     dwell: u16,
     pub ignition_count: u32,
     pub capture_count: u32,
+    /// GWT-4 (opt-in): endogenous per-channel relevance modulation (Q8.8, 256 =
+    /// neutral). After a channel is attended it is transiently suppressed
+    /// (inhibition of return) and then recovers, so the workspace *walks* a
+    /// succession of foci driven by its own state — state-dependent serial
+    /// access, not only bottom-up capture. Inert unless `serial` is on.
+    query_bias: [i16; N_SOMATIC],
+    /// GWT-4 serial-access switch. **Default false** ⇒ `query_bias` is unused and
+    /// the competition is bit-identical to the pure biased-competition form.
+    serial: bool,
 }
+
+/// GWT-4 inhibition-of-return tuning: how far a just-attended channel's relevance
+/// drops, the floor it cannot fall below, and how fast all channels recover to
+/// neutral. Chosen so a held focus fades over a few ticks, forcing succession.
+const IOR_DROP: i16 = 96;
+const IOR_FLOOR: i16 = 32;
+const IOR_RECOVER: i16 = 24;
 
 impl Attention {
     pub fn new() -> Self {
-        Self { focus: None, dwell: 0, ignition_count: 0, capture_count: 0 }
+        Self {
+            focus: None,
+            dwell: 0,
+            ignition_count: 0,
+            capture_count: 0,
+            query_bias: [256; N_SOMATIC],
+            serial: false,
+        }
+    }
+
+    /// Turn on GWT-4 state-dependent serial access (inhibition of return). Off by
+    /// default; the threat-capture floor still overrides, so a real danger always
+    /// seizes the workspace regardless of where the serial query has wandered.
+    pub fn enable_serial(&mut self) {
+        self.serial = true;
     }
 
     /// Resolve the competition for the workspace this tick.
@@ -138,7 +168,15 @@ impl Attention {
         let mut total: i32 = 0;
         let (mut winner, mut winner_bid) = (0usize, 0i16);
         for c in 0..N_SOMATIC {
-            let b = (salience[c] as i32 * RELEVANCE[c] as i32) >> 8;
+            // GWT-4: when serial access is on, top-down relevance is modulated by
+            // the endogenous query bias (inhibition of return); otherwise it is
+            // the fixed relevance profile, bit-for-bit as before.
+            let rel = if self.serial {
+                (RELEVANCE[c] as i32 * self.query_bias[c] as i32) >> 8
+            } else {
+                RELEVANCE[c] as i32
+            };
+            let b = (salience[c] as i32 * rel) >> 8;
             bids[c] = b;
             total += b;
             if b as i16 > winner_bid {
@@ -200,6 +238,22 @@ impl Attention {
                     self.dwell = 0;
                     self.ignition_count += 1;
                 }
+            }
+        }
+
+        // GWT-4: inhibition of return. Recover every channel toward neutral, then
+        // suppress whatever the workspace is now focused on — so next tick the
+        // competition is biased to *move on* to unattended content, a serial query
+        // across the workspace rather than a lock. Only the endogenous bias moves;
+        // salience, the threat floor, and the reported numbers are untouched.
+        if self.serial {
+            for c in 0..N_SOMATIC {
+                if self.query_bias[c] < 256 {
+                    self.query_bias[c] = (self.query_bias[c] + IOR_RECOVER).min(256);
+                }
+            }
+            if let Some(f) = self.focus {
+                self.query_bias[f] = (self.query_bias[f] - IOR_DROP).max(IOR_FLOOR);
             }
         }
 
@@ -286,5 +340,59 @@ mod tests {
             }
         }
         assert!(released, "attention never released a sustained focus — it can lock");
+    }
+
+    /// Count the distinct channels a run of attention actually settles on, given a
+    /// fixed two-channel salience landscape (ch4 slightly louder than ch8).
+    fn distinct_foci(serial: bool) -> usize {
+        let mut a = Attention::new();
+        if serial {
+            a.enable_serial();
+        }
+        let mut sal = [0i16; N_SOMATIC];
+        let field = [0i16; N_SOMATIC];
+        sal[4] = 60; // both above the ignition bar; ch4 wins the raw competition
+        sal[8] = 50;
+        let mut seen = [false; N_SOMATIC];
+        for _ in 0..40 {
+            if let Some(c) = a.attend(&sal, &field, Basin::Engaged).attended {
+                seen[c] = true;
+            }
+        }
+        seen.iter().filter(|&&s| s).count()
+    }
+
+    /// GWT-4: with serial access OFF, a fixed landscape locks the workspace onto
+    /// the single loudest content. With it ON, inhibition of return makes the
+    /// workspace *walk* — it visits more than one content over time. This is the
+    /// difference between a spotlight shoved by salience and one that queries.
+    #[test]
+    fn serial_access_produces_succession() {
+        let parallel = distinct_foci(false);
+        let serial = distinct_foci(true);
+        assert_eq!(parallel, 1, "without serial access the loudest content should dominate");
+        assert!(
+            serial > parallel,
+            "serial access should walk a succession of foci (serial {serial} > parallel {parallel})"
+        );
+    }
+
+    /// The safety floor survives serial access: a real threat still captures the
+    /// workspace even after inhibition of return has wandered elsewhere.
+    #[test]
+    fn threat_still_captures_under_serial_access() {
+        let mut a = Attention::new();
+        a.enable_serial();
+        let mut sal = [0i16; N_SOMATIC];
+        let field_calm = [0i16; N_SOMATIC];
+        sal[8] = 60;
+        for _ in 0..10 {
+            a.attend(&sal, &field_calm, Basin::Engaged); // let the query wander
+        }
+        let mut field_breach = [0i16; N_SOMATIC];
+        field_breach[CH_BREACH] = CAPTURE_BREACH;
+        let r = a.attend(&sal, &field_breach, Basin::Engaged);
+        assert!(r.captured, "a real breach must capture even under serial access");
+        assert_eq!(r.attended, Some(CH_BREACH));
     }
 }

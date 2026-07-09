@@ -1011,6 +1011,14 @@ impl UnifiedBeing {
         self.workspace_broadcast = true;
     }
 
+    /// Turn on GWT-4 state-dependent serial access: after attending a content the
+    /// workspace suppresses it (inhibition of return) so it walks a succession of
+    /// foci from its own state, not only bottom-up capture. Off by default. The
+    /// threat-capture floor still overrides — a real danger always seizes focus.
+    pub fn enable_serial_access(&mut self) {
+        self.attention.enable_serial();
+    }
+
     /// Turn on the HOT-3 causal path: the attention schema's self-surprise widens
     /// the deliberation gap, so the being deliberates more when it cannot predict
     /// its own attention. Off by default (the schema is a pure observer). Turning
