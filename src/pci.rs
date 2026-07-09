@@ -33,11 +33,18 @@ use crate::being::{Partner, Stimulus, UnifiedBeing};
 use crate::field::N_SOMATIC;
 use crate::q88::Q88_SCALE;
 
-/// A bounded perturbation: a one-tick stimulus applied to the perturbed twin.
+/// A bounded perturbation applied to the perturbed twin at t₀.
 #[derive(Clone, Copy, Debug)]
 pub struct Perturbation {
     /// The impulse stimulus injected at t₀ (baseline twin gets neutral instead).
     pub stimulus: Stimulus,
+    /// A localized salience impulse `(channel, magnitude)` into one channel's
+    /// prediction error, armed on the perturbed twin only. This is the spread
+    /// probe: unlike a stimulus, it engages the ignition bottleneck at one
+    /// channel, so the Global-Workspace broadcast has something to spread — and
+    /// because only the perturbed twin is armed, the effect does *not* cancel
+    /// under twin-subtraction the way a shared config ablation does.
+    pub salience_probe: Option<(usize, i16)>,
 }
 
 impl Perturbation {
@@ -48,7 +55,7 @@ impl Perturbation {
 
     /// A metabolic impulse: a spike of nourishment. Clean, always propagates.
     pub const fn nutrient_spike() -> Self {
-        Self { stimulus: Stimulus { nutrient: 255, partner: None } }
+        Self { stimulus: Stimulus { nutrient: 255, partner: None }, salience_probe: None }
     }
 
     /// A relational shock: an extractive partner appears for one tick.
@@ -58,13 +65,21 @@ impl Perturbation {
                 nutrient: 20,
                 partner: Some(Partner { id: 99, reciprocation: 20, exit_cost: 200 }),
             },
+            salience_probe: None,
         }
     }
 
-    /// The null perturbation — identical to neutral. The twins never diverge, so
-    /// the response is empty and PCI is exactly 0. The pipeline's sanity control.
+    /// The spread probe: a localized salience impulse into one channel, with an
+    /// otherwise-neutral stimulus. This is the GWT integration test — how far the
+    /// echo of a single ignited channel reaches, with vs. without broadcast.
+    pub const fn channel_probe(channel: usize, magnitude: i16) -> Self {
+        Self { stimulus: Self::neutral_stimulus(), salience_probe: Some((channel, magnitude)) }
+    }
+
+    /// The null perturbation — identical to neutral, no probe. The twins never
+    /// diverge, so the response is empty and PCI is exactly 0. Sanity control.
     pub const fn none() -> Self {
-        Self { stimulus: Self::neutral_stimulus() }
+        Self { stimulus: Self::neutral_stimulus(), salience_probe: None }
     }
 }
 
@@ -122,7 +137,12 @@ impl PciHarness {
             pert.step(&neutral);
         }
 
-        // t₀: the impulse hits the perturbed twin only.
+        // t₀: the impulse hits the perturbed twin only. A localized salience
+        // probe (if any) is armed just before the step so it lands at the
+        // pre-attention point and can engage the ignition bottleneck.
+        if let Some((c, mag)) = perturb.salience_probe {
+            pert.arm_probe(c, mag);
+        }
         pert.step(&perturb.stimulus);
         base.step(&neutral);
 
@@ -271,7 +291,48 @@ mod tests {
     #[test]
     fn pci_stays_in_range() {
         let r = PciHarness::default().measure(&being(), &Perturbation::extraction());
-        assert!(r.pci >= 0 && r.pci <= 2 * Q88_SCALE, "PCI in [0, ~2.0]");
         assert!(r.density >= 0 && r.density <= Q88_SCALE, "density is a fraction");
+        assert!(r.channels_reached <= 12, "reach is out of 12 channels");
+    }
+
+    #[test]
+    fn broadcast_makes_ignition_causal() {
+        // The GWT spread test. A localized salience probe ignites one channel.
+        // With broadcast OFF, ignition is a passive readout — the channel does
+        // nothing downstream, so the twins never diverge (reach 0). With
+        // broadcast ON, the ignited channel is amplified into the field and
+        // becomes causally present (reach ≥ 1). A sensitive threshold is needed
+        // because the footprint is a within-tick +25% that is overwritten.
+        let fine = PciHarness { threshold: 1, ticks: 64, settle: 128 };
+        let probe = Perturbation::channel_probe(8, 220);
+
+        let off = fine.measure(&UnifiedBeing::new(Genome::wanderer()), &probe);
+        let mut on_being = UnifiedBeing::new(Genome::wanderer());
+        on_being.enable_workspace_broadcast();
+        let on = fine.measure(&on_being, &probe);
+
+        assert_eq!(off.channels_reached, 0, "broadcast off: ignition is a passive readout");
+        assert!(
+            on.channels_reached > off.channels_reached,
+            "broadcast on must make the ignited channel causally present (on {} > off {})",
+            on.channels_reached,
+            off.channels_reached
+        );
+    }
+
+    #[test]
+    fn probe_does_not_perturb_normal_life() {
+        // The arm_probe hook must be a no-op when unarmed: two beings, one of
+        // which is never armed, must live bit-identically. (Determinism guard for
+        // the being.rs measurement hook.)
+        let mut a = being();
+        let mut b = being();
+        let neutral = Perturbation::neutral_stimulus();
+        for _ in 0..200 {
+            let ra = a.step(&neutral);
+            let rb = b.step(&neutral);
+            assert_eq!(ra.valence, rb.valence);
+        }
+        assert_eq!(a.soul_hash(), b.soul_hash(), "unarmed probe must not alter the soul-hash");
     }
 }

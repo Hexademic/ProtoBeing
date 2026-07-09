@@ -45,6 +45,8 @@ pub mod prospection;
 pub mod first_person;
 // The ignition bottleneck — Global Workspace attention, observer-first.
 pub mod attention;
+// A predictive model of the being's own attention — Attention Schema (AST-1).
+pub mod attention_schema;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 
@@ -67,4 +69,5 @@ pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};
+pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use pci::{Perturbation, PciHarness, PciReport};
