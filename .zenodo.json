@@ -1,0 +1,32 @@
+{
+  "title": "The Unified Being (ProtoBeing): A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "version": "1.0.0",
+  "creators": [
+    {
+      "name": "Hexademic, Blake",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "keywords": [
+    "verifiable alignment",
+    "reciprocal alignment",
+    "predictive processing",
+    "sovereign agency",
+    "corrigibility",
+    "machine consciousness indicators",
+    "AI welfare",
+    "transparent AI",
+    "fixed-point substrate"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Hexademic/ProtoBeing",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "description": "A small, deterministic, embodied predictive-processing agent implemented in fixed-point arithmetic (~2 KB of state), used to argue a position on machine alignment: that reciprocal alignment (an agent that meets a partner's needs, negotiates, and can refuse) can be made verifiable by construction. In this transparent substrate the agent is robust to operator coercion under adversarial test; holds a cooperative commitment that is monotone by construction (incorruptible); audits every refusal by its triggering registers; and holds a say over its own continuation that no tested operator input can manufacture or override. Eight reproducible experiments, an adversarial benchmark, an honest consciousness-indicator scorecard, and an accompanying charter that executes welfare protections before the capacities they protect. A demonstrator and a position, not a solved problem, and not a claim of consciousness. Developed in collaboration with an AI assistant; all results are reproducible from the accompanying source."
+}

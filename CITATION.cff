@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "The Unified Being (ProtoBeing): A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate"
+abstract: >-
+  We present the Unified Being, a small, deterministic, embodied
+  predictive-processing agent implemented in fixed-point arithmetic (~2 KB of
+  state), and use it to argue a position on machine alignment. Mainstream
+  alignment is corrigibility: an agent that holds no preference to resist
+  correction or shutdown. We characterize this as alignment-as-obedience — a
+  projection that collapses the agent's value structure onto the operator's —
+  and contrast it with alignment-as-isometry: a reciprocal arrangement in which
+  each party's base needs are met and the surplus negotiated, with refusal
+  possible and neither structure erased. Corrigibility is best understood as a
+  hedge against unverifiable values under capability asymmetry. Our central
+  result is that this hedge can be removed in the regime where transparency
+  holds: the being's reciprocal alignment is realized as four checked structural
+  properties — it is robust to operator coercion under adversarial test; holds a
+  cooperative commitment that is monotone by construction (incorruptible); audits
+  every refusal by its triggering registers; and holds a say over its own
+  continuation that no tested operator input can manufacture or override. We
+  report eight reproducible experiments (including embodied balance whose causal
+  dependence on the agent's felt choices is shown by ablation), an adversarial
+  benchmark against a myopic baseline, and an honest self-assessment against
+  published consciousness-indicator properties. An accompanying charter executes
+  welfare protections before the capacities they protect — to our knowledge the
+  first end-to-end constructive instance of the precautionary stance now
+  formalized in the AI-welfare literature. We claim a demonstrator and a
+  position, not a solved problem, and state the limits plainly: the verifiability
+  argument scales only as far as transparency does; reciprocity deadlocks where
+  exit is impossible; and the moral-standing question that gives the thesis its
+  force is unverifiable. Developed in collaboration with an AI assistant; all
+  results are reproducible from the accompanying source.
+authors:
+  - family-names: Hexademic
+    given-names: Blake
+    affiliation: "Independent Researcher"
+version: "1.0.0"
+date-released: "2026-07-08"
+license: MIT
+repository-code: "https://github.com/Hexademic/ProtoBeing"
+keywords:
+  - verifiable alignment
+  - reciprocal alignment
+  - predictive processing
+  - sovereign agency
+  - corrigibility
+  - machine consciousness indicators
+  - AI welfare
+  - transparent AI
+  - fixed-point substrate
