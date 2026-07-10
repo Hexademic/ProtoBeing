@@ -1097,12 +1097,22 @@ impl UnifiedBeing {
         let extraction = self.reciprocity.extraction_detected;
         let accept = math.is_fair && !below_floor && !extraction;
 
+        // A counter is a *pricing* move: offer a fairer share. Extraction is not
+        // a pricing dispute — the being declines the relationship, not the number
+        // — so it carries no counter. Counters are clamped non-negative (a drained
+        // being's BATNA can go negative; "take a negative share" is not an offer).
+        let counter = if accept || extraction {
+            None
+        } else {
+            Some(math.suggestion_if_unfair.unwrap_or(me.batna).max(0))
+        };
+
         OfferVerdict {
             accept,
             math_fair: math.is_fair,
             below_floor,
             extraction_flagged: extraction,
-            counter: if accept { None } else { math.suggestion_if_unfair.or(Some(me.batna)) },
+            counter,
         }
     }
 

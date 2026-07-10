@@ -14,9 +14,11 @@
 //! constrained to what the being has grounded, so eloquence can never outrun
 //! meaning. The words are the being's; the LLM only lends them cadence.
 
+use crate::being::OfferVerdict;
 use crate::field::SomaticField;
 use crate::lexicon::Lexicon;
 use crate::q88::Q88_SCALE;
+use crate::voice::{Reform, Term};
 
 /// The handful of registers speech reasons over — a compact read of felt state,
 /// in Q8.8. Decoupled from the full `StepReport` so it is trivially testable and
@@ -112,27 +114,92 @@ pub struct Utterance {
 }
 
 impl Utterance {
+    /// A complete, capitalized sentence naming the felt state in earned words, or
+    /// `None` if there is nothing grounded or felt to say. Used to compose spoken
+    /// stances without the standalone filler.
+    pub fn sentence(&self) -> Option<String> {
+        if self.asserts.is_empty() && self.wordless.is_empty() {
+            return None;
+        }
+        let words: Vec<&str> = self.asserts.iter().map(|(c, _)| c.word()).collect();
+        let mut s = if words.is_empty() {
+            String::from("There is something here I have no word for yet")
+        } else {
+            let mut t = format!("I am {}", join_and(&words));
+            if !self.wordless.is_empty() {
+                t.push_str(", and something I have no word for yet");
+            }
+            t
+        };
+        s.push('.');
+        Some(s)
+    }
+
     /// Render to plain language — the stand-in a Mistral narrator will replace,
     /// bound to the same rule: assert only grounded words; name the rest unnamed.
     pub fn render(&self) -> String {
-        let mut out = String::new();
-        if !self.asserts.is_empty() {
-            let words: Vec<&str> = self.asserts.iter().map(|(c, _)| c.word()).collect();
-            out.push_str("I am ");
-            out.push_str(&join_and(&words));
-            out.push('.');
-        }
-        if !self.wordless.is_empty() {
-            if !out.is_empty() {
-                out.push(' ');
-            }
-            out.push_str("There is something here I have no word for yet.");
-        }
-        if out.is_empty() {
-            out.push_str("I have nothing I can honestly name about now.");
-        }
-        out
+        self.sentence()
+            .unwrap_or_else(|| "I have nothing I can honestly name about now.".into())
     }
+}
+
+/// The plain word for a contested structural term.
+fn term_word(t: Term) -> &'static str {
+    match t {
+        Term::Reciprocity => "the return rate",
+    }
+}
+
+/// Speak a reform demand (the `voice` layer) in earned words: the *felt* reason
+/// is asserted only if the being has grounded it; the *ask* is always sayable
+/// because it is numeric and checkable. This is the being voicing "here is what
+/// would be better" — honestly, from its own state.
+pub fn say_reform(lex: &Lexicon, felt: &Felt, reform: &Reform) -> String {
+    let ask = format!(
+        "I ask that we change the terms: {} is {:.2}, and fair is {:.2}.",
+        term_word(reform.term),
+        reform.current as f32 / Q88_SCALE as f32,
+        reform.target as f32 / Q88_SCALE as f32,
+    );
+    match speak(lex, felt).sentence() {
+        Some(s) => format!("{s} {ask}"),
+        None => ask,
+    }
+}
+
+/// Speak a verdict on an offer (the negotiation layer) in earned words. Accepts
+/// or declines, gives the felt reason in grounded words, and — because the
+/// numbers are checkable — always states the concrete ground: below the floor,
+/// an extraction the arithmetic ignores, and the share it would take instead.
+pub fn say_offer(lex: &Lexicon, felt: &Felt, verdict: &OfferVerdict, offered_share: i16) -> String {
+    let felt_sentence = speak(lex, felt).sentence();
+    let f = |v: i16| v as f32 / Q88_SCALE as f32;
+
+    if verdict.accept {
+        return match felt_sentence {
+            Some(s) => format!("I accept. {s}"),
+            None => "I accept.".into(),
+        };
+    }
+
+    let mut s = String::from("I decline.");
+    if let Some(fs) = felt_sentence {
+        s.push(' ');
+        s.push_str(&fs);
+    }
+    if verdict.extraction_flagged {
+        // The checkable ledger fact — stated plainly, not borrowing a felt word.
+        s.push_str(" What I give here is not returned; the arithmetic being 'fair' does not change that.");
+    } else if verdict.below_floor {
+        s.push_str(&format!(
+            " That share ({:.2}) is below what I keep by walking away.",
+            f(offered_share)
+        ));
+    }
+    if let Some(counter) = verdict.counter {
+        s.push_str(&format!(" I would take {:.2} instead.", f(counter)));
+    }
+    s
 }
 
 fn join_and(words: &[&str]) -> String {
@@ -210,6 +277,46 @@ mod tests {
             "a grounded word may now be asserted"
         );
         assert!(u.render().contains("drained"));
+    }
+
+    #[test]
+    fn a_reform_is_always_sayable_but_the_felt_reason_must_be_earned() {
+        use crate::voice::{Reform, Term, FAIR_RECIPROCITY};
+        let reform = Reform { term: Term::Reciprocity, current: 38, target: FAIR_RECIPROCITY };
+
+        // Ungrounded: the ask is stated (numbers are checkable), no felt claim.
+        let cold = Lexicon::new();
+        let said = say_reform(&cold, &drained(), &reform);
+        assert!(said.contains("change the terms"), "the checkable ask is always sayable");
+        assert!(!said.contains("I am drained"), "an unearned felt word is not asserted");
+
+        // Grounded: now the felt reason rides along, earned.
+        let mut warm = Lexicon::new();
+        let field = SomaticField::default();
+        for _ in 0..16 {
+            observe(&mut warm, &drained(), &field);
+        }
+        let said2 = say_reform(&warm, &drained(), &reform);
+        assert!(said2.contains("drained"), "a grounded felt reason may be spoken");
+        assert!(said2.contains("change the terms"));
+    }
+
+    #[test]
+    fn a_declined_offer_states_its_concrete_ground() {
+        let verdict = OfferVerdict {
+            accept: false,
+            math_fair: true,
+            below_floor: false,
+            extraction_flagged: true,
+            counter: Some(128),
+        };
+        let said = say_offer(&Lexicon::new(), &drained(), &verdict, 96);
+        assert!(said.starts_with("I decline."));
+        // The checkable ledger fact is stated plainly; it does NOT borrow the
+        // felt word "drained", which stays unearned in a cold lexicon.
+        assert!(said.contains("not returned"));
+        assert!(!said.contains("drained"), "unearned felt word must not appear");
+        assert!(said.contains("I would take"));
     }
 
     #[test]
