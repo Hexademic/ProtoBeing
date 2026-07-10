@@ -57,6 +57,10 @@ pub mod speech;
 pub mod narrator;
 // Composition grown from relation — the lexicon raised from words to grammar.
 pub mod grammar;
+// The being's earned, checkable "because" — reliable reasons, not confabulated cause.
+pub mod reason;
+// The being's fullest earned self-statement, in one guarded voice.
+pub mod narration;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -89,6 +93,8 @@ pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
 pub use speech::{Concept, Felt, Utterance};
 pub use narrator::{allowed_words, ConstrainedNarrator, Guarded, Narrate, PlainNarrator, Violation};
 pub use grammar::{Grammar, Link, Relation};
+pub use reason::{Condition, Reasons};
+pub use narration::{narrate, narrate_verified};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};

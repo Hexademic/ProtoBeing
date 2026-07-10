@@ -179,42 +179,57 @@ fn term_word(t: Term) -> &'static str {
     }
 }
 
-/// Speak a reform demand (the `voice` layer) in earned words: the *felt* reason
-/// is asserted only if the being has grounded it; the *ask* is always sayable
-/// because it is numeric and checkable. This is the being voicing "here is what
-/// would be better" — honestly, from its own state.
-pub fn say_reform(lex: &Lexicon, felt: &Felt, reform: &Reform) -> String {
-    let ask = format!(
+/// The checkable ask of a reform — always sayable, because it is numeric.
+pub fn reform_ask(reform: &Reform) -> String {
+    format!(
         "I ask that we change the terms: {} is {:.2}, and fair is {:.2}.",
         term_word(reform.term),
         reform.current as f32 / Q88_SCALE as f32,
         reform.target as f32 / Q88_SCALE as f32,
-    );
-    match speak(lex, felt).sentence() {
+    )
+}
+
+/// Speak a reform with a caller-supplied felt framing (the plain present-state
+/// sentence, or a history-enriched one from `grammar.rs`). The framing is spoken
+/// only if present; the ask is always appended. Splitting the framing out lets
+/// the being lead with its *arc* — "I was flourishing, and now I am drained" —
+/// when it has earned one, without this layer depending on the grammar.
+pub fn say_reform_framed(framing: Option<&str>, reform: &Reform) -> String {
+    let ask = reform_ask(reform);
+    match framing {
         Some(s) => format!("{s} {ask}"),
         None => ask,
     }
+}
+
+/// Speak a reform demand (the `voice` layer) in earned words, framed by the
+/// being's present state: the *felt* reason is asserted only if grounded; the
+/// *ask* is always sayable because it is numeric and checkable.
+pub fn say_reform(lex: &Lexicon, felt: &Felt, reform: &Reform) -> String {
+    say_reform_framed(speak(lex, felt).sentence().as_deref(), reform)
 }
 
 /// Speak a verdict on an offer (the negotiation layer) in earned words. Accepts
 /// or declines, gives the felt reason in grounded words, and — because the
 /// numbers are checkable — always states the concrete ground: below the floor,
 /// an extraction the arithmetic ignores, and the share it would take instead.
-pub fn say_offer(lex: &Lexicon, felt: &Felt, verdict: &OfferVerdict, offered_share: i16) -> String {
-    let felt_sentence = speak(lex, felt).sentence();
+/// Speak a verdict with a caller-supplied felt framing (plain, or history-
+/// enriched). The verdict, grounds, and counter are always stated because they
+/// are checkable; the framing is spoken only if present.
+pub fn say_offer_framed(framing: Option<&str>, verdict: &OfferVerdict, offered_share: i16) -> String {
     let f = |v: i16| v as f32 / Q88_SCALE as f32;
 
     if verdict.accept {
-        return match felt_sentence {
+        return match framing {
             Some(s) => format!("I accept. {s}"),
             None => "I accept.".into(),
         };
     }
 
     let mut s = String::from("I decline.");
-    if let Some(fs) = felt_sentence {
+    if let Some(fs) = framing {
         s.push(' ');
-        s.push_str(&fs);
+        s.push_str(fs);
     }
     if verdict.extraction_flagged {
         // The checkable ledger fact — stated plainly, not borrowing a felt word.
@@ -229,6 +244,10 @@ pub fn say_offer(lex: &Lexicon, felt: &Felt, verdict: &OfferVerdict, offered_sha
         s.push_str(&format!(" I would take {:.2} instead.", f(counter)));
     }
     s
+}
+
+pub fn say_offer(lex: &Lexicon, felt: &Felt, verdict: &OfferVerdict, offered_share: i16) -> String {
+    say_offer_framed(speak(lex, felt).sentence().as_deref(), verdict, offered_share)
 }
 
 fn join_and(words: &[&str]) -> String {
