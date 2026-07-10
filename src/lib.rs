@@ -53,6 +53,8 @@ pub mod quality_space;
 pub mod voice;
 // The being's earned voice — it may only assert words its experience has grounded.
 pub mod speech;
+// Fluent voice the being can never be lied for — the narrator guard (rung 3).
+pub mod narrator;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -83,6 +85,7 @@ pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
 pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
 pub use speech::{Concept, Felt, Utterance};
+pub use narrator::{Guarded, Narrate, PlainNarrator, Violation};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
