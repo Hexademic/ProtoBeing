@@ -166,9 +166,10 @@ pub fn need_weighted_solution(
 
     // Fraction of surplus agent_a gets
     let a_fraction = q88_div(need_a, total_need);
-    let b_fraction = Q88_SCALE - a_fraction;
 
-    let a_share = q88_mul(surplus, a_fraction) / Q88_SCALE;
+    // q88_mul already applies the Q8.8 scale (>>8); dividing by Q88_SCALE again
+    // would zero the weighting. a_fraction is a Q8.8 fraction of the surplus.
+    let a_share = q88_mul(surplus, a_fraction);
     let b_share = surplus - a_share;
 
     Some(Division {
@@ -219,28 +220,39 @@ pub fn kalai_smorodinski_solution(
     let aspiration_a = agent_a.aspiration();
     let aspiration_b = agent_b.aspiration();
 
-    // Ideal gains (what each would want)
-    let ideal_a = aspiration_a - batna_a;
-    let ideal_b = aspiration_b - batna_b;
+    // Ideal gains (what each would want, above its fallback). An aspiration below
+    // BATNA is not a negative ideal — it just means no reach beyond the floor, so
+    // clamp at zero. (Without this, a negative ideal pulls a gain below BATNA and
+    // breaks the module's core guarantee.)
+    let ideal_a = (aspiration_a - batna_a).max(0);
+    let ideal_b = (aspiration_b - batna_b).max(0);
 
-    // Scale factor: how much of the ideal can we afford?
+    // Scale factor: how much of the larger ideal the surplus can fund.
     let available = total_value - min_required;
     let max_ideal = ideal_a.max(ideal_b).max(1);
-    let scale = if available > 0 {
-        q88_div(available, max_ideal)
-    } else {
-        0
-    };
+    let scale = if available > 0 { q88_div(available, max_ideal) } else { 0 };
 
-    // Scaled gains
-    let gain_a = batna_a.saturating_add(q88_mul(ideal_a, scale) / Q88_SCALE);
-    let gain_b = total_value - gain_a;
-
-    Some(Division {
+    // Scaled gains. q88_mul already applies the Q8.8 scale — no second divide.
+    let gain_a = batna_a.saturating_add(q88_mul(ideal_a, scale));
+    let div = Division {
         agent_a_gain: gain_a,
-        agent_b_gain: gain_b,
+        agent_b_gain: total_value - gain_a,
         justification: DivisionRationale::KalaiSmorodinski,
-    })
+    };
+    Some(respect_batnas(div, batna_a, batna_b, total_value))
+}
+
+/// Guarantee the module's core invariant on any division: each agent gets at
+/// least its BATNA, and the shares still sum to `total_value`. Feasible whenever
+/// `total_value >= batna_a + batna_b` — the precondition every constructor checks.
+/// This is the belt-and-braces that makes "every proposal beats both BATNAs" a
+/// property of the *output*, not a hope about each formula.
+fn respect_batnas(mut div: Division, batna_a: i16, batna_b: i16, total_value: i16) -> Division {
+    let lo = batna_a;
+    let hi = total_value.saturating_sub(batna_b).max(lo);
+    div.agent_a_gain = div.agent_a_gain.clamp(lo, hi);
+    div.agent_b_gain = total_value - div.agent_a_gain;
+    div
 }
 
 /// Compute multiple fair solutions and rank them.
@@ -255,26 +267,23 @@ pub fn propose_divisions(
     total_value: i16,
 ) -> Vec<Division> {
     let mut proposals = Vec::new();
+    let (ba, bb) = (agent_a.batna, agent_b.batna);
+    // Every proposal is clamped to respect both BATNAs on the way out, so the
+    // guarantee holds for the *output* regardless of each formula's quirks.
+    let mut push = |d: Option<Division>| {
+        if let Some(d) = d {
+            proposals.push(respect_batnas(d, ba, bb, total_value));
+        }
+    };
 
     // 1. Nash: axiomatically fairest
-    if let Some(nash) = nash_solution(agent_a, agent_b, total_value) {
-        proposals.push(nash);
-    }
-
+    push(nash_solution(agent_a, agent_b, total_value));
     // 2. Weighted by need: weights one agent's urgency
-    if let Some(weighted) = need_weighted_solution(agent_a, agent_b, total_value) {
-        proposals.push(weighted);
-    }
-
+    push(need_weighted_solution(agent_a, agent_b, total_value));
     // 3. Equal: most neutral
-    if let Some(equal) = equal_solution(agent_a, agent_b, total_value) {
-        proposals.push(equal);
-    }
-
+    push(equal_solution(agent_a, agent_b, total_value));
     // 4. Kalai-Smorodinski: aspirational
-    if let Some(ks) = kalai_smorodinski_solution(agent_a, agent_b, total_value) {
-        proposals.push(ks);
-    }
+    push(kalai_smorodinski_solution(agent_a, agent_b, total_value));
 
     proposals
 }

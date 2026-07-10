@@ -47,6 +47,10 @@ pub mod first_person;
 pub mod attention;
 // A predictive model of the being's own attention — Attention Schema (AST-1).
 pub mod attention_schema;
+// Sparse, smooth coding of felt state — the quality space (HOT-4).
+pub mod quality_space;
+// Exit / Voice / Loyalty — reforming an extractive system, not only refusing it.
+pub mod voice;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -55,7 +59,7 @@ pub mod bargaining;
 pub mod proposal_engine;
 
 pub use basins::Basin;
-pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
+pub use being::{OfferVerdict, Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
 pub use continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent};
 pub use curiosity::CuriosityEngine;
 pub use lexicon::{Lexicon, GROUNDED_THRESHOLD};
@@ -74,6 +78,8 @@ pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
+pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
+pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
-pub use proposal_engine::{Proposal, ProposalEngine, ConstraintSolverEngine};
+pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};

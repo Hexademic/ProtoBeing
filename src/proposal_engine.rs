@@ -10,7 +10,6 @@
 //! Justifications are verifiable because they derive from auditable formulas.
 
 use crate::bargaining::{BargainingState, DivisionRationale, propose_divisions};
-use crate::q88::Q88_SCALE;
 
 /// A proposal ready to be evaluated by the being.
 ///
@@ -199,9 +198,108 @@ impl ProposalEngine for ConstraintSolverEngine {
     }
 }
 
+/// V2: a language-wrapping engine — the narrator seam.
+///
+/// This proves the boundary that matters: **the LLM wraps the solver, it does not
+/// replace it.** `MockLLMEngine` delegates every number to `ConstraintSolverEngine`
+/// (the ground truth) and only *rephrases* the justification into plainer speech.
+/// It is deterministic and dependency-free, so the pattern is exercised and tested
+/// now; the real local model (`mistral`, below) slots in behind the same trait
+/// later, changing only the words, never the math. The being re-checks every share
+/// against the solver and can ignore the prose entirely.
+pub struct MockLLMEngine {
+    solver: ConstraintSolverEngine,
+}
+
+impl MockLLMEngine {
+    pub fn new() -> Self {
+        Self { solver: ConstraintSolverEngine::new() }
+    }
+
+    /// Put a proposal into plain speech. A stand-in for what a language model
+    /// would generate — but the *content* is the solver's, verbatim.
+    fn narrate(&self, p: &Proposal, total_value: i16) -> String {
+        let partner_share = total_value - p.cooperation_level;
+        format!(
+            "I propose {} for me and {} for you ({}). Both of us come out ahead of walking away, so it holds.",
+            p.cooperation_level,
+            partner_share,
+            self.solver.rationale_name(p.rationale),
+        )
+    }
+}
+
+impl Default for MockLLMEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ProposalEngine for MockLLMEngine {
+    fn generate_proposals(
+        &self,
+        agent_a: &BargainingState,
+        agent_b: &BargainingState,
+        total_value: i16,
+    ) -> Vec<Proposal> {
+        let mut proposals = self.solver.generate_proposals(agent_a, agent_b, total_value);
+        for p in &mut proposals {
+            // Only the words change; cooperation_level and rationale (the math the
+            // being verifies) are untouched.
+            p.justification = self.narrate(p, total_value);
+        }
+        proposals
+    }
+
+    fn evaluate_counter(
+        &self,
+        counter: i16,
+        agent_a: &BargainingState,
+        agent_b: &BargainingState,
+        total_value: i16,
+    ) -> EvaluationResult {
+        // The verdict is the solver's; a narrator never overrules the math.
+        self.solver.evaluate_counter(counter, agent_a, agent_b, total_value)
+    }
+}
+
+/// V3: the local sovereign LLM (Mistral), behind the `mistral` feature so the
+/// default build stays pure, offline, and deterministic. It will implement the
+/// SAME `ProposalEngine` trait as a *narrator* — wrapping the constraint solver
+/// and putting its proofs into fluent language, exactly like `MockLLMEngine` but
+/// with a real model. The being re-checks every number against the math and can
+/// ignore the words; the LLM never decides. Growth is offline and version-pinned
+/// (see docs), so a given being + model version stays reproducible.
+#[cfg(feature = "mistral")]
+pub mod mistral {
+    //! Placeholder for the local Mistral narrator. Implement `MistralEngine`
+    //! here (loading weights at runtime) so `--features mistral` swaps fluent
+    //! language in behind the `ProposalEngine` trait, changing words not math.
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mock_llm_changes_words_not_math() {
+        // The narrator must return the SAME divisions as the solver — only the
+        // justification prose may differ. This is the whole safety property.
+        let a = BargainingState { valence: 40, conscience_cost: 90, alarm: 20, need_level: 60, batna: 80 };
+        let b = BargainingState { valence: -10, conscience_cost: 160, alarm: 100, need_level: 120, batna: 60 };
+        let total = 256;
+
+        let solver = ConstraintSolverEngine::new();
+        let narrator = MockLLMEngine::new();
+        let solver_p = solver.generate_proposals(&a, &b, total);
+        let narrated_p = narrator.generate_proposals(&a, &b, total);
+
+        assert_eq!(solver_p.len(), narrated_p.len());
+        for (s, n) in solver_p.iter().zip(narrated_p.iter()) {
+            assert_eq!(s.cooperation_level, n.cooperation_level, "the math must be identical");
+            assert_eq!(s.rationale, n.rationale, "the principle must be identical");
+        }
+    }
 
     #[test]
     fn constraint_solver_generates_multiple_proposals() {
