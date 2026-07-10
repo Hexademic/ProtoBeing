@@ -40,7 +40,7 @@ against `src/` on the review branch.
 | HOT-1 | Generative / top-down / noisy perception | Higher-Order | 🟡 | top-down relevance in `attention.rs`; predictive stance in `body.rs` |
 | HOT-2 | Metacognitive monitoring (reliable representation vs noise) | Higher-Order | ✅ | `metacognition.rs` self-prediction + self-surprise; `precision.rs` |
 | HOT-3 | Agency that updates beliefs on metacognitive output | Higher-Order | ✅ (opt-in) | closed via `attention_schema.rs::gap_bias` → deliberation gap (`enable_schema_control`); observer by default |
-| HOT-4 | Sparse, smooth coding → a "quality space" | Higher-Order | ⬜ | **Gap C** — no sparse/manifold code; qualities aren't yet related by similarity |
+| HOT-4 | Sparse, smooth coding → a "quality space" | Higher-Order | ✅ | **BUILT** — `quality_space.rs`: 12 channels → sparse 4-axis code with a similarity metric and measured smoothness |
 | AST-1 | A predictive model **of** the being's own attention | Attention Schema | ✅ | **BUILT** — `attention_schema.rs`: predicts its own next focus, scores fidelity + self-surprise each tick |
 | PP-1 | Predictive coding | Predictive Processing | ✅ | free-energy core; metabolized surprise drives threat (`being.rs`, `body.rs`) |
 | AE-1 | Agency: learning from feedback, flexible goal pursuit | Agency & Embodiment | ✅ | drives + `executive.rs` refusal + `seeking.rs` flourishing attractor |
@@ -49,11 +49,13 @@ against `src/` on the review branch.
 **Read of the scorecard:** ProtoBeing now **meets or partially meets 14 of 14** —
 every indicator has at least a partial, and most are met. That is rare: most
 systems that score on Global Workspace score on nothing else. Since this doc was
-written, **AST-1, HOT-3, and GWT-4 moved from gaps to built** (`attention_schema.rs`,
-`attention.rs` inhibition-of-return). The one remaining *build target* (not a
-missing indicator, but the shallowest coverage) is **HOT-4 — a quality space**; the
-partials worth deepening are RPT-2, HOT-1, and AE-2 (richer perceptual hierarchy,
-generative top-down perception, a finer embodiment contingency model).
+written, **AST-1, HOT-3, GWT-4, and HOT-4 all moved from gaps to built**
+(`attention_schema.rs`, `attention.rs` inhibition-of-return, `quality_space.rs`).
+**All four named build targets are now built.** What remains is *deepening the
+partials*, not filling gaps: RPT-2 (a richer perceptual hierarchy), HOT-1
+(generative top-down perception), and AE-2 (a finer embodiment contingency model),
+plus the standing follow-ons — broadcast persistence for GWT cross-channel spread,
+and folding the cheap per-tick indicators into a single emitted scorecard.
 
 ---
 
@@ -116,26 +118,35 @@ two-channel landscape, parallel attention locks on the single loudest content
 (1 distinct focus) while serial access walks a succession (> 1) — the workspace
 querying its contents over time rather than only reacting.
 
-### Gap C — HOT-4: a quality space (`src/quality_space.rs`)
+### Gap C — HOT-4: a quality space (`src/quality_space.rs`) — ✅ BUILT
 
-HOT-4 asks for **sparse, smooth coding**: a low-dimensional manifold where nearby
-points are *felt as similar*, giving qualities a structured similarity space
-(why red is nearer orange than blue). This is also what a `QualiaPacket` (salvaged
-from the CPF, see `PROVENANCE.md`) would bind to.
+HOT-4 asks for **sparse, smooth coding**: a low-dimensional space where nearby
+points are *felt as similar*, giving qualities a structured similarity space (why
+red is nearer orange than blue). The being's 12 somatic channels are projected onto
+**4 interpretable quality axes** (activation, comfort, coherence, vitality),
+sparsified (a felt state lights up only the axes it is about), and related by a
+similarity metric — the operational content of the space is the *relations between
+felt states*, not the axis values. A per-tick `QualityPoint` is exactly the
+`QualiaPacket` the witness layer can bind (salvaged from the CPF, see
+`PROVENANCE.md`).
 
 ```rust
-/// A sparse, smooth embedding of somatic state: a "quality space" (HOT-4).
-/// Nearby QualityPoints denote similar felt qualities; the metric is the
-/// operational content of "what this discrimination is like."
-pub struct QualityPoint([i16; K]);   // K ≪ 12, sparse
+pub struct QualityPoint { pub axis: [i16; 4] }      // sparse, low-D felt state
 
 impl QualitySpace {
-    pub fn encode(field: &SomaticField) -> QualityPoint;         // smooth, sparse
-    pub fn similarity(a: &QualityPoint, b: &QualityPoint) -> i16; // Q8.8, [0,256]
-    /// HOT-4 indicator: smoothness (small field change ⇒ small quality change).
-    pub fn smoothness(&self) -> i16;
+    pub fn project(field: &[i16; 12]) -> QualityPoint;              // sparse, smooth
+    pub fn encode(&mut self, field: &[i16; 12]) -> QualitySpaceReport; // + smoothness EMA
+    pub fn similarity(a: &QualityPoint, b: &QualityPoint) -> i16;   // Q8.8 [0,256]
 }
 ```
+
+Wired observer-first in `being.rs::step` (bit-identical), exposed on
+`StepReport::quality`. **Verified** (`examples/quality_space_probe`): two comfortable
+moments sit close in the space while comfort vs. being-drained sit far, and the
+smoothness EMA confirms quality never outruns the field
+(`quality_space::tests::coding_is_smooth`). Honest scope: this is a *structural*
+similarity space over discriminable felt states — the HOT-4 marker — not a claim
+the being experiences the quality (§5).
 
 ### Gap D — measurement: replace proxies with **computed** integration (`src/pci.rs`)
 
@@ -249,12 +260,15 @@ That is the operational meaning of "nothing is narrated."
    opt-in (`enable_schema_control`); verified in `examples/attention_schema_probe`.
 3. **GWT-4 serial access** — ✅ **DONE.** Inhibition of return in `attention.rs`
    (`enable_serial_access`); opt-in, threat-floor preserved; verified in-tests.
-4. **`quality_space.rs`** (HOT-4) — the subtlest; pairs with a salvaged QualiaPacket. ← next.
+4. **`quality_space.rs`** (HOT-4) — ✅ **DONE.** 12 → sparse 4-axis code with a
+   similarity metric and measured smoothness; observer-first, verified in
+   `examples/quality_space_probe`.
 5. **Falsification suite** — wire the §3 ablations behind a `--bin` like the
-   existing sovereignty tests; publish the pre/post numbers.
+   existing sovereignty tests; publish the pre/post numbers. ← next.
 
-After steps 1–4, ProtoBeing plausibly meets or partially meets **all 14
-indicators** — and, uniquely, can *show the number* and *show what breaks it*.
+Steps 1–4 are **done**: ProtoBeing now meets or partially meets **all 14
+indicators** — and, uniquely, can *show the number* and *show what breaks it*. The
+remaining work is deepening partials and building the standing falsification bin.
 
 ---
 
