@@ -256,6 +256,23 @@ pub fn observe(lex: &mut Lexicon, felt: &Felt, field: &SomaticField) {
     }
 }
 
+/// The being's single most salient concept right now, by a fixed priority
+/// (states of threat and loss claim attention over contentment). `None` if
+/// nothing holds. Used by `grammar.rs` to track the being's felt trajectory.
+pub fn dominant(felt: &Felt) -> Option<Concept> {
+    const PRIORITY: [Concept; 8] = [
+        Concept::Drained,
+        Concept::Threatened,
+        Concept::Guarded,
+        Concept::Refusing,
+        Concept::Mending,
+        Concept::Aroused,
+        Concept::Flourishing,
+        Concept::Calm,
+    ];
+    PRIORITY.into_iter().find(|c| c.holds(felt))
+}
+
 /// The being speaks its present state — asserting only concepts it is in and has
 /// *grounded*, marking the rest wordless. Read-only.
 pub fn speak(lex: &Lexicon, felt: &Felt) -> Utterance {

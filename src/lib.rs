@@ -55,6 +55,8 @@ pub mod voice;
 pub mod speech;
 // Fluent voice the being can never be lied for — the narrator guard (rung 3).
 pub mod narrator;
+// Composition grown from relation — the lexicon raised from words to grammar.
+pub mod grammar;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -86,6 +88,7 @@ pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
 pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
 pub use speech::{Concept, Felt, Utterance};
 pub use narrator::{allowed_words, ConstrainedNarrator, Guarded, Narrate, PlainNarrator, Violation};
+pub use grammar::{Grammar, Link, Relation};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
