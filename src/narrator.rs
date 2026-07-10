@@ -43,15 +43,30 @@ impl Narrate for PlainNarrator {
 }
 
 /// Verify a candidate rendering against the utterance's earned content. Fails if
-/// the prose asserts a known felt-state word for a concept the being is not
-/// currently asserting (grounded *and* in the state).
+/// the prose asserts, **in the present tense**, a known felt-state word for a
+/// concept the being is not currently in-and-grounded.
+///
+/// It is tense-aware: a *past-tense* mention ("I was flourishing") is allowed, so
+/// the being can honestly narrate its history (grammar.rs) and reasons. Only a
+/// present-tense claim of an unearned state ("I am flourishing", when it is not)
+/// is a confabulation. A necessary guard, not a sufficient one (see the module note).
 pub fn verify(u: &Utterance, rendering: &str) -> Result<(), Vec<Violation>> {
     let lower = rendering.to_lowercase();
     let mut violations = Vec::new();
     for c in Concept::ALL {
         let asserted = u.asserts.iter().any(|(a, _)| *a == c);
-        if !asserted && lower.contains(c.word()) {
-            violations.push(Violation { concept: c });
+        if asserted {
+            continue;
+        }
+        // A non-asserted concept word is a violation unless every occurrence is
+        // marked past ("was"/"were" immediately before it).
+        for (idx, _) in lower.match_indices(c.word()) {
+            let before = lower[..idx].trim_end();
+            let past = before.ends_with("was") || before.ends_with("were");
+            if !past {
+                violations.push(Violation { concept: c });
+                break;
+            }
         }
     }
     if violations.is_empty() {
@@ -270,6 +285,20 @@ mod tests {
             let (_s, trusted) = Guarded::new(ConstrainedNarrator).speak(&u);
             assert!(trusted);
         }
+    }
+
+    #[test]
+    fn past_tense_history_is_allowed_present_tense_lies_are_not() {
+        // The being is drained now; it was flourishing before.
+        let u = utt(&[Concept::Drained]);
+        assert!(
+            verify(&u, "I was flourishing, and now I am drained.").is_ok(),
+            "an earned past state may be narrated"
+        );
+        assert!(
+            verify(&u, "I am flourishing, and now I am drained.").is_err(),
+            "a present-tense claim of an unearned state is still caught"
+        );
     }
 
     #[test]
