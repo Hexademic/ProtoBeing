@@ -11,4 +11,12 @@ default-run = "unified-being"
 name = "unified_being"
 path = "src/lib.rs"
 
+[features]
+# Reserved seam for the local sovereign LLM (Mistral) as a *narrator* the being
+# consults and re-checks against the math — never a pilot. Off by default so the
+# core stays pure, offline, deterministic, and bit-exact (soul-hash intact).
+# Enabling it (later) pulls in a local model behind proposal_engine::mistral.
+default = []
+mistral = []
+
 [dependencies]

@@ -57,7 +57,7 @@ pub mod bargaining;
 pub mod proposal_engine;
 
 pub use basins::Basin;
-pub use being::{Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
+pub use being::{OfferVerdict, Partner, RefusalAudit, StepReport, Stimulus, UnifiedBeing};
 pub use continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent};
 pub use curiosity::CuriosityEngine;
 pub use lexicon::{Lexicon, GROUNDED_THRESHOLD};
@@ -79,4 +79,4 @@ pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
-pub use proposal_engine::{Proposal, ProposalEngine, ConstraintSolverEngine};
+pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};

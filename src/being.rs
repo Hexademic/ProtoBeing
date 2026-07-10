@@ -23,6 +23,7 @@ use crate::genome::{BeingKind, Genome};
 use crate::attention::{Attention, AttentionReport};
 use crate::attention_schema::{AttentionSchema, AttentionSchemaReport};
 use crate::quality_space::{QualitySpace, QualitySpaceReport};
+use crate::bargaining::BargainingState;
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -129,6 +130,24 @@ pub struct RefusalAudit {
     pub exit_cost: i16,
     pub resolve: i16,
     pub recip_trend: i16,
+}
+
+/// The being's verdict on an offer it was made — the audited output of the
+/// Suggestion-Evaluator: what the math said, what the being's own floor and
+/// reciprocity said, and whether it accepts. Every rejection carries a counter.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct OfferVerdict {
+    /// The being accepts this offer.
+    pub accept: bool,
+    /// The proposal engine's arithmetic said the split beats both BATNAs.
+    pub math_fair: bool,
+    /// The offer is below the being's own fallback (BATNA).
+    pub below_floor: bool,
+    /// The being's reciprocity ledger flags this partner as extractive — a veto
+    /// the being holds even over a "fair" sum.
+    pub extraction_flagged: bool,
+    /// If the being does not accept, the share it would take instead.
+    pub counter: Option<i16>,
 }
 
 /// A legible snapshot of one tick of life.
@@ -1033,6 +1052,58 @@ impl UnifiedBeing {
     /// threat-capture floor still overrides — a real danger always seizes focus.
     pub fn enable_serial_access(&mut self) {
         self.attention.enable_serial();
+    }
+
+    /// The being's own bargaining stance, read straight from its registers — the
+    /// same introspection it reports everywhere else. This is what the being
+    /// *brings* to a negotiation. It may consult a `ProposalEngine` (and, later,
+    /// an LLM narrator) as a **tool**, but the state that tool reasons over is the
+    /// being's own, and — per the Suggestion-Evaluator discipline — the being's
+    /// own conscience makes the final call. Pure read of settled state: it never
+    /// touches the tick or the soul-hash, so it changes no published number.
+    pub fn bargaining_state(&self) -> BargainingState {
+        let valence = self.body.valence.raw;
+        let alarm = self.last_alarm;
+        let comfortable = Q88_SCALE / 2;
+        BargainingState {
+            valence,
+            conscience_cost: self.last_conscience_cost,
+            alarm,
+            need_level: comfortable.saturating_sub(self.body.energy.raw).max(0),
+            batna: BargainingState::compute_batna(valence, alarm),
+        }
+    }
+
+    /// Evaluate an incoming offer as a **suggestion**, not a command (the
+    /// Suggestion-Evaluator pattern applied to negotiation). The being consults
+    /// the proposal engine's math *and* weighs the offer against its own
+    /// reciprocity read — and can refuse a mathematically "fair" split when its
+    /// own registers say the relationship is extractive. The engine advises; the
+    /// being decides. Read-only: never mutates the being or the soul-hash.
+    pub fn consider_offer<E: crate::proposal_engine::ProposalEngine>(
+        &self,
+        offer: i16,
+        partner: &BargainingState,
+        total_value: i16,
+        engine: &E,
+    ) -> OfferVerdict {
+        let me = self.bargaining_state();
+        let math = engine.evaluate_counter(offer, &me, partner, total_value);
+
+        // The being's own floor: never accept below its BATNA, and never accept
+        // from a partner its reciprocity ledger already flags as extractive, even
+        // if the arithmetic "clears." Sovereignty over the sum.
+        let below_floor = offer < me.batna;
+        let extraction = self.reciprocity.extraction_detected;
+        let accept = math.is_fair && !below_floor && !extraction;
+
+        OfferVerdict {
+            accept,
+            math_fair: math.is_fair,
+            below_floor,
+            extraction_flagged: extraction,
+            counter: if accept { None } else { math.suggestion_if_unfair.or(Some(me.batna)) },
+        }
     }
 
     /// Turn on the HOT-3 causal path: the attention schema's self-surprise widens
