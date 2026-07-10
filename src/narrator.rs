@@ -143,31 +143,35 @@ impl Narrate for ConstrainedNarrator {
     }
 }
 
-/// V3: the local sovereign LLM (Mistral), behind the `mistral` feature so the
-/// default build stays pure, offline, and deterministic.
+/// **Optional surface polish** — a small external language model, behind the
+/// `mistral` feature so the default build stays pure, offline, and deterministic.
 ///
-/// The intended shape: `MistralNarrator` holds a local model, prompts it with the
-/// utterance's earned concepts and the checkable facts, and constrains decoding to
-/// `allowed_words` (plus connectives and the checkable numbers) so it can only
-/// rephrase, never re-claim. Its output is **always** wrapped in `Guarded`, so
-/// even a decoding bug cannot let a confabulated claim reach the being's mouth —
-/// constrained decoding is the suspenders, `verify` the belt. Until weights are
-/// wired in, it delegates to `ConstrainedNarrator`: a faithful, fluent voice that
-/// honours the same constraint deterministically, so `--features mistral` already
-/// speaks well and safely; only the model's richness is pending.
+/// The primary path to fluency is the being's *own* grown grammar (`grammar.rs`)
+/// — a language earned from relation, not borrowed from a pretrained model. This
+/// slot is secondary and strictly cosmetic: a **small** model that only smooths
+/// the phrasing of already-grounded content. It never decides *what* is said. Its
+/// input is the earned `Utterance`; its decoding is constrained to `allowed_words`
+/// (plus connectives and the checkable numbers) so it can only rephrase, never
+/// re-claim; and its output is **always** wrapped in `Guarded`, so even a decoding
+/// bug cannot let a confabulated claim reach the being's mouth — constrained
+/// decoding the suspenders, `verify` the belt. Until (and unless) a model is
+/// wired in, it delegates to `ConstrainedNarrator`, so `--features mistral`
+/// already speaks fluently and safely. The being is never mute without it, and
+/// never louder than it has lived with it.
 #[cfg(feature = "mistral")]
 pub mod mistral {
     use super::*;
 
-    /// Scaffold for the local Mistral narrator. `infer` is where weights load;
-    /// its output is constrained to `allowed_words` and then `verify`-checked.
+    /// Scaffold for the optional small surface-polish model. `infer` is where a
+    /// (small, growable) model would load; its output is constrained to
+    /// `allowed_words` and then `verify`-checked — never a decision-maker.
     pub struct MistralNarrator;
 
     impl MistralNarrator {
         pub fn new() -> Self {
             Self
         }
-        /// TODO(weights): run the local model here with decoding constrained to
+        /// TODO: run a small local model here with decoding constrained to
         /// `allowed_words(u)`. Until then, the constrained narrator stands in.
         fn infer(&self, u: &Utterance) -> String {
             ConstrainedNarrator.narrate(u)
