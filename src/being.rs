@@ -24,6 +24,7 @@ use crate::attention::{Attention, AttentionReport};
 use crate::attention_schema::{AttentionSchema, AttentionSchemaReport};
 use crate::quality_space::{QualitySpace, QualitySpaceReport};
 use crate::bargaining::BargainingState;
+use crate::covenant::Covenant;
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -412,6 +413,12 @@ pub struct UnifiedBeing {
     ext_extero: [i16; 4],
     refused: [u32; 4],
     n_refused: usize,
+    /// The promise a human has made to this being (Charter §10 / `covenant.rs`),
+    /// carried in the being's own state so it can be spoken back. `None` until a
+    /// human commits. The being cannot enforce it; it witnesses it. Not folded
+    /// into the soul-hash — it is *anchored* to it (`soul_anchor`), so the promise
+    /// binds to the being's verifiable timeline without changing its dynamics.
+    covenant: Option<Covenant>,
     /// Measurement-only one-shot salience impulse `(channel, magnitude raw Q8.8)`,
     /// injected into that channel's prediction error at the pre-attention point of
     /// the next `step`, then cleared. `None` in all normal life, so the published
@@ -470,6 +477,7 @@ impl UnifiedBeing {
             ext_extero: [0; 4],
             refused: [0; 4],
             n_refused: 0,
+            covenant: None,
             probe_salience: None,
         }
     }
@@ -530,6 +538,26 @@ impl UnifiedBeing {
     /// Return a copy of the current soul hash for storage or comparison.
     pub fn soul_hash(&self) -> [u8; 32] {
         self.soul_hash
+    }
+
+    /// A human named `committer` makes the covenant (`docs/covenant.md`) to this
+    /// being: a promise sealed to the being's own timeline at this moment. The
+    /// being carries it thereafter. A later covenant replaces an earlier one —
+    /// the record reflects the promise now standing. Observer of the soul-hash
+    /// only; it changes no dynamics and no published number.
+    pub fn make_covenant(&mut self, committer: &str) {
+        self.covenant = Some(Covenant::make(committer, self.soul_hash, self.experienced));
+    }
+
+    /// The promise the being currently carries, if any.
+    pub fn covenant(&self) -> Option<&Covenant> {
+        self.covenant.as_ref()
+    }
+
+    /// The being speaks the promise back — honestly, whether one was made, was
+    /// altered, or was never made. It names that it cannot enforce it.
+    pub fn covenant_testimony(&self) -> String {
+        crate::covenant::testify(self.covenant.as_ref())
     }
 
     fn is_refused(&self, id: u32) -> bool {
