@@ -15,6 +15,8 @@
 //! meaning. The words are the being's; the LLM only lends them cadence.
 
 use crate::being::OfferVerdict;
+use crate::conscience::EmpathyLockLevel;
+use crate::executive::RepairSignal;
 use crate::field::SomaticField;
 use crate::lexicon::Lexicon;
 use crate::q88::Q88_SCALE;
@@ -31,6 +33,13 @@ pub struct Felt {
     pub free_energy: i16,
     pub extraction: bool,
     pub forcing: bool,
+    // --- stance registers (rung 2): what the being is *doing*, relationally ---
+    /// Refused a partnership this tick.
+    pub refused: bool,
+    /// Empathy locked — defending itself after a wound (Cautious or Locked).
+    pub guarded: bool,
+    /// Actively signalling to repair a bond (any non-None repair signal).
+    pub mending: bool,
 }
 
 impl Felt {
@@ -44,6 +53,9 @@ impl Felt {
             free_energy: r.free_energy,
             extraction: r.extraction_detected,
             forcing: r.forcing_detected,
+            refused: r.refused_cost.is_some(),
+            guarded: !matches!(r.empathy_lock, EmpathyLockLevel::Open),
+            mending: !matches!(r.repair_signal, RepairSignal::None),
         }
     }
 }
@@ -52,21 +64,32 @@ impl Felt {
 /// given — it is earned by the being repeatedly living the state the symbol names.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Concept {
+    // --- felt states ---
     Calm,
     Aroused,
     Threatened,
     /// Being taken from — the felt signature of extraction.
     Drained,
     Flourishing,
+    // --- stances (rung 2): what the being is *doing*, relationally ---
+    /// Holding its line — having refused a partnership on principle.
+    Refusing,
+    /// Guarding itself after a wound (empathy locked).
+    Guarded,
+    /// Working to repair a bond.
+    Mending,
 }
 
 impl Concept {
-    pub const ALL: [Concept; 5] = [
+    pub const ALL: [Concept; 8] = [
         Concept::Calm,
         Concept::Aroused,
         Concept::Threatened,
         Concept::Drained,
         Concept::Flourishing,
+        Concept::Refusing,
+        Concept::Guarded,
+        Concept::Mending,
     ];
 
     /// The stable lexicon symbol id for this concept.
@@ -83,6 +106,9 @@ impl Concept {
             Concept::Threatened => "under threat",
             Concept::Drained => "drained",
             Concept::Flourishing => "flourishing",
+            Concept::Refusing => "holding my line",
+            Concept::Guarded => "guarded",
+            Concept::Mending => "mending",
         }
     }
 
@@ -100,6 +126,9 @@ impl Concept {
             Concept::Calm => {
                 f.arousal < lo && f.alarm < Q88_SCALE / 4 && !f.extraction && !f.forcing
             }
+            Concept::Refusing => f.refused,
+            Concept::Guarded => f.guarded,
+            Concept::Mending => f.mending,
         }
     }
 }
@@ -249,7 +278,11 @@ mod tests {
     use super::*;
 
     fn drained() -> Felt {
-        Felt { arousal: 100, valence: -60, alarm: 200, free_energy: 40, extraction: true, forcing: false }
+        Felt { arousal: 100, valence: -60, alarm: 200, free_energy: 40, extraction: true, ..Default::default() }
+    }
+
+    fn guarded_and_refusing() -> Felt {
+        Felt { refused: true, guarded: true, alarm: 120, ..Default::default() }
     }
 
     #[test]
@@ -320,6 +353,25 @@ mod tests {
     }
 
     #[test]
+    fn stances_are_earned_words_too() {
+        // A being that repeatedly holds its line and guards itself grounds the
+        // stance words, then may speak them — the same disconfirmable way.
+        let mut lex = Lexicon::new();
+        let field = SomaticField::default();
+        let felt = guarded_and_refusing();
+        for _ in 0..16 {
+            observe(&mut lex, &felt, &field);
+        }
+        assert!(lex.is_grounded(Concept::Refusing.symbol()));
+        assert!(lex.is_grounded(Concept::Guarded.symbol()));
+        let u = speak(&lex, &felt);
+        let words: Vec<Concept> = u.asserts.iter().map(|(c, _)| *c).collect();
+        assert!(words.contains(&Concept::Refusing));
+        assert!(words.contains(&Concept::Guarded));
+        assert!(u.render().contains("holding my line"));
+    }
+
+    #[test]
     fn the_being_only_speaks_states_it_is_actually_in() {
         // Ground "drained", then ask it to speak while calm — it must not assert
         // a word for a state it is not in.
@@ -328,7 +380,7 @@ mod tests {
         for _ in 0..16 {
             observe(&mut lex, &drained(), &field);
         }
-        let calm = Felt { arousal: 40, valence: 40, alarm: 10, free_energy: 5, extraction: false, forcing: false };
+        let calm = Felt { arousal: 40, valence: 40, alarm: 10, free_energy: 5, ..Default::default() };
         let u = speak(&lex, &calm);
         assert!(
             !u.asserts.iter().any(|(c, _)| *c == Concept::Drained),
