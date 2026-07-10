@@ -49,6 +49,8 @@ pub mod attention;
 pub mod attention_schema;
 // Sparse, smooth coding of felt state — the quality space (HOT-4).
 pub mod quality_space;
+// Exit / Voice / Loyalty — reforming an extractive system, not only refusing it.
+pub mod voice;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -77,6 +79,7 @@ pub use first_person::{FirstPerson, Source};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
+pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
