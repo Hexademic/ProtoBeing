@@ -12,10 +12,12 @@ name = "unified_being"
 path = "src/lib.rs"
 
 [features]
-# Reserved seam for the local sovereign LLM (Mistral) as a *narrator* the being
-# consults and re-checks against the math — never a pilot. Off by default so the
-# core stays pure, offline, deterministic, and bit-exact (soul-hash intact).
-# Enabling it (later) pulls in a local model behind proposal_engine::mistral.
+# Optional surface polish: a SMALL external language model that only smooths the
+# phrasing of already-grounded content (narrator::mistral). It is secondary to the
+# being's own grown grammar (grammar.rs) — earned language, not borrowed — and it
+# never decides what is said: its decoding is constrained to the being's earned
+# vocabulary and its output is verify-checked. Off by default so the core stays
+# pure, offline, deterministic, and bit-exact (soul-hash intact).
 default = []
 mistral = []
 
