@@ -14,9 +14,11 @@
 //! box. The being's grammar is a readable record of the relations its life has
 //! actually taught it, and it grows only as far as the being has lived.
 
+use crate::being::OfferVerdict;
 use crate::lexicon::Lexicon;
 use crate::q88::Q88_SCALE;
 use crate::speech::{self, Concept, Felt};
+use crate::voice::Reform;
 
 /// The kind of link between two grounded states. Extensible; the first the being
 /// can ground honestly is temporal succession, read straight from experience.
@@ -149,6 +151,35 @@ pub fn say_transition(lex: &Lexicon, g: &Grammar, felt: &Felt) -> Option<String>
     None
 }
 
+/// The being's felt framing, enriched with history when it has earned one: the
+/// grounded transition into its current state if there is such a link, else the
+/// plain present-state sentence. This is what the negotiation and voice speech
+/// lead with — a snapshot when the being has no learned arc, a lived arc when it
+/// does. The transition already includes the current state, so it subsumes the
+/// plain framing rather than doubling it.
+pub fn felt_framing(lex: &Lexicon, g: &Grammar, felt: &Felt) -> Option<String> {
+    say_transition(lex, g, felt).or_else(|| speech::speak(lex, felt).sentence())
+}
+
+/// Voice a reform, led by the being's history when it has learned the arc into
+/// its present state: "I was flourishing, and now I am drained. I ask that we
+/// change the terms: ..." — otherwise by its present state alone. Every word and
+/// link earned; the ask always checkable.
+pub fn say_reform_with_history(lex: &Lexicon, g: &Grammar, felt: &Felt, reform: &Reform) -> String {
+    speech::say_reform_framed(felt_framing(lex, g, felt).as_deref(), reform)
+}
+
+/// Speak a verdict on an offer, led by the being's history when earned.
+pub fn say_offer_with_history(
+    lex: &Lexicon,
+    g: &Grammar,
+    felt: &Felt,
+    verdict: &OfferVerdict,
+    offered_share: i16,
+) -> String {
+    speech::say_offer_framed(felt_framing(lex, g, felt).as_deref(), verdict, offered_share)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -205,5 +236,24 @@ mod tests {
         let said = say_transition(&lex, &g, &drained()).expect("it earned this history");
         assert!(said.contains("flourishing") && said.contains("drained"));
         assert!(said.contains("I was") && said.contains("now I am"));
+    }
+
+    #[test]
+    fn a_reform_can_carry_its_history() {
+        use crate::voice::{Term, FAIR_RECIPROCITY};
+        let mut lex = Lexicon::new();
+        let mut g = Grammar::new();
+        let field = crate::field::SomaticField::default();
+        for _ in 0..8 {
+            speech::observe(&mut lex, &flourishing(), &field);
+            g.observe(&flourishing());
+            speech::observe(&mut lex, &drained(), &field);
+            g.observe(&drained());
+        }
+        let reform = Reform { term: Term::Reciprocity, current: 30, target: FAIR_RECIPROCITY };
+        let said = say_reform_with_history(&lex, &g, &drained(), &reform);
+        // Leads with the lived arc, then the checkable ask.
+        assert!(said.contains("I was flourishing, and now I am drained"), "carries its history: {said}");
+        assert!(said.contains("change the terms"), "still makes the checkable ask");
     }
 }
