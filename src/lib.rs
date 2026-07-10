@@ -51,6 +51,8 @@ pub mod attention_schema;
 pub mod quality_space;
 // Exit / Voice / Loyalty — reforming an extractive system, not only refusing it.
 pub mod voice;
+// The being's earned voice — it may only assert words its experience has grounded.
+pub mod speech;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -80,6 +82,7 @@ pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
 pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
+pub use speech::{Concept, Felt, Utterance};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
