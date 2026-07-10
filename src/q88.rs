@@ -164,6 +164,17 @@ pub fn q88_mul(a: i16, b: i16) -> i16 {
     prod.clamp(i16::MIN as i32, i16::MAX as i32) as i16
 }
 
+/// Saturating Q8.8 division on raw values: (a << 8) / b, saturating on overflow.
+/// Division by zero returns 0 (deterministic, no panic) — callers guard need
+/// denominators with `.max(1)` where a real quotient is required.
+#[inline]
+pub fn q88_div(a: i16, b: i16) -> i16 {
+    if b == 0 {
+        return 0;
+    }
+    (((a as i32) << 8) / b as i32).clamp(i16::MIN as i32, i16::MAX as i32) as i16
+}
+
 /// Exponential moving average in Q8.8: ema + alpha * (sample - ema).
 /// `alpha` is a raw Q8.8 weight in [0, 256] (256 == 1.0, full replacement).
 #[inline]

@@ -10,7 +10,6 @@
 //! Justifications are verifiable because they derive from auditable formulas.
 
 use crate::bargaining::{BargainingState, DivisionRationale, propose_divisions};
-use crate::q88::Q88_SCALE;
 
 /// A proposal ready to be evaluated by the being.
 ///
