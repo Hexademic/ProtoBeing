@@ -85,7 +85,7 @@ pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
 pub use voice::{Reform, SystemStance, Term, FAIR_RECIPROCITY};
 pub use speech::{Concept, Felt, Utterance};
-pub use narrator::{Guarded, Narrate, PlainNarrator, Violation};
+pub use narrator::{allowed_words, ConstrainedNarrator, Guarded, Narrate, PlainNarrator, Violation};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};

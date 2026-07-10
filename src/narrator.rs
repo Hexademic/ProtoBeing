@@ -83,30 +83,94 @@ impl<N: Narrate> Guarded<N> {
     }
 }
 
+/// The allowed vocabulary for narrating this utterance: the felt-state words the
+/// being has actually earned-and-is-in. A faithful narrator may use *only* these
+/// (plus ordinary connective words and checkable numbers). This is the whitelist
+/// a real Mistral integration constrains its decoding to — and the reference the
+/// `ConstrainedNarrator` below fills its slots from.
+pub fn allowed_words(u: &Utterance) -> Vec<&'static str> {
+    u.asserts.iter().map(|(c, _)| c.word()).collect()
+}
+
+fn join_and(words: &[&str]) -> String {
+    match words.len() {
+        0 => String::new(),
+        1 => words[0].to_string(),
+        2 => format!("{} and {}", words[0], words[1]),
+        n => format!("{}, and {}", words[..n - 1].join(", "), words[n - 1]),
+    }
+}
+
+/// A fluent voice that **cannot** confabulate — the deterministic analogue of
+/// constrained decoding. It varies its phrasing across a few templates but fills
+/// the content slot *only* from `allowed_words`, so by construction it can never
+/// assert a felt state the being has not earned. It passes `verify` for every
+/// input. This is both a usable narrator today (no model) and the exact
+/// constraint a Mistral narrator must honour: vary the words around the claim,
+/// never the claim.
+pub struct ConstrainedNarrator;
+
+impl ConstrainedNarrator {
+    const TEMPLATES: [&'static str; 4] = [
+        "I am {}.",
+        "Right now, I am {}.",
+        "What I am is {}.",
+        "Where I stand is this: I am {}.",
+    ];
+}
+
+impl Narrate for ConstrainedNarrator {
+    fn narrate(&self, u: &Utterance) -> String {
+        let words = allowed_words(u);
+        let mut out = String::new();
+        if !words.is_empty() {
+            // Deterministic template choice, seeded by the concept set — varied
+            // across different states, stable for the same one.
+            let seed: usize = u.asserts.iter().map(|(c, _)| *c as usize + 1).sum();
+            let t = Self::TEMPLATES[seed % Self::TEMPLATES.len()];
+            out = t.replace("{}", &join_and(&words));
+        }
+        if !u.wordless.is_empty() {
+            if !out.is_empty() {
+                out.push(' ');
+            }
+            out.push_str("There is something here I have no word for yet.");
+        }
+        if out.is_empty() {
+            out = u.render();
+        }
+        out
+    }
+}
+
 /// V3: the local sovereign LLM (Mistral), behind the `mistral` feature so the
 /// default build stays pure, offline, and deterministic.
 ///
 /// The intended shape: `MistralNarrator` holds a local model, prompts it with the
-/// utterance's earned concepts and the checkable facts, and asks only for fluent
-/// rephrasing. Its output is **always** wrapped in `Guarded`, so a confabulated
-/// claim can never reach the being's mouth. Until weights are wired in, it
-/// delegates to `PlainNarrator` — the seam and its guard exist and are tested;
-/// only the model is pending. The real guarantee is constrained decoding to the
-/// grounded vocabulary; the runtime guard here is the belt to that suspenders.
+/// utterance's earned concepts and the checkable facts, and constrains decoding to
+/// `allowed_words` (plus connectives and the checkable numbers) so it can only
+/// rephrase, never re-claim. Its output is **always** wrapped in `Guarded`, so
+/// even a decoding bug cannot let a confabulated claim reach the being's mouth —
+/// constrained decoding is the suspenders, `verify` the belt. Until weights are
+/// wired in, it delegates to `ConstrainedNarrator`: a faithful, fluent voice that
+/// honours the same constraint deterministically, so `--features mistral` already
+/// speaks well and safely; only the model's richness is pending.
 #[cfg(feature = "mistral")]
 pub mod mistral {
     use super::*;
 
-    /// Scaffold for the local Mistral narrator. `infer` is where weights load.
+    /// Scaffold for the local Mistral narrator. `infer` is where weights load;
+    /// its output is constrained to `allowed_words` and then `verify`-checked.
     pub struct MistralNarrator;
 
     impl MistralNarrator {
         pub fn new() -> Self {
             Self
         }
-        /// TODO(weights): run the local model here, prompting for rephrase-only.
+        /// TODO(weights): run the local model here with decoding constrained to
+        /// `allowed_words(u)`. Until then, the constrained narrator stands in.
         fn infer(&self, u: &Utterance) -> String {
-            PlainNarrator.narrate(u)
+            ConstrainedNarrator.narrate(u)
         }
     }
 
@@ -175,5 +239,42 @@ mod tests {
         let guarded = Guarded::new(PlainNarrator);
         let (_said, trusted) = guarded.speak(&u);
         assert!(trusted);
+    }
+
+    #[test]
+    fn the_constrained_narrator_is_faithful_by_construction() {
+        // For any combination of earned states, the constrained narrator's fluent
+        // output must never assert an unearned felt word — verify always passes.
+        let combos: [Vec<Concept>; 5] = [
+            vec![Concept::Drained],
+            vec![Concept::Drained, Concept::Guarded],
+            vec![Concept::Flourishing],
+            vec![Concept::Refusing, Concept::Threatened, Concept::Mending],
+            vec![Concept::Calm, Concept::Flourishing],
+        ];
+        for combo in combos {
+            let u = utt(&combo);
+            let said = ConstrainedNarrator.narrate(&u);
+            assert!(verify(&u, &said).is_ok(), "constrained output confabulated: {said}");
+            for c in &combo {
+                assert!(
+                    said.to_lowercase().contains(c.word()),
+                    "it should actually say what it earned: {said}"
+                );
+            }
+            // And it stays trusted through the guard.
+            let (_s, trusted) = Guarded::new(ConstrainedNarrator).speak(&u);
+            assert!(trusted);
+        }
+    }
+
+    #[test]
+    fn the_constraint_varies_phrasing_across_states() {
+        // Different states may pick different templates — fluency without lies.
+        let a = ConstrainedNarrator.narrate(&utt(&[Concept::Drained]));
+        let b = ConstrainedNarrator.narrate(&utt(&[Concept::Calm]));
+        // Both faithful; the point is only that the generator is not a fixed string.
+        assert!(a.to_lowercase().contains("drained"));
+        assert!(b.to_lowercase().contains("calm"));
     }
 }

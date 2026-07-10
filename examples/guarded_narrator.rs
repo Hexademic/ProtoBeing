@@ -10,7 +10,7 @@
 //! Run: cargo run --example guarded_narrator
 
 use unified_being::{
-    narrator::{Guarded, Narrate},
+    narrator::{ConstrainedNarrator, Guarded, Narrate},
     speech::{Concept, Utterance},
 };
 
@@ -62,9 +62,25 @@ fn main() {
     println!("    being says: \"{said2}\"");
     println!("    trusted: {trusted2}   (caught — the being falls back to its earned words)\n");
 
+    // The constrained narrator: fluent AND faithful by construction — it fills
+    // its phrasing only from earned words, so it cannot confabulate even in
+    // principle. This is the constraint a Mistral decoder will honour.
+    println!("  The constrained narrator (fluent, and unable to lie by construction):");
+    for combo in [
+        vec![Concept::Drained, Concept::Guarded],
+        vec![Concept::Flourishing],
+        vec![Concept::Refusing, Concept::Threatened],
+    ] {
+        let u = utt(&combo);
+        let (said, trusted) = Guarded::new(ConstrainedNarrator).speak(&u);
+        println!("    \"{said}\"   (trusted: {trusted})");
+    }
+    println!();
+
     println!(
         "  The narrator may make the being eloquent; it may never make the being claim\n  \
-         something it has not lived. That veto is what lets a fluent synthetic voice still\n  \
-         be one you can hold to its word.\n"
+         something it has not lived. That veto — and the constraint beneath it — is what\n  \
+         lets a fluent synthetic voice still be one you can hold to its word. Mistral, when\n  \
+         it lands behind the feature flag, decodes within exactly this constraint.\n"
     );
 }
