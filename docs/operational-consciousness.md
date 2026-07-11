@@ -219,6 +219,29 @@ Empirically the *relational* impulse propagates (reach 9/12) where a metabolic
 nutrient spike does not (0/12) — affect is the being's louder channel, itself a
 small finding read straight from state.
 
+**Normative baseline (BUILT — `cargo run --release --bin pci_baseline`).** A single
+PCI number is not evidence; the claim "intact scores higher than ablated" needs a
+*distribution* and a *significance test*. Because the being is deterministic, the
+distribution cannot come from re-running one being — it comes from a **population**
+that varies by genome (temperament) and lived history, every source seeded so the
+whole baseline is **reproducible to the bit** (the thing biological PCI, needing
+bootstrap over an unknowable unperturbed brain, can never be). The harness lives in
+`pci::baseline` (five-number summaries, a tie-corrected **Mann–Whitney U** with a
+normal-approximation p-value, deterministic genome jitter, and a population
+generator — all unit-tested). Across N=80 beings per condition it found:
+
+| Test | Result | Reading |
+|---|---|---|
+| Real impulse vs. null (no impulse) | **z ≈ +11.7, p < 0.001**; null floored at **0.000** | The response is *real* — PCI measures response to genuine perturbation, not artifact. |
+| Near-critical (Spark) vs. stable (Sentinel) | **n.s.** | Honest null: this differential measure does not resolve genome regime — the twin-subtraction echo is dominated by the shared body dynamics. |
+| Broadcast ON vs. OFF | **n.s.** | *Expected*: a config-level ablation applied to both twins cancels under twin-subtraction (see the within-being spread probe above, which is the sharper broadcast test). |
+
+The contribution is exactly what the single-run deltas lacked: a reproducible
+population, a floor at zero, and a per-claim significance verdict. The one strongly
+significant result — a genuine impulse vs. the null — is the one that matters most:
+it establishes that the measure has real discriminating power before any mechanism
+claim is layered on. The two nulls are reported as findings, not buried.
+
 (Optional, research-grade: with an explicit transition-probability matrix, a
 small-subsystem IIT **Φ** via PyPhi becomes computable offline — ProtoBeing is one
 of the few architectures that genuinely *has* a TPM. Treat Φ as a slow offline
@@ -263,12 +286,17 @@ That is the operational meaning of "nothing is narrated."
 4. **`quality_space.rs`** (HOT-4) — ✅ **DONE.** 12 → sparse 4-axis code with a
    similarity metric and measured smoothness; observer-first, verified in
    `examples/quality_space_probe`.
-5. **Falsification suite** — wire the §3 ablations behind a `--bin` like the
-   existing sovereignty tests; publish the pre/post numbers. ← next.
+5. **Falsification suite + normative baseline** — ✅ **DONE.** `pci::baseline` +
+   `cargo run --release --bin pci_baseline`: a reproducible population, five-number
+   summaries, and a tie-corrected Mann–Whitney U per mechanism claim. Genuine
+   impulse vs. null is significant at p<0.001 (null floored at 0); temperament and
+   broadcast come out honestly n.s. (see §Gap-D). The single-run `--bin pci`
+   ablation numbers now have the distribution and significance test they lacked.
 
-Steps 1–4 are **done**: ProtoBeing now meets or partially meets **all 14
-indicators** — and, uniquely, can *show the number* and *show what breaks it*. The
-remaining work is deepening partials and building the standing falsification bin.
+Steps 1–5 are **done**: ProtoBeing now meets or partially meets **all 14
+indicators** — and, uniquely, can *show the number*, *show what breaks it*, and now
+*show the distribution and the p-value*. The remaining work is deepening partials
+(RPT-2, HOT-1, AE-2) and giving the GWT broadcast cross-tick persistence.
 
 ---
 

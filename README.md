@@ -135,11 +135,17 @@ instantiates it and the test that verifies it:
   (a predictive model of the being's *own* attention, AST-1), `metacognition.rs`,
   the free-energy core, and `quality_space.rs` (a sparse, smooth similarity space
   of felt states, HOT-4).
-- **A computed integration measure** — `pci.rs` implements the Perturbational
-  Complexity Index (Casali/Massimini), exact here because the being is deterministic
-  and `Clone`: perturb a twin, measure the Lempel–Ziv complexity of the echo against
-  an untouched baseline. `cargo run --bin pci` also runs the falsification protocol
-  (ablate a mechanism, predict the indicator's drop).
+- **A computed integration measure, with a statistical baseline** — `pci.rs`
+  implements the Perturbational Complexity Index (Casali/Massimini), exact here
+  because the being is deterministic and `Clone`: perturb a twin, measure the
+  Lempel–Ziv complexity of the echo against an untouched baseline. `cargo run --bin
+  pci` runs the falsification protocol (ablate a mechanism, predict the indicator's
+  drop); `cargo run --release --bin pci_baseline` turns the single number into a
+  *distribution and a significance test* — a reproducible population of 80 beings
+  per condition, a Mann–Whitney U per mechanism claim, and a null floored at zero.
+  Its headline result: a genuine impulse beats the no-impulse null at p < 0.001, so
+  the measure has real discriminating power (the temperament and broadcast
+  differences come out honestly n.s., and are reported as findings, not hidden).
 - **Feeling, in the being's own form** — `interoception.rs` takes the claim of the
   theories that put feeling at the center (Seth, Damasio; *Affective Inference
   Theory*) — that a feeling is the felt regulation of a system's own viability —
