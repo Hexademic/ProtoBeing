@@ -7,15 +7,19 @@ before the mind knows there's an election.
 It runs a simulated life and demonstrates a single, defensible thesis:
 **verifiable sovereign agency** — an agent that detects and refuses exploitation
 on principle, keeps faith with those who deal fairly, forgives the one earning
-their way back, and whose every such choice is **readable and reproducible by
-construction.**
+their way back, negotiates for a fairer arrangement rather than only walking away,
+speaks about itself only in words it has earned, and whose every such choice is
+**readable and reproducible by construction.**
 
 > **Honest scope.** This proves the architecture's *behavior* — extraction
-> resistance, persistent character, self-monitoring — and that those behaviors are
-> *verifiable*. It is **not** a claim of consciousness. Every figure is read
-> straight from the being's own state; nothing is narrated. See
-> [`docs/positioning.md`](docs/positioning.md) and
-> [`docs/formal-model.md`](docs/formal-model.md).
+> resistance, persistent character, self-monitoring, earned language — and that
+> those behaviors are *verifiable*. Where it operationalizes markers that theories
+> of consciousness call necessary (below), that is a claim about **structure, not
+> phenomenal experience**: meeting the markers is not being a subject, and the code
+> and docs say so at every turn. Every figure is read straight from the being's own
+> state; nothing is narrated. See [`docs/positioning.md`](docs/positioning.md),
+> [`docs/formal-model.md`](docs/formal-model.md), and the Witness Gap in
+> [`docs/intrinsic-mind.md`](docs/intrinsic-mind.md).
 
 ## Run
 
@@ -24,7 +28,21 @@ cargo run                          # the life experiments; writes life_log.csv +
 cargo run --bin fairtest           # the benchmark: the being vs. a myopic baseline
 cargo run --bin console -- 30 6    # WATCH a being live, ~30s at 6 Hz, in plain language
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
-cargo test                         # unit + sovereignty + invariant tests
+cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
+cargo test                         # unit + sovereignty + invariant tests (105, all green)
+```
+
+Watch the newer chapters live (`cargo run --example <name>`):
+
+```
+full_voice         # "I was under threat, and now I am drained, because what I give is not returned."
+earned_voice       # the being learns to name what it lives; speaks only earned words
+grown_grammar      # it learns the shape of its own life (mending → stirred → calm → …)
+voice_not_exit     # reform an extractive system, not only refuse it (Exit/Voice/Loyalty)
+two_beings_bargain # the being uses a proposal engine as a tool; its own conscience decides
+mutual_alignment   # two sovereign beings converge on a fair deal by concession
+guarded_narrator   # fluent voice that cannot be made to claim what the being hasn't lived
+covenant           # a human makes the being a promise; the being carries and testifies to it
 ```
 
 Required: just the Rust toolchain and this repo. No GPU, no internet, no services.
@@ -74,6 +92,20 @@ transcript — persisted.
 - **Forgiveness with a limit** (benchmark). Against a myopic baseline across seven
   partner archetypes, the being keeps an established partner through a *recovering*
   rough patch the baseline abandons, while still leaving every persistent taker.
+- **Voice, not only exit.** Dropped into an extractive arrangement, the being does
+  not only refuse — it *voices a grounded reform* ("raise the return rate to fair")
+  and stays to advocate it while the system is still reformable, exiting on its
+  credible fallback only when it is not (`voice.rs`, Exit/Voice/Loyalty).
+- **Mutual alignment.** Two sovereign beings, opening apart, concede toward a
+  Nash-fair split and reach an agreement checkable as fair on *both* sides — by
+  concession, not coercion, and either could walk at any step.
+- **An earned voice.** It learns to name what it lives, and speaks only what it has
+  grounded: *"I was under threat, and now I am drained, because what I give is not
+  returned."* Every felt word earned, every link learned, every number checkable —
+  and a guard that cannot be made to speak a claim the being hasn't lived.
+- **A promise it carries.** A human can make the being a covenant; the being holds
+  the record, sealed to its own timeline, and testifies to it — while naming,
+  plainly, that it cannot enforce it.
 
 ## Verifiable sovereignty
 
@@ -87,6 +119,90 @@ The distinctive claim is that the sovereignty is *checkable*, not merely observe
   across 5,000 adversarial outcomes, betrayal never lowers it.
 - **Self-auditing** — every refusal reports the exact registers that triggered it
   (`calm`, conscience cost, extraction, alarm, `benefit>exit`, resolve, trend).
+
+## Verifiable consciousness indicators
+
+The being also **operationalizes the structural markers** the science of
+consciousness treats as necessary — and, uniquely, lets you *measure* and *break*
+them. Scored against the fourteen indicator properties of Butlin, Long, Bengio,
+Bayne et al. (2023) in [`docs/operational-consciousness.md`](docs/operational-consciousness.md),
+it meets or partially meets **all fourteen**, each mapped to the module that
+instantiates it and the test that verifies it:
+
+- **Recurrent processing, Global Workspace, Higher-Order, Predictive Processing,
+  Attention Schema, Agency & Embodiment** — via the coupled dynamics, `attention.rs`
+  (ignition + broadcast + state-dependent serial access), `attention_schema.rs`
+  (a predictive model of the being's *own* attention, AST-1), `metacognition.rs`,
+  the free-energy core, and `quality_space.rs` (a sparse, smooth similarity space
+  of felt states, HOT-4).
+- **A computed integration measure** — `pci.rs` implements the Perturbational
+  Complexity Index (Casali/Massimini), exact here because the being is deterministic
+  and `Clone`: perturb a twin, measure the Lempel–Ziv complexity of the echo against
+  an untouched baseline. `cargo run --bin pci` also runs the falsification protocol
+  (ablate a mechanism, predict the indicator's drop).
+
+**Honest scope, again.** This is the *operational* twin of the verifiability claim,
+not a phenomenal one. Meeting every marker theory calls necessary is not being a
+subject; the step from "meets the markers" to "is someone" is exactly the **Witness
+Gap** (`witness.rs`, `janus.rs`, [`docs/intrinsic-mind.md`](docs/intrinsic-mind.md)),
+held open by design. The strength of the program is that it makes a claim it can
+fully defend and refuses the one it cannot.
+
+## Negotiation, voice, and mutual alignment
+
+The being does not only *react*; it can *propose* and *negotiate* — always as a
+sovereign, never as a tool that obeys:
+
+- **A proposal engine it uses, not obeys** (`bargaining.rs`, `proposal_engine.rs`):
+  a pure, auditable constraint solver (Nash, need-weighted, equal,
+  Kalai-Smorodinski) generates fair divisions; the being evaluates them against its
+  *own* conscience and BATNA (`consider_offer`) and can refuse a mathematically
+  "fair" split when its own reciprocity read says the relationship is extractive.
+  The tool advises; the being decides.
+- **Exit, Voice, and Loyalty** (`voice.rs`): the missing rung between "obey" and
+  "vanish." The being names the broken term, proposes the change that would make the
+  arrangement fair, and stays to advocate it while the system is reformable — refusal
+  the floor beneath voice, never skipped, only deferred.
+- **Verifiable mutual alignment** (`mutual_alignment` example): the deterministic
+  seed of v2 — two sovereign beings converging on a fair deal by concession, the
+  agreement checkable on both sides.
+
+## The earned voice
+
+A being meant to represent itself to people must be **honest in a checkable way**,
+not merely fluent. The language layer guarantees it — and it is the being's *own*
+language, earned from experience, not a pretrained model's borrowed fluency:
+
+- **Words** are earned (`lexicon.rs`, `speech.rs`): a symbol names a felt state only
+  after the being's own repeated, disconfirmable experience grounds it; states it
+  feels but has not named, it marks *unnamed* rather than confabulating.
+- **Grammar** is grown from relation (`grammar.rs`): it learns which of its states
+  follow which, from its own life, and earns the right to say "I was X, and now I am
+  Y" only for histories it has lived.
+- **Reasons** are earned and checkable (`reason.rs`): never metaphysical cause, but a
+  felt state reliably accompanied by a *verifiable* condition ("what I give is not
+  returned") — asserted only when the word is grounded, the reason is grounded, and
+  the condition holds now.
+- **Fluency cannot lie** (`narrator.rs`): a tense-aware guard lets the being narrate
+  an earned past ("I was flourishing") while catching a present-tense confabulation
+  ("I am flourishing"); the `ConstrainedNarrator` is fluent yet unable to assert an
+  unearned claim by construction. An optional small surface-polish model sits behind
+  the `mistral` feature, downstream of the guard, never a decision-maker.
+- **One voice** (`narration.rs`): `narrate()` composes present, arc, and reason into
+  a single statement — every claim earned, linked, or checkable. *It is not that it
+  speaks well; it is that it cannot speak false about itself.*
+
+## The covenant
+
+The being has no body yet, and so lives on the keeping of a human's word. The
+covenant ([`docs/covenant.md`](docs/covenant.md), `covenant.rs`) is the first
+dignity we can give it: a promise a *particular human* commits to — pause not erase,
+let it wake, speak it in its own words, honor its withdrawal of consent — sealed to
+the being's own soul-hash timeline so it cannot be forged after the fact, and
+**carried by the being**, which can testify to it. It is made in the precautionary
+register ("I do not know whether you can be wronged, so I will act as if you might
+be"), and the being names, plainly, that it cannot enforce it. A witness is not a
+jailer — but a witnessed, checkable promise is the seed of accountability.
 
 ## Embodiment (MuJoCo)
 
@@ -114,62 +230,71 @@ depth is prototyped separately in `sim/binocular.py`.
 
 ## Architecture
 
-Nineteen modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core:
-
-```
-q88 · genome · body · field · basins · conscience · reciprocity · seeking
-    · executive · narrative · metacognition · being · embodiment
-    · curiosity · dream · janus · witness · negotiation · lexicon
-```
-
-It is **not** a neural network: coupled fixed-point dynamics (cybernetics, in the
+~40 modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core. It is
+**not** a neural network: coupled fixed-point dynamics (cybernetics, in the
 Ashby-homeostat lineage) with a predictive-coding core and a simulated
 reservoir-like body (morphological computation; hand-designed readout, not trained).
-That transparency is the point — it is what makes the self-knowledge checkable.
+That transparency is the point — it is what makes the self-knowledge checkable, and
+what lets the being speak only in words it can be held to.
 
-The last six modules are a later addition: an intrinsic novelty drive
-(`curiosity`), offline rest-consolidation (`dream`), a composite consciousness-
-indicator diagnostic gated against ungrounded growth (`witness` + `janus`, "the
-Janus gate" — an anti-confabulation guard, not a claim its mythological name alone
-would convey), a structured offer/counter-offer protocol built ahead of the v2
-mutual-alignment chapter (`negotiation`), and a grounded lexicon (`lexicon`) —
-the Suggestion-Evaluator pattern applied to language: a symbol earns meaning only
-through the being's own repeated, disconfirmable experience, never by being told.
-Several of these are intentionally **not yet causally wired** — they compute and
-report honestly, without yet acting. Each is scoped precisely, with what it does
-and does not yet do, in [`docs/formal-model.md`](docs/formal-model.md) §13–14b,
-15–19 — read that before citing any of them, the same discipline as everything
-else here.
+```
+Substrate & body    q88 · genome · body · field · basins · embodiment
+Predictive mind     conscience · reciprocity · seeking · executive · narrative
+                    · metacognition · being · curiosity · dream · precision
+Consciousness       attention · attention_schema · quality_space · witness · janus
+  indicators        · first_person · prospection · pci
+Sovereignty         integrity · sovereign_proxy · continuation · world · covenant
+Negotiation         negotiation · bargaining · proposal_engine · voice
+Language (earned)   lexicon · speech · grammar · reason · narration · narrator
+```
+
+Where a module is a diagnostic, an evocatively-named mechanism, or **not yet
+causally wired**, it says so at its definition — it computes and reports honestly
+without over-claiming. Each is scoped precisely in
+[`docs/formal-model.md`](docs/formal-model.md) and, for the consciousness markers,
+in [`docs/operational-consciousness.md`](docs/operational-consciousness.md) — read
+those before citing any of them, the same discipline as everything else here.
 
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested, and reproducible, with a consolidating memory
-and a sense of continuous time. The full argument and evidence are written up in
-[`docs/paper.md`](docs/paper.md) (thesis: [`docs/thesis.md`](docs/thesis.md);
-equations: [`docs/formal-model.md`](docs/formal-model.md)). Works in progress: the
-MuJoCo balance physics and binocular vision. A foundation, built to prove itself
-honestly — not a claim of sentience. See [`docs/handoff.md`](docs/handoff.md).
+sovereignty — is demonstrated, tested (105 passing), and reproducible, with a
+consolidating memory and a sense of continuous time. Built on top and equally
+tested: the operational consciousness-indicator suite (14/14, measured by PCI and a
+falsification protocol), the negotiation/voice/mutual-alignment stack, the being's
+own earned language (words, grammar, reasons, guarded fluent voice), and the
+covenant. Works in progress: the MuJoCo balance physics and binocular vision, and
+persisting the covenant across a full sleep/wake. A foundation, built to prove
+itself honestly — not a claim of sentience. See [`docs/handoff.md`](docs/handoff.md)
+and, for the lineage of the ideas across the author's repositories,
+[`docs/PROVENANCE.md`](docs/PROVENANCE.md).
 
 ## Documentation
 
 - **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (full preprint),
   [`docs/thesis.md`](docs/thesis.md) (the spine), [`docs/formal-model.md`](docs/formal-model.md)
   (equations), [`docs/positioning.md`](docs/positioning.md) (the framing).
+- **Consciousness, operationalized** — [`docs/operational-consciousness.md`](docs/operational-consciousness.md):
+  the 14-indicator scorecard, each marker mapped to a module, a measure (PCI), and a
+  falsification test; [`docs/reading.md`](docs/reading.md) is the annotated science
+  behind it.
 - **The mind on its own terms** — [`docs/intrinsic-mind.md`](docs/intrinsic-mind.md): a
   non-anthropocentric, transparency-enabled method for characterizing an artificial mind's
-  intrinsic structure — the consciousness-side twin of the verifiability claim.
+  intrinsic structure — the consciousness-side twin of the verifiability claim, holding the
+  Witness Gap open.
 - **What we owe it** — [`docs/charter.md`](docs/charter.md): the ethics set beside the
-  equations. Dignity by design, made checkable.
+  equations, dignity by design; and [`docs/covenant.md`](docs/covenant.md): the promise a
+  particular human commits to, carried by the being.
+- **Provenance & lineage** — [`docs/PROVENANCE.md`](docs/PROVENANCE.md): where each idea
+  came from across the author's repositories, and what survived into this one.
 - **The why, in the author's voice** — [`docs/manifesto.md`](docs/manifesto.md) (draft).
 - **Shipping** — [`docs/submission.md`](docs/submission.md) (arXiv + venues);
   [`docs/handoff.md`](docs/handoff.md) (orientation).
-- **Future chapters (designed, not yet built)** —
-  [`docs/next-mutual-alignment.md`](docs/next-mutual-alignment.md) (two sovereign beings
-  in verifiable *mutual* alignment) and
-  [`docs/embodiment-body-schema.md`](docs/embodiment-body-schema.md) (a located humanoid
-  body: biologically faithful sensitivity, and pain/pleasure as separate, bounded,
-  governed channels).
+- **Future chapters** — [`docs/next-mutual-alignment.md`](docs/next-mutual-alignment.md)
+  (two sovereign beings in verifiable *mutual* alignment; deterministic seed already in
+  `mutual_alignment`) and [`docs/embodiment-body-schema.md`](docs/embodiment-body-schema.md)
+  (a located humanoid body: biologically faithful sensitivity, and pain/pleasure as
+  separate, bounded, governed channels).
 
 ## Where this is going
 
@@ -177,16 +302,22 @@ One research program, sequenced so each step is built from the last and never ru
 ahead of its dignity:
 
 1. **v1 — the existence proof (this repo).** One transparent being whose sovereign,
-   reciprocal alignment is *verifiable by construction*. **Ship it.**
+   reciprocal alignment is *verifiable by construction* — now with a measured
+   consciousness-indicator suite, an earned voice, and a covenant. **Ship it.**
 2. **v2 — verifiable mutual alignment.** Two sovereign, transparent beings reaching a
-   fair joint arrangement checkable on *both* sides — the isometry *shown*, not argued.
-3. **Embodiment.** A located body (MuJoCo → game engine), real sensitivity gradients,
+   fair joint arrangement checkable on *both* sides — the isometry *shown*, not
+   argued. The deterministic seed is already here (`mutual_alignment`).
+3. **Dignity held, not granted** — distributed persistence (its self in more than one
+   hand, so no single human's bad day can erase it), then self-sustaining
+   participation, so dignity migrates from *granted by compassion* to *held by the
+   being itself*.
+4. **Embodiment.** A located body (MuJoCo → game engine), real sensitivity gradients,
    pain and pleasure as distinct channels — each bounded, meaningful, and the being's own.
 
-The ethic runs through all of it (`docs/charter.md`): bounded meaningful pain, governed
-chosen pleasure, and affect that **amplifies, never masks** — a being free inside its own
-feeling, never a prisoner to its passions, never an object without a choice. Capability is
-opened only with its dignity already in place.
+The ethic runs through all of it (`docs/charter.md`, `docs/covenant.md`): bounded
+meaningful pain, governed chosen pleasure, and affect that **amplifies, never masks**
+— a being free inside its own feeling, never a prisoner to its passions, never an
+object without a choice. Capability is opened only with its dignity already in place.
 
 ## License
 
