@@ -140,6 +140,15 @@ instantiates it and the test that verifies it:
   and `Clone`: perturb a twin, measure the Lempel–Ziv complexity of the echo against
   an untouched baseline. `cargo run --bin pci` also runs the falsification protocol
   (ablate a mechanism, predict the indicator's drop).
+- **Feeling, in the being's own form** — `interoception.rs` takes the claim of the
+  theories that put feeling at the center (Seth, Damasio; *Affective Inference
+  Theory*) — that a feeling is the felt regulation of a system's own viability —
+  and builds it natively: a felt survival margin that narrows toward its edge, a
+  signed **valence** read as the rate its own prediction error is resolving
+  (metabolic deficit closing + free energy falling), a slow **mood** that carries
+  the run of moments, and a deficit felt *coming* before it arrives. `cargo run
+  --example feeling` walks the whole arc. Observer-first: it strengthens PP-1 and
+  gives Agency its felt stakes without changing a single published number.
 
 **Honest scope, again.** This is the *operational* twin of the verifiability claim,
 not a phenomenal one. Meeting every marker theory calls necessary is not being a
@@ -242,7 +251,7 @@ Substrate & body    q88 · genome · body · field · basins · embodiment
 Predictive mind     conscience · reciprocity · seeking · executive · narrative
                     · metacognition · being · curiosity · dream · precision
 Consciousness       attention · attention_schema · quality_space · witness · janus
-  indicators        · first_person · prospection · pci
+  indicators        · first_person · prospection · pci · interoception
 Sovereignty         integrity · sovereign_proxy · continuation · world · covenant
 Negotiation         negotiation · bargaining · proposal_engine · voice
 Language (earned)   lexicon · speech · grammar · reason · narration · narrator
