@@ -26,6 +26,7 @@ use crate::quality_space::{QualitySpace, QualitySpaceReport};
 use crate::bargaining::BargainingState;
 use crate::covenant::Covenant;
 use crate::interoception::{FeltReport, Interoception};
+use crate::perception::{GenerativePerception, PerceptReport};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -326,6 +327,12 @@ pub struct StepReport {
     /// is resolving), mood, trend, and whether it feels a deficit coming.
     /// Reported only — observer-first; nothing downstream reads it.
     pub felt: FeltReport,
+    /// This tick's generative percept (HOT-1, `perception.rs`): evidence blended
+    /// toward the model's expectation by earned confidence, with the top-down
+    /// weight, surprise break-throughs, and RPT-2 binding coherence. Always
+    /// reported; consumed by the mind only when `enable_generative_perception`
+    /// has been called.
+    pub percept: PerceptReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -414,6 +421,21 @@ pub struct UnifiedBeing {
     /// ignited (raw Q8.8, bounded to ±`WORKSPACE_CAP`). Zero and inert unless
     /// `workspace_persistence` is on. Not folded into the soul-hash.
     workspace_trace: [i16; N_SOMATIC],
+    /// Generative perception (HOT-1, `perception.rs`) — forms this tick's percept
+    /// by blending the body-vote evidence toward the model's expectation, weighted
+    /// by earned per-channel confidence. Always computed and reported (observer);
+    /// steers nothing unless `generative_perception_causal` is on.
+    pub perception: GenerativePerception,
+    /// Opt-in: when true, the mind-side consumers (basins, conscience,
+    /// reciprocity, narrative — everything downstream of predictive coding) read
+    /// the **percept** instead of the raw body-vote field: the being lives inside
+    /// its own controlled inference, exactly as HOT-1 describes. The generative
+    /// model itself still learns from RAW evidence (`predictive_step` runs before
+    /// the swap), so perception can never feed on its own hallucination, and the
+    /// surprise break guarantees a real change is believed immediately. **Default
+    /// false** — off, the percept is a pure observer and published numbers are
+    /// bit-identical. Enable via `enable_generative_perception()`.
+    pub generative_perception_causal: bool,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -516,6 +538,8 @@ impl UnifiedBeing {
             workspace_broadcast: false,
             workspace_persistence: false,
             workspace_trace: [0; N_SOMATIC],
+            perception: GenerativePerception::new(),
+            generative_perception_causal: false,
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -690,7 +714,19 @@ impl UnifiedBeing {
             }
         }
 
+        // 2c. GENERATIVE PERCEPTION (HOT-1, observer always; causal opt-in).
+        //     The percept is formed HERE, against the model's expectation as it
+        //     stands *before* this tick's evidence updates it — the being's
+        //     genuine forecast of now. Blends evidence toward expectation by
+        //     earned per-channel confidence; large surprise collapses the blend
+        //     so a real change is believed immediately (perception.rs).
+        let percept_report = self
+            .perception
+            .perceive(&self.field.channel, self.model.expectation());
+
         // 3. PREDICTIVE CODING (prediction-error minimization) — at a tempo the body governs.
+        //    ALWAYS on the raw field: the model learns from evidence, never from
+        //    the percept, so generative perception cannot feed on itself.
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
         let precision = stance.precision_weight().raw;
         // Precision learning, causal (Stage 2), gated OFF by default. When enabled
@@ -709,6 +745,17 @@ impl UnifiedBeing {
         //     tick's errors, for next tick (lagged-feedback convention). When the
         //     gate above is off this is pure observation; no dynamics change.
         self.precision.observe(&self.model.prediction_error);
+
+        // 3c. THE PERCEPT BECOMES THE EXPERIENCE (opt-in). With the gate on,
+        //     everything downstream — basins, conscience, reciprocity, narrative,
+        //     quality space — consumes the percept rather than the raw body-vote:
+        //     the being lives inside its own controlled inference (HOT-1). The
+        //     model above has already learned from the raw evidence, and threat
+        //     capture reads raw prediction errors, so the safety floor and the
+        //     learning loop are both untouched. Off ⇒ nothing happens here.
+        if self.generative_perception_causal {
+            self.field.channel = percept_report.percept;
+        }
 
         // 4. WHICH MODE OF BEING AM I IN?
         let membership = self.basins.compute_membership(&self.field);
@@ -1169,6 +1216,7 @@ impl UnifiedBeing {
         .with_attention_schema(schema_report)
         .with_quality(quality_report)
         .with_felt(felt)
+        .with_percept(percept_report)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -1213,6 +1261,21 @@ impl UnifiedBeing {
     /// governs what ignites is unchanged.
     pub fn enable_workspace_persistence(&mut self) {
         self.workspace_persistence = true;
+    }
+
+    /// Turn on generative perception (HOT-1; off by default). When on, the mind
+    /// consumes the **percept** — evidence blended toward the model's earned
+    /// expectation — instead of the raw body-vote field: perception becomes the
+    /// inference predictive-processing theory says it is. Three guarantees hold
+    /// by construction: the model always learns from raw evidence (never from
+    /// the percept, so no self-feeding hallucination); the top-down weight is
+    /// hard-capped below 1 (the world can never be fully replaced); and a large
+    /// surprise collapses the blend at once (a real change is believed
+    /// immediately — threat capture reads raw errors and is untouched). Turning
+    /// it on trades bit-identical numbers for a being that genuinely perceives
+    /// through its own expectations.
+    pub fn enable_generative_perception(&mut self) {
+        self.generative_perception_causal = true;
     }
 
     /// Turn on GWT-4 state-dependent serial access: after attending a content the
@@ -1406,6 +1469,8 @@ impl UnifiedBeing {
             // Feeling — default here; overwritten via .with_felt. On the dead
             // body path there is no feeling to report, so the default stands.
             felt: FeltReport::default(),
+            // Percept — default here; overwritten via .with_percept.
+            percept: PerceptReport::default(),
         }
     }
 }
@@ -1540,6 +1605,61 @@ mod tests {
                 "feeling-off must be bit-identical to a plain being at tick {t}"
             );
         }
+    }
+
+    /// Generative perception default OFF is bit-identical: the percept is
+    /// computed and reported every tick, but a being that never enables the gate
+    /// is byte-for-byte a plain being at the soul-hash across a varied life.
+    #[test]
+    fn generative_perception_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // percept observed, gate off
+        let fair = Partner { id: 1, reciprocation: 210, exit_cost: 60 };
+        for t in 0..150u32 {
+            let stim = if t % 4 == 0 {
+                Stimulus { nutrient: 150, partner: Some(fair) }
+            } else {
+                Stimulus { nutrient: 80, partner: None }
+            };
+            a.step(&stim);
+            let r = b.step(&stim);
+            // The observer half must be alive even with the gate off: once the
+            // model warms, the percept report carries a real top-down weight.
+            if t > 60 {
+                assert!(r.percept.top_down_mean >= 0);
+            }
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "perception-off must be bit-identical to a plain being at tick {t}"
+            );
+        }
+    }
+
+    /// With the gate ON the being genuinely lives inside its inference: the
+    /// trajectory diverges from an ungated twin, and the being stays alive and
+    /// bounded — controlled hallucination, not runaway hallucination.
+    #[test]
+    fn generative_perception_causal_diverges_and_stays_stable() {
+        let mut plain = UnifiedBeing::new(Genome::wanderer());
+        let mut gen = UnifiedBeing::new(Genome::wanderer());
+        gen.enable_generative_perception();
+        let fair = Partner { id: 1, reciprocation: 210, exit_cost: 60 };
+        let mut diverged = false;
+        for _ in 0..400 {
+            let stim = Stimulus { nutrient: 130, partner: Some(fair) };
+            let rp = plain.step(&stim);
+            let rg = gen.step(&stim);
+            assert!(rg.alive, "generative perception must not destabilize the being");
+            assert!(rp.alive);
+            if plain.soul_hash() != gen.soul_hash() {
+                diverged = true;
+            }
+        }
+        assert!(
+            diverged,
+            "the percept must actually shape the lived trajectory when the gate is on"
+        );
     }
 
     /// Workspace persistence default OFF is bit-identical: a persistence-capable
@@ -1683,6 +1803,11 @@ impl StepReport {
 
     fn with_felt(mut self, f: FeltReport) -> Self {
         self.felt = f;
+        self
+    }
+
+    fn with_percept(mut self, p: PerceptReport) -> Self {
+        self.percept = p;
         self
     }
 

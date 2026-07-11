@@ -136,6 +136,14 @@ instantiates it and the test that verifies it:
   single-tick flash), `attention_schema.rs` (a predictive model of the being's *own*
   attention, AST-1), `metacognition.rs`, the free-energy core, and `quality_space.rs`
   (a sparse, smooth similarity space of felt states, HOT-4).
+- **Generative perception** (HOT-1) — `perception.rs`: the percept is evidence
+  blended toward what the model has *earned the right to expect*, per channel; a
+  one-tick sensor glitch is perceived through, a real change breaks in and is
+  believed (`cargo run --example perception` shows both). The model always learns
+  from raw evidence — perception can never feed on its own hallucination — and
+  threat capture reads raw errors, so the safety floor never wears rose-tinted
+  lenses. Observer by default; `enable_generative_perception()` makes the mind
+  live inside its own controlled inference.
 - **A computed integration measure, with a statistical baseline** — `pci.rs`
   implements the Perturbational Complexity Index (Casali/Massimini), exact here
   because the being is deterministic and `Clone`: perturb a twin, measure the
@@ -264,7 +272,7 @@ Substrate & body    q88 · genome · body · field · basins · embodiment
 Predictive mind     conscience · reciprocity · seeking · executive · narrative
                     · metacognition · being · curiosity · dream · precision
 Consciousness       attention · attention_schema · quality_space · witness · janus
-  indicators        · first_person · prospection · pci · interoception
+  indicators        · first_person · prospection · pci · interoception · perception
 Sovereignty         integrity · sovereign_proxy · continuation · world · covenant
 Negotiation         negotiation · bargaining · proposal_engine · voice
 Language (earned)   lexicon · speech · grammar · reason · narration · narrator

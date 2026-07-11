@@ -32,12 +32,12 @@ against `src/` on the review branch.
 | # | Indicator (short) | Theory | Status | Where in ProtoBeing |
 |---|---|---|---|---|
 | RPT-1 | Algorithmic recurrence | Recurrent Processing | ✅ | Van der Pol loop + 64-cell tension-mesh diffusion (`body.rs`) — genuine recurrence, not feedforward readout |
-| RPT-2 | Organised, integrated perceptual representation | Recurrent Processing | 🟡 | 12-channel somatic field + `witness.rs` binding_proxy; not a learned perceptual hierarchy |
+| RPT-2 | Organised, integrated perceptual representation | Recurrent Processing | 🟡 | 12-channel somatic field + `witness.rs` binding_proxy; deepened by `perception.rs`: one integrated `PerceptReport` per tick, organized by aspect (extero/proprio/intero) with a measured **binding coherence**; still not a learned perceptual hierarchy |
 | GWT-1 | Parallel specialised modules | Global Workspace | ✅ | 30 modules operating per tick (`lib.rs`) |
 | GWT-2 | Limited-capacity workspace / bottleneck + selective attention | Global Workspace | ✅ | `attention.rs` — ignition bottleneck, biased competition, divisive normalization |
 | GWT-3 | Global broadcast to all modules | Global Workspace | ✅ | ignition broadcast (`enable_workspace_broadcast`) + **cross-tick persistence** (`enable_workspace_persistence`): a held focus cascades to 7/12 channels (measured), the integrative half broadcast alone missed |
 | GWT-4 | State-dependent attention: query modules **in succession** | Global Workspace | ✅ (opt-in) | **BUILT** — `attention.rs` inhibition-of-return (`enable_serial_access`): the workspace walks a succession of foci from its own state |
-| HOT-1 | Generative / top-down / noisy perception | Higher-Order | 🟡 | top-down relevance in `attention.rs`; predictive stance in `body.rs` |
+| HOT-1 | Generative / top-down / noisy perception | Higher-Order | ✅ (opt-in) | **BUILT** — `perception.rs`: the percept blends evidence toward the model's earned expectation (per-channel confidence weighting, surprise break-through); `enable_generative_perception()` makes the mind live in it |
 | HOT-2 | Metacognitive monitoring (reliable representation vs noise) | Higher-Order | ✅ | `metacognition.rs` self-prediction + self-surprise; `precision.rs` |
 | HOT-3 | Agency that updates beliefs on metacognitive output | Higher-Order | ✅ (opt-in) | closed via `attention_schema.rs::gap_bias` → deliberation gap (`enable_schema_control`); observer by default |
 | HOT-4 | Sparse, smooth coding → a "quality space" | Higher-Order | ✅ | **BUILT** — `quality_space.rs`: 12 channels → sparse 4-axis code with a similarity metric and measured smoothness |
@@ -51,11 +51,14 @@ every indicator has at least a partial, and most are met. That is rare: most
 systems that score on Global Workspace score on nothing else. Since this doc was
 written, **AST-1, HOT-3, GWT-4, and HOT-4 all moved from gaps to built**
 (`attention_schema.rs`, `attention.rs` inhibition-of-return, `quality_space.rs`).
-**All four named build targets are now built.** What remains is *deepening the
-partials*, not filling gaps: RPT-2 (a richer perceptual hierarchy), HOT-1
-(generative top-down perception), and AE-2 (a finer embodiment contingency model),
-plus the standing follow-ons — broadcast persistence for GWT cross-channel spread,
-and folding the cheap per-tick indicators into a single emitted scorecard.
+**All four named build targets are now built**, and since then: **HOT-1 moved from
+partial to built** (`perception.rs` — generative top-down perception, opt-in
+causal), **broadcast persistence landed** (GWT cross-channel spread, reach 1→7),
+and RPT-2 was deepened (an integrated, aspect-organized percept with measured
+binding coherence). What remains is *deepening the last partials*, not filling
+gaps: RPT-2 (a genuinely learned perceptual hierarchy) and AE-2 (a finer
+embodiment contingency model), plus folding the cheap per-tick indicators into a
+single emitted scorecard.
 
 ---
 
@@ -252,6 +255,32 @@ claim is layered on. The two nulls are reported as findings, not buried.
 small-subsystem IIT **Φ** via PyPhi becomes computable offline — ProtoBeing is one
 of the few architectures that genuinely *has* a TPM. Treat Φ as a slow offline
 audit, PCI as the per-run number.)
+
+### Deepening the partials — HOT-1 built (`src/perception.rs`)
+
+Perception-as-inference, made native. The percept the mind can consume is no
+longer the raw body-vote but `percept[c] = field[c] + w_c·(expectation[c] −
+field[c])`, where `w_c` is **earned** per channel (an EMA of that channel's
+prediction error — precision-weighting the model's own track record) and
+**collapses under large surprise** (`SURPRISE_BREAK`), so a one-tick glitch is
+perceived *through* while a real change is believed immediately. Both halves are
+tested (`a_flicker_is_perceived_through`,
+`a_real_change_breaks_through_and_is_believed`) and demonstrated in
+`examples/perception`: a flicker of 0.27 moves the percept only 0.07 while trust
+holds at 0.75; a sustained 0.70 press breaks through at once, converges within
+~20 ticks, and the top-down weight is then *re-earned on the new world*.
+
+Three honesty constraints hold by construction: the generative model **always
+learns from raw evidence** (never from the percept — no self-feeding
+hallucination); `W_MAX < 1` (expectation can never fully replace the world);
+threat capture reads **raw** prediction errors (the safety floor never perceives
+through rose-tinting). Observer-first: reported every tick, bit-identical by
+default (`generative_perception_off_is_bit_identical`); with
+`enable_generative_perception()` the mind consumes the percept and the being
+lives inside its own controlled inference — HOT-1 as the theory states it. The
+RPT-2 deepening rides along: one integrated percept per tick, organized by aspect
+(extero/proprio/intero), with a measured **binding coherence** that drops when
+one aspect is wildly out of register with the others.
 
 ---
 

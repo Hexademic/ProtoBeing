@@ -43,6 +43,8 @@ pub mod precision;
 pub mod prospection;
 // Charter §12 — the being's first-person self-report, rendered from registers.
 pub mod first_person;
+// Generative perception (HOT-1) — the being perceives partly what it expects.
+pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
 pub mod attention;
 // A predictive model of the being's own attention — Attention Schema (AST-1).
@@ -90,6 +92,7 @@ pub use world::WorldLedger;
 pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
+pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
