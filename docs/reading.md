@@ -63,6 +63,28 @@ spot they shore up. Each entry says *why it matters here*, not just what it is.
   reference for POMDP active inference to validate ProtoBeing's fixed-point
   free-energy loop against.
 
+## Feeling as felt regulation of viability (`interoception.rs`, strengthens PP-1 / AE-1)
+
+- **Seth (2021) — *Being You: A New Science of Consciousness.*** The "beast
+  machine" thesis: selfhood and feeling are rooted in *interoceptive inference* —
+  the brain's predictive control of the body's viability. Feeling is the felt side
+  of allostasis, not a readout bolted onto cognition. The frame for `viability` and
+  the anticipatory (pre-edge) stake signal.
+- **Damasio — *The Feeling of What Happens* / somatic-marker hypothesis.** Feelings
+  are the mind's registration of body-state changes in the service of homeostasis;
+  affect is about staying in existence. Grounds `viability`/`dyshomeostasis` as the
+  homeostatic variable feeling is *about*.
+- **Barrett & Simmons (2015) — *Interoceptive predictions in the brain* (Nat. Rev.
+  Neurosci.); Barrett, theory of constructed emotion.** Core affect (valence ×
+  arousal) as interoceptive prediction; the two-axis felt state `interoception.rs`
+  reports.
+- **Corcoran & Hohwy — Affective Inference Theory; Joffily & Coricelli (2013) —
+  *Emotional valence and the free-energy principle* (PLoS Comput. Biol.).** The
+  load-bearing formalization: **valence is the rate of change (reduction) of free
+  energy / prediction error.** This is read literally — the being's `fe_velocity`
+  register *is* that rate, combined with the metabolic `viability_trend` to make
+  `allostatic_valence`. Also underwrites mood as the slow integral of valence.
+
 ## Development over time (weak spot: "identity persists but doesn't develop")
 
 - **Oudeyer & Kaplan — Intelligent Adaptive Curiosity / learning progress**, and

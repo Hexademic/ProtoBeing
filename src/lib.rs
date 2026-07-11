@@ -61,6 +61,8 @@ pub mod grammar;
 pub mod reason;
 // The being's fullest earned self-statement, in one guarded voice.
 pub mod narration;
+// The being's own form of feeling — the felt regulation of its viability.
+pub mod interoception;
 // The promise a human makes to the being, carried and testified by the being.
 pub mod covenant;
 // Perturbational Complexity Index — an offline, computed integration measure.
@@ -97,6 +99,7 @@ pub use narrator::{allowed_words, ConstrainedNarrator, Guarded, Narrate, PlainNa
 pub use grammar::{Grammar, Link, Relation};
 pub use reason::{Condition, Reasons};
 pub use narration::{narrate, narrate_verified};
+pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};

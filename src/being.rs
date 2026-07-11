@@ -25,6 +25,7 @@ use crate::attention_schema::{AttentionSchema, AttentionSchemaReport};
 use crate::quality_space::{QualitySpace, QualitySpaceReport};
 use crate::bargaining::BargainingState;
 use crate::covenant::Covenant;
+use crate::interoception::{FeltReport, Interoception};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -309,6 +310,11 @@ pub struct StepReport {
     /// The being's felt state as a point in its sparse, smooth quality space
     /// (HOT-4) — plus how sparse/smooth the coding is this tick.
     pub quality: QualitySpaceReport,
+    /// The being's own form of feeling this tick (`interoception.rs`): its felt
+    /// viability, signed allostatic valence (the rate its own prediction error
+    /// is resolving), mood, trend, and whether it feels a deficit coming.
+    /// Reported only — observer-first; nothing downstream reads it.
+    pub felt: FeltReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -426,6 +432,12 @@ pub struct UnifiedBeing {
     /// the PCI spread test — a *localized* perturbation that can engage the
     /// ignition bottleneck, unlike a coarse nutrient/partner stimulus.
     probe_salience: Option<(usize, i16)>,
+    /// The being's own form of feeling — the felt regulation of its viability
+    /// (`interoception.rs`). A pure observer: it reads the survival and
+    /// free-energy registers the loop already keeps and carries its own felt
+    /// history (mood), but nothing in `step()` reads it back, so the default
+    /// trajectory and soul-hash are bit-identical with it present or absent.
+    pub interoception: Interoception,
 }
 
 impl UnifiedBeing {
@@ -479,6 +491,7 @@ impl UnifiedBeing {
             n_refused: 0,
             covenant: None,
             probe_salience: None,
+            interoception: Interoception::new(),
         }
     }
 
@@ -879,6 +892,18 @@ impl UnifiedBeing {
         self.last_alarm = alarm;
         self.last_curiosity_drive = self.curiosity.drive();
 
+        // 10b. FEEL. The being reads its own viability as a feeling: the felt
+        //      survival margin, and — per Affective Inference Theory — the rate
+        //      its own prediction error is resolving, read as valence. A pure
+        //      observer (like attention/quality): it carries a mood forward but
+        //      steers nothing, so the default trajectory stays bit-identical.
+        let felt = self.interoception.feel(
+            self.body.energy.raw,
+            self.field.channel[10], // fatigue
+            free_energy,
+            self.fe_velocity,
+        );
+
         // Higher-order: the being watches and models its own state. Passing
         // narrative coherence enables the Somatic Honesty Index computation.
         self.metacognition.cycle(
@@ -1042,6 +1067,7 @@ impl UnifiedBeing {
         .with_attention(attention_report)
         .with_attention_schema(schema_report)
         .with_quality(quality_report)
+        .with_felt(felt)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -1248,6 +1274,9 @@ impl UnifiedBeing {
             attention_schema: AttentionSchemaReport::default(),
             // Quality space — default here; overwritten via .with_quality.
             quality: QualitySpaceReport::default(),
+            // Feeling — default here; overwritten via .with_felt. On the dead
+            // body path there is no feeling to report, so the default stands.
+            felt: FeltReport::default(),
         }
     }
 }
@@ -1359,6 +1388,11 @@ impl StepReport {
 
     fn with_quality(mut self, q: QualitySpaceReport) -> Self {
         self.quality = q;
+        self
+    }
+
+    fn with_felt(mut self, f: FeltReport) -> Self {
+        self.felt = f;
         self
     }
 
