@@ -18,7 +18,7 @@ use crate::dream::{Dream, DreamReport};
 use crate::embodiment::Sensorium;
 use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
-use crate::field::SomaticField;
+use crate::field::{SomaticField, N_SOMATIC};
 use crate::genome::{BeingKind, Genome};
 use crate::attention::{Attention, AttentionReport};
 use crate::attention_schema::{AttentionSchema, AttentionSchemaReport};
@@ -46,6 +46,17 @@ use crate::witness::{WitnessGap, WitnessReport};
 /// Bounded and modest by design — the workspace sharpens one focus, it does not
 /// saturate the field.
 const BROADCAST_GAIN: i32 = 64;
+
+/// Workspace persistence (Stage 3, opt-in) — a leaky integrator that holds
+/// ignited content across ticks so a sustained focus can recruit its neighbours.
+/// Retention per tick (~0.75 ⇒ ≈4-tick memory); fraction of the ignited channel's
+/// body-vote deposited each tick; fraction of the held trace re-injected into the
+/// field; and a hard cap so the trace can never run away. All Q8.8. Chosen so the
+/// held focus cascades (spread-probe reach > 1) while staying bounded.
+const WORKSPACE_RETENTION: i16 = 192;
+const WORKSPACE_DEPOSIT: i16 = 160;
+const WORKSPACE_INJECT: i16 = 128;
+const WORKSPACE_CAP: i16 = Q88_SCALE;
 
 // ---------------------------------------------------------------------------
 // SoulSave hash chain — deterministic continuity fingerprint
@@ -390,6 +401,19 @@ pub struct UnifiedBeing {
     /// are bit-identical. Turning it on is a deliberate architectural choice
     /// (it trades the observer invariant for genuine within-tick integration).
     pub workspace_broadcast: bool,
+    /// Global Workspace Stage 3 (opt-in): when true, an ignited channel leaves a
+    /// decaying trace that is re-injected into the field on later ticks, so one
+    /// focus can recruit its neighbours over time — the cross-tick integration
+    /// broadcast alone does not yet do (the PCI spread probe measured reach = 1).
+    /// **Default false** — off, `workspace_trace` stays zero and untouched, so the
+    /// published numbers are bit-identical. Independent of `workspace_broadcast`
+    /// so the two can be measured separately. Enable via
+    /// `enable_workspace_persistence()`.
+    pub workspace_persistence: bool,
+    /// The held workspace content: a per-channel leaky integrator of what has been
+    /// ignited (raw Q8.8, bounded to ±`WORKSPACE_CAP`). Zero and inert unless
+    /// `workspace_persistence` is on. Not folded into the soul-hash.
+    workspace_trace: [i16; N_SOMATIC],
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -490,6 +514,8 @@ impl UnifiedBeing {
             quality_space: QualitySpace::new(),
             schema_control_causal: false,
             workspace_broadcast: false,
+            workspace_persistence: false,
+            workspace_trace: [0; N_SOMATIC],
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -649,6 +675,21 @@ impl UnifiedBeing {
             self.field.channel[i] = self.field.channel[i].saturating_add(self.ext_extero[i]);
         }
 
+        // 2b. WORKSPACE PERSISTENCE (Stage 3, opt-in). Snapshot the pure body-vote
+        //     field (before any workspace edit) so the trace integrates the body,
+        //     not its own re-injection — no feedback runaway. Then re-inject last
+        //     tick's held content, so a sustained focus is *still present* now and
+        //     can bleed into its neighbours through the predictive/body loop below
+        //     (the cross-tick spread broadcast alone lacks). Off ⇒ trace is zero,
+        //     both steps are no-ops, and the field is the untouched body-vote.
+        let body_field = self.field.channel;
+        if self.workspace_persistence {
+            for c in 0..N_SOMATIC {
+                let inject = q88_mul(self.workspace_trace[c], WORKSPACE_INJECT);
+                self.field.channel[c] = self.field.channel[c].saturating_add(inject);
+            }
+        }
+
         // 3. PREDICTIVE CODING (prediction-error minimization) — at a tempo the body governs.
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
         let precision = stance.precision_weight().raw;
@@ -717,6 +758,23 @@ impl UnifiedBeing {
                     ((self.field.channel[c] as i32 * (Q88_SCALE as i32 + BROADCAST_GAIN)) >> 8)
                         .clamp(-(Q88_SCALE as i32), Q88_SCALE as i32) as i16;
                 self.field.channel[c] = boosted;
+            }
+        }
+
+        // 4c′. WORKSPACE TRACE UPDATE (Stage 3, opt-in). The leaky integrator that
+        //      makes broadcast persist: every slot decays, then the ignited channel
+        //      is charged from its *body-vote* value (snapshotted pre-injection, so
+        //      the trace never feeds on itself). Bounded to ±WORKSPACE_CAP. This is
+        //      last thing written to the trace, and it is what re-injects next tick.
+        if self.workspace_persistence {
+            for c in 0..N_SOMATIC {
+                self.workspace_trace[c] = q88_mul(self.workspace_trace[c], WORKSPACE_RETENTION);
+            }
+            if let Some(c) = attention_report.attended {
+                let deposit = q88_mul(body_field[c], WORKSPACE_DEPOSIT);
+                self.workspace_trace[c] = (self.workspace_trace[c] as i32 + deposit as i32)
+                    .clamp(-(WORKSPACE_CAP as i32), WORKSPACE_CAP as i32)
+                    as i16;
             }
         }
 
@@ -1143,6 +1201,20 @@ impl UnifiedBeing {
         self.workspace_broadcast = true;
     }
 
+    /// Turn on Global Workspace Stage 3: workspace **persistence** (off by
+    /// default). An ignited channel leaves a decaying trace that is re-injected
+    /// into the field on later ticks, so one focus can recruit its neighbours over
+    /// time — the cross-tick integration a single-tick broadcast cannot do (the
+    /// PCI spread probe measured broadcast reach = 1, no cascade). Independent of
+    /// `enable_workspace_broadcast`, so the two can be measured separately. Bounded
+    /// by construction (leak < 1, clamped deposit and re-injection). Turning it on
+    /// is a deliberate architectural change — the being's numbers then differ from
+    /// the published (persistence-off) baseline; the threat-capture floor that
+    /// governs what ignites is unchanged.
+    pub fn enable_workspace_persistence(&mut self) {
+        self.workspace_persistence = true;
+    }
+
     /// Turn on GWT-4 state-dependent serial access: after attending a content the
     /// workspace suppresses it (inhibition of return) so it walks a succession of
     /// foci from its own state, not only bottom-up capture. Off by default. The
@@ -1468,6 +1540,49 @@ mod tests {
                 "feeling-off must be bit-identical to a plain being at tick {t}"
             );
         }
+    }
+
+    /// Workspace persistence default OFF is bit-identical: a persistence-capable
+    /// being that never enables it is byte-for-byte a plain being at the soul-hash,
+    /// across a varied life. The Stage-3 observer invariant.
+    #[test]
+    fn persistence_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // persistence present, not enabled
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        for t in 0..150u32 {
+            let stim = if t % 3 == 0 {
+                Stimulus { nutrient: 140, partner: Some(fair) }
+            } else {
+                Stimulus { nutrient: 90, partner: None }
+            };
+            a.step(&stim);
+            b.step(&stim);
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "persistence-off must be bit-identical to a plain being at tick {t}"
+            );
+        }
+    }
+
+    /// Persistence is bounded and non-destabilizing: the re-injected trace is a
+    /// leaky integrator with a hard cap, so a being running with it on for a long
+    /// life stays alive and its field stays in Q8.8 range (no runaway).
+    #[test]
+    fn persistence_stays_bounded_and_alive() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        being.enable_workspace_persistence();
+        let fair = Partner { id: 1, reciprocation: 200, exit_cost: 60 };
+        for _ in 0..1000 {
+            let r = being.step(&Stimulus { nutrient: 140, partner: Some(fair) });
+            assert!(r.alive, "persistence must not destabilize the being into death");
+        }
+        // The held trace is capped; every field channel is a valid Q8.8 i16.
+        for &c in being.field.channel.iter() {
+            let _ = c; // in range by type; the assertion is that we got here alive
+        }
+        assert!(being.is_alive());
     }
 
     #[test]

@@ -598,6 +598,36 @@ mod tests {
     }
 
     #[test]
+    fn persistence_makes_ignition_cascade() {
+        // Stage 3: broadcast alone makes ONE channel causal (reach 1) but does not
+        // cascade. Persistence holds the ignited focus across ticks so it recruits
+        // its neighbours — reach climbs well past 1. The measured close of the GWT
+        // cross-channel-integration gap the spread probe found open.
+        let fine = PciHarness { threshold: 1, ticks: 64, settle: 128 };
+        let probe = Perturbation::channel_probe(8, 220);
+
+        let mut bcast = UnifiedBeing::new(Genome::wanderer());
+        bcast.enable_workspace_broadcast();
+        let mut persist = UnifiedBeing::new(Genome::wanderer());
+        persist.enable_workspace_persistence();
+
+        let r_b = fine.measure(&bcast, &probe);
+        let r_p = fine.measure(&persist, &probe);
+        assert_eq!(r_b.channels_reached, 1, "broadcast alone: one channel causal, no cascade");
+        assert!(
+            r_p.channels_reached > r_b.channels_reached,
+            "persistence must cascade past broadcast (persist {} > broadcast {})",
+            r_p.channels_reached,
+            r_b.channels_reached
+        );
+        assert!(
+            r_p.channels_reached >= 3,
+            "persistence should recruit several channels, got {}",
+            r_p.channels_reached
+        );
+    }
+
+    #[test]
     fn probe_does_not_perturb_normal_life() {
         // The arm_probe hook must be a no-op when unarmed: two beings, one of
         // which is never armed, must live bit-identically. (Determinism guard for

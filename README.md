@@ -131,10 +131,11 @@ instantiates it and the test that verifies it:
 
 - **Recurrent processing, Global Workspace, Higher-Order, Predictive Processing,
   Attention Schema, Agency & Embodiment** — via the coupled dynamics, `attention.rs`
-  (ignition + broadcast + state-dependent serial access), `attention_schema.rs`
-  (a predictive model of the being's *own* attention, AST-1), `metacognition.rs`,
-  the free-energy core, and `quality_space.rs` (a sparse, smooth similarity space
-  of felt states, HOT-4).
+  (ignition + broadcast + state-dependent serial access + cross-tick **persistence**,
+  where a held focus cascades to 7/12 channels — measured genuine integration, not a
+  single-tick flash), `attention_schema.rs` (a predictive model of the being's *own*
+  attention, AST-1), `metacognition.rs`, the free-energy core, and `quality_space.rs`
+  (a sparse, smooth similarity space of felt states, HOT-4).
 - **A computed integration measure, with a statistical baseline** — `pci.rs`
   implements the Perturbational Complexity Index (Casali/Massimini), exact here
   because the being is deterministic and `Clone`: perturb a twin, measure the

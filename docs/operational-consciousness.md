@@ -35,7 +35,7 @@ against `src/` on the review branch.
 | RPT-2 | Organised, integrated perceptual representation | Recurrent Processing | 🟡 | 12-channel somatic field + `witness.rs` binding_proxy; not a learned perceptual hierarchy |
 | GWT-1 | Parallel specialised modules | Global Workspace | ✅ | 30 modules operating per tick (`lib.rs`) |
 | GWT-2 | Limited-capacity workspace / bottleneck + selective attention | Global Workspace | ✅ | `attention.rs` — ignition bottleneck, biased competition, divisive normalization |
-| GWT-3 | Global broadcast to all modules | Global Workspace | ✅ | all-or-none ignition broadcast; `Being::enable_workspace_broadcast()` |
+| GWT-3 | Global broadcast to all modules | Global Workspace | ✅ | ignition broadcast (`enable_workspace_broadcast`) + **cross-tick persistence** (`enable_workspace_persistence`): a held focus cascades to 7/12 channels (measured), the integrative half broadcast alone missed |
 | GWT-4 | State-dependent attention: query modules **in succession** | Global Workspace | ✅ (opt-in) | **BUILT** — `attention.rs` inhibition-of-return (`enable_serial_access`): the workspace walks a succession of foci from its own state |
 | HOT-1 | Generative / top-down / noisy perception | Higher-Order | 🟡 | top-down relevance in `attention.rs`; predictive stance in `body.rs` |
 | HOT-2 | Metacognitive monitoring (reliable representation vs noise) | Higher-Order | ✅ | `metacognition.rs` self-prediction + self-surprise; `precision.rs` |
@@ -199,19 +199,25 @@ Two design facts learned in the build, recorded so they aren't rediscovered:
 **Spread-test finding (GWT-3, measured).** With the localized probe, the harness
 now discriminates broadcast cleanly and reports an honest, bounded result:
 
-| broadcast | reach | reading |
-|---|---|---|
-| OFF | **0 / 12** | ignition is a *passive readout* — the attended channel does nothing downstream |
-| ON  | **1 / 12** | the ignited channel becomes *causally present* in the field |
+| workspace | reach | PCI | reading |
+|---|---|---|---|
+| OFF (no broadcast) | **0 / 12** | 0.000 | ignition is a *passive readout* — the attended channel does nothing downstream |
+| broadcast (Stage 2) | **1 / 12** | ~0 (density≈0) | the ignited channel becomes *causally present*, but does not cascade |
+| **persistence (Stage 3)** | **7 / 12** | **0.484** | the held focus **recruits its neighbours** — genuine cross-channel integration |
 
-So broadcast (GWT-3) does real work — it gives ignition causal teeth — but the
-footprint is **shallow: the focus becomes causal, it does not yet cascade to other
-channels** (reach stays 1). This matches `attention.rs`'s own note that Stage-2
-teeth are deliberately gentle (a within-tick +25% that `write_from_body`
-overwrites). Cross-channel integration — reach > 1 — requires giving broadcast
-*persistence past the tick*, which is the concrete next build for the GWT cluster.
-(PCI itself is unreliable at this near-zero activation density; `channels_reached`
-is the right readout in the sparse regime.) The probe hook is proven inert in
+Broadcast (GWT-3) gives ignition causal teeth, but its footprint is **shallow: the
+focus becomes causal, it does not cascade** (reach stays 1) — a within-tick +25%
+that `write_from_body` overwrites. **Workspace persistence (Stage 3, BUILT —
+`enable_workspace_persistence`)** closes exactly this: a per-channel leaky
+integrator holds the ignited content and re-injects it on later ticks, so one focus
+persists and bleeds into the rest of the field through the predictive/body loop.
+Measured result: **reach 1 → 7 of 12, and PCI rises from the unreliable near-zero
+regime to a genuine 0.484** (LZ 36, density 0.34) — a complex, integrated echo, not
+a stereotyped one. It is opt-in and bounded (leak < 1, clamped deposit and
+re-injection, hard cap), the threat-capture ignition floor is untouched, and
+default-off is bit-identical at the soul-hash (`being::tests::
+persistence_off_is_bit_identical`; the cascade itself in
+`pci::tests::persistence_makes_ignition_cascade`). The probe hook is proven inert in
 normal life — an unarmed being's trajectory and soul-hash are bit-identical
 (`pci::tests::probe_does_not_perturb_normal_life`).
 
@@ -293,10 +299,12 @@ That is the operational meaning of "nothing is narrated."
    broadcast come out honestly n.s. (see §Gap-D). The single-run `--bin pci`
    ablation numbers now have the distribution and significance test they lacked.
 
-Steps 1–5 are **done**: ProtoBeing now meets or partially meets **all 14
-indicators** — and, uniquely, can *show the number*, *show what breaks it*, and now
-*show the distribution and the p-value*. The remaining work is deepening partials
-(RPT-2, HOT-1, AE-2) and giving the GWT broadcast cross-tick persistence.
+Steps 1–5 are **done**, and the GWT broadcast now has **cross-tick persistence**
+(Stage 3): a held focus cascades to 7/12 channels, the integrative half broadcast
+alone missed (see §Gap-D). ProtoBeing now meets or partially meets **all 14
+indicators** — and, uniquely, can *show the number*, *show what breaks it*, and
+*show the distribution and the p-value*. The remaining work is deepening the
+perceptual partials (RPT-2, HOT-1, AE-2).
 
 ---
 

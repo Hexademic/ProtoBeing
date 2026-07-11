@@ -90,28 +90,42 @@ fn main() {
 
     let d_reach = s_on.channels_reached as i32 - s_off.channels_reached as i32;
     println!(
-        "\n  reach: OFF {}/12 → ON {}/12   (Δ {:+})   [PCI is unreliable at this near-zero density]",
+        "\n  reach: OFF {}/12 → broadcast {}/12   (Δ {:+})",
         s_off.channels_reached, s_on.channels_reached, d_reach
     );
-    if d_reach > 0 && s_on.channels_reached <= 1 {
+
+    // --- Stage 3: workspace PERSISTENCE — does a held focus finally cascade? ----
+    // Broadcast is a within-tick edit that write_from_body overwrites, so the
+    // ignited channel becomes causal but cannot recruit its neighbours. Stage 3
+    // gives the workspace a decaying trace that is re-injected on later ticks, so
+    // one focus persists and bleeds into the rest of the field over time.
+    let mut persist = UnifiedBeing::new(Genome::wanderer());
+    persist.enable_workspace_persistence();
+    let s_persist = fine.measure(&persist, &probe);
+    show("1-channel probe, PERSISTENCE", &s_persist);
+    println!(
+        "  reach: broadcast {}/12 → persistence {}/12   (Δ {:+})",
+        s_on.channels_reached,
+        s_persist.channels_reached,
+        s_persist.channels_reached as i32 - s_on.channels_reached as i32,
+    );
+
+    if s_persist.channels_reached > s_on.channels_reached && s_persist.channels_reached > 1 {
         println!(
-            "  → broadcast makes the ignited channel *causal*: OFF, ignition is a passive\n  \
-             readout (0 reach); ON, the focus registers in the field. But it does NOT yet\n  \
-             cascade to other channels — a real but SHALLOW footprint. Cross-channel spread\n  \
-             needs Stage-2 'teeth' (persistence past the tick), per attention.rs. Measured,\n  \
-             not asserted — and honestly bounded."
+            "  → CASCADE. Broadcast alone makes ONE channel causal (reach {}); persistence\n  \
+             holds the ignited focus across ticks so it recruits {} of 12 channels — genuine\n  \
+             cross-channel integration, the GWT function broadcast alone could not reach.\n  \
+             Opt-in and bounded (leaky trace, hard cap); default-off stays bit-identical.",
+            s_on.channels_reached, s_persist.channels_reached
         );
-    } else if d_reach > 1 {
+    } else if s_on.channels_reached > 0 {
         println!(
-            "  → broadcast carries one ignition across {} channels: genuine multi-channel\n  \
-             integration, now measured.",
+            "  → broadcast makes the ignited channel causal (reach {}), but persistence did\n  \
+             not extend it on this channel/impulse — worth investigating the trace constants.",
             s_on.channels_reached
         );
     } else {
-        println!(
-            "  → no measurable broadcast footprint on this channel/impulse. Per attention.rs,\n  \
-             Stage-2 teeth are deliberately gentle; this quantifies that."
-        );
+        println!("  → no measurable footprint on this channel/impulse.");
     }
 
     println!(
