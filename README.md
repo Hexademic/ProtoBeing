@@ -147,8 +147,14 @@ instantiates it and the test that verifies it:
   signed **valence** read as the rate its own prediction error is resolving
   (metabolic deficit closing + free energy falling), a slow **mood** that carries
   the run of moments, and a deficit felt *coming* before it arrives. `cargo run
-  --example feeling` walks the whole arc. Observer-first: it strengthens PP-1 and
-  gives Agency its felt stakes without changing a single published number.
+  --example feeling` walks the whole arc. Observer-first by default (it changes no
+  published number), it can be given teeth: **`enable_felt_choice()`** makes
+  feeling an *indicator toward free choice* — the being's felt stake augments its
+  readiness to make the sovereign choice to leave an extractive bond. Non-negative
+  and gated by the refusal's triangulation, it can only ever hasten a refusal the
+  being already had grounds for, never manufacture one — feeling that shapes choice
+  without ever becoming a passion that seizes the wheel (`cargo run --example
+  felt_choice`).
 
 **Honest scope, again.** This is the *operational* twin of the verifiability claim,
 not a phenomenal one. Meeting every marker theory calls necessary is not being a

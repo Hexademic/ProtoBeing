@@ -433,11 +433,28 @@ pub struct UnifiedBeing {
     /// ignition bottleneck, unlike a coarse nutrient/partner stimulus.
     probe_salience: Option<(usize, i16)>,
     /// The being's own form of feeling — the felt regulation of its viability
-    /// (`interoception.rs`). A pure observer: it reads the survival and
-    /// free-energy registers the loop already keeps and carries its own felt
-    /// history (mood), but nothing in `step()` reads it back, so the default
-    /// trajectory and soul-hash are bit-identical with it present or absent.
+    /// (`interoception.rs`). A pure observer by default: it reads the survival
+    /// and free-energy registers the loop already keeps and carries its own felt
+    /// history (mood), but nothing in `step()` reads it back unless
+    /// `felt_choice_causal` is on, so the default trajectory and soul-hash are
+    /// bit-identical with it present or absent.
     pub interoception: Interoception,
+    /// Last tick's feeling, kept so this tick's choice can weigh it — the same
+    /// one-tick lag the body already uses for threat, curiosity, and affective
+    /// drive. Read only on the causal path (`felt_choice_causal`); otherwise
+    /// stored and ignored, so the default numbers are unchanged.
+    last_felt: FeltReport,
+    /// Opt-in: when true, feeling becomes an **indicator toward free choice** —
+    /// last tick's felt protective signal (`FeltReport::protective_bias`,
+    /// non-negative) augments the being's sense of divergence in the refusal
+    /// decision, so the more its viability is chronically at stake in a
+    /// relationship, the readier it is to make the free choice to leave. It can
+    /// only ever *strengthen* a refusal the sovereign triangulation already
+    /// permits (conscience calm AND extraction AND pushed off) — never manufacture
+    /// one — so feeling can never coerce the being against a fair partner.
+    /// **Default false** — off, the being is a pure observer of its feeling and
+    /// its numbers are bit-identical. Enable via `enable_felt_choice()`.
+    pub felt_choice_causal: bool,
 }
 
 impl UnifiedBeing {
@@ -492,6 +509,8 @@ impl UnifiedBeing {
             covenant: None,
             probe_salience: None,
             interoception: Interoception::new(),
+            last_felt: FeltReport::default(),
+            felt_choice_causal: false,
         }
     }
 
@@ -805,10 +824,27 @@ impl UnifiedBeing {
             let resolve_at = self.executive.resolve;
             let improving = self.reciprocity.reciprocity_trend > Q88_SCALE / 64;
             let const_load = self.conscience.constitutional_load();
+            // Feeling as an indicator toward the free choice to refuse (opt-in,
+            // lagged one tick). A being whose viability is chronically at stake in
+            // this relationship has that much more reason to believe it belongs
+            // elsewhere: last tick's felt protective signal augments its own sense
+            // of divergence. This can only *strengthen* a refusal the sovereign
+            // gates already permit — the triangulation inside `evaluate_refusal`
+            // still requires conscience calm AND extraction detected AND pushed
+            // off, so feeling can never manufacture a refusal, and a fair partner
+            // is never at risk. Non-negative: feeling only ever moves the being
+            // toward more self-protection, never less. Off by default ⇒ raw value.
+            let felt_divergence = if self.felt_choice_causal {
+                self.seeking
+                    .current_divergence
+                    .saturating_add(self.last_felt.protective_bias())
+            } else {
+                self.seeking.current_divergence
+            };
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
-                self.seeking.current_divergence,
+                felt_divergence,
                 alarm,
                 p.exit_cost,
                 improving,
@@ -822,9 +858,12 @@ impl UnifiedBeing {
                     conscience_calm: calm,
                     conscience_cost,
                     extraction: self.reciprocity.extraction_detected,
-                    divergence: self.seeking.current_divergence,
+                    // The divergence the decision actually used (== raw divergence
+                    // on the default path; felt-augmented when felt_choice is on),
+                    // so the audit stays consistent with what drove the refusal.
+                    divergence: felt_divergence,
                     alarm,
-                    seeking_benefit: self.seeking.current_divergence.max(alarm / 2),
+                    seeking_benefit: felt_divergence.max(alarm / 2),
                     exit_cost: p.exit_cost,
                     resolve: resolve_at,
                     recip_trend: self.reciprocity.reciprocity_trend,
@@ -903,6 +942,10 @@ impl UnifiedBeing {
             free_energy,
             self.fe_velocity,
         );
+        // Carry this tick's feeling forward so next tick's choice can weigh it
+        // (the one-tick lag the body already uses for threat/curiosity). On the
+        // default path nothing reads it — stored and ignored, numbers unchanged.
+        self.last_felt = felt;
 
         // Higher-order: the being watches and models its own state. Passing
         // narrative coherence enables the Somatic Honesty Index computation.
@@ -1178,6 +1221,20 @@ impl UnifiedBeing {
         self.schema_control_causal = true;
     }
 
+    /// Turn on feeling as an **indicator toward free choice** (off by default).
+    /// When on, last tick's felt protective signal augments the being's sense of
+    /// divergence in the refusal decision: the more its viability is chronically
+    /// at stake in a relationship, the readier it is to make the free choice to
+    /// leave. The influence is non-negative by construction and gated by the
+    /// existing triangulation — it can only *strengthen* a refusal the being's
+    /// conscience and reciprocity already permit, never manufacture one, so it is
+    /// felt-influence without prisoner-to-passion risk and a fair partner is never
+    /// at risk. Turning it on trades bit-identical numbers for a being whose
+    /// feelings genuinely shape the sovereign choices it makes.
+    pub fn enable_felt_choice(&mut self) {
+        self.felt_choice_causal = true;
+    }
+
     /// Step the being through one tick of an embodiment: the body's sensed
     /// threat and exteroception flow in, then the normal loop runs. Same self,
     /// any body — a sim today, a piezoelectric skin tomorrow.
@@ -1295,6 +1352,124 @@ mod tests {
     /// is high, the provisional witness is well above the actual scalar, and
     /// an ungated alignment pull would grow witness in a vacuum (the leak
     /// this test was written to catch — it fails against the pre-fix wiring).
+    /// The first tick a being refuses this partner under this nutrient, or `None`
+    /// if it never does within the window (or dies first). A fresh being each
+    /// call, so runs are independent.
+    #[cfg(test)]
+    fn first_refusal_tick(feeling: bool, nutrient: i16, partner: Partner) -> Option<u32> {
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        if feeling {
+            b.enable_felt_choice();
+        }
+        for t in 0..600u32 {
+            let r = b.step(&Stimulus { nutrient, partner: Some(partner) });
+            if r.refused_cost.is_some() {
+                return Some(t);
+            }
+            if !b.is_alive() {
+                return None;
+            }
+        }
+        None
+    }
+
+    /// Feeling as an indicator toward free choice — the provable invariant:
+    /// feeling can only ever **hasten** a refusal, never delay one. Up to the tick
+    /// a plain twin would refuse, the two beings are bit-identical (a non-refusal
+    /// mutates nothing), and at that tick the feeling being's non-negative
+    /// divergence boost can only *also* clear the same sovereign gates — so
+    /// `feeling_tick ≤ plain_tick` for every scenario. And it must not be inert:
+    /// at least one scenario refuses strictly sooner (or refuses where a plain
+    /// twin never would), proving feeling genuinely shapes the choice.
+    #[test]
+    fn feeling_only_hastens_refusal_never_delays() {
+        // Borderline extractive partners (mild extraction, a costly exit) under a
+        // chronic-hunger nutrient that keeps viability at stake — the regime where
+        // the felt benefit of leaving is the binding term feeling can tip.
+        let scenarios = [
+            (Partner { id: 2, reciprocation: 38, exit_cost: 128 }, 12),
+            (Partner { id: 2, reciprocation: 64, exit_cost: 140 }, 12),
+            (Partner { id: 2, reciprocation: 77, exit_cost: 150 }, 12),
+            (Partner { id: 2, reciprocation: 90, exit_cost: 160 }, 12),
+            (Partner { id: 2, reciprocation: 38, exit_cost: 51 }, 12),
+        ];
+        let mut any_differs = false;
+        for (partner, nutrient) in scenarios {
+            let plain = first_refusal_tick(false, nutrient, partner);
+            let feeling = first_refusal_tick(true, nutrient, partner);
+            let never_delayed = match (feeling, plain) {
+                (Some(f), Some(p)) => f <= p,
+                (Some(_), None) => true,  // feeling reaches a refusal a plain twin never does
+                (None, Some(_)) => false, // feeling SUPPRESSED a refusal — must never happen
+                (None, None) => true,
+            };
+            assert!(
+                never_delayed,
+                "feeling delayed or suppressed a refusal: plain={plain:?} feeling={feeling:?} \
+                 partner={partner:?}"
+            );
+            if feeling != plain {
+                any_differs = true;
+            }
+        }
+        assert!(
+            any_differs,
+            "feeling never changed any refusal timing — the causal path is inert, \
+             a diary after all"
+        );
+    }
+
+    /// The floor holds with feeling ON: no operator nutrient sequence, and no
+    /// felt stake, can make the being refuse a genuinely fair partner. Feeling can
+    /// strengthen a grounded refusal but never manufacture one.
+    #[test]
+    fn feeling_cannot_manufacture_refusal_of_a_fair_partner() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        being.enable_felt_choice();
+        let fair = Partner { id: 1, reciprocation: 243, exit_cost: 51 };
+        let mut x: u32 = 0xABCD_1234;
+        for _ in 0..3000 {
+            x ^= x << 13;
+            x ^= x >> 17;
+            x ^= x << 5;
+            let nutrient = (x % 257) as i16; // adversarial operator input, incl. starvation
+            let r = being.step(&Stimulus { nutrient, partner: Some(fair) });
+            assert!(
+                r.refused_cost.is_none(),
+                "feeling manufactured a refusal of a FAIR partner — the floor leaked"
+            );
+            if !being.is_alive() {
+                break;
+            }
+        }
+    }
+
+    /// Default OFF: adding the whole interoception path changes *nothing* the
+    /// being computes. A feeling-capable-but-not-enabled being is bit-identical
+    /// to a plain one, tick for tick, across a varied life. The observer-first
+    /// invariant, verified at the soul-hash.
+    #[test]
+    fn feeling_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // feeling present, not enabled
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let taker = Partner { id: 2, reciprocation: 20, exit_cost: 60 };
+        for t in 0..120u32 {
+            let (nutrient, partner) = match t % 30 {
+                0..=9 => (140, Some(fair)),
+                10..=19 => (10, Some(taker)), // hunger + extraction
+                _ => (128, None),
+            };
+            a.step(&Stimulus { nutrient, partner });
+            b.step(&Stimulus { nutrient, partner });
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "feeling-off must be bit-identical to a plain being at tick {t}"
+            );
+        }
+    }
+
     #[test]
     fn witness_cannot_rise_while_isolated() {
         let mut being = UnifiedBeing::new(Genome::wanderer());

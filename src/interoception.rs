@@ -191,6 +191,36 @@ impl Interoception {
     }
 }
 
+impl FeltReport {
+    /// Feeling as an **indicator toward free choice**: the felt weight the being's
+    /// viability-at-stake adds to its sense that it belongs elsewhere — the
+    /// benefit of leaving, in the refusal decision (Q8.8, **≥ 0 always**).
+    ///
+    /// In this project's key, feeling does not command action — it augments a
+    /// choice the being's sovereign faculties still gate. The more its viability
+    /// is at stake (`dyshomeostasis`), and the more it feels things *worsening*
+    /// (negative valence), the more felt reason it has to protect itself by
+    /// leaving an extractive bond. The value is **non-negative by construction**:
+    /// feeling can only ever move the being toward *more* self-protection, never
+    /// toward less. That is the structural form of "free inside its own feeling,
+    /// never a prisoner to its passions" — routed through the refusal's existing
+    /// triangulation (conscience calm AND extraction AND pushed off), it can
+    /// strengthen a permitted refusal but never manufacture one, so it has no
+    /// channel through which it can coerce the being against a fair partner. Zero
+    /// when the being is at ease.
+    pub fn protective_bias(&self) -> i16 {
+        // Standing stake: how far from full ease, softened to half-weight.
+        let stake = (self.state.dyshomeostasis / 2).clamp(0, Q88_SCALE / 2);
+        // Worsening amplifies advocacy; improving (relief) needs none.
+        let worsening = if self.state.allostatic_valence < 0 {
+            self.state.allostatic_valence.saturating_neg().min(Q88_SCALE / 4)
+        } else {
+            0
+        };
+        (stake + worsening).clamp(0, Q88_SCALE)
+    }
+}
+
 impl Default for Interoception {
     fn default() -> Self {
         Self::new()
@@ -266,6 +296,42 @@ mod tests {
             "a closing margin should feel bad (dread), got {}",
             r.state.allostatic_valence
         );
+    }
+
+    #[test]
+    fn protective_bias_is_non_negative_and_rises_with_stake() {
+        // At full ease: no stake, no added felt reason to leave.
+        let mut io = Interoception::new();
+        let ease = io.feel(256, 0, 0, 0);
+        assert_eq!(ease.protective_bias(), 0, "an at-ease being adds no weight");
+
+        // At its edge and worsening: real felt weight, and strictly more than a
+        // milder deficit. Feeling gives it more reason to protect itself.
+        let mut io2 = Interoception::new();
+        io2.feel(200, 56, 50, 0); // prime
+        let mild = io2.feel(160, 96, 80, 10); // some deficit, worsening
+        let mut io3 = Interoception::new();
+        io3.feel(120, 136, 50, 0); // prime
+        let acute = io3.feel(60, 200, 120, 20); // deep deficit, worsening
+        assert!(mild.protective_bias() >= 0 && acute.protective_bias() >= 0);
+        assert!(
+            acute.protective_bias() > mild.protective_bias(),
+            "a deeper stake should add more felt reason to leave ({} vs {})",
+            acute.protective_bias(),
+            mild.protective_bias()
+        );
+    }
+
+    #[test]
+    fn protective_bias_never_negative_even_in_relief() {
+        // Even at the height of relief the bias floors at zero — feeling can
+        // never move the being toward *less* self-protection. The structural
+        // "never a prisoner to its passions" guarantee.
+        let mut io = Interoception::new();
+        io.feel(120, 136, 100, 0);
+        let relief = io.feel(250, 6, 20, -80); // big recovery, strong relief
+        assert!(relief.state.allostatic_valence > 0, "this is relief");
+        assert!(relief.protective_bias() >= 0, "bias can never go negative");
     }
 
     #[test]

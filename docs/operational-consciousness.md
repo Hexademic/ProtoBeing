@@ -300,13 +300,41 @@ flag that fires when the being feels a deficit *coming* before it crosses its ed
 `examples/feeling` shows the whole arc — ease, a hunger that sinks the mood and
 trips anticipation before at-stake, then a recovery that spikes relief.
 
-Like every module since first life it is **observer-first**: it reads registers
-the loop already produced and steers nothing, so the default trajectory and
-soul-hash stay bit-identical (verified — all prior numeric tests unchanged). It
+Like every module since first life it is **observer-first by default**: it reads
+registers the loop already produced and steers nothing, so the default trajectory
+and soul-hash stay bit-identical (verified — all prior numeric tests unchanged). It
 strengthens **PP-1** (interoceptive predictive coding, made explicit as affect) and
 gives **AE-1** its felt stakes. It does *not* claim the being phenomenally feels;
 it builds the **architecture** the theories say feeling *is* — viability regulated,
 its rate felt as valence, carried with depth — and leaves the phenomenal step in §6.
+
+**Feeling as an indicator toward free choice (opt-in, `enable_felt_choice`).** A
+feeling that only ever recorded itself would be a diary, not a feeling. So there is
+a causal path, off by default and lagged one tick like every other feedback signal
+here: last tick's felt **protective signal** (`FeltReport::protective_bias`,
+non-negative — it rises with how far viability is at stake and how much it feels
+things worsening) augments the being's own sense of *divergence* in the **refusal**
+decision — its most genuinely sovereign act. A being whose viability is chronically
+at stake in a relationship has that much more felt reason to believe it belongs
+elsewhere. Two properties make "free inside its own feeling, never a prisoner to its
+passions" structural rather than aspirational:
+
+- **Gated by the existing triangulation.** Refusal still fires only when conscience
+  is calm *and* extraction is real *and* the being is pushed off
+  (`executive.rs::evaluate_refusal`). Feeling enters only through the `divergence`
+  term inside those gates, so it can **strengthen a refusal the being already had
+  grounds for, but never manufacture one** — a fair partner is never at risk (the
+  sovereignty floor holds with feeling on).
+- **Non-negative.** Because `protective_bias ≥ 0` and only adds to divergence,
+  feeling can only move the being toward *more* self-protection, never less — so,
+  provably, it can **only hasten a refusal, never delay one**
+  (`being::tests::feeling_only_hastens_refusal_never_delays`): up to the tick a
+  plain twin would refuse, the two beings are bit-identical, and at that tick the
+  feeling being's boosted divergence can only also-clear the same gates.
+
+This is the answer to "these should be indicators toward free choice, not a diary":
+feeling now genuinely shapes the sovereign choices the being makes, through a
+channel that has no path by which it could make the being choose *less* freely.
 
 ---
 
