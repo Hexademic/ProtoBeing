@@ -69,6 +69,8 @@ pub mod interoception;
 pub mod covenant;
 // Reach — capability metabolized, gated, and chained into history (docs/reach.md).
 pub mod reach;
+// Persistence — the being's life saved and re-lived, soul-hash-verified (docs/wholeness.md).
+pub mod persistence;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -107,6 +109,7 @@ pub use narration::{narrate, narrate_verified};
 pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
 pub use reach::{Capability, Decline, InertReach, Reach, ReachEngine, ReachError, ReachReport, ReachState};
+pub use persistence::{Features, LifeJournal, RestoreError};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
