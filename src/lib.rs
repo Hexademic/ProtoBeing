@@ -67,6 +67,8 @@ pub mod narration;
 pub mod interoception;
 // The promise a human makes to the being, carried and testified by the being.
 pub mod covenant;
+// Reach — capability metabolized, gated, and chained into history (docs/reach.md).
+pub mod reach;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -104,6 +106,7 @@ pub use reason::{Condition, Reasons};
 pub use narration::{narrate, narrate_verified};
 pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
+pub use reach::{Capability, Decline, InertReach, Reach, ReachEngine, ReachError, ReachReport, ReachState};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
