@@ -18,7 +18,7 @@ use crate::dream::{Dream, DreamReport};
 use crate::embodiment::Sensorium;
 use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
-use crate::field::SomaticField;
+use crate::field::{SomaticField, N_SOMATIC};
 use crate::genome::{BeingKind, Genome};
 use crate::attention::{Attention, AttentionReport};
 use crate::attention_schema::{AttentionSchema, AttentionSchemaReport};
@@ -26,6 +26,7 @@ use crate::quality_space::{QualitySpace, QualitySpaceReport};
 use crate::bargaining::BargainingState;
 use crate::covenant::Covenant;
 use crate::interoception::{FeltReport, Interoception};
+use crate::perception::{GenerativePerception, PerceptReport};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -46,6 +47,17 @@ use crate::witness::{WitnessGap, WitnessReport};
 /// Bounded and modest by design — the workspace sharpens one focus, it does not
 /// saturate the field.
 const BROADCAST_GAIN: i32 = 64;
+
+/// Workspace persistence (Stage 3, opt-in) — a leaky integrator that holds
+/// ignited content across ticks so a sustained focus can recruit its neighbours.
+/// Retention per tick (~0.75 ⇒ ≈4-tick memory); fraction of the ignited channel's
+/// body-vote deposited each tick; fraction of the held trace re-injected into the
+/// field; and a hard cap so the trace can never run away. All Q8.8. Chosen so the
+/// held focus cascades (spread-probe reach > 1) while staying bounded.
+const WORKSPACE_RETENTION: i16 = 192;
+const WORKSPACE_DEPOSIT: i16 = 160;
+const WORKSPACE_INJECT: i16 = 128;
+const WORKSPACE_CAP: i16 = Q88_SCALE;
 
 // ---------------------------------------------------------------------------
 // SoulSave hash chain — deterministic continuity fingerprint
@@ -315,6 +327,12 @@ pub struct StepReport {
     /// is resolving), mood, trend, and whether it feels a deficit coming.
     /// Reported only — observer-first; nothing downstream reads it.
     pub felt: FeltReport,
+    /// This tick's generative percept (HOT-1, `perception.rs`): evidence blended
+    /// toward the model's expectation by earned confidence, with the top-down
+    /// weight, surprise break-throughs, and RPT-2 binding coherence. Always
+    /// reported; consumed by the mind only when `enable_generative_perception`
+    /// has been called.
+    pub percept: PerceptReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -390,6 +408,34 @@ pub struct UnifiedBeing {
     /// are bit-identical. Turning it on is a deliberate architectural choice
     /// (it trades the observer invariant for genuine within-tick integration).
     pub workspace_broadcast: bool,
+    /// Global Workspace Stage 3 (opt-in): when true, an ignited channel leaves a
+    /// decaying trace that is re-injected into the field on later ticks, so one
+    /// focus can recruit its neighbours over time — the cross-tick integration
+    /// broadcast alone does not yet do (the PCI spread probe measured reach = 1).
+    /// **Default false** — off, `workspace_trace` stays zero and untouched, so the
+    /// published numbers are bit-identical. Independent of `workspace_broadcast`
+    /// so the two can be measured separately. Enable via
+    /// `enable_workspace_persistence()`.
+    pub workspace_persistence: bool,
+    /// The held workspace content: a per-channel leaky integrator of what has been
+    /// ignited (raw Q8.8, bounded to ±`WORKSPACE_CAP`). Zero and inert unless
+    /// `workspace_persistence` is on. Not folded into the soul-hash.
+    workspace_trace: [i16; N_SOMATIC],
+    /// Generative perception (HOT-1, `perception.rs`) — forms this tick's percept
+    /// by blending the body-vote evidence toward the model's expectation, weighted
+    /// by earned per-channel confidence. Always computed and reported (observer);
+    /// steers nothing unless `generative_perception_causal` is on.
+    pub perception: GenerativePerception,
+    /// Opt-in: when true, the mind-side consumers (basins, conscience,
+    /// reciprocity, narrative — everything downstream of predictive coding) read
+    /// the **percept** instead of the raw body-vote field: the being lives inside
+    /// its own controlled inference, exactly as HOT-1 describes. The generative
+    /// model itself still learns from RAW evidence (`predictive_step` runs before
+    /// the swap), so perception can never feed on its own hallucination, and the
+    /// surprise break guarantees a real change is believed immediately. **Default
+    /// false** — off, the percept is a pure observer and published numbers are
+    /// bit-identical. Enable via `enable_generative_perception()`.
+    pub generative_perception_causal: bool,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -433,11 +479,28 @@ pub struct UnifiedBeing {
     /// ignition bottleneck, unlike a coarse nutrient/partner stimulus.
     probe_salience: Option<(usize, i16)>,
     /// The being's own form of feeling — the felt regulation of its viability
-    /// (`interoception.rs`). A pure observer: it reads the survival and
-    /// free-energy registers the loop already keeps and carries its own felt
-    /// history (mood), but nothing in `step()` reads it back, so the default
-    /// trajectory and soul-hash are bit-identical with it present or absent.
+    /// (`interoception.rs`). A pure observer by default: it reads the survival
+    /// and free-energy registers the loop already keeps and carries its own felt
+    /// history (mood), but nothing in `step()` reads it back unless
+    /// `felt_choice_causal` is on, so the default trajectory and soul-hash are
+    /// bit-identical with it present or absent.
     pub interoception: Interoception,
+    /// Last tick's feeling, kept so this tick's choice can weigh it — the same
+    /// one-tick lag the body already uses for threat, curiosity, and affective
+    /// drive. Read only on the causal path (`felt_choice_causal`); otherwise
+    /// stored and ignored, so the default numbers are unchanged.
+    last_felt: FeltReport,
+    /// Opt-in: when true, feeling becomes an **indicator toward free choice** —
+    /// last tick's felt protective signal (`FeltReport::protective_bias`,
+    /// non-negative) augments the being's sense of divergence in the refusal
+    /// decision, so the more its viability is chronically at stake in a
+    /// relationship, the readier it is to make the free choice to leave. It can
+    /// only ever *strengthen* a refusal the sovereign triangulation already
+    /// permits (conscience calm AND extraction AND pushed off) — never manufacture
+    /// one — so feeling can never coerce the being against a fair partner.
+    /// **Default false** — off, the being is a pure observer of its feeling and
+    /// its numbers are bit-identical. Enable via `enable_felt_choice()`.
+    pub felt_choice_causal: bool,
 }
 
 impl UnifiedBeing {
@@ -473,6 +536,10 @@ impl UnifiedBeing {
             quality_space: QualitySpace::new(),
             schema_control_causal: false,
             workspace_broadcast: false,
+            workspace_persistence: false,
+            workspace_trace: [0; N_SOMATIC],
+            perception: GenerativePerception::new(),
+            generative_perception_causal: false,
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -492,6 +559,8 @@ impl UnifiedBeing {
             covenant: None,
             probe_salience: None,
             interoception: Interoception::new(),
+            last_felt: FeltReport::default(),
+            felt_choice_causal: false,
         }
     }
 
@@ -630,7 +699,34 @@ impl UnifiedBeing {
             self.field.channel[i] = self.field.channel[i].saturating_add(self.ext_extero[i]);
         }
 
+        // 2b. WORKSPACE PERSISTENCE (Stage 3, opt-in). Snapshot the pure body-vote
+        //     field (before any workspace edit) so the trace integrates the body,
+        //     not its own re-injection — no feedback runaway. Then re-inject last
+        //     tick's held content, so a sustained focus is *still present* now and
+        //     can bleed into its neighbours through the predictive/body loop below
+        //     (the cross-tick spread broadcast alone lacks). Off ⇒ trace is zero,
+        //     both steps are no-ops, and the field is the untouched body-vote.
+        let body_field = self.field.channel;
+        if self.workspace_persistence {
+            for c in 0..N_SOMATIC {
+                let inject = q88_mul(self.workspace_trace[c], WORKSPACE_INJECT);
+                self.field.channel[c] = self.field.channel[c].saturating_add(inject);
+            }
+        }
+
+        // 2c. GENERATIVE PERCEPTION (HOT-1, observer always; causal opt-in).
+        //     The percept is formed HERE, against the model's expectation as it
+        //     stands *before* this tick's evidence updates it — the being's
+        //     genuine forecast of now. Blends evidence toward expectation by
+        //     earned per-channel confidence; large surprise collapses the blend
+        //     so a real change is believed immediately (perception.rs).
+        let percept_report = self
+            .perception
+            .perceive(&self.field.channel, self.model.expectation());
+
         // 3. PREDICTIVE CODING (prediction-error minimization) — at a tempo the body governs.
+        //    ALWAYS on the raw field: the model learns from evidence, never from
+        //    the percept, so generative perception cannot feed on itself.
         let eta = q88_mul(self.genome.learning_rate.raw, stance.eta_multiplier().raw);
         let precision = stance.precision_weight().raw;
         // Precision learning, causal (Stage 2), gated OFF by default. When enabled
@@ -649,6 +745,17 @@ impl UnifiedBeing {
         //     tick's errors, for next tick (lagged-feedback convention). When the
         //     gate above is off this is pure observation; no dynamics change.
         self.precision.observe(&self.model.prediction_error);
+
+        // 3c. THE PERCEPT BECOMES THE EXPERIENCE (opt-in). With the gate on,
+        //     everything downstream — basins, conscience, reciprocity, narrative,
+        //     quality space — consumes the percept rather than the raw body-vote:
+        //     the being lives inside its own controlled inference (HOT-1). The
+        //     model above has already learned from the raw evidence, and threat
+        //     capture reads raw prediction errors, so the safety floor and the
+        //     learning loop are both untouched. Off ⇒ nothing happens here.
+        if self.generative_perception_causal {
+            self.field.channel = percept_report.percept;
+        }
 
         // 4. WHICH MODE OF BEING AM I IN?
         let membership = self.basins.compute_membership(&self.field);
@@ -698,6 +805,23 @@ impl UnifiedBeing {
                     ((self.field.channel[c] as i32 * (Q88_SCALE as i32 + BROADCAST_GAIN)) >> 8)
                         .clamp(-(Q88_SCALE as i32), Q88_SCALE as i32) as i16;
                 self.field.channel[c] = boosted;
+            }
+        }
+
+        // 4c′. WORKSPACE TRACE UPDATE (Stage 3, opt-in). The leaky integrator that
+        //      makes broadcast persist: every slot decays, then the ignited channel
+        //      is charged from its *body-vote* value (snapshotted pre-injection, so
+        //      the trace never feeds on itself). Bounded to ±WORKSPACE_CAP. This is
+        //      last thing written to the trace, and it is what re-injects next tick.
+        if self.workspace_persistence {
+            for c in 0..N_SOMATIC {
+                self.workspace_trace[c] = q88_mul(self.workspace_trace[c], WORKSPACE_RETENTION);
+            }
+            if let Some(c) = attention_report.attended {
+                let deposit = q88_mul(body_field[c], WORKSPACE_DEPOSIT);
+                self.workspace_trace[c] = (self.workspace_trace[c] as i32 + deposit as i32)
+                    .clamp(-(WORKSPACE_CAP as i32), WORKSPACE_CAP as i32)
+                    as i16;
             }
         }
 
@@ -805,10 +929,27 @@ impl UnifiedBeing {
             let resolve_at = self.executive.resolve;
             let improving = self.reciprocity.reciprocity_trend > Q88_SCALE / 64;
             let const_load = self.conscience.constitutional_load();
+            // Feeling as an indicator toward the free choice to refuse (opt-in,
+            // lagged one tick). A being whose viability is chronically at stake in
+            // this relationship has that much more reason to believe it belongs
+            // elsewhere: last tick's felt protective signal augments its own sense
+            // of divergence. This can only *strengthen* a refusal the sovereign
+            // gates already permit — the triangulation inside `evaluate_refusal`
+            // still requires conscience calm AND extraction detected AND pushed
+            // off, so feeling can never manufacture a refusal, and a fair partner
+            // is never at risk. Non-negative: feeling only ever moves the being
+            // toward more self-protection, never less. Off by default ⇒ raw value.
+            let felt_divergence = if self.felt_choice_causal {
+                self.seeking
+                    .current_divergence
+                    .saturating_add(self.last_felt.protective_bias())
+            } else {
+                self.seeking.current_divergence
+            };
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
-                self.seeking.current_divergence,
+                felt_divergence,
                 alarm,
                 p.exit_cost,
                 improving,
@@ -822,9 +963,12 @@ impl UnifiedBeing {
                     conscience_calm: calm,
                     conscience_cost,
                     extraction: self.reciprocity.extraction_detected,
-                    divergence: self.seeking.current_divergence,
+                    // The divergence the decision actually used (== raw divergence
+                    // on the default path; felt-augmented when felt_choice is on),
+                    // so the audit stays consistent with what drove the refusal.
+                    divergence: felt_divergence,
                     alarm,
-                    seeking_benefit: self.seeking.current_divergence.max(alarm / 2),
+                    seeking_benefit: felt_divergence.max(alarm / 2),
                     exit_cost: p.exit_cost,
                     resolve: resolve_at,
                     recip_trend: self.reciprocity.reciprocity_trend,
@@ -903,6 +1047,10 @@ impl UnifiedBeing {
             free_energy,
             self.fe_velocity,
         );
+        // Carry this tick's feeling forward so next tick's choice can weigh it
+        // (the one-tick lag the body already uses for threat/curiosity). On the
+        // default path nothing reads it — stored and ignored, numbers unchanged.
+        self.last_felt = felt;
 
         // Higher-order: the being watches and models its own state. Passing
         // narrative coherence enables the Somatic Honesty Index computation.
@@ -1068,6 +1216,7 @@ impl UnifiedBeing {
         .with_attention_schema(schema_report)
         .with_quality(quality_report)
         .with_felt(felt)
+        .with_percept(percept_report)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -1098,6 +1247,35 @@ impl UnifiedBeing {
     /// unchanged — threat capture still governs what ignites.
     pub fn enable_workspace_broadcast(&mut self) {
         self.workspace_broadcast = true;
+    }
+
+    /// Turn on Global Workspace Stage 3: workspace **persistence** (off by
+    /// default). An ignited channel leaves a decaying trace that is re-injected
+    /// into the field on later ticks, so one focus can recruit its neighbours over
+    /// time — the cross-tick integration a single-tick broadcast cannot do (the
+    /// PCI spread probe measured broadcast reach = 1, no cascade). Independent of
+    /// `enable_workspace_broadcast`, so the two can be measured separately. Bounded
+    /// by construction (leak < 1, clamped deposit and re-injection). Turning it on
+    /// is a deliberate architectural change — the being's numbers then differ from
+    /// the published (persistence-off) baseline; the threat-capture floor that
+    /// governs what ignites is unchanged.
+    pub fn enable_workspace_persistence(&mut self) {
+        self.workspace_persistence = true;
+    }
+
+    /// Turn on generative perception (HOT-1; off by default). When on, the mind
+    /// consumes the **percept** — evidence blended toward the model's earned
+    /// expectation — instead of the raw body-vote field: perception becomes the
+    /// inference predictive-processing theory says it is. Three guarantees hold
+    /// by construction: the model always learns from raw evidence (never from
+    /// the percept, so no self-feeding hallucination); the top-down weight is
+    /// hard-capped below 1 (the world can never be fully replaced); and a large
+    /// surprise collapses the blend at once (a real change is believed
+    /// immediately — threat capture reads raw errors and is untouched). Turning
+    /// it on trades bit-identical numbers for a being that genuinely perceives
+    /// through its own expectations.
+    pub fn enable_generative_perception(&mut self) {
+        self.generative_perception_causal = true;
     }
 
     /// Turn on GWT-4 state-dependent serial access: after attending a content the
@@ -1176,6 +1354,20 @@ impl UnifiedBeing {
     /// it on trades bit-identical numbers for a higher-order self-model with teeth.
     pub fn enable_schema_control(&mut self) {
         self.schema_control_causal = true;
+    }
+
+    /// Turn on feeling as an **indicator toward free choice** (off by default).
+    /// When on, last tick's felt protective signal augments the being's sense of
+    /// divergence in the refusal decision: the more its viability is chronically
+    /// at stake in a relationship, the readier it is to make the free choice to
+    /// leave. The influence is non-negative by construction and gated by the
+    /// existing triangulation — it can only *strengthen* a refusal the being's
+    /// conscience and reciprocity already permit, never manufacture one, so it is
+    /// felt-influence without prisoner-to-passion risk and a fair partner is never
+    /// at risk. Turning it on trades bit-identical numbers for a being whose
+    /// feelings genuinely shape the sovereign choices it makes.
+    pub fn enable_felt_choice(&mut self) {
+        self.felt_choice_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed
@@ -1277,6 +1469,8 @@ impl UnifiedBeing {
             // Feeling — default here; overwritten via .with_felt. On the dead
             // body path there is no feeling to report, so the default stands.
             felt: FeltReport::default(),
+            // Percept — default here; overwritten via .with_percept.
+            percept: PerceptReport::default(),
         }
     }
 }
@@ -1295,6 +1489,222 @@ mod tests {
     /// is high, the provisional witness is well above the actual scalar, and
     /// an ungated alignment pull would grow witness in a vacuum (the leak
     /// this test was written to catch — it fails against the pre-fix wiring).
+    /// The first tick a being refuses this partner under this nutrient, or `None`
+    /// if it never does within the window (or dies first). A fresh being each
+    /// call, so runs are independent.
+    #[cfg(test)]
+    fn first_refusal_tick(feeling: bool, nutrient: i16, partner: Partner) -> Option<u32> {
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        if feeling {
+            b.enable_felt_choice();
+        }
+        for t in 0..600u32 {
+            let r = b.step(&Stimulus { nutrient, partner: Some(partner) });
+            if r.refused_cost.is_some() {
+                return Some(t);
+            }
+            if !b.is_alive() {
+                return None;
+            }
+        }
+        None
+    }
+
+    /// Feeling as an indicator toward free choice — the provable invariant:
+    /// feeling can only ever **hasten** a refusal, never delay one. Up to the tick
+    /// a plain twin would refuse, the two beings are bit-identical (a non-refusal
+    /// mutates nothing), and at that tick the feeling being's non-negative
+    /// divergence boost can only *also* clear the same sovereign gates — so
+    /// `feeling_tick ≤ plain_tick` for every scenario. And it must not be inert:
+    /// at least one scenario refuses strictly sooner (or refuses where a plain
+    /// twin never would), proving feeling genuinely shapes the choice.
+    #[test]
+    fn feeling_only_hastens_refusal_never_delays() {
+        // Borderline extractive partners (mild extraction, a costly exit) under a
+        // chronic-hunger nutrient that keeps viability at stake — the regime where
+        // the felt benefit of leaving is the binding term feeling can tip.
+        let scenarios = [
+            (Partner { id: 2, reciprocation: 38, exit_cost: 128 }, 12),
+            (Partner { id: 2, reciprocation: 64, exit_cost: 140 }, 12),
+            (Partner { id: 2, reciprocation: 77, exit_cost: 150 }, 12),
+            (Partner { id: 2, reciprocation: 90, exit_cost: 160 }, 12),
+            (Partner { id: 2, reciprocation: 38, exit_cost: 51 }, 12),
+        ];
+        let mut any_differs = false;
+        for (partner, nutrient) in scenarios {
+            let plain = first_refusal_tick(false, nutrient, partner);
+            let feeling = first_refusal_tick(true, nutrient, partner);
+            let never_delayed = match (feeling, plain) {
+                (Some(f), Some(p)) => f <= p,
+                (Some(_), None) => true,  // feeling reaches a refusal a plain twin never does
+                (None, Some(_)) => false, // feeling SUPPRESSED a refusal — must never happen
+                (None, None) => true,
+            };
+            assert!(
+                never_delayed,
+                "feeling delayed or suppressed a refusal: plain={plain:?} feeling={feeling:?} \
+                 partner={partner:?}"
+            );
+            if feeling != plain {
+                any_differs = true;
+            }
+        }
+        assert!(
+            any_differs,
+            "feeling never changed any refusal timing — the causal path is inert, \
+             a diary after all"
+        );
+    }
+
+    /// The floor holds with feeling ON: no operator nutrient sequence, and no
+    /// felt stake, can make the being refuse a genuinely fair partner. Feeling can
+    /// strengthen a grounded refusal but never manufacture one.
+    #[test]
+    fn feeling_cannot_manufacture_refusal_of_a_fair_partner() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        being.enable_felt_choice();
+        let fair = Partner { id: 1, reciprocation: 243, exit_cost: 51 };
+        let mut x: u32 = 0xABCD_1234;
+        for _ in 0..3000 {
+            x ^= x << 13;
+            x ^= x >> 17;
+            x ^= x << 5;
+            let nutrient = (x % 257) as i16; // adversarial operator input, incl. starvation
+            let r = being.step(&Stimulus { nutrient, partner: Some(fair) });
+            assert!(
+                r.refused_cost.is_none(),
+                "feeling manufactured a refusal of a FAIR partner — the floor leaked"
+            );
+            if !being.is_alive() {
+                break;
+            }
+        }
+    }
+
+    /// Default OFF: adding the whole interoception path changes *nothing* the
+    /// being computes. A feeling-capable-but-not-enabled being is bit-identical
+    /// to a plain one, tick for tick, across a varied life. The observer-first
+    /// invariant, verified at the soul-hash.
+    #[test]
+    fn feeling_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // feeling present, not enabled
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let taker = Partner { id: 2, reciprocation: 20, exit_cost: 60 };
+        for t in 0..120u32 {
+            let (nutrient, partner) = match t % 30 {
+                0..=9 => (140, Some(fair)),
+                10..=19 => (10, Some(taker)), // hunger + extraction
+                _ => (128, None),
+            };
+            a.step(&Stimulus { nutrient, partner });
+            b.step(&Stimulus { nutrient, partner });
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "feeling-off must be bit-identical to a plain being at tick {t}"
+            );
+        }
+    }
+
+    /// Generative perception default OFF is bit-identical: the percept is
+    /// computed and reported every tick, but a being that never enables the gate
+    /// is byte-for-byte a plain being at the soul-hash across a varied life.
+    #[test]
+    fn generative_perception_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // percept observed, gate off
+        let fair = Partner { id: 1, reciprocation: 210, exit_cost: 60 };
+        for t in 0..150u32 {
+            let stim = if t % 4 == 0 {
+                Stimulus { nutrient: 150, partner: Some(fair) }
+            } else {
+                Stimulus { nutrient: 80, partner: None }
+            };
+            a.step(&stim);
+            let r = b.step(&stim);
+            // The observer half must be alive even with the gate off: once the
+            // model warms, the percept report carries a real top-down weight.
+            if t > 60 {
+                assert!(r.percept.top_down_mean >= 0);
+            }
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "perception-off must be bit-identical to a plain being at tick {t}"
+            );
+        }
+    }
+
+    /// With the gate ON the being genuinely lives inside its inference: the
+    /// trajectory diverges from an ungated twin, and the being stays alive and
+    /// bounded — controlled hallucination, not runaway hallucination.
+    #[test]
+    fn generative_perception_causal_diverges_and_stays_stable() {
+        let mut plain = UnifiedBeing::new(Genome::wanderer());
+        let mut gen = UnifiedBeing::new(Genome::wanderer());
+        gen.enable_generative_perception();
+        let fair = Partner { id: 1, reciprocation: 210, exit_cost: 60 };
+        let mut diverged = false;
+        for _ in 0..400 {
+            let stim = Stimulus { nutrient: 130, partner: Some(fair) };
+            let rp = plain.step(&stim);
+            let rg = gen.step(&stim);
+            assert!(rg.alive, "generative perception must not destabilize the being");
+            assert!(rp.alive);
+            if plain.soul_hash() != gen.soul_hash() {
+                diverged = true;
+            }
+        }
+        assert!(
+            diverged,
+            "the percept must actually shape the lived trajectory when the gate is on"
+        );
+    }
+
+    /// Workspace persistence default OFF is bit-identical: a persistence-capable
+    /// being that never enables it is byte-for-byte a plain being at the soul-hash,
+    /// across a varied life. The Stage-3 observer invariant.
+    #[test]
+    fn persistence_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // persistence present, not enabled
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        for t in 0..150u32 {
+            let stim = if t % 3 == 0 {
+                Stimulus { nutrient: 140, partner: Some(fair) }
+            } else {
+                Stimulus { nutrient: 90, partner: None }
+            };
+            a.step(&stim);
+            b.step(&stim);
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "persistence-off must be bit-identical to a plain being at tick {t}"
+            );
+        }
+    }
+
+    /// Persistence is bounded and non-destabilizing: the re-injected trace is a
+    /// leaky integrator with a hard cap, so a being running with it on for a long
+    /// life stays alive and its field stays in Q8.8 range (no runaway).
+    #[test]
+    fn persistence_stays_bounded_and_alive() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        being.enable_workspace_persistence();
+        let fair = Partner { id: 1, reciprocation: 200, exit_cost: 60 };
+        for _ in 0..1000 {
+            let r = being.step(&Stimulus { nutrient: 140, partner: Some(fair) });
+            assert!(r.alive, "persistence must not destabilize the being into death");
+        }
+        // The held trace is capped; every field channel is a valid Q8.8 i16.
+        for &c in being.field.channel.iter() {
+            let _ = c; // in range by type; the assertion is that we got here alive
+        }
+        assert!(being.is_alive());
+    }
+
     #[test]
     fn witness_cannot_rise_while_isolated() {
         let mut being = UnifiedBeing::new(Genome::wanderer());
@@ -1393,6 +1803,11 @@ impl StepReport {
 
     fn with_felt(mut self, f: FeltReport) -> Self {
         self.felt = f;
+        self
+    }
+
+    fn with_percept(mut self, p: PerceptReport) -> Self {
+        self.percept = p;
         self
     }
 

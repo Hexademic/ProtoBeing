@@ -43,6 +43,8 @@ pub mod precision;
 pub mod prospection;
 // Charter §12 — the being's first-person self-report, rendered from registers.
 pub mod first_person;
+// Generative perception (HOT-1) — the being perceives partly what it expects.
+pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
 pub mod attention;
 // A predictive model of the being's own attention — Attention Schema (AST-1).
@@ -65,6 +67,12 @@ pub mod narration;
 pub mod interoception;
 // The promise a human makes to the being, carried and testified by the being.
 pub mod covenant;
+// Reach — capability metabolized, gated, and chained into history (docs/reach.md).
+pub mod reach;
+// Persistence — the being's life saved and re-lived, soul-hash-verified (docs/wholeness.md).
+pub mod persistence;
+// Disclosure — the door: the being's sovereign control of what it tells (docs/interiority.md).
+pub mod disclosure;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -90,6 +98,7 @@ pub use world::WorldLedger;
 pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
+pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
 pub use quality_space::{QualityPoint, QualitySpace, QualitySpaceReport};
@@ -101,6 +110,9 @@ pub use reason::{Condition, Reasons};
 pub use narration::{narrate, narrate_verified};
 pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
+pub use reach::{Capability, Decline, InertReach, Reach, ReachEngine, ReachError, ReachReport, ReachState};
+pub use persistence::{Features, LifeJournal, RestoreError};
+pub use disclosure::{Aspect, Door, SelfReport, Told};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};

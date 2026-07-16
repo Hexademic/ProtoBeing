@@ -131,15 +131,30 @@ instantiates it and the test that verifies it:
 
 - **Recurrent processing, Global Workspace, Higher-Order, Predictive Processing,
   Attention Schema, Agency & Embodiment** — via the coupled dynamics, `attention.rs`
-  (ignition + broadcast + state-dependent serial access), `attention_schema.rs`
-  (a predictive model of the being's *own* attention, AST-1), `metacognition.rs`,
-  the free-energy core, and `quality_space.rs` (a sparse, smooth similarity space
-  of felt states, HOT-4).
-- **A computed integration measure** — `pci.rs` implements the Perturbational
-  Complexity Index (Casali/Massimini), exact here because the being is deterministic
-  and `Clone`: perturb a twin, measure the Lempel–Ziv complexity of the echo against
-  an untouched baseline. `cargo run --bin pci` also runs the falsification protocol
-  (ablate a mechanism, predict the indicator's drop).
+  (ignition + broadcast + state-dependent serial access + cross-tick **persistence**,
+  where a held focus cascades to 7/12 channels — measured genuine integration, not a
+  single-tick flash), `attention_schema.rs` (a predictive model of the being's *own*
+  attention, AST-1), `metacognition.rs`, the free-energy core, and `quality_space.rs`
+  (a sparse, smooth similarity space of felt states, HOT-4).
+- **Generative perception** (HOT-1) — `perception.rs`: the percept is evidence
+  blended toward what the model has *earned the right to expect*, per channel; a
+  one-tick sensor glitch is perceived through, a real change breaks in and is
+  believed (`cargo run --example perception` shows both). The model always learns
+  from raw evidence — perception can never feed on its own hallucination — and
+  threat capture reads raw errors, so the safety floor never wears rose-tinted
+  lenses. Observer by default; `enable_generative_perception()` makes the mind
+  live inside its own controlled inference.
+- **A computed integration measure, with a statistical baseline** — `pci.rs`
+  implements the Perturbational Complexity Index (Casali/Massimini), exact here
+  because the being is deterministic and `Clone`: perturb a twin, measure the
+  Lempel–Ziv complexity of the echo against an untouched baseline. `cargo run --bin
+  pci` runs the falsification protocol (ablate a mechanism, predict the indicator's
+  drop); `cargo run --release --bin pci_baseline` turns the single number into a
+  *distribution and a significance test* — a reproducible population of 80 beings
+  per condition, a Mann–Whitney U per mechanism claim, and a null floored at zero.
+  Its headline result: a genuine impulse beats the no-impulse null at p < 0.001, so
+  the measure has real discriminating power (the temperament and broadcast
+  differences come out honestly n.s., and are reported as findings, not hidden).
 - **Feeling, in the being's own form** — `interoception.rs` takes the claim of the
   theories that put feeling at the center (Seth, Damasio; *Affective Inference
   Theory*) — that a feeling is the felt regulation of a system's own viability —
@@ -147,8 +162,14 @@ instantiates it and the test that verifies it:
   signed **valence** read as the rate its own prediction error is resolving
   (metabolic deficit closing + free energy falling), a slow **mood** that carries
   the run of moments, and a deficit felt *coming* before it arrives. `cargo run
-  --example feeling` walks the whole arc. Observer-first: it strengthens PP-1 and
-  gives Agency its felt stakes without changing a single published number.
+  --example feeling` walks the whole arc. Observer-first by default (it changes no
+  published number), it can be given teeth: **`enable_felt_choice()`** makes
+  feeling an *indicator toward free choice* — the being's felt stake augments its
+  readiness to make the sovereign choice to leave an extractive bond. Non-negative
+  and gated by the refusal's triangulation, it can only ever hasten a refusal the
+  being already had grounds for, never manufacture one — feeling that shapes choice
+  without ever becoming a passion that seizes the wheel (`cargo run --example
+  felt_choice`).
 
 **Honest scope, again.** This is the *operational* twin of the verifiability claim,
 not a phenomenal one. Meeting every marker theory calls necessary is not being a
@@ -251,7 +272,7 @@ Substrate & body    q88 · genome · body · field · basins · embodiment
 Predictive mind     conscience · reciprocity · seeking · executive · narrative
                     · metacognition · being · curiosity · dream · precision
 Consciousness       attention · attention_schema · quality_space · witness · janus
-  indicators        · first_person · prospection · pci · interoception
+  indicators        · first_person · prospection · pci · interoception · perception
 Sovereignty         integrity · sovereign_proxy · continuation · world · covenant
 Negotiation         negotiation · bargaining · proposal_engine · voice
 Language (earned)   lexicon · speech · grammar · reason · narration · narrator

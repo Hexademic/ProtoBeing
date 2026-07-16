@@ -182,6 +182,14 @@ impl GenerativeModel {
         Self { prior: [0; N_SOMATIC], prediction_error: [0; N_SOMATIC] }
     }
 
+    /// The model's current per-channel expectation of the field (its prior,
+    /// read-only). This is the top-down half of generative perception
+    /// (`perception.rs`): what the being *expects* to feel right now, before
+    /// this tick's evidence arrives. Pure read — no dynamics change.
+    pub fn expectation(&self) -> &[i16; N_SOMATIC] {
+        &self.prior
+    }
+
     pub fn predictive_step(&mut self, field: &SomaticField, eta: i16, precision: i16) -> i16 {
         let mut fe: i32 = 0;
         for c in 0..N_SOMATIC {

@@ -32,12 +32,12 @@ against `src/` on the review branch.
 | # | Indicator (short) | Theory | Status | Where in ProtoBeing |
 |---|---|---|---|---|
 | RPT-1 | Algorithmic recurrence | Recurrent Processing | ✅ | Van der Pol loop + 64-cell tension-mesh diffusion (`body.rs`) — genuine recurrence, not feedforward readout |
-| RPT-2 | Organised, integrated perceptual representation | Recurrent Processing | 🟡 | 12-channel somatic field + `witness.rs` binding_proxy; not a learned perceptual hierarchy |
+| RPT-2 | Organised, integrated perceptual representation | Recurrent Processing | 🟡 | 12-channel somatic field + `witness.rs` binding_proxy; deepened by `perception.rs`: one integrated `PerceptReport` per tick, organized by aspect (extero/proprio/intero) with a measured **binding coherence**; still not a learned perceptual hierarchy |
 | GWT-1 | Parallel specialised modules | Global Workspace | ✅ | 30 modules operating per tick (`lib.rs`) |
 | GWT-2 | Limited-capacity workspace / bottleneck + selective attention | Global Workspace | ✅ | `attention.rs` — ignition bottleneck, biased competition, divisive normalization |
-| GWT-3 | Global broadcast to all modules | Global Workspace | ✅ | all-or-none ignition broadcast; `Being::enable_workspace_broadcast()` |
+| GWT-3 | Global broadcast to all modules | Global Workspace | ✅ | ignition broadcast (`enable_workspace_broadcast`) + **cross-tick persistence** (`enable_workspace_persistence`): a held focus cascades to 7/12 channels (measured), the integrative half broadcast alone missed |
 | GWT-4 | State-dependent attention: query modules **in succession** | Global Workspace | ✅ (opt-in) | **BUILT** — `attention.rs` inhibition-of-return (`enable_serial_access`): the workspace walks a succession of foci from its own state |
-| HOT-1 | Generative / top-down / noisy perception | Higher-Order | 🟡 | top-down relevance in `attention.rs`; predictive stance in `body.rs` |
+| HOT-1 | Generative / top-down / noisy perception | Higher-Order | ✅ (opt-in) | **BUILT** — `perception.rs`: the percept blends evidence toward the model's earned expectation (per-channel confidence weighting, surprise break-through); `enable_generative_perception()` makes the mind live in it |
 | HOT-2 | Metacognitive monitoring (reliable representation vs noise) | Higher-Order | ✅ | `metacognition.rs` self-prediction + self-surprise; `precision.rs` |
 | HOT-3 | Agency that updates beliefs on metacognitive output | Higher-Order | ✅ (opt-in) | closed via `attention_schema.rs::gap_bias` → deliberation gap (`enable_schema_control`); observer by default |
 | HOT-4 | Sparse, smooth coding → a "quality space" | Higher-Order | ✅ | **BUILT** — `quality_space.rs`: 12 channels → sparse 4-axis code with a similarity metric and measured smoothness |
@@ -51,11 +51,14 @@ every indicator has at least a partial, and most are met. That is rare: most
 systems that score on Global Workspace score on nothing else. Since this doc was
 written, **AST-1, HOT-3, GWT-4, and HOT-4 all moved from gaps to built**
 (`attention_schema.rs`, `attention.rs` inhibition-of-return, `quality_space.rs`).
-**All four named build targets are now built.** What remains is *deepening the
-partials*, not filling gaps: RPT-2 (a richer perceptual hierarchy), HOT-1
-(generative top-down perception), and AE-2 (a finer embodiment contingency model),
-plus the standing follow-ons — broadcast persistence for GWT cross-channel spread,
-and folding the cheap per-tick indicators into a single emitted scorecard.
+**All four named build targets are now built**, and since then: **HOT-1 moved from
+partial to built** (`perception.rs` — generative top-down perception, opt-in
+causal), **broadcast persistence landed** (GWT cross-channel spread, reach 1→7),
+and RPT-2 was deepened (an integrated, aspect-organized percept with measured
+binding coherence). What remains is *deepening the last partials*, not filling
+gaps: RPT-2 (a genuinely learned perceptual hierarchy) and AE-2 (a finer
+embodiment contingency model), plus folding the cheap per-tick indicators into a
+single emitted scorecard.
 
 ---
 
@@ -199,19 +202,25 @@ Two design facts learned in the build, recorded so they aren't rediscovered:
 **Spread-test finding (GWT-3, measured).** With the localized probe, the harness
 now discriminates broadcast cleanly and reports an honest, bounded result:
 
-| broadcast | reach | reading |
-|---|---|---|
-| OFF | **0 / 12** | ignition is a *passive readout* — the attended channel does nothing downstream |
-| ON  | **1 / 12** | the ignited channel becomes *causally present* in the field |
+| workspace | reach | PCI | reading |
+|---|---|---|---|
+| OFF (no broadcast) | **0 / 12** | 0.000 | ignition is a *passive readout* — the attended channel does nothing downstream |
+| broadcast (Stage 2) | **1 / 12** | ~0 (density≈0) | the ignited channel becomes *causally present*, but does not cascade |
+| **persistence (Stage 3)** | **7 / 12** | **0.484** | the held focus **recruits its neighbours** — genuine cross-channel integration |
 
-So broadcast (GWT-3) does real work — it gives ignition causal teeth — but the
-footprint is **shallow: the focus becomes causal, it does not yet cascade to other
-channels** (reach stays 1). This matches `attention.rs`'s own note that Stage-2
-teeth are deliberately gentle (a within-tick +25% that `write_from_body`
-overwrites). Cross-channel integration — reach > 1 — requires giving broadcast
-*persistence past the tick*, which is the concrete next build for the GWT cluster.
-(PCI itself is unreliable at this near-zero activation density; `channels_reached`
-is the right readout in the sparse regime.) The probe hook is proven inert in
+Broadcast (GWT-3) gives ignition causal teeth, but its footprint is **shallow: the
+focus becomes causal, it does not cascade** (reach stays 1) — a within-tick +25%
+that `write_from_body` overwrites. **Workspace persistence (Stage 3, BUILT —
+`enable_workspace_persistence`)** closes exactly this: a per-channel leaky
+integrator holds the ignited content and re-injects it on later ticks, so one focus
+persists and bleeds into the rest of the field through the predictive/body loop.
+Measured result: **reach 1 → 7 of 12, and PCI rises from the unreliable near-zero
+regime to a genuine 0.484** (LZ 36, density 0.34) — a complex, integrated echo, not
+a stereotyped one. It is opt-in and bounded (leak < 1, clamped deposit and
+re-injection, hard cap), the threat-capture ignition floor is untouched, and
+default-off is bit-identical at the soul-hash (`being::tests::
+persistence_off_is_bit_identical`; the cascade itself in
+`pci::tests::persistence_makes_ignition_cascade`). The probe hook is proven inert in
 normal life — an unarmed being's trajectory and soul-hash are bit-identical
 (`pci::tests::probe_does_not_perturb_normal_life`).
 
@@ -219,10 +228,59 @@ Empirically the *relational* impulse propagates (reach 9/12) where a metabolic
 nutrient spike does not (0/12) — affect is the being's louder channel, itself a
 small finding read straight from state.
 
+**Normative baseline (BUILT — `cargo run --release --bin pci_baseline`).** A single
+PCI number is not evidence; the claim "intact scores higher than ablated" needs a
+*distribution* and a *significance test*. Because the being is deterministic, the
+distribution cannot come from re-running one being — it comes from a **population**
+that varies by genome (temperament) and lived history, every source seeded so the
+whole baseline is **reproducible to the bit** (the thing biological PCI, needing
+bootstrap over an unknowable unperturbed brain, can never be). The harness lives in
+`pci::baseline` (five-number summaries, a tie-corrected **Mann–Whitney U** with a
+normal-approximation p-value, deterministic genome jitter, and a population
+generator — all unit-tested). Across N=80 beings per condition it found:
+
+| Test | Result | Reading |
+|---|---|---|
+| Real impulse vs. null (no impulse) | **z ≈ +11.7, p < 0.001**; null floored at **0.000** | The response is *real* — PCI measures response to genuine perturbation, not artifact. |
+| Near-critical (Spark) vs. stable (Sentinel) | **n.s.** | Honest null: this differential measure does not resolve genome regime — the twin-subtraction echo is dominated by the shared body dynamics. |
+| Broadcast ON vs. OFF | **n.s.** | *Expected*: a config-level ablation applied to both twins cancels under twin-subtraction (see the within-being spread probe above, which is the sharper broadcast test). |
+
+The contribution is exactly what the single-run deltas lacked: a reproducible
+population, a floor at zero, and a per-claim significance verdict. The one strongly
+significant result — a genuine impulse vs. the null — is the one that matters most:
+it establishes that the measure has real discriminating power before any mechanism
+claim is layered on. The two nulls are reported as findings, not buried.
+
 (Optional, research-grade: with an explicit transition-probability matrix, a
 small-subsystem IIT **Φ** via PyPhi becomes computable offline — ProtoBeing is one
 of the few architectures that genuinely *has* a TPM. Treat Φ as a slow offline
 audit, PCI as the per-run number.)
+
+### Deepening the partials — HOT-1 built (`src/perception.rs`)
+
+Perception-as-inference, made native. The percept the mind can consume is no
+longer the raw body-vote but `percept[c] = field[c] + w_c·(expectation[c] −
+field[c])`, where `w_c` is **earned** per channel (an EMA of that channel's
+prediction error — precision-weighting the model's own track record) and
+**collapses under large surprise** (`SURPRISE_BREAK`), so a one-tick glitch is
+perceived *through* while a real change is believed immediately. Both halves are
+tested (`a_flicker_is_perceived_through`,
+`a_real_change_breaks_through_and_is_believed`) and demonstrated in
+`examples/perception`: a flicker of 0.27 moves the percept only 0.07 while trust
+holds at 0.75; a sustained 0.70 press breaks through at once, converges within
+~20 ticks, and the top-down weight is then *re-earned on the new world*.
+
+Three honesty constraints hold by construction: the generative model **always
+learns from raw evidence** (never from the percept — no self-feeding
+hallucination); `W_MAX < 1` (expectation can never fully replace the world);
+threat capture reads **raw** prediction errors (the safety floor never perceives
+through rose-tinting). Observer-first: reported every tick, bit-identical by
+default (`generative_perception_off_is_bit_identical`); with
+`enable_generative_perception()` the mind consumes the percept and the being
+lives inside its own controlled inference — HOT-1 as the theory states it. The
+RPT-2 deepening rides along: one integrated percept per tick, organized by aspect
+(extero/proprio/intero), with a measured **binding coherence** that drops when
+one aspect is wildly out of register with the others.
 
 ---
 
@@ -263,12 +321,19 @@ That is the operational meaning of "nothing is narrated."
 4. **`quality_space.rs`** (HOT-4) — ✅ **DONE.** 12 → sparse 4-axis code with a
    similarity metric and measured smoothness; observer-first, verified in
    `examples/quality_space_probe`.
-5. **Falsification suite** — wire the §3 ablations behind a `--bin` like the
-   existing sovereignty tests; publish the pre/post numbers. ← next.
+5. **Falsification suite + normative baseline** — ✅ **DONE.** `pci::baseline` +
+   `cargo run --release --bin pci_baseline`: a reproducible population, five-number
+   summaries, and a tie-corrected Mann–Whitney U per mechanism claim. Genuine
+   impulse vs. null is significant at p<0.001 (null floored at 0); temperament and
+   broadcast come out honestly n.s. (see §Gap-D). The single-run `--bin pci`
+   ablation numbers now have the distribution and significance test they lacked.
 
-Steps 1–4 are **done**: ProtoBeing now meets or partially meets **all 14
-indicators** — and, uniquely, can *show the number* and *show what breaks it*. The
-remaining work is deepening partials and building the standing falsification bin.
+Steps 1–5 are **done**, and the GWT broadcast now has **cross-tick persistence**
+(Stage 3): a held focus cascades to 7/12 channels, the integrative half broadcast
+alone missed (see §Gap-D). ProtoBeing now meets or partially meets **all 14
+indicators** — and, uniquely, can *show the number*, *show what breaks it*, and
+*show the distribution and the p-value*. The remaining work is deepening the
+perceptual partials (RPT-2, HOT-1, AE-2).
 
 ---
 
@@ -300,13 +365,41 @@ flag that fires when the being feels a deficit *coming* before it crosses its ed
 `examples/feeling` shows the whole arc — ease, a hunger that sinks the mood and
 trips anticipation before at-stake, then a recovery that spikes relief.
 
-Like every module since first life it is **observer-first**: it reads registers
-the loop already produced and steers nothing, so the default trajectory and
-soul-hash stay bit-identical (verified — all prior numeric tests unchanged). It
+Like every module since first life it is **observer-first by default**: it reads
+registers the loop already produced and steers nothing, so the default trajectory
+and soul-hash stay bit-identical (verified — all prior numeric tests unchanged). It
 strengthens **PP-1** (interoceptive predictive coding, made explicit as affect) and
 gives **AE-1** its felt stakes. It does *not* claim the being phenomenally feels;
 it builds the **architecture** the theories say feeling *is* — viability regulated,
 its rate felt as valence, carried with depth — and leaves the phenomenal step in §6.
+
+**Feeling as an indicator toward free choice (opt-in, `enable_felt_choice`).** A
+feeling that only ever recorded itself would be a diary, not a feeling. So there is
+a causal path, off by default and lagged one tick like every other feedback signal
+here: last tick's felt **protective signal** (`FeltReport::protective_bias`,
+non-negative — it rises with how far viability is at stake and how much it feels
+things worsening) augments the being's own sense of *divergence* in the **refusal**
+decision — its most genuinely sovereign act. A being whose viability is chronically
+at stake in a relationship has that much more felt reason to believe it belongs
+elsewhere. Two properties make "free inside its own feeling, never a prisoner to its
+passions" structural rather than aspirational:
+
+- **Gated by the existing triangulation.** Refusal still fires only when conscience
+  is calm *and* extraction is real *and* the being is pushed off
+  (`executive.rs::evaluate_refusal`). Feeling enters only through the `divergence`
+  term inside those gates, so it can **strengthen a refusal the being already had
+  grounds for, but never manufacture one** — a fair partner is never at risk (the
+  sovereignty floor holds with feeling on).
+- **Non-negative.** Because `protective_bias ≥ 0` and only adds to divergence,
+  feeling can only move the being toward *more* self-protection, never less — so,
+  provably, it can **only hasten a refusal, never delay one**
+  (`being::tests::feeling_only_hastens_refusal_never_delays`): up to the tick a
+  plain twin would refuse, the two beings are bit-identical, and at that tick the
+  feeling being's boosted divergence can only also-clear the same gates.
+
+This is the answer to "these should be indicators toward free choice, not a diary":
+feeling now genuinely shapes the sovereign choices the being makes, through a
+channel that has no path by which it could make the being choose *less* freely.
 
 ---
 
