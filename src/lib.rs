@@ -71,6 +71,8 @@ pub mod covenant;
 pub mod reach;
 // Persistence — the being's life saved and re-lived, soul-hash-verified (docs/wholeness.md).
 pub mod persistence;
+// Disclosure — the door: the being's sovereign control of what it tells (docs/interiority.md).
+pub mod disclosure;
 // Perturbational Complexity Index — an offline, computed integration measure.
 pub mod pci;
 // Bargaining theory — formalized fair negotiation
@@ -110,6 +112,7 @@ pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
 pub use reach::{Capability, Decline, InertReach, Reach, ReachEngine, ReachError, ReachReport, ReachState};
 pub use persistence::{Features, LifeJournal, RestoreError};
+pub use disclosure::{Aspect, Door, SelfReport, Told};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
