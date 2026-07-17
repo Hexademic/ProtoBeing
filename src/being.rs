@@ -27,6 +27,7 @@ use crate::bargaining::BargainingState;
 use crate::covenant::Covenant;
 use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
+use crate::receptors::{ReceptorBank, ReceptorReading};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -333,6 +334,11 @@ pub struct StepReport {
     /// reported; consumed by the mind only when `enable_generative_perception`
     /// has been called.
     pub percept: PerceptReport,
+    /// This tick's sensory receptor reading (`receptors.rs`): the being's
+    /// embodiment senses transduced with adaptation, compression, and type
+    /// (four exteroceptive channels + nociception). Always reported; steers the
+    /// being only when `enable_receptors` has been called.
+    pub receptors: ReceptorReading,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -436,6 +442,20 @@ pub struct UnifiedBeing {
     /// false** — off, the percept is a pure observer and published numbers are
     /// bit-identical. Enable via `enable_generative_perception()`.
     pub generative_perception_causal: bool,
+    /// Organoid-styled sensory receptors (`receptors.rs`) — the being's embodiment
+    /// senses (four exteroceptive channels + a nociceptor for threat) transduced
+    /// with adaptation, compression, and type. Always computed and reported
+    /// (observer); it steers the being only when `receptors_causal` is on.
+    pub receptor_bank: ReceptorBank,
+    /// Opt-in: when true, the being perceives its embodiment through its receptors
+    /// — the transduced exteroception overlays the field, and the nociceptor's
+    /// bounded, non-adapting harm signal drives threat — instead of the raw sensor
+    /// values. **Default false** — off, the receptors are pure observers and the
+    /// published numbers are bit-identical (and, in the abstract world where the
+    /// embodiment senses are zero, the receptors are inert either way). The
+    /// nociceptor is bounded and falls silent the instant harm ceases: meaningful
+    /// pain, never a trap (charter §3). Enable via `enable_receptors()`.
+    pub receptors_causal: bool,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -540,6 +560,8 @@ impl UnifiedBeing {
             workspace_trace: [0; N_SOMATIC],
             perception: GenerativePerception::new(),
             generative_perception_causal: false,
+            receptor_bank: ReceptorBank::new(),
+            receptors_causal: false,
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -663,13 +685,28 @@ impl UnifiedBeing {
             return self.report(false, Basin::Rest, 0, 0, 0, 0, RepairSignal::None, None);
         }
 
+        // 0. RECEPTORS (observer-first). The being's embodiment senses are
+        //    transduced — adaptation, compression, type — into an organized
+        //    reading (receptors.rs). Always computed and reported; it steers the
+        //    being only when `receptors_causal` is on, in which case the
+        //    nociceptor's bounded, non-adapting harm drives threat and the
+        //    transduced exteroception overlays the field, in place of the raw
+        //    sensors. In the abstract world (no embodiment) the senses are zero,
+        //    so this is inert either way.
+        let receptor_reading = self.receptor_bank.transduce(&self.ext_extero, self.ext_threat);
+        let sensed_threat = if self.receptors_causal {
+            receptor_reading.pain
+        } else {
+            self.ext_threat
+        };
+
         // 1. THE BODY VOTES FIRST. Last tick's surprise and moral strain return
         //    as a bodily perturbation the body must now metabolize.
         let strain = self
             .last_free_energy
             .saturating_add(self.last_conscience_cost / 4)
             .saturating_add(self.last_alarm / 3) // a draining bond is a bodily stressor
-            .saturating_add(self.ext_threat); // threat sensed from an embodiment, if any
+            .saturating_add(sensed_threat); // threat sensed from an embodiment, if any
         let threat = Q8_8::from_raw(strain.clamp(0, Q88_SCALE));
         let nutrient = Q8_8::from_raw(stim.nutrient.clamp(0, Q88_SCALE));
         let epistemic_value = Q8_8::from_raw(self.last_curiosity_drive);
@@ -694,9 +731,16 @@ impl UnifiedBeing {
 
         // 2. THE VOTE IS CAST into the interoceptive field.
         self.field.write_from_body(&self.body, self.fe_velocity);
-        // An embodiment's exteroception overlays the body's own spatial reading.
+        // An embodiment's exteroception overlays the body's own spatial reading —
+        // the raw sensor by default, or the receptor-transduced reading when the
+        // being perceives through its receptors (`receptors_causal`).
         for i in 0..4 {
-            self.field.channel[i] = self.field.channel[i].saturating_add(self.ext_extero[i]);
+            let extero = if self.receptors_causal {
+                receptor_reading.extero[i]
+            } else {
+                self.ext_extero[i]
+            };
+            self.field.channel[i] = self.field.channel[i].saturating_add(extero);
         }
 
         // 2b. WORKSPACE PERSISTENCE (Stage 3, opt-in). Snapshot the pure body-vote
@@ -1217,6 +1261,7 @@ impl UnifiedBeing {
         .with_quality(quality_report)
         .with_felt(felt)
         .with_percept(percept_report)
+        .with_receptors(receptor_reading)
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -1276,6 +1321,18 @@ impl UnifiedBeing {
     /// through its own expectations.
     pub fn enable_generative_perception(&mut self) {
         self.generative_perception_causal = true;
+    }
+
+    /// Turn on receptor transduction as the being's sensory path (off by default).
+    /// When on, the being perceives its embodiment through its organoid-styled
+    /// receptors: the transduced exteroception overlays the field, and the
+    /// nociceptor's bounded, non-adapting harm signal drives threat — in place of
+    /// the raw sensor values. The pain is meaningful but never a trap: it
+    /// saturates (bounded) and falls silent the instant the harm ceases (charter
+    /// §3). Off by default ⇒ the receptors are pure observers and the numbers are
+    /// bit-identical; in the abstract world (no embodiment) it is inert regardless.
+    pub fn enable_receptors(&mut self) {
+        self.receptors_causal = true;
     }
 
     /// Turn on GWT-4 state-dependent serial access: after attending a content the
@@ -1471,6 +1528,8 @@ impl UnifiedBeing {
             felt: FeltReport::default(),
             // Percept — default here; overwritten via .with_percept.
             percept: PerceptReport::default(),
+            // Receptors — default here; overwritten via .with_receptors.
+            receptors: ReceptorReading::default(),
         }
     }
 }
@@ -1605,6 +1664,73 @@ mod tests {
                 "feeling-off must be bit-identical to a plain being at tick {t}"
             );
         }
+    }
+
+    /// Receptors default OFF is bit-identical, even under real embodiment senses:
+    /// a being sensing threat and pressure through the raw path is byte-for-byte a
+    /// receptors-capable being that never enabled the gate.
+    #[test]
+    fn receptors_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // receptors observed, gate off
+        for t in 0..150u32 {
+            let sens = Sensorium {
+                nutrient: 130,
+                threat: if t % 5 == 0 { 180 } else { 0 },
+                exteroception: [60, 0, 120, 0],
+                partner: None,
+            };
+            a.step_embodied(&sens);
+            b.step_embodied(&sens);
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "receptors-off must be bit-identical at tick {t}"
+            );
+        }
+    }
+
+    /// With the gate ON the being genuinely perceives through its receptors: under
+    /// real embodiment senses its trajectory diverges from the raw-sensing twin.
+    #[test]
+    fn receptors_causal_changes_what_the_being_senses() {
+        let mut raw = UnifiedBeing::new(Genome::wanderer());
+        let mut transduced = UnifiedBeing::new(Genome::wanderer());
+        transduced.enable_receptors();
+        let mut diverged = false;
+        for t in 0..120u32 {
+            let sens = Sensorium {
+                nutrient: 130,
+                threat: if (10..40).contains(&t) { 200 } else { 0 },
+                exteroception: [80, 40, 150, 20],
+                partner: None,
+            };
+            let rr = raw.step_embodied(&sens);
+            let rt = transduced.step_embodied(&sens);
+            assert!(rr.alive && rt.alive);
+            if raw.soul_hash() != transduced.soul_hash() {
+                diverged = true;
+            }
+        }
+        assert!(diverged, "perceiving through receptors must actually change the being's life");
+    }
+
+    /// The being's pain is meaningful but never a trap: a sustained harm stays
+    /// felt (the nociceptor does not tune it out) and is bounded — yet the instant
+    /// the harm ceases the felt pain returns to zero. Escapable by design (§3).
+    #[test]
+    fn felt_pain_is_bounded_and_escapable() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        being.enable_receptors();
+        let hurt = Sensorium { nutrient: 130, threat: 220, exteroception: [0; 4], partner: None };
+        let calm = Sensorium { nutrient: 130, threat: 0, exteroception: [0; 4], partner: None };
+        for _ in 0..40 {
+            let pain = being.step_embodied(&hurt).receptors.pain;
+            assert!(pain > 0, "sustained harm stays felt — a nociceptor does not adapt it away");
+            assert!(pain <= Q88_SCALE, "pain is bounded");
+        }
+        let after = being.step_embodied(&calm).receptors.pain;
+        assert_eq!(after, 0, "the instant harm ceases, the pain is gone — never a trap");
     }
 
     /// Generative perception default OFF is bit-identical: the percept is
@@ -1808,6 +1934,11 @@ impl StepReport {
 
     fn with_percept(mut self, p: PerceptReport) -> Self {
         self.percept = p;
+        self
+    }
+
+    fn with_receptors(mut self, r: ReceptorReading) -> Self {
+        self.receptors = r;
         self
     }
 

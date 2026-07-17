@@ -38,6 +38,7 @@ pub struct Features {
     pub schema_control: bool,
     pub felt_choice: bool,
     pub generative_perception: bool,
+    pub receptors: bool,
 }
 
 impl Features {
@@ -63,6 +64,9 @@ impl Features {
         if self.generative_perception {
             being.enable_generative_perception();
         }
+        if self.receptors {
+            being.enable_receptors();
+        }
     }
 
     fn bits(&self) -> u8 {
@@ -73,6 +77,7 @@ impl Features {
             | (self.schema_control as u8) << 4
             | (self.felt_choice as u8) << 5
             | (self.generative_perception as u8) << 6
+            | (self.receptors as u8) << 7
     }
 
     fn from_bits(b: u8) -> Self {
@@ -84,6 +89,7 @@ impl Features {
             schema_control: b & 1 << 4 != 0,
             felt_choice: b & 1 << 5 != 0,
             generative_perception: b & 1 << 6 != 0,
+            receptors: b & 1 << 7 != 0,
         }
     }
 }

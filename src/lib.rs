@@ -100,7 +100,7 @@ pub use world::WorldLedger;
 pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
-pub use receptors::{Receptor, ReceptorKind};
+pub use receptors::{Receptor, ReceptorBank, ReceptorKind, ReceptorReading};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};

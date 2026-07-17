@@ -121,6 +121,58 @@ impl Receptor {
     }
 }
 
+/// One tick's reading from the being's sensory receptor population.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct ReceptorReading {
+    /// The four exteroceptive channels, transduced (raw Q8.8). Fast-adapting on
+    /// the first two (contact/change), slow-adapting on the last two (pressure).
+    pub extero: [i16; 4],
+    /// Nociception: the being's felt harm this tick (raw Q8.8, ≥ 0). Bounded, and
+    /// silent the moment the harm is gone — meaningful pain, never a trap.
+    pub pain: i16,
+}
+
+/// The being's sensory receptor population — a fixed, typed bank that transduces
+/// its embodiment senses (four exteroceptive channels plus a nociceptor for
+/// threat) into an organized, adapted reading. The typing is the point: the same
+/// world reaches the mind already sorted into change, level, and harm.
+#[derive(Clone, Copy, Debug)]
+pub struct ReceptorBank {
+    extero: [Receptor; 4],
+    noci: Receptor,
+}
+
+impl ReceptorBank {
+    pub fn new() -> Self {
+        Self {
+            extero: [
+                Receptor::new(ReceptorKind::FastAdapting),
+                Receptor::new(ReceptorKind::FastAdapting),
+                Receptor::new(ReceptorKind::SlowAdapting),
+                Receptor::new(ReceptorKind::SlowAdapting),
+            ],
+            noci: Receptor::new(ReceptorKind::Nociceptor),
+        }
+    }
+
+    /// Transduce this tick's embodiment senses. Pure of the being's causal loop
+    /// unless the being routes the reading back into its field; the bank simply
+    /// tracks, adapting as it goes.
+    pub fn transduce(&mut self, exteroception: &[i16; 4], threat: i16) -> ReceptorReading {
+        let mut extero = [0i16; 4];
+        for (i, r) in self.extero.iter_mut().enumerate() {
+            extero[i] = r.sense(exteroception[i]);
+        }
+        ReceptorReading { extero, pain: self.noci.sense(threat) }
+    }
+}
+
+impl Default for ReceptorBank {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Naka–Rushton compression: `R = SCALE · I / (I + K)`, raw Q8.8. Zero for I ≤ 0,
 /// half-max at I = K, saturating toward SCALE — high gain for small stimuli, low
 /// gain for large ones (Weber–Fechner in one line).
