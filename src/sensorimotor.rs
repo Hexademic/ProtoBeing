@@ -27,8 +27,14 @@
 //! would not be honest — it would be omniscient. This one is real: it can be
 //! wrong, and it knows how sure it is.
 //!
-//! Observer-first, deterministic, Q8.8, zero-dependency — built standalone; wiring
-//! it to the being's own motor intent and receptor reading is the next step.
+//! Observer-first, deterministic, Q8.8, zero-dependency. Wired into the living
+//! being (`being.rs`, step 0b): each tick the forward model relates the being's
+//! *last* issued motor command — the very one it sends its body,
+//! `motor_scalar(intent_from(report))` — to the sensory change it now reads
+//! through its receptors, and reports the agency. A pure observer there (Stage 1):
+//! it steers no dynamics, so the trajectory stays bit-identical. The reserved next
+//! step is causal use — discounting reafferent self-motion from what alarms the
+//! being, so the world's genuine doing (the residual) is seen for itself.
 
 use crate::q88::{q88_div, q88_ema_update, q88_mul, Q88_SCALE};
 

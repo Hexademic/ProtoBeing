@@ -74,6 +74,22 @@ pub enum BodyAction {
     Recoil = 4,
 }
 
+/// Collapse a motor intent to a single signed scalar (raw Q8.8) — the being's
+/// one-dimensional "how hard, and toward or away" command, in the form a forward
+/// model consumes. Approach is positive, withdrawal negative, rest neutral; the
+/// magnitude is the effort. This is the being's own *action* — the thing whose
+/// sensory consequence it must learn to predict (reafference, `sensorimotor.rs`).
+/// It is derived from the very same affect→posture map the body enacts, so the
+/// agency the being infers is over what it actually did, not a separate signal.
+pub fn motor_scalar(intent: &MotorIntent) -> i16 {
+    match intent.posture {
+        Posture::Open => intent.effort,     // reach toward: +effort
+        Posture::Resting => 0,              // at rest: no net motor command
+        Posture::Braced => -intent.effort,  // hold off: −effort
+        Posture::Withdrawn => -intent.effort, // pull away: −effort
+    }
+}
+
 /// Hot-key the being's affect to a discrete body action.
 pub fn action_from(intent: &MotorIntent) -> BodyAction {
     let vigorous = intent.effort > 160; // ~0.6

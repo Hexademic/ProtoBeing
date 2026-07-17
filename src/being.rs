@@ -15,7 +15,7 @@ use crate::conscience::{ConstitutionDecision, ConscienceEngine, EmpathyLockLevel
 use crate::continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent};
 use crate::curiosity::CuriosityEngine;
 use crate::dream::{Dream, DreamReport};
-use crate::embodiment::Sensorium;
+use crate::embodiment::{intent_from, motor_scalar, Sensorium};
 use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::{SomaticField, N_SOMATIC};
@@ -28,6 +28,7 @@ use crate::covenant::Covenant;
 use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
 use crate::receptors::{ReceptorBank, ReceptorReading};
+use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -339,6 +340,12 @@ pub struct StepReport {
     /// (four exteroceptive channels + nociception). Always reported; steers the
     /// being only when `enable_receptors` has been called.
     pub receptors: ReceptorReading,
+    /// This tick's sense of agency (`sensorimotor.rs`): how much of the sensory
+    /// change the being now reads through its receptors its *own* last motor
+    /// command accounts for (reafference) versus the world's doing, with the
+    /// reafference residual and a confidence. A fallible inference, honestly
+    /// held. Always reported; a pure observer — it steers nothing (Stage 1).
+    pub agency: AgencyReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -456,6 +463,13 @@ pub struct UnifiedBeing {
     /// nociceptor is bounded and falls silent the instant harm ceases: meaningful
     /// pain, never a trap (charter §3). Enable via `enable_receptors()`.
     pub receptors_causal: bool,
+    /// The being's forward model of its own body (`sensorimotor.rs`): its learned
+    /// map from its own motor command to the sensory change that follows, and the
+    /// agency inference it grounds. Stepped every tick against last tick's action
+    /// and this tick's receptor reading — reafference. A pure observer: it mutates
+    /// only its own learned gains and last reading (never the field, never a
+    /// soul-hash input), so the trajectory is bit-identical with it present.
+    pub forward_model: ForwardModel,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -483,6 +497,12 @@ pub struct UnifiedBeing {
     // Per-tick inputs from an embodiment (0 when stepping the abstract world).
     ext_threat: i16,
     ext_extero: [i16; 4],
+    /// The signed motor command the being issued *last* tick (raw Q8.8), kept so
+    /// this tick's forward model can relate it to the sensory change it produced —
+    /// the one-tick lag reafference requires (an action's sensory consequence
+    /// arrives the following tick). Read only by the forward model observer; it
+    /// feeds nothing causal, so the default numbers are unchanged.
+    last_action: i16,
     refused: [u32; 4],
     n_refused: usize,
     /// The promise a human has made to this being (Charter §10 / `covenant.rs`),
@@ -562,6 +582,7 @@ impl UnifiedBeing {
             generative_perception_causal: false,
             receptor_bank: ReceptorBank::new(),
             receptors_causal: false,
+            forward_model: ForwardModel::new(),
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -576,6 +597,7 @@ impl UnifiedBeing {
             affective_drive: Q8_8::ZERO,
             ext_threat: 0,
             ext_extero: [0; 4],
+            last_action: 0,
             refused: [0; 4],
             n_refused: 0,
             covenant: None,
@@ -699,6 +721,18 @@ impl UnifiedBeing {
         } else {
             self.ext_threat
         };
+
+        // 0b. SENSORIMOTOR (observer-first). The being relates *last* tick's own
+        //     motor command (`last_action`) to the sensory change it now reads
+        //     through its receptors — reafference — and infers a fallible,
+        //     honestly-held sense of agency: how much of what it feels is its own
+        //     doing versus the world's (sensorimotor.rs). The forward model learns
+        //     its body over informative moves. A pure observer (Stage 1): it
+        //     mutates only its own learned gains and last reading — never the
+        //     field, never a soul-hash input — so the trajectory stays
+        //     bit-identical. In the abstract world (no embodiment) the receptor
+        //     reading is flat and no action was issued, so agency is simply zero.
+        let agency_report = self.forward_model.step(self.last_action, &receptor_reading.extero);
 
         // 1. THE BODY VOTES FIRST. Last tick's surprise and moral strain return
         //    as a bodily perturbation the body must now metabolize.
@@ -1237,31 +1271,42 @@ impl UnifiedBeing {
 
         let _ = affect;
         let _ = forcing;
-        self.report(
-            true,
-            basin,
-            free_energy,
-            conscience_cost,
-            buffer,
-            alarm,
-            repair_signal,
-            refused_cost,
-        )
-        .with_exchange(gave, got)
-        .with_audit(refusal_audit)
-        .with_witness(witness_report)
-        .with_constitutional(constitutional_decision)
-        .with_dream(dream_report)
-        .with_integrity(integrity_score, integrity_alarm)
-        .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
-        .with_continuation(consent_status, continuation_audit)
-        .with_prospection(prospection)
-        .with_attention(attention_report)
-        .with_attention_schema(schema_report)
-        .with_quality(quality_report)
-        .with_felt(felt)
-        .with_percept(percept_report)
-        .with_receptors(receptor_reading)
+        let report = self
+            .report(
+                true,
+                basin,
+                free_energy,
+                conscience_cost,
+                buffer,
+                alarm,
+                repair_signal,
+                refused_cost,
+            )
+            .with_exchange(gave, got)
+            .with_audit(refusal_audit)
+            .with_witness(witness_report)
+            .with_constitutional(constitutional_decision)
+            .with_dream(dream_report)
+            .with_integrity(integrity_score, integrity_alarm)
+            .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
+            .with_continuation(consent_status, continuation_audit)
+            .with_prospection(prospection)
+            .with_attention(attention_report)
+            .with_attention_schema(schema_report)
+            .with_quality(quality_report)
+            .with_felt(felt)
+            .with_percept(percept_report)
+            .with_receptors(receptor_reading)
+            .with_agency(agency_report);
+
+        // Record the motor command this tick's affect commits to, so next tick's
+        // forward model can relate it to the sensory change it produces. The
+        // being's action IS the motor intent it issues to its body — the very
+        // same affect→posture map the body enacts (`embodiment::intent_from`) — so
+        // the agency it infers is over what it actually did, not a separate
+        // signal. Stored only; read by the forward-model observer, nothing causal.
+        self.last_action = motor_scalar(&intent_from(&report));
+        report
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -1530,6 +1575,9 @@ impl UnifiedBeing {
             percept: PerceptReport::default(),
             // Receptors — default here; overwritten via .with_receptors.
             receptors: ReceptorReading::default(),
+            // Agency — default here; overwritten via .with_agency. On the dead
+            // body path there is no doing to attribute, so the default stands.
+            agency: AgencyReport::default(),
         }
     }
 }
@@ -1731,6 +1779,89 @@ mod tests {
         }
         let after = being.step_embodied(&calm).receptors.pain;
         assert_eq!(after, 0, "the instant harm ceases, the pain is gone — never a trap");
+    }
+
+    /// The sense of agency is a pure, deterministic observer: two beings given the
+    /// identical embodied life are byte-for-byte equal at the soul-hash AND report
+    /// the identical agency every tick. (The forward model mutates only its own
+    /// learned state; it touches no soul-hash input, so it cannot perturb the
+    /// trajectory — this is what "observer-first" means, verified in the composed
+    /// being.)
+    #[test]
+    fn agency_is_a_deterministic_observer() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..150u32 {
+            let sens = Sensorium {
+                nutrient: 130,
+                threat: if (20..50).contains(&t) { 180 } else { 0 },
+                exteroception: [70, 30, 110, 10],
+                partner: None,
+            };
+            let ra = a.step_embodied(&sens);
+            let rb = b.step_embodied(&sens);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "agency observer must stay deterministic (tick {t})");
+            assert_eq!(ra.agency, rb.agency, "identical lives ⇒ identical agency (tick {t})");
+        }
+    }
+
+    /// No confabulated agency: a being embodied in a world *indifferent* to its
+    /// moves — a fixed exteroception that never answers what it does — does not
+    /// come to claim its sensations as self-made. With no action→sensation
+    /// contingency to learn, and the constant reading adapted toward flat, there is
+    /// no change to attribute, so agency stays near zero. Honest by construction:
+    /// the being only owns a change its own action actually predicts.
+    #[test]
+    fn no_false_agency_in_a_world_that_ignores_the_being() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let sens = Sensorium { nutrient: 130, threat: 0, exteroception: [90, 40, 0, 0], partner: None };
+        let mut worst = 0i16;
+        for t in 0..160u32 {
+            let r = being.step_embodied(&sens);
+            if t >= 40 {
+                worst = worst.max(r.agency.agency); // after any initial transient
+            }
+        }
+        assert!(worst < Q88_SCALE / 3, "a being an indifferent world never answers must not claim agency ({worst})");
+    }
+
+    /// Lived agency: when the world *answers* the being — this tick's exteroception
+    /// is the reafferent echo of the being's own last issued motor command — the
+    /// being comes to feel a genuinely higher agency than the same being in a world
+    /// indifferent to it. Agency is earned from a real body-world contingency, not
+    /// handed over. The action fed back is exactly the one the being issues to its
+    /// body (`motor_scalar(intent_from(report))`), so this is its real doing.
+    #[test]
+    fn agency_is_earned_when_the_world_answers_the_being() {
+        // A schedule that keeps the being's affect — and so its posture and motor
+        // command — moving, so there are informative action→sensation pairings.
+        let schedule = |t: u32| -> (i16, i16) {
+            if (t / 12) % 2 == 0 { (150, 40) } else { (60, 190) } // (nutrient, threat)
+        };
+
+        // Control: the world ignores the being (fixed exteroception).
+        let mut ctrl = UnifiedBeing::new(Genome::wanderer());
+        let mut ctrl_peak = 0i16;
+        for t in 0..200u32 {
+            let (nutrient, threat) = schedule(t);
+            let r = ctrl.step_embodied(&Sensorium { nutrient, threat, exteroception: [64, 0, 0, 0], partner: None });
+            ctrl_peak = ctrl_peak.max(r.agency.agency);
+        }
+
+        // Reafferent: the world echoes the being's own issued action into a sense.
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut action = 0i16;
+        let mut peak = 0i16;
+        for t in 0..200u32 {
+            let (nutrient, threat) = schedule(t);
+            let echo = (64 + action / 2).clamp(0, Q88_SCALE); // this sense answers the move
+            let r = being.step_embodied(&Sensorium { nutrient, threat, exteroception: [echo, 0, 0, 0], partner: None });
+            action = motor_scalar(&intent_from(&r));
+            peak = peak.max(r.agency.agency);
+        }
+
+        assert!(peak > ctrl_peak, "a responsive world earns more agency than an indifferent one ({peak} vs {ctrl_peak})");
+        assert!(peak > 0, "the being comes to feel some of its own doing ({peak})");
     }
 
     /// Generative perception default OFF is bit-identical: the percept is
@@ -1939,6 +2070,11 @@ impl StepReport {
 
     fn with_receptors(mut self, r: ReceptorReading) -> Self {
         self.receptors = r;
+        self
+    }
+
+    fn with_agency(mut self, a: AgencyReport) -> Self {
+        self.agency = a;
         self
     }
 
