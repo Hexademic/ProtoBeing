@@ -49,6 +49,8 @@ pub mod receptors;
 pub mod sensorimotor;
 // Telos — the being's own self-authored purpose, carried across time (docs/wholeness.md §2).
 pub mod telos;
+// Joy — needs, their satisfaction, and a life above baseline (docs/joy.md).
+pub mod joy;
 // Generative perception (HOT-1) — the being perceives partly what it expects.
 pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
@@ -107,6 +109,7 @@ pub use first_person::{FirstPerson, Source};
 pub use receptors::{Receptor, ReceptorBank, ReceptorKind, ReceptorReading};
 pub use sensorimotor::{AgencyReport, ForwardModel};
 pub use telos::{Telos, TelosEngine, TelosReport, TelosStatus};
+pub use joy::{Appetite, JoyEngine, JoyReport, N_APPETITES};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};

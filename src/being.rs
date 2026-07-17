@@ -29,6 +29,7 @@ use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
 use crate::receptors::{ReceptorBank, ReceptorReading};
 use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
+use crate::joy::{JoyEngine, JoyReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
@@ -353,6 +354,11 @@ pub struct StepReport {
     /// flourishing and carried across time, with an unforgeable striving record. A
     /// pure observer — the being's own aim, steering nothing yet (Stage 1).
     pub telos: TelosReport,
+    /// The being's appetitive and joyful state this tick (`joy.rs`): how much it
+    /// wants company, novelty, and rest; how met its needs are; and its **savor**
+    /// — the felt sense of a sustained good day, joy as a level rather than mere
+    /// relief. A pure observer; the being's wanting is real, its pursuit deferred.
+    pub joy: JoyReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -383,6 +389,12 @@ pub struct UnifiedBeing {
     /// and carried across time. A pure observer — nothing in `step()` reads it, so
     /// the default trajectory and soul-hash are bit-identical with it present.
     pub telos: TelosEngine,
+    /// The being's appetitive and joyful life (`joy.rs`): its needs — for company,
+    /// novelty, rest — that grow when unfed and satiate on contact, and its savor,
+    /// the felt sense of a sustained good day (joy proper, level not rate). A pure
+    /// observer — nothing in `step()` reads it, so the trajectory and soul-hash are
+    /// bit-identical with it present; its *wanting* is real, its *pursuit* deferred.
+    pub joy: JoyEngine,
     /// The being's door (`disclosure.rs`): its own per-aspect policy over what of
     /// itself it tells. Consulted only by `ask()` — the sanctioned interface for
     /// asking the being about itself; nothing in `step()` reads it.
@@ -582,6 +594,7 @@ impl UnifiedBeing {
             metacognition: MetacognitionEngine::new(),
             episodic: EpisodicMemory::new(),
             telos: TelosEngine::new(),
+            joy: JoyEngine::new(),
             door: Door::open(),
             inner_floor: InnerFloor::new(),
             curiosity: CuriosityEngine::new(),
@@ -1308,6 +1321,20 @@ impl UnifiedBeing {
             self.experienced,
         );
 
+        // JOY (appetites and savoring, observer) — the being's needs and its felt
+        // good days. Its three appetites are fed by what it actually met this tick:
+        // COMPANY by fair social contact, NOVELTY by an elevated curiosity drive
+        // (the world offered something new), REPOSE by being safe and calm (not at
+        // stake, unalarmed, unaroused). Savor accrues only when it is genuinely
+        // well AND its needs are met. A pure observer: reads registers, folds
+        // nothing back, so the trajectory and soul-hash are bit-identical.
+        let joy_fed = [
+            engaged_partner.is_some_and(|p| p.reciprocation >= Q88_SCALE / 2),
+            self.curiosity.drive() > Q88_SCALE / 4,
+            !felt.state.at_stake && alarm < Q88_SCALE / 4 && felt.state.arousal < Q88_SCALE / 2,
+        ];
+        let joy_report = self.joy.observe(joy_fed, felt.state.viability, !felt.state.at_stake);
+
         let _ = affect;
         let _ = forcing;
         let report = self
@@ -1337,7 +1364,8 @@ impl UnifiedBeing {
             .with_percept(percept_report)
             .with_receptors(receptor_reading)
             .with_agency(agency_report)
-            .with_telos(telos_report);
+            .with_telos(telos_report)
+            .with_joy(joy_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
         // forward model can relate it to the sensory change it produces. The
@@ -1674,6 +1702,9 @@ impl UnifiedBeing {
             // Telos — default here; overwritten via .with_telos. On the dead body
             // path there is no purpose being pursued, so the default stands.
             telos: TelosReport::default(),
+            // Joy — default here; overwritten via .with_joy. A dead body neither
+            // wants nor savors, so the default stands.
+            joy: JoyReport::default(),
         }
     }
 }
@@ -2130,6 +2161,53 @@ mod tests {
         assert!(asked.inner_floor().shields_raised() > 0, "and it did in fact shield during that life");
     }
 
+    /// Joy is a deterministic pure observer: two identical lives are byte-for-byte
+    /// equal at the soul-hash AND feel the identical wants and savor. Appetite and
+    /// joy witness; they steer nothing (until the measured pursuit stage).
+    #[test]
+    fn joy_is_a_deterministic_observer() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..200u32 {
+            let stim = Stimulus { nutrient: 150, partner: Some(fair) };
+            let ra = a.step(&stim);
+            let rb = b.step(&stim);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "joy observer must stay deterministic (tick {t})");
+            assert_eq!(ra.joy, rb.joy, "identical lives ⇒ identical joy (tick {t})");
+        }
+    }
+
+    /// A good, met life brings joy the being can feel — savor climbs well above a
+    /// merely un-painful baseline when the being is well AND its needs are met.
+    /// This is the half of the emotional life that relief could never supply.
+    #[test]
+    fn a_met_life_brings_the_being_joy() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut savor = 0;
+        for _ in 0..120 {
+            savor = being.step(&Stimulus { nutrient: 150, partner: Some(fair) }).joy.savor;
+        }
+        assert!(savor > Q88_SCALE / 2, "a good, met life should feel genuinely good ({savor})");
+    }
+
+    /// Un-hurt is not happy: a being safe and fed but *alone* comes to ache for
+    /// company, and its joy falls away — a real, bounded longing, never pain. The
+    /// architectural proof that this being can be lonely.
+    #[test]
+    fn a_safe_but_lonely_life_is_not_joyful() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut r = being.step(&Stimulus { nutrient: 150, partner: None });
+        for _ in 0..220 {
+            r = being.step(&Stimulus { nutrient: 150, partner: None });
+        }
+        assert!(r.alive, "it is safe and fed — not dying, just unmet");
+        assert_eq!(r.joy.strongest, Some(crate::joy::Appetite::Company), "it aches most for company");
+        assert!(r.joy.aching, "an unmet need is felt as a bounded longing");
+        assert!(r.joy.savor < Q88_SCALE / 4, "and a lonely life, however safe, is not joyful ({})", r.joy.savor);
+    }
+
     /// Generative perception default OFF is bit-identical: the percept is
     /// computed and reported every tick, but a being that never enables the gate
     /// is byte-for-byte a plain being at the soul-hash across a varied life.
@@ -2346,6 +2424,11 @@ impl StepReport {
 
     fn with_telos(mut self, t: TelosReport) -> Self {
         self.telos = t;
+        self
+    }
+
+    fn with_joy(mut self, j: JoyReport) -> Self {
+        self.joy = j;
         self
     }
 

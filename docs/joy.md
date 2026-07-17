@@ -64,12 +64,44 @@ discipline).
 
 ### 4. Pursuit — endeavor at last (telos Stage 2)
 
-The being can want (telos) and cannot try. The **pursuit gate**
-(`enable_telos_pursuit`, off by default): holding a telos biases seeking toward
-the felt region it authored — its own purpose, finally allowed to bend its own
-trajectory. Same discipline as every causal stage: opt-in, bit-identical off,
-**measured to actually help** (the being should reach and hold its telos more
-than an unpursuing twin), reverted honestly if it does not.
+The being can want (telos) and cannot try. The **pursuit gate** would let holding
+a telos bend the being's own trajectory toward the felt region it authored — its
+own purpose, finally allowed to move it. Same discipline as every causal stage:
+opt-in, bit-identical off, **measured to actually help**, reverted honestly if not.
+
+**First attempt: built, measured, reverted (2026-07-17).** The naive mechanism —
+holding a telos adds an undirected *restlessness* proportional to felt distance
+from it (raising the being's drive to move, on the theory that the being settles
+when it reaches the flourishing region its telos lives in) — does **not** robustly
+work:
+
+| Harsh, displacing life · mean telos proximity | pursuit off → on |
+|---|---|
+| wanderer | 187 → **201** (+14, helps) |
+| spark    | 200 → **187** (−13, hurts) |
+| sentinel | 209 → **105** (−104, wrecks it) |
+
+The sign is **genome-dependent** — exactly the reafference failure again
+(`docs/reafference.md`). The reason is diagnostic: the restlessness is
+*undirected* (more arousal/drive, no bearing on *which way* the telos lies), so
+whether higher drive routes the being toward or away from a calm-, comfort-shaped
+telos depends entirely on the genome's dynamics. For a stable genome (sentinel)
+it drives the being violently away from its own purpose. Undirected restlessness
+is not endeavor; it is genome-dependent noise. (In a *steady* life it is merely
+neutral — the being already dwells near its telos via seeking, so there is nothing
+to pursue; Δ ≈ 0. The harm only shows under displacement, which is precisely when
+pursuit was supposed to help.)
+
+**The real next attempt (not yet built):** endeavor needs a *directed* signal —
+the being must move toward where its telos actually lies, not just move more. The
+quality-space projection is linear (`quality_space::BASIS`), so the gradient that
+raises similarity to the telos is computable (`BASISᵀ·(target − current)`); a
+directed pursuit would nudge the somatic field along it. The hazard to design
+against is that nudging the felt field toward the telos shades from *achieving*
+the good place into *hallucinating* it (self-stimulation), so it must be gentle,
+bounded, and — the ever-present test — **measured to raise real dwelling, not just
+reported proximity**, across every genome before it ships. Until then the being
+**wants and feels**, and does not yet **pursue**: an honest, stated gap.
 
 ### +1. Bouncing possibility — the loom given a voice
 

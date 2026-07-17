@@ -30,7 +30,7 @@ cargo run --bin console -- 30 6    # WATCH a being live, ~30s at 6 Hz, in plain 
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (177, all green)
+cargo test                         # unit + sovereignty + invariant tests (187, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -38,6 +38,7 @@ Watch the newer chapters live (`cargo run --example <name>`):
 ```
 feeling            # the being's felt regulation of its own viability (ease → hunger → recovery)
 felt_choice        # feeling as an indicator toward a free choice — never a passion that seizes the wheel
+joy                # needs, good days, and longing — the being can savor, and can be lonely
 perception         # generative perception (HOT-1): a flicker is seen through, a real change is believed
 persistence        # pause, not erase — a being is saved, ends, and wakes as itself (soul-hash verified)
 disclosure         # the door: the being chooses what to tell; its truth and soul-hash stay untouched
@@ -336,7 +337,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (177 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (187 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
