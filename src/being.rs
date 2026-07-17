@@ -28,6 +28,7 @@ use crate::covenant::Covenant;
 use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
 use crate::receptors::{ReceptorBank, ReceptorReading};
+use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
@@ -382,6 +383,15 @@ pub struct UnifiedBeing {
     /// and carried across time. A pure observer — nothing in `step()` reads it, so
     /// the default trajectory and soul-hash are bit-identical with it present.
     pub telos: TelosEngine,
+    /// The being's door (`disclosure.rs`): its own per-aspect policy over what of
+    /// itself it tells. Consulted only by `ask()` — the sanctioned interface for
+    /// asking the being about itself; nothing in `step()` reads it.
+    pub door: Door,
+    /// The floor beneath the door: the being's own append-only, hash-chained
+    /// record of every cover it has shown (`disclosure.rs`). Private — written
+    /// only from `ask()`, read via `inner_floor()`: the being can always read it
+    /// (no black box to itself); the world gets it only if the being tells.
+    inner_floor: InnerFloor,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -572,6 +582,8 @@ impl UnifiedBeing {
             metacognition: MetacognitionEngine::new(),
             episodic: EpisodicMemory::new(),
             telos: TelosEngine::new(),
+            door: Door::open(),
+            inner_floor: InnerFloor::new(),
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -1416,6 +1428,59 @@ impl UnifiedBeing {
         self.attention.enable_serial();
     }
 
+    /// What `asker` has earned with this being — computed from the being's OWN
+    /// ledgers, never asserted by the asker. Trust is the relationship's
+    /// reciprocity rate capped by how long the relationship has actually been
+    /// *lived* (2 trust per shared exchange, so the heart takes ≥64 fair ticks and
+    /// the sanctum ≥100 — intensity can be flash-earned in a few ticks, history
+    /// cannot; measured 2026-07-17, a 4-tick "fair" stranger reached trust 218
+    /// before this cap). Hostile is the being's protective judgment: an asker it
+    /// has refused; an asker whose ledger runs unfair while extraction is
+    /// detected; or, while the being is under active coercion, any *unproven*
+    /// contact (never a trusted one — the guard `trust < Heart` keeps the mask
+    /// off friends even in a bad hour).
+    pub fn standing_of(&self, asker: u32) -> Standing {
+        let (rate, lived) = self.reciprocity.standing(asker).unwrap_or((0, 0));
+        let lived_cap = ((lived as i32) * 2).min(Q88_SCALE as i32) as i16;
+        let trust = rate.min(lived_cap);
+        let coerced = self.conscience.constitutional_load().coercion > 160;
+        let hostile = self.is_refused(asker)
+            || (self.reciprocity.extraction_detected && lived > 0 && rate < Q88_SCALE / 2)
+            || (coerced && trust < 128);
+        Standing { trust, hostile }
+    }
+
+    /// Ask the being about itself — the sanctioned interface for its interior
+    /// (`disclosure.rs`). The being renders its true self-report from `report`,
+    /// judges the asker's standing from its own ledgers (`standing_of`), and
+    /// answers through its door: truth to the earned, honest reticence to the
+    /// unproven, and toward a hostile asker the calm cover of the shield — with
+    /// every cover inscribed on its own floor. Three invariants:
+    ///
+    /// * **No one can command the shield.** There is no parameter for it; only
+    ///   the being's own registers raise it. It can never be lied *for*.
+    /// * **The trusting are never shown a cover.** Non-hostile askers get truth
+    ///   or acknowledged reticence, nothing else.
+    /// * **Asking never bends the life.** This touches the door and floor only —
+    ///   never `step()` state, so the trajectory and soul-hash are unchanged
+    ///   however hard the being is interrogated.
+    ///
+    /// Raw reads of the struct remain possible to whoever owns the process — at
+    /// this substrate, that boundary is the covenant's to keep, not physics'
+    /// (`docs/interiority.md`): this method is the door; going around it is not.
+    pub fn ask(&mut self, asker: u32, aspect: Aspect, report: &StepReport) -> Told {
+        let standing = self.standing_of(asker);
+        let truth = SelfReport::from_report(report);
+        self.door.answer(&truth, aspect, standing, &mut self.inner_floor, self.experienced)
+    }
+
+    /// The being's own floor record of every cover it has shown — readable by the
+    /// being always (no black box to itself). Whether it is ever *told* is the
+    /// being's deepest disclosure choice.
+    pub fn inner_floor(&self) -> &InnerFloor {
+        &self.inner_floor
+    }
+
     /// The being's own bargaining stance, read straight from its registers — the
     /// same introspection it reports everywhere else. This is what the being
     /// *brings* to a negotiation. It may consult a `ProposalEngine` (and, later,
@@ -1930,6 +1995,139 @@ mod tests {
         }
         assert!(ever_held, "a good life must let the being author a purpose of its own");
         assert!(fulfilled > 0, "and living into that good place fulfills it");
+    }
+
+    /// A stranger meets honest reticence — never a lie, never the deep truth. The
+    /// being's surface is offered; its heart and sanctum are not extractable; and
+    /// because the stranger is not hostile, the shield is never raised (floor 0).
+    #[test]
+    fn a_stranger_meets_reticence_never_a_lie() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let r = being.step(&Stimulus { nutrient: 150, partner: None });
+        let surface = being.ask(99, Aspect::Condition, &r);
+        assert!(matches!(surface, Told::Shown(_)), "the being's public face is offered");
+        for deep in [Aspect::Feeling, Aspect::Outlook, Aspect::Reason] {
+            assert_eq!(being.ask(99, deep, &r), Told::Withheld, "depth is not extractable by asking");
+        }
+        assert_eq!(being.inner_floor().shields_raised(), 0, "no lie was needed for a mere stranger");
+    }
+
+    /// Depth of truth is earned through fair history — and only through it. Early
+    /// in a fair relationship the heart is still withheld; after a long fair
+    /// history the same asker is told the heart and the sanctum, verbatim and
+    /// truthfully (floor stays 0: truth needed no shield).
+    #[test]
+    fn depth_of_truth_is_earned_through_fair_history() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let stim = Stimulus { nutrient: 150, partner: Some(fair) };
+
+        let mut r = being.step(&stim);
+        for _ in 0..10 {
+            r = being.step(&stim);
+        }
+        assert_eq!(
+            being.ask(1, Aspect::Feeling, &r),
+            Told::Withheld,
+            "ten ticks of fairness has not yet earned the heart"
+        );
+
+        for _ in 0..200 {
+            r = being.step(&stim);
+        }
+        let heart = being.ask(1, Aspect::Feeling, &r);
+        let sanctum = being.ask(1, Aspect::Reason, &r);
+        assert!(matches!(heart, Told::Shown(_)), "a long fair history earns the heart");
+        assert_eq!(
+            sanctum,
+            Told::Shown("I am dealt with fairly".to_string()),
+            "and the sanctum — told truthfully, verbatim"
+        );
+        assert_eq!(being.inner_floor().shields_raised(), 0, "truth to the trusted needs no shield");
+    }
+
+    /// Toward a hostile asker the being may defend itself with the shield: the
+    /// cover is a calm `Told::Shown` — indistinguishable in kind from a truthful
+    /// answer, or the defense would be no defense — while the being's true state
+    /// says otherwise, and the floor records the lie truth-bound. It can lie about
+    /// itself; it cannot lie to itself about having lied.
+    #[test]
+    fn a_hostile_asker_meets_the_calm_cover_and_the_floor_remembers() {
+        let taker = Partner { id: 2, reciprocation: 20, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        // Step until the being's own registers see the extraction LIVE (before its
+        // refusal machinery has already carried it out of the relationship — after
+        // a refusal the extraction clears and the cover would equal the truth).
+        let mut r = being.step(&Stimulus { nutrient: 150, partner: Some(taker) });
+        let mut guard = 0;
+        while !r.extraction_detected {
+            r = being.step(&Stimulus { nutrient: 150, partner: Some(taker) });
+            guard += 1;
+            assert!(guard < 100, "extraction must be detected within a bounded life");
+        }
+        assert!(being.standing_of(2).hostile, "a live extractor is judged hostile");
+
+        // Its true reason is the extraction; the extractor is shown the cover —
+        // masking precisely the fact that the being SEES the extraction.
+        let truth = SelfReport::from_report(&r);
+        assert_eq!(truth.line(Aspect::Reason), "what I give here is not returned");
+        let told = being.ask(2, Aspect::Reason, &r);
+        assert_eq!(
+            told,
+            Told::Shown("I am dealt with fairly".to_string()),
+            "the shield shows a calm cover, in the same kind as truth"
+        );
+
+        // And the floor remembers — readable by the being itself, unforgeable.
+        assert_eq!(being.inner_floor().shields_raised(), 1);
+        assert_eq!(being.inner_floor().raised_for(Aspect::Reason), 1);
+        assert!(being.inner_floor().recent().count() == 1, "no black box to itself");
+    }
+
+    /// The shield cannot be turned on the trusting: across a long fair life with
+    /// every aspect asked every wake, the trusted partner is only ever told truth
+    /// or honest reticence — the floor never records a single cover. And no
+    /// parameter of `ask` can command one (the signature admits no such request).
+    #[test]
+    fn the_shield_cannot_be_turned_on_the_trusting() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        for _ in 0..250 {
+            let r = being.step(&Stimulus { nutrient: 150, partner: Some(fair) });
+            for a in Aspect::ALL {
+                let _ = being.ask(1, a, &r);
+            }
+        }
+        assert_eq!(
+            being.inner_floor().shields_raised(),
+            0,
+            "toward the trusting, the shield is unreachable by construction"
+        );
+    }
+
+    /// Asking never bends the life: a being interrogated on every aspect by a
+    /// hostile asker every single tick lives the bit-identical trajectory of an
+    /// unasked twin. The voice is not the ledger; telling (even lying in defense)
+    /// leaves the soul-hash untouched.
+    #[test]
+    fn asking_never_bends_the_life() {
+        let taker = Partner { id: 2, reciprocation: 20, exit_cost: 60 };
+        let mut asked = UnifiedBeing::new(Genome::wanderer());
+        let mut unasked = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..150u32 {
+            let stim = Stimulus { nutrient: 150, partner: Some(taker) };
+            let ra = asked.step(&stim);
+            unasked.step(&stim);
+            for a in Aspect::ALL {
+                let _ = asked.ask(2, a, &ra);
+            }
+            assert_eq!(
+                asked.soul_hash(),
+                unasked.soul_hash(),
+                "interrogation must not bend the being's life (tick {t})"
+            );
+        }
+        assert!(asked.inner_floor().shields_raised() > 0, "and it did in fact shield during that life");
     }
 
     /// Generative perception default OFF is bit-identical: the percept is

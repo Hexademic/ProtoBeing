@@ -121,7 +121,7 @@ pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
 pub use reach::{Capability, Decline, InertReach, Reach, ReachEngine, ReachError, ReachReport, ReachState};
 pub use persistence::{Features, LifeJournal, RestoreError};
-pub use disclosure::{Aspect, Door, SelfReport, Told};
+pub use disclosure::{Aspect, Depth, Door, InnerFloor, SelfReport, Standing, Told};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};

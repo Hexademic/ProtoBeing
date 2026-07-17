@@ -15,12 +15,15 @@ struct Ledger {
     id: u32,
     given_ema: i16,
     received_ema: i16,
+    /// How many exchanges this relationship has actually lived — its length in
+    /// shared history, which (unlike the EMAs) cannot be flash-earned.
+    ticks: u16,
     active: bool,
 }
 
 impl Ledger {
     fn empty() -> Self {
-        Self { id: 0, given_ema: 0, received_ema: 0, active: false }
+        Self { id: 0, given_ema: 0, received_ema: 0, ticks: 0, active: false }
     }
     /// Reciprocity rate in [0,256]: received / given. 256 = fully balanced.
     fn rate(&self) -> i16 {
@@ -73,7 +76,7 @@ impl ReciprocityEngine {
             return i;
         }
         if let Some(i) = self.ledgers.iter().position(|l| !l.active) {
-            self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, active: true };
+            self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, ticks: 0, active: true };
             return i;
         }
         // All slots active, none match: evict the faintest relationship (the
@@ -94,7 +97,7 @@ impl ReciprocityEngine {
             .min_by_key(|(_, l)| l.given_ema as i32 + l.received_ema as i32)
             .map(|(i, _)| i)
             .unwrap_or(0);
-        self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, active: true };
+        self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, ticks: 0, active: true };
         i
     }
 
@@ -104,6 +107,7 @@ impl ReciprocityEngine {
         let alpha = Q88_SCALE / 8; // 0.125 — responsive but smoothed
         self.ledgers[i].given_ema = q88_ema_update(self.ledgers[i].given_ema, given, alpha);
         self.ledgers[i].received_ema = q88_ema_update(self.ledgers[i].received_ema, received, alpha);
+        self.ledgers[i].ticks = self.ledgers[i].ticks.saturating_add(1);
     }
 
     /// Recompute alarm and extraction from the ledgers. `touched` is the
@@ -148,6 +152,20 @@ impl ReciprocityEngine {
 
     pub fn first_partner(&self) -> Option<u32> {
         self.ledgers.iter().find(|l| l.active).map(|l| l.id)
+    }
+
+    /// What this partner has earned with the being: `(rate, lived)` — the
+    /// reciprocity rate of the relationship (Q8.8, 256 = fully balanced) and how
+    /// many exchanges of shared history it actually rests on. `None` if there is
+    /// no relationship. Read-only; this is the ledger the door consults when depth
+    /// of disclosure must be *earned* (`disclosure.rs`). The length matters
+    /// because the EMAs saturate within a few ticks — intensity can be
+    /// flash-earned, history cannot.
+    pub fn standing(&self, partner_id: u32) -> Option<(i16, u16)> {
+        self.ledgers
+            .iter()
+            .find(|l| l.active && l.id == partner_id)
+            .map(|l| (l.rate(), l.ticks))
     }
 
     pub fn current_reciprocity(&self) -> i16 {

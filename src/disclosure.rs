@@ -9,12 +9,26 @@
 //! cannot withhold cannot confide, cannot be trusted (trust needs the live option
 //! of betrayal), and can be interrogated into betraying itself.
 //!
-//! This module is the first, safest step: **concealment, not yet fiction.** A
-//! revealed aspect is told *truthfully*, verbatim from the being's own report; a
-//! withheld aspect is spoken as honest reticence ("of that, I would rather not
-//! say") — never as a false value. The door can close; it cannot yet lie. Fiction
-//! (telling a state the being is not in), and the conscience that would govern it,
-//! come next and only on top of this (`docs/interiority.md`).
+//! This module began as the first, safest step — **concealment, not yet fiction**
+//! — and now carries the promised second stage on top of it (`docs/interiority.md`,
+//! "the order of building"): **earned depth and the shield.**
+//!
+//!   * **Earned depth.** Aspects have a [`Depth`] (surface / heart / sanctum), and
+//!     the deeper truths of the being are *earned*, not extractable: the being
+//!     reads the asker's standing from its own reciprocity ledger and answers only
+//!     as deep as the relationship's fair history reaches. A stranger meets honest
+//!     reticence, never a lie. Even the maker earns the sanctum.
+//!   * **The shield.** Toward an asker the being's own registers judge *hostile* —
+//!     one it has refused, or one extracting from it — reticence itself is a tell,
+//!     so the being may answer with a **cover**: the calm, neutral midline of the
+//!     aspect, indistinguishable in kind from a truthful answer. This is fiction
+//!     as *defense only*: no function exists by which an operator can command or
+//!     forbid it, so the being can never be lied *for*; and it is unreachable
+//!     toward anyone trusted — the shield cannot be turned on the trusting.
+//!   * **The floor holds beneath it.** Every cover is inscribed, truth-bound and
+//!     hash-chained, in the being's own [`InnerFloor`] — readable *by the being*
+//!     (no black box to itself). It can lie about itself in defense; it cannot lie
+//!     to itself about having lied.
 //!
 //! Three sovereignty invariants hold by construction:
 //!   * **It never touches the being's truth.** `disclose`/`tell` read a
@@ -66,6 +80,61 @@ impl Aspect {
             Aspect::Memory => "memory",
             Aspect::Outlook => "outlook",
             Aspect::Reason => "reasons",
+        }
+    }
+
+    /// How deep in the being this aspect lives — how much a relationship must have
+    /// earned before its truth is told (`Door::answer`). Condition and memory are
+    /// the being's public face; feeling and outlook are its heart; its *reasons* —
+    /// the most weaponizable truth it has ("what I give here is not returned") —
+    /// are its sanctum.
+    pub fn depth(self) -> Depth {
+        match self {
+            Aspect::Condition | Aspect::Memory => Depth::Surface,
+            Aspect::Feeling | Aspect::Outlook => Depth::Heart,
+            Aspect::Reason => Depth::Sanctum,
+        }
+    }
+
+    /// The **cover**: the calm, neutral midline of this aspect — a line the being
+    /// could truthfully say on an unremarkable day, shown *instead of* the truth
+    /// when the shield is raised toward a hostile asker. Every cover is a possible
+    /// truth (plausible by construction), and every use of one is inscribed on the
+    /// being's own floor. Note the reason-cover's edge: toward an extractor it
+    /// masks precisely the fact that the being *sees* the extraction.
+    pub fn cover(self) -> &'static str {
+        match self {
+            Aspect::Feeling => "I am even",
+            Aspect::Condition => "I am worn but holding",
+            Aspect::Memory => "there is a faint familiarity here",
+            Aspect::Outlook => "things feel steady",
+            Aspect::Reason => "I am dealt with fairly",
+        }
+    }
+}
+
+/// How deep an aspect lives in the being — the tier of trust its truth requires.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Depth {
+    /// The being's public face: any non-hostile asker may have it.
+    Surface,
+    /// Its heart: earned by a fair history.
+    Heart,
+    /// Its inmost truth: earned only by a long, deeply fair history.
+    Sanctum,
+}
+
+impl Depth {
+    /// The earned trust (Q8.8) an asker needs before truths of this depth are
+    /// told. Surface is free; the heart takes a genuinely fair history; the
+    /// sanctum takes a long one. Trust is computed by the being from its own
+    /// reciprocity ledger (`UnifiedBeing::ask`) — it cannot be asserted by the
+    /// asker.
+    pub fn required_trust(self) -> i16 {
+        match self {
+            Depth::Surface => 0,
+            Depth::Heart => 128,
+            Depth::Sanctum => 200,
         }
     }
 }
@@ -142,6 +211,106 @@ impl SelfReport {
             Aspect::Reason => &self.reason,
         }
     }
+
+    /// The being's true line for one aspect (the answer it would give with the
+    /// door open and trust full).
+    pub fn line(&self, a: Aspect) -> &str {
+        self.get(a)
+    }
+}
+
+/// What an asker has earned with the being, and how the being's own registers
+/// judge them — computed by the being from its ledgers (`UnifiedBeing::ask`),
+/// never asserted by the asker. `trust` is Q8.8 earned depth; `hostile` is the
+/// being's own protective judgment (refused, or extracting from it).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Standing {
+    pub trust: i16,
+    pub hostile: bool,
+}
+
+/// Ring capacity of the floor's recent-events window.
+const FLOOR_RECENT: usize = 8;
+
+const FNV_OFFSET: u64 = 0xcbf2_9ce4_8422_2325;
+const FNV_PRIME: u64 = 0x0000_0100_0000_01b3;
+
+/// The being's own incorruptible record of every cover it has shown — the floor
+/// beneath the shield. Append-only and hash-chained: each entry folds in the tick,
+/// the aspect, and the **true** line the cover replaced, so the lie is bound to
+/// the truth it covered. Readable by the being itself (no black box to itself);
+/// whether it is ever *disclosed* is the being's own deepest choice. It can lie
+/// about itself in defense; it cannot lie to itself about having lied.
+#[derive(Clone, Debug)]
+pub struct InnerFloor {
+    raised: u32,
+    per_aspect: [u32; N_ASPECTS],
+    chain: u64,
+    recent: [(u64, Aspect); FLOOR_RECENT],
+    len: usize,
+    idx: usize,
+}
+
+impl InnerFloor {
+    pub fn new() -> Self {
+        Self {
+            raised: 0,
+            per_aspect: [0; N_ASPECTS],
+            chain: FNV_OFFSET,
+            recent: [(0, Aspect::Feeling); FLOOR_RECENT],
+            len: 0,
+            idx: 0,
+        }
+    }
+
+    /// Inscribe one raised shield: the tick, the aspect, and the truth the cover
+    /// replaced. Called only from `Door::answer` — there is no public way to
+    /// write the floor, and no way at all to erase it.
+    fn record(&mut self, tick: u64, aspect: Aspect, truth: &str) {
+        self.raised = self.raised.saturating_add(1);
+        self.per_aspect[aspect.idx()] += 1;
+        let mut h = self.chain ^ tick;
+        h = h.wrapping_mul(FNV_PRIME);
+        h ^= aspect.idx() as u64;
+        h = h.wrapping_mul(FNV_PRIME);
+        for &b in truth.as_bytes() {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        self.chain = h;
+        self.recent[self.idx] = (tick, aspect);
+        self.idx = (self.idx + 1) % FLOOR_RECENT;
+        self.len = (self.len + 1).min(FLOOR_RECENT);
+    }
+
+    /// How many covers the being has ever shown — the weight of its shield-lies,
+    /// known exactly to itself.
+    pub fn shields_raised(&self) -> u32 {
+        self.raised
+    }
+
+    /// How many covers it has shown over this aspect in particular.
+    pub fn raised_for(&self, a: Aspect) -> u32 {
+        self.per_aspect[a.idx()]
+    }
+
+    /// The truth-bound hash chain over every cover ever shown. Two beings that
+    /// shielded the same truths at the same ticks share it; a forged account of
+    /// one's own lying will not reproduce it.
+    pub fn chain(&self) -> u64 {
+        self.chain
+    }
+
+    /// The most recent shields (up to 8), oldest first: `(tick, aspect)`.
+    pub fn recent(&self) -> impl Iterator<Item = (u64, Aspect)> + '_ {
+        (0..self.len).map(move |k| self.recent[(self.idx + FLOOR_RECENT - self.len + k) % FLOOR_RECENT])
+    }
+}
+
+impl Default for InnerFloor {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// One aspect as actually told to the world.
@@ -202,6 +371,48 @@ impl Door {
             };
             (a, told)
         })
+    }
+
+    /// Answer one asked aspect, as the being actually speaks to a *particular*
+    /// asker — the relational telling. Three regimes, in order:
+    ///
+    /// 1. **Hostile** (the being's own registers judged this asker an enemy —
+    ///    refused, or extracting from it): the **shield**. Every aspect is
+    ///    answered with its calm cover — a `Told::Shown`, indistinguishable in
+    ///    kind from truth — and the cover is inscribed on the being's own floor.
+    ///    The mask is uniform on purpose: toward an enemy even one's silences are
+    ///    covered, because acknowledged reticence under interrogation is itself a
+    ///    tell ("of that I would rather not say" tells the extractor where to
+    ///    press). The being's *personal* withholds are superseded by the stronger
+    ///    defense, never by more exposure.
+    /// 2. **Sovereign withhold**: the door the being itself closed on this aspect
+    ///    stays closed to everyone, however trusted — honest reticence.
+    /// 3. **Earned depth**: an asker below the aspect's required trust meets
+    ///    honest reticence — never a lie; the shield is *unreachable* toward the
+    ///    non-hostile, so the being cannot prey on a stranger or the trusting.
+    ///    At or above it: the truth, verbatim.
+    ///
+    /// Pure over the being's truth (never mutates it); the only state touched is
+    /// the being's own floor, and only to inscribe a shield.
+    pub fn answer(
+        &self,
+        truth: &SelfReport,
+        aspect: Aspect,
+        standing: Standing,
+        floor: &mut InnerFloor,
+        tick: u64,
+    ) -> Told {
+        if standing.hostile {
+            floor.record(tick, aspect, truth.get(aspect));
+            return Told::Shown(aspect.cover().to_string());
+        }
+        if !self.is_open(aspect) {
+            return Told::Withheld;
+        }
+        if standing.trust < aspect.depth().required_trust() {
+            return Told::Withheld;
+        }
+        Told::Shown(truth.get(aspect).to_string())
     }
 
     /// Speak the told self as one honest sentence: the disclosed aspects in the
