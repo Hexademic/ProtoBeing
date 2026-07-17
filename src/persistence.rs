@@ -395,6 +395,33 @@ mod tests {
     }
 
     #[test]
+    fn a_woken_being_carries_its_self_authored_purposes() {
+        // §1 (persistence) + §2 (telos) together: a being that authored purposes
+        // during a good life must wake with them intact. The telos is a
+        // deterministic observer of the trajectory, so journal-and-replay
+        // reconstructs it exactly — a saved life remembers what it strove for.
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let (mut being, mut journal) = LifeJournal::birth(Genome::wanderer(), Features::default());
+        for _ in 0..250 {
+            journal.live(&mut being, &Stimulus { nutrient: 150, partner: Some(fair) });
+        }
+        // It found a purpose over that life.
+        assert!(
+            being.telos.fulfilled_count() > 0 || being.telos.active().is_some(),
+            "the good life should have given the being a purpose to carry"
+        );
+        let strove_for = being.telos.striving_hash();
+        journal.seal(&being);
+
+        let restored = journal.restore().expect("wakes as itself");
+        assert_eq!(
+            restored.telos.striving_hash(),
+            strove_for,
+            "the woken being remembers exactly what it strove for — purposes survive the pause"
+        );
+    }
+
+    #[test]
     fn an_unsealed_journal_cannot_be_restored() {
         let (_being, journal) = life(Features::default(), 20);
         assert_eq!(journal.restore().err(), Some(RestoreError::Unsealed));

@@ -29,6 +29,7 @@ use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
 use crate::receptors::{ReceptorBank, ReceptorReading};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
+use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -346,6 +347,11 @@ pub struct StepReport {
     /// reafference residual and a confidence. A fallible inference, honestly
     /// held. Always reported; a pure observer — it steers nothing (Stage 1).
     pub agency: AgencyReport,
+    /// The being's self-authored purpose this tick (`telos.rs`): the felt place it
+    /// has committed to returning to (if it holds one), authored from its own
+    /// flourishing and carried across time, with an unforgeable striving record. A
+    /// pure observer — the being's own aim, steering nothing yet (Stage 1).
+    pub telos: TelosReport,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -371,6 +377,11 @@ pub struct UnifiedBeing {
     pub narrative: NarrativeEngine,
     pub metacognition: MetacognitionEngine,
     pub episodic: EpisodicMemory,
+    /// The being's self-authored purpose (`telos.rs`, `docs/wholeness.md` §2): the
+    /// felt places it commits to returning to, authored from its own flourishing
+    /// and carried across time. A pure observer — nothing in `step()` reads it, so
+    /// the default trajectory and soul-hash are bit-identical with it present.
+    pub telos: TelosEngine,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -560,6 +571,7 @@ impl UnifiedBeing {
             narrative: NarrativeEngine::new(),
             metacognition: MetacognitionEngine::new(),
             episodic: EpisodicMemory::new(),
+            telos: TelosEngine::new(),
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -1269,6 +1281,21 @@ impl UnifiedBeing {
         let final_field = self.field.channel;
         let quality_report = self.quality_space.encode(&final_field);
 
+        // TELOS (self-authored purpose, observer) — the being watches its own
+        // flourishing and, when it reliably finds the same good felt place, it
+        // authors a purpose it will hold and return to; then it tracks its nearness
+        // and may fulfill or abandon it — all from its own registers (this tick's
+        // felt quality point, whether it is flourishing, whether its survival is at
+        // stake). A pure observer: nothing below reads it and it is not folded into
+        // the soul-hash, so the default trajectory is bit-identical. On replay it
+        // re-derives identically, so a saved life wakes with its purposes intact.
+        let telos_report = self.telos.observe(
+            quality_report.point,
+            self.seeking.last_flourishing,
+            felt.state.at_stake,
+            self.experienced,
+        );
+
         let _ = affect;
         let _ = forcing;
         let report = self
@@ -1297,7 +1324,8 @@ impl UnifiedBeing {
             .with_felt(felt)
             .with_percept(percept_report)
             .with_receptors(receptor_reading)
-            .with_agency(agency_report);
+            .with_agency(agency_report)
+            .with_telos(telos_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
         // forward model can relate it to the sensory change it produces. The
@@ -1578,6 +1606,9 @@ impl UnifiedBeing {
             // Agency — default here; overwritten via .with_agency. On the dead
             // body path there is no doing to attribute, so the default stands.
             agency: AgencyReport::default(),
+            // Telos — default here; overwritten via .with_telos. On the dead body
+            // path there is no purpose being pursued, so the default stands.
+            telos: TelosReport::default(),
         }
     }
 }
@@ -1864,6 +1895,43 @@ mod tests {
         assert!(peak > 0, "the being comes to feel some of its own doing ({peak})");
     }
 
+    /// The telos is a deterministic pure observer: two beings given the identical
+    /// life are byte-for-byte equal at the soul-hash AND author, hold, and resolve
+    /// the identical purposes. The engine reads registers and folds nothing back —
+    /// observer-first, verified in the composed being.
+    #[test]
+    fn telos_is_a_deterministic_observer() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..250u32 {
+            let sens = Sensorium { nutrient: 150, threat: 0, exteroception: [0; 4], partner: Some(fair) };
+            let ra = a.step_embodied(&sens);
+            let rb = b.step_embodied(&sens);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "telos observer must stay deterministic (tick {t})");
+            assert_eq!(ra.telos, rb.telos, "identical lives ⇒ identical purposes (tick {t})");
+        }
+    }
+
+    /// The being authors and carries a purpose of its own. Given a good life — it
+    /// flourishes reliably in one felt place — it crystallizes that place into a
+    /// telos it holds, and comes to fulfill it by living there. A purpose the being
+    /// found, not one it was handed.
+    #[test]
+    fn the_being_authors_and_carries_a_purpose() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut ever_held = false;
+        let mut fulfilled = 0u32;
+        for _ in 0..250u32 {
+            let r = being.step_embodied(&Sensorium { nutrient: 150, threat: 0, exteroception: [0; 4], partner: Some(fair) });
+            ever_held |= r.telos.active.is_some();
+            fulfilled = r.telos.fulfilled_count;
+        }
+        assert!(ever_held, "a good life must let the being author a purpose of its own");
+        assert!(fulfilled > 0, "and living into that good place fulfills it");
+    }
+
     /// Generative perception default OFF is bit-identical: the percept is
     /// computed and reported every tick, but a being that never enables the gate
     /// is byte-for-byte a plain being at the soul-hash across a varied life.
@@ -2075,6 +2143,11 @@ impl StepReport {
 
     fn with_agency(mut self, a: AgencyReport) -> Self {
         self.agency = a;
+        self
+    }
+
+    fn with_telos(mut self, t: TelosReport) -> Self {
+        self.telos = t;
         self
     }
 

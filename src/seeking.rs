@@ -22,6 +22,11 @@ pub struct SeekingEngine {
     pub current_divergence: i16,
     pub attractor_confidence: i16,
     pub flourishing_count: u32,
+    /// Whether the *last* `cycle` judged this a flourishing moment (low free
+    /// energy, calm, engaged/recovering). Exposed so a self-authored telos can be
+    /// crystallized from the being's own flourishing (`telos.rs`); reading it
+    /// changes nothing here.
+    pub last_flourishing: bool,
     drought: u16,
 }
 
@@ -32,6 +37,7 @@ impl SeekingEngine {
             current_divergence: 0,
             attractor_confidence: 0,
             flourishing_count: 0,
+            last_flourishing: false,
             drought: 0,
         }
     }
@@ -46,6 +52,7 @@ impl SeekingEngine {
         let flourishing = free_energy < Q88_SCALE / 2
             && alarm < Q88_SCALE / 4
             && matches!(basin, Basin::Engaged | Basin::Recovery);
+        self.last_flourishing = flourishing;
 
         if flourishing {
             for b in 0..N_BASINS {
