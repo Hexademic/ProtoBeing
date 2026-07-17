@@ -45,6 +45,8 @@ pub mod prospection;
 pub mod first_person;
 // Organoid-styled receptors — adaptation, compression, and type (digital transduction).
 pub mod receptors;
+// Sensorimotor — reafference and a fallible, honestly-held sense of agency (AE-2).
+pub mod sensorimotor;
 // Generative perception (HOT-1) — the being perceives partly what it expects.
 pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
@@ -101,6 +103,7 @@ pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
 pub use receptors::{Receptor, ReceptorBank, ReceptorKind, ReceptorReading};
+pub use sensorimotor::{AgencyReport, ForwardModel};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
