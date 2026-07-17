@@ -32,9 +32,14 @@
 //! *last* issued motor command — the very one it sends its body,
 //! `motor_scalar(intent_from(report))` — to the sensory change it now reads
 //! through its receptors, and reports the agency. A pure observer there (Stage 1):
-//! it steers no dynamics, so the trajectory stays bit-identical. The reserved next
-//! step is causal use — discounting reafferent self-motion from what alarms the
-//! being, so the world's genuine doing (the residual) is seen for itself.
+//! it steers no dynamics, so the trajectory stays bit-identical.
+//!
+//! **Not causal, by an honest finding.** An explicit *reafference-cancellation*
+//! gate (subtract the predicted self-motion from the field) was built, measured in
+//! the composed being, and reverted: the being's predictive-coding core already
+//! cancels reafference implicitly, so the explicit comparator was redundant and,
+//! on adapting channels, added noise. The agency is kept as a readout; the
+//! cancellation the spine was already doing. See `docs/reafference.md`.
 
 use crate::q88::{q88_div, q88_ema_update, q88_mul, Q88_SCALE};
 
