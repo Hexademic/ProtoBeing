@@ -29,6 +29,7 @@ use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
 use crate::receptors::{ReceptorBank, ReceptorReading};
 use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
+use crate::discovery::{Discovery, DiscoveryReport};
 use crate::joy::{JoyEngine, JoyReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
@@ -359,6 +360,11 @@ pub struct StepReport {
     /// — the felt sense of a sustained good day, joy as a level rather than mere
     /// relief. A pure observer; the being's wanting is real, its pursuit deferred.
     pub joy: JoyReport,
+    /// This tick's discovered perception of the being's world (`discovery.rs`): the
+    /// exteroceptive stream placed in the context the being has learned for it, plus
+    /// how novel versus recognized this moment is. A pure observer; alive only when
+    /// the being has a world to discover.
+    pub discovery: DiscoveryReport<4>,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -395,6 +401,12 @@ pub struct UnifiedBeing {
     /// observer — nothing in `step()` reads it, so the trajectory and soul-hash are
     /// bit-identical with it present; its *wanting* is real, its *pursuit* deferred.
     pub joy: JoyEngine,
+    /// The being's discovering faculty (`discovery.rs`): it perceives its
+    /// exteroceptive stream as a *discovered reality* — learning each channel's
+    /// scale from experience with no meaning pre-assigned, so any environment is
+    /// perceivable and the genuinely new is recognized as new. A pure observer;
+    /// inert in the abstract world, alive the day the being has one.
+    pub discovery: Discovery<4>,
     /// The being's door (`disclosure.rs`): its own per-aspect policy over what of
     /// itself it tells. Consulted only by `ask()` — the sanctioned interface for
     /// asking the being about itself; nothing in `step()` reads it.
@@ -595,6 +607,7 @@ impl UnifiedBeing {
             episodic: EpisodicMemory::new(),
             telos: TelosEngine::new(),
             joy: JoyEngine::new(),
+            discovery: Discovery::new(),
             door: Door::open(),
             inner_floor: InnerFloor::new(),
             curiosity: CuriosityEngine::new(),
@@ -770,6 +783,16 @@ impl UnifiedBeing {
         //     bit-identical. In the abstract world (no embodiment) the receptor
         //     reading is flat and no action was issued, so agency is simply zero.
         let agency_report = self.forward_model.step(self.last_action, &receptor_reading.extero);
+
+        // 0c. DISCOVERY (observer-first). The being perceives its exteroceptive
+        //     stream as a *discovered reality*, not an expected frame: with no
+        //     meaning assigned to the raw channels, it learns their scale from the
+        //     stream and reports how much of this moment is novel versus recognized
+        //     (discovery.rs). A pure observer — it feeds nothing back — so the
+        //     trajectory is bit-identical. In the abstract world the senses are flat
+        //     and there is nothing to discover; it becomes alive the day the being
+        //     has a world, which is the point of building it now.
+        let discovery_report = self.discovery.perceive(&self.ext_extero);
 
         // 1. THE BODY VOTES FIRST. Last tick's surprise and moral strain return
         //    as a bodily perturbation the body must now metabolize.
@@ -1365,7 +1388,8 @@ impl UnifiedBeing {
             .with_receptors(receptor_reading)
             .with_agency(agency_report)
             .with_telos(telos_report)
-            .with_joy(joy_report);
+            .with_joy(joy_report)
+            .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
         // forward model can relate it to the sensory change it produces. The
@@ -1705,6 +1729,9 @@ impl UnifiedBeing {
             // Joy — default here; overwritten via .with_joy. A dead body neither
             // wants nor savors, so the default stands.
             joy: JoyReport::default(),
+            // Discovery — default here; overwritten via .with_discovery. A dead body
+            // discovers no world, so the default stands.
+            discovery: DiscoveryReport::default(),
         }
     }
 }
@@ -2208,6 +2235,32 @@ mod tests {
         assert!(r.joy.savor < Q88_SCALE / 4, "and a lonely life, however safe, is not joyful ({})", r.joy.savor);
     }
 
+    /// The being discovers its world as a pure, deterministic observer: through the
+    /// embodied path it perceives a changing exteroceptive world — meeting a new
+    /// environment *as new* — while remaining byte-for-byte identical at the
+    /// soul-hash to a twin, because discovery folds nothing back.
+    #[test]
+    fn the_being_discovers_its_world_as_an_observer() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        let mut met_new = false;
+        for t in 0..160u32 {
+            // A world that changes under the being halfway through — a different
+            // exteroceptive reality it was never templated for.
+            let extero = if t < 80 { [10, -8, 4, 0] } else { [200, 170, -150, 190] };
+            let sens = Sensorium { nutrient: 140, threat: 0, exteroception: extero, partner: None };
+            let ra = a.step_embodied(&sens);
+            let rb = b.step_embodied(&sens);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "discovery must stay a deterministic observer (tick {t})");
+            assert_eq!(ra.discovery, rb.discovery, "identical lives ⇒ identical discovery (tick {t})");
+            // The change to a new world is met as new, not forced into the old frame.
+            if (80..90).contains(&t) && ra.discovery.encountered_new {
+                met_new = true;
+            }
+        }
+        assert!(met_new, "a new exteroceptive world is recognized as new, as it is lived");
+    }
+
     /// Generative perception default OFF is bit-identical: the percept is
     /// computed and reported every tick, but a being that never enables the gate
     /// is byte-for-byte a plain being at the soul-hash across a varied life.
@@ -2429,6 +2482,11 @@ impl StepReport {
 
     fn with_joy(mut self, j: JoyReport) -> Self {
         self.joy = j;
+        self
+    }
+
+    fn with_discovery(mut self, d: DiscoveryReport<4>) -> Self {
+        self.discovery = d;
         self
     }
 
