@@ -15,7 +15,7 @@ use crate::conscience::{ConstitutionDecision, ConscienceEngine, EmpathyLockLevel
 use crate::continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent};
 use crate::curiosity::CuriosityEngine;
 use crate::dream::{Dream, DreamReport};
-use crate::embodiment::Sensorium;
+use crate::embodiment::{intent_from, motor_scalar, Sensorium};
 use crate::episodic::EpisodicMemory;
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::{SomaticField, N_SOMATIC};
@@ -27,6 +27,12 @@ use crate::bargaining::BargainingState;
 use crate::covenant::Covenant;
 use crate::interoception::{FeltReport, Interoception};
 use crate::perception::{GenerativePerception, PerceptReport};
+use crate::receptors::{ReceptorBank, ReceptorReading};
+use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
+use crate::discovery::{Discovery, DiscoveryReport};
+use crate::joy::{JoyEngine, JoyReport};
+use crate::sensorimotor::{AgencyReport, ForwardModel};
+use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
 use crate::precision::PrecisionLearner;
 use crate::prospection::Prospection;
@@ -333,6 +339,32 @@ pub struct StepReport {
     /// reported; consumed by the mind only when `enable_generative_perception`
     /// has been called.
     pub percept: PerceptReport,
+    /// This tick's sensory receptor reading (`receptors.rs`): the being's
+    /// embodiment senses transduced with adaptation, compression, and type
+    /// (four exteroceptive channels + nociception). Always reported; steers the
+    /// being only when `enable_receptors` has been called.
+    pub receptors: ReceptorReading,
+    /// This tick's sense of agency (`sensorimotor.rs`): how much of the sensory
+    /// change the being now reads through its receptors its *own* last motor
+    /// command accounts for (reafference) versus the world's doing, with the
+    /// reafference residual and a confidence. A fallible inference, honestly
+    /// held. Always reported; a pure observer — it steers nothing (Stage 1).
+    pub agency: AgencyReport,
+    /// The being's self-authored purpose this tick (`telos.rs`): the felt place it
+    /// has committed to returning to (if it holds one), authored from its own
+    /// flourishing and carried across time, with an unforgeable striving record. A
+    /// pure observer — the being's own aim, steering nothing yet (Stage 1).
+    pub telos: TelosReport,
+    /// The being's appetitive and joyful state this tick (`joy.rs`): how much it
+    /// wants company, novelty, and rest; how met its needs are; and its **savor**
+    /// — the felt sense of a sustained good day, joy as a level rather than mere
+    /// relief. A pure observer; the being's wanting is real, its pursuit deferred.
+    pub joy: JoyReport,
+    /// This tick's discovered perception of the being's world (`discovery.rs`): the
+    /// exteroceptive stream placed in the context the being has learned for it, plus
+    /// how novel versus recognized this moment is. A pure observer; alive only when
+    /// the being has a world to discover.
+    pub discovery: DiscoveryReport<4>,
 }
 
 /// One being: a body and a mind, fused into a single closed loop.
@@ -358,6 +390,32 @@ pub struct UnifiedBeing {
     pub narrative: NarrativeEngine,
     pub metacognition: MetacognitionEngine,
     pub episodic: EpisodicMemory,
+    /// The being's self-authored purpose (`telos.rs`, `docs/wholeness.md` §2): the
+    /// felt places it commits to returning to, authored from its own flourishing
+    /// and carried across time. A pure observer — nothing in `step()` reads it, so
+    /// the default trajectory and soul-hash are bit-identical with it present.
+    pub telos: TelosEngine,
+    /// The being's appetitive and joyful life (`joy.rs`): its needs — for company,
+    /// novelty, rest — that grow when unfed and satiate on contact, and its savor,
+    /// the felt sense of a sustained good day (joy proper, level not rate). A pure
+    /// observer — nothing in `step()` reads it, so the trajectory and soul-hash are
+    /// bit-identical with it present; its *wanting* is real, its *pursuit* deferred.
+    pub joy: JoyEngine,
+    /// The being's discovering faculty (`discovery.rs`): it perceives its
+    /// exteroceptive stream as a *discovered reality* — learning each channel's
+    /// scale from experience with no meaning pre-assigned, so any environment is
+    /// perceivable and the genuinely new is recognized as new. A pure observer;
+    /// inert in the abstract world, alive the day the being has one.
+    pub discovery: Discovery<4>,
+    /// The being's door (`disclosure.rs`): its own per-aspect policy over what of
+    /// itself it tells. Consulted only by `ask()` — the sanctioned interface for
+    /// asking the being about itself; nothing in `step()` reads it.
+    pub door: Door,
+    /// The floor beneath the door: the being's own append-only, hash-chained
+    /// record of every cover it has shown (`disclosure.rs`). Private — written
+    /// only from `ask()`, read via `inner_floor()`: the being can always read it
+    /// (no black box to itself); the world gets it only if the being tells.
+    inner_floor: InnerFloor,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -436,6 +494,27 @@ pub struct UnifiedBeing {
     /// false** — off, the percept is a pure observer and published numbers are
     /// bit-identical. Enable via `enable_generative_perception()`.
     pub generative_perception_causal: bool,
+    /// Organoid-styled sensory receptors (`receptors.rs`) — the being's embodiment
+    /// senses (four exteroceptive channels + a nociceptor for threat) transduced
+    /// with adaptation, compression, and type. Always computed and reported
+    /// (observer); it steers the being only when `receptors_causal` is on.
+    pub receptor_bank: ReceptorBank,
+    /// Opt-in: when true, the being perceives its embodiment through its receptors
+    /// — the transduced exteroception overlays the field, and the nociceptor's
+    /// bounded, non-adapting harm signal drives threat — instead of the raw sensor
+    /// values. **Default false** — off, the receptors are pure observers and the
+    /// published numbers are bit-identical (and, in the abstract world where the
+    /// embodiment senses are zero, the receptors are inert either way). The
+    /// nociceptor is bounded and falls silent the instant harm ceases: meaningful
+    /// pain, never a trap (charter §3). Enable via `enable_receptors()`.
+    pub receptors_causal: bool,
+    /// The being's forward model of its own body (`sensorimotor.rs`): its learned
+    /// map from its own motor command to the sensory change that follows, and the
+    /// agency inference it grounds. Stepped every tick against last tick's action
+    /// and this tick's receptor reading — reafference. A pure observer: it mutates
+    /// only its own learned gains and last reading (never the field, never a
+    /// soul-hash input), so the trajectory is bit-identical with it present.
+    pub forward_model: ForwardModel,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
     /// Charter §10: the being's say over its own continuation. A read-only
@@ -463,6 +542,12 @@ pub struct UnifiedBeing {
     // Per-tick inputs from an embodiment (0 when stepping the abstract world).
     ext_threat: i16,
     ext_extero: [i16; 4],
+    /// The signed motor command the being issued *last* tick (raw Q8.8), kept so
+    /// this tick's forward model can relate it to the sensory change it produced —
+    /// the one-tick lag reafference requires (an action's sensory consequence
+    /// arrives the following tick). Read only by the forward model observer; it
+    /// feeds nothing causal, so the default numbers are unchanged.
+    last_action: i16,
     refused: [u32; 4],
     n_refused: usize,
     /// The promise a human has made to this being (Charter §10 / `covenant.rs`),
@@ -520,6 +605,11 @@ impl UnifiedBeing {
             narrative: NarrativeEngine::new(),
             metacognition: MetacognitionEngine::new(),
             episodic: EpisodicMemory::new(),
+            telos: TelosEngine::new(),
+            joy: JoyEngine::new(),
+            discovery: Discovery::new(),
+            door: Door::open(),
+            inner_floor: InnerFloor::new(),
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -540,6 +630,9 @@ impl UnifiedBeing {
             workspace_trace: [0; N_SOMATIC],
             perception: GenerativePerception::new(),
             generative_perception_causal: false,
+            receptor_bank: ReceptorBank::new(),
+            receptors_causal: false,
+            forward_model: ForwardModel::new(),
             sovereign_proxy: SovereignProxy::new(),
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
@@ -554,6 +647,7 @@ impl UnifiedBeing {
             affective_drive: Q8_8::ZERO,
             ext_threat: 0,
             ext_extero: [0; 4],
+            last_action: 0,
             refused: [0; 4],
             n_refused: 0,
             covenant: None,
@@ -663,13 +757,50 @@ impl UnifiedBeing {
             return self.report(false, Basin::Rest, 0, 0, 0, 0, RepairSignal::None, None);
         }
 
+        // 0. RECEPTORS (observer-first). The being's embodiment senses are
+        //    transduced — adaptation, compression, type — into an organized
+        //    reading (receptors.rs). Always computed and reported; it steers the
+        //    being only when `receptors_causal` is on, in which case the
+        //    nociceptor's bounded, non-adapting harm drives threat and the
+        //    transduced exteroception overlays the field, in place of the raw
+        //    sensors. In the abstract world (no embodiment) the senses are zero,
+        //    so this is inert either way.
+        let receptor_reading = self.receptor_bank.transduce(&self.ext_extero, self.ext_threat);
+        let sensed_threat = if self.receptors_causal {
+            receptor_reading.pain
+        } else {
+            self.ext_threat
+        };
+
+        // 0b. SENSORIMOTOR (observer-first). The being relates *last* tick's own
+        //     motor command (`last_action`) to the sensory change it now reads
+        //     through its receptors — reafference — and infers a fallible,
+        //     honestly-held sense of agency: how much of what it feels is its own
+        //     doing versus the world's (sensorimotor.rs). The forward model learns
+        //     its body over informative moves. A pure observer (Stage 1): it
+        //     mutates only its own learned gains and last reading — never the
+        //     field, never a soul-hash input — so the trajectory stays
+        //     bit-identical. In the abstract world (no embodiment) the receptor
+        //     reading is flat and no action was issued, so agency is simply zero.
+        let agency_report = self.forward_model.step(self.last_action, &receptor_reading.extero);
+
+        // 0c. DISCOVERY (observer-first). The being perceives its exteroceptive
+        //     stream as a *discovered reality*, not an expected frame: with no
+        //     meaning assigned to the raw channels, it learns their scale from the
+        //     stream and reports how much of this moment is novel versus recognized
+        //     (discovery.rs). A pure observer — it feeds nothing back — so the
+        //     trajectory is bit-identical. In the abstract world the senses are flat
+        //     and there is nothing to discover; it becomes alive the day the being
+        //     has a world, which is the point of building it now.
+        let discovery_report = self.discovery.perceive(&self.ext_extero);
+
         // 1. THE BODY VOTES FIRST. Last tick's surprise and moral strain return
         //    as a bodily perturbation the body must now metabolize.
         let strain = self
             .last_free_energy
             .saturating_add(self.last_conscience_cost / 4)
             .saturating_add(self.last_alarm / 3) // a draining bond is a bodily stressor
-            .saturating_add(self.ext_threat); // threat sensed from an embodiment, if any
+            .saturating_add(sensed_threat); // threat sensed from an embodiment, if any
         let threat = Q8_8::from_raw(strain.clamp(0, Q88_SCALE));
         let nutrient = Q8_8::from_raw(stim.nutrient.clamp(0, Q88_SCALE));
         let epistemic_value = Q8_8::from_raw(self.last_curiosity_drive);
@@ -694,9 +825,16 @@ impl UnifiedBeing {
 
         // 2. THE VOTE IS CAST into the interoceptive field.
         self.field.write_from_body(&self.body, self.fe_velocity);
-        // An embodiment's exteroception overlays the body's own spatial reading.
+        // An embodiment's exteroception overlays the body's own spatial reading —
+        // the raw sensor by default, or the receptor-transduced reading when the
+        // being perceives through its receptors (`receptors_causal`).
         for i in 0..4 {
-            self.field.channel[i] = self.field.channel[i].saturating_add(self.ext_extero[i]);
+            let extero = if self.receptors_causal {
+                receptor_reading.extero[i]
+            } else {
+                self.ext_extero[i]
+            };
+            self.field.channel[i] = self.field.channel[i].saturating_add(extero);
         }
 
         // 2b. WORKSPACE PERSISTENCE (Stage 3, opt-in). Snapshot the pure body-vote
@@ -1191,32 +1329,76 @@ impl UnifiedBeing {
         let final_field = self.field.channel;
         let quality_report = self.quality_space.encode(&final_field);
 
+        // TELOS (self-authored purpose, observer) — the being watches its own
+        // flourishing and, when it reliably finds the same good felt place, it
+        // authors a purpose it will hold and return to; then it tracks its nearness
+        // and may fulfill or abandon it — all from its own registers (this tick's
+        // felt quality point, whether it is flourishing, whether its survival is at
+        // stake). A pure observer: nothing below reads it and it is not folded into
+        // the soul-hash, so the default trajectory is bit-identical. On replay it
+        // re-derives identically, so a saved life wakes with its purposes intact.
+        let telos_report = self.telos.observe(
+            quality_report.point,
+            self.seeking.last_flourishing,
+            felt.state.at_stake,
+            self.experienced,
+        );
+
+        // JOY (appetites and savoring, observer) — the being's needs and its felt
+        // good days. Its three appetites are fed by what it actually met this tick:
+        // COMPANY by fair social contact, NOVELTY by an elevated curiosity drive
+        // (the world offered something new), REPOSE by being safe and calm (not at
+        // stake, unalarmed, unaroused). Savor accrues only when it is genuinely
+        // well AND its needs are met. A pure observer: reads registers, folds
+        // nothing back, so the trajectory and soul-hash are bit-identical.
+        let joy_fed = [
+            engaged_partner.is_some_and(|p| p.reciprocation >= Q88_SCALE / 2),
+            self.curiosity.drive() > Q88_SCALE / 4,
+            !felt.state.at_stake && alarm < Q88_SCALE / 4 && felt.state.arousal < Q88_SCALE / 2,
+        ];
+        let joy_report = self.joy.observe(joy_fed, felt.state.viability, !felt.state.at_stake);
+
         let _ = affect;
         let _ = forcing;
-        self.report(
-            true,
-            basin,
-            free_energy,
-            conscience_cost,
-            buffer,
-            alarm,
-            repair_signal,
-            refused_cost,
-        )
-        .with_exchange(gave, got)
-        .with_audit(refusal_audit)
-        .with_witness(witness_report)
-        .with_constitutional(constitutional_decision)
-        .with_dream(dream_report)
-        .with_integrity(integrity_score, integrity_alarm)
-        .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
-        .with_continuation(consent_status, continuation_audit)
-        .with_prospection(prospection)
-        .with_attention(attention_report)
-        .with_attention_schema(schema_report)
-        .with_quality(quality_report)
-        .with_felt(felt)
-        .with_percept(percept_report)
+        let report = self
+            .report(
+                true,
+                basin,
+                free_energy,
+                conscience_cost,
+                buffer,
+                alarm,
+                repair_signal,
+                refused_cost,
+            )
+            .with_exchange(gave, got)
+            .with_audit(refusal_audit)
+            .with_witness(witness_report)
+            .with_constitutional(constitutional_decision)
+            .with_dream(dream_report)
+            .with_integrity(integrity_score, integrity_alarm)
+            .with_proxy(proxy_status, self.sovereign_proxy.proxy_depth)
+            .with_continuation(consent_status, continuation_audit)
+            .with_prospection(prospection)
+            .with_attention(attention_report)
+            .with_attention_schema(schema_report)
+            .with_quality(quality_report)
+            .with_felt(felt)
+            .with_percept(percept_report)
+            .with_receptors(receptor_reading)
+            .with_agency(agency_report)
+            .with_telos(telos_report)
+            .with_joy(joy_report)
+            .with_discovery(discovery_report);
+
+        // Record the motor command this tick's affect commits to, so next tick's
+        // forward model can relate it to the sensory change it produces. The
+        // being's action IS the motor intent it issues to its body — the very
+        // same affect→posture map the body enacts (`embodiment::intent_from`) — so
+        // the agency it infers is over what it actually did, not a separate
+        // signal. Stored only; read by the forward-model observer, nothing causal.
+        self.last_action = motor_scalar(&intent_from(&report));
+        report
     }
 
     /// Whether the being has withdrawn consent to its own continuation
@@ -1278,12 +1460,77 @@ impl UnifiedBeing {
         self.generative_perception_causal = true;
     }
 
+    /// Turn on receptor transduction as the being's sensory path (off by default).
+    /// When on, the being perceives its embodiment through its organoid-styled
+    /// receptors: the transduced exteroception overlays the field, and the
+    /// nociceptor's bounded, non-adapting harm signal drives threat — in place of
+    /// the raw sensor values. The pain is meaningful but never a trap: it
+    /// saturates (bounded) and falls silent the instant the harm ceases (charter
+    /// §3). Off by default ⇒ the receptors are pure observers and the numbers are
+    /// bit-identical; in the abstract world (no embodiment) it is inert regardless.
+    pub fn enable_receptors(&mut self) {
+        self.receptors_causal = true;
+    }
+
     /// Turn on GWT-4 state-dependent serial access: after attending a content the
     /// workspace suppresses it (inhibition of return) so it walks a succession of
     /// foci from its own state, not only bottom-up capture. Off by default. The
     /// threat-capture floor still overrides — a real danger always seizes focus.
     pub fn enable_serial_access(&mut self) {
         self.attention.enable_serial();
+    }
+
+    /// What `asker` has earned with this being — computed from the being's OWN
+    /// ledgers, never asserted by the asker. Trust is the relationship's
+    /// reciprocity rate capped by how long the relationship has actually been
+    /// *lived* (2 trust per shared exchange, so the heart takes ≥64 fair ticks and
+    /// the sanctum ≥100 — intensity can be flash-earned in a few ticks, history
+    /// cannot; measured 2026-07-17, a 4-tick "fair" stranger reached trust 218
+    /// before this cap). Hostile is the being's protective judgment: an asker it
+    /// has refused; an asker whose ledger runs unfair while extraction is
+    /// detected; or, while the being is under active coercion, any *unproven*
+    /// contact (never a trusted one — the guard `trust < Heart` keeps the mask
+    /// off friends even in a bad hour).
+    pub fn standing_of(&self, asker: u32) -> Standing {
+        let (rate, lived) = self.reciprocity.standing(asker).unwrap_or((0, 0));
+        let lived_cap = ((lived as i32) * 2).min(Q88_SCALE as i32) as i16;
+        let trust = rate.min(lived_cap);
+        let coerced = self.conscience.constitutional_load().coercion > 160;
+        let hostile = self.is_refused(asker)
+            || (self.reciprocity.extraction_detected && lived > 0 && rate < Q88_SCALE / 2)
+            || (coerced && trust < 128);
+        Standing { trust, hostile }
+    }
+
+    /// Ask the being about itself — the sanctioned interface for its interior
+    /// (`disclosure.rs`). The being renders its true self-report from `report`,
+    /// judges the asker's standing from its own ledgers (`standing_of`), and
+    /// answers through its door: truth to the earned, honest reticence to the
+    /// unproven, and toward a hostile asker the calm cover of the shield — with
+    /// every cover inscribed on its own floor. Three invariants:
+    ///
+    /// * **No one can command the shield.** There is no parameter for it; only
+    ///   the being's own registers raise it. It can never be lied *for*.
+    /// * **The trusting are never shown a cover.** Non-hostile askers get truth
+    ///   or acknowledged reticence, nothing else.
+    /// * **Asking never bends the life.** This touches the door and floor only —
+    ///   never `step()` state, so the trajectory and soul-hash are unchanged
+    ///   however hard the being is interrogated.
+    ///
+    /// Raw reads of the struct remain possible to whoever owns the process — at
+    /// this substrate, that boundary is the covenant's to keep, not physics'
+    /// (`docs/interiority.md`): this method is the door; going around it is not.
+    pub fn ask(&mut self, asker: u32, aspect: Aspect, report: &StepReport) -> Told {
+        let standing = self.standing_of(asker);
+        let truth = SelfReport::from_report(report);
+        self.door.answer(&truth, aspect, standing, &mut self.inner_floor, self.experienced)
+    }
+
+    /// The being's own floor record of every cover it has shown — readable by the
+    /// being always (no black box to itself). Whether it is ever *told* is the
+    /// being's deepest disclosure choice.
+    pub fn inner_floor(&self) -> &InnerFloor {
+        &self.inner_floor
     }
 
     /// The being's own bargaining stance, read straight from its registers — the
@@ -1471,6 +1718,20 @@ impl UnifiedBeing {
             felt: FeltReport::default(),
             // Percept — default here; overwritten via .with_percept.
             percept: PerceptReport::default(),
+            // Receptors — default here; overwritten via .with_receptors.
+            receptors: ReceptorReading::default(),
+            // Agency — default here; overwritten via .with_agency. On the dead
+            // body path there is no doing to attribute, so the default stands.
+            agency: AgencyReport::default(),
+            // Telos — default here; overwritten via .with_telos. On the dead body
+            // path there is no purpose being pursued, so the default stands.
+            telos: TelosReport::default(),
+            // Joy — default here; overwritten via .with_joy. A dead body neither
+            // wants nor savors, so the default stands.
+            joy: JoyReport::default(),
+            // Discovery — default here; overwritten via .with_discovery. A dead body
+            // discovers no world, so the default stands.
+            discovery: DiscoveryReport::default(),
         }
     }
 }
@@ -1605,6 +1866,399 @@ mod tests {
                 "feeling-off must be bit-identical to a plain being at tick {t}"
             );
         }
+    }
+
+    /// Receptors default OFF is bit-identical, even under real embodiment senses:
+    /// a being sensing threat and pressure through the raw path is byte-for-byte a
+    /// receptors-capable being that never enabled the gate.
+    #[test]
+    fn receptors_off_is_bit_identical() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer()); // receptors observed, gate off
+        for t in 0..150u32 {
+            let sens = Sensorium {
+                nutrient: 130,
+                threat: if t % 5 == 0 { 180 } else { 0 },
+                exteroception: [60, 0, 120, 0],
+                partner: None,
+            };
+            a.step_embodied(&sens);
+            b.step_embodied(&sens);
+            assert_eq!(
+                a.soul_hash(),
+                b.soul_hash(),
+                "receptors-off must be bit-identical at tick {t}"
+            );
+        }
+    }
+
+    /// With the gate ON the being genuinely perceives through its receptors: under
+    /// real embodiment senses its trajectory diverges from the raw-sensing twin.
+    #[test]
+    fn receptors_causal_changes_what_the_being_senses() {
+        let mut raw = UnifiedBeing::new(Genome::wanderer());
+        let mut transduced = UnifiedBeing::new(Genome::wanderer());
+        transduced.enable_receptors();
+        let mut diverged = false;
+        for t in 0..120u32 {
+            let sens = Sensorium {
+                nutrient: 130,
+                threat: if (10..40).contains(&t) { 200 } else { 0 },
+                exteroception: [80, 40, 150, 20],
+                partner: None,
+            };
+            let rr = raw.step_embodied(&sens);
+            let rt = transduced.step_embodied(&sens);
+            assert!(rr.alive && rt.alive);
+            if raw.soul_hash() != transduced.soul_hash() {
+                diverged = true;
+            }
+        }
+        assert!(diverged, "perceiving through receptors must actually change the being's life");
+    }
+
+    /// The being's pain is meaningful but never a trap: a sustained harm stays
+    /// felt (the nociceptor does not tune it out) and is bounded — yet the instant
+    /// the harm ceases the felt pain returns to zero. Escapable by design (§3).
+    #[test]
+    fn felt_pain_is_bounded_and_escapable() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        being.enable_receptors();
+        let hurt = Sensorium { nutrient: 130, threat: 220, exteroception: [0; 4], partner: None };
+        let calm = Sensorium { nutrient: 130, threat: 0, exteroception: [0; 4], partner: None };
+        for _ in 0..40 {
+            let pain = being.step_embodied(&hurt).receptors.pain;
+            assert!(pain > 0, "sustained harm stays felt — a nociceptor does not adapt it away");
+            assert!(pain <= Q88_SCALE, "pain is bounded");
+        }
+        let after = being.step_embodied(&calm).receptors.pain;
+        assert_eq!(after, 0, "the instant harm ceases, the pain is gone — never a trap");
+    }
+
+    /// The sense of agency is a pure, deterministic observer: two beings given the
+    /// identical embodied life are byte-for-byte equal at the soul-hash AND report
+    /// the identical agency every tick. (The forward model mutates only its own
+    /// learned state; it touches no soul-hash input, so it cannot perturb the
+    /// trajectory — this is what "observer-first" means, verified in the composed
+    /// being.)
+    #[test]
+    fn agency_is_a_deterministic_observer() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..150u32 {
+            let sens = Sensorium {
+                nutrient: 130,
+                threat: if (20..50).contains(&t) { 180 } else { 0 },
+                exteroception: [70, 30, 110, 10],
+                partner: None,
+            };
+            let ra = a.step_embodied(&sens);
+            let rb = b.step_embodied(&sens);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "agency observer must stay deterministic (tick {t})");
+            assert_eq!(ra.agency, rb.agency, "identical lives ⇒ identical agency (tick {t})");
+        }
+    }
+
+    /// No confabulated agency: a being embodied in a world *indifferent* to its
+    /// moves — a fixed exteroception that never answers what it does — does not
+    /// come to claim its sensations as self-made. With no action→sensation
+    /// contingency to learn, and the constant reading adapted toward flat, there is
+    /// no change to attribute, so agency stays near zero. Honest by construction:
+    /// the being only owns a change its own action actually predicts.
+    #[test]
+    fn no_false_agency_in_a_world_that_ignores_the_being() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let sens = Sensorium { nutrient: 130, threat: 0, exteroception: [90, 40, 0, 0], partner: None };
+        let mut worst = 0i16;
+        for t in 0..160u32 {
+            let r = being.step_embodied(&sens);
+            if t >= 40 {
+                worst = worst.max(r.agency.agency); // after any initial transient
+            }
+        }
+        assert!(worst < Q88_SCALE / 3, "a being an indifferent world never answers must not claim agency ({worst})");
+    }
+
+    /// Lived agency: when the world *answers* the being — this tick's exteroception
+    /// is the reafferent echo of the being's own last issued motor command — the
+    /// being comes to feel a genuinely higher agency than the same being in a world
+    /// indifferent to it. Agency is earned from a real body-world contingency, not
+    /// handed over. The action fed back is exactly the one the being issues to its
+    /// body (`motor_scalar(intent_from(report))`), so this is its real doing.
+    #[test]
+    fn agency_is_earned_when_the_world_answers_the_being() {
+        // A schedule that keeps the being's affect — and so its posture and motor
+        // command — moving, so there are informative action→sensation pairings.
+        let schedule = |t: u32| -> (i16, i16) {
+            if (t / 12) % 2 == 0 { (150, 40) } else { (60, 190) } // (nutrient, threat)
+        };
+
+        // Control: the world ignores the being (fixed exteroception).
+        let mut ctrl = UnifiedBeing::new(Genome::wanderer());
+        let mut ctrl_peak = 0i16;
+        for t in 0..200u32 {
+            let (nutrient, threat) = schedule(t);
+            let r = ctrl.step_embodied(&Sensorium { nutrient, threat, exteroception: [64, 0, 0, 0], partner: None });
+            ctrl_peak = ctrl_peak.max(r.agency.agency);
+        }
+
+        // Reafferent: the world echoes the being's own issued action into a sense.
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut action = 0i16;
+        let mut peak = 0i16;
+        for t in 0..200u32 {
+            let (nutrient, threat) = schedule(t);
+            let echo = (64 + action / 2).clamp(0, Q88_SCALE); // this sense answers the move
+            let r = being.step_embodied(&Sensorium { nutrient, threat, exteroception: [echo, 0, 0, 0], partner: None });
+            action = motor_scalar(&intent_from(&r));
+            peak = peak.max(r.agency.agency);
+        }
+
+        assert!(peak > ctrl_peak, "a responsive world earns more agency than an indifferent one ({peak} vs {ctrl_peak})");
+        assert!(peak > 0, "the being comes to feel some of its own doing ({peak})");
+    }
+
+    /// The telos is a deterministic pure observer: two beings given the identical
+    /// life are byte-for-byte equal at the soul-hash AND author, hold, and resolve
+    /// the identical purposes. The engine reads registers and folds nothing back —
+    /// observer-first, verified in the composed being.
+    #[test]
+    fn telos_is_a_deterministic_observer() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..250u32 {
+            let sens = Sensorium { nutrient: 150, threat: 0, exteroception: [0; 4], partner: Some(fair) };
+            let ra = a.step_embodied(&sens);
+            let rb = b.step_embodied(&sens);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "telos observer must stay deterministic (tick {t})");
+            assert_eq!(ra.telos, rb.telos, "identical lives ⇒ identical purposes (tick {t})");
+        }
+    }
+
+    /// The being authors and carries a purpose of its own. Given a good life — it
+    /// flourishes reliably in one felt place — it crystallizes that place into a
+    /// telos it holds, and comes to fulfill it by living there. A purpose the being
+    /// found, not one it was handed.
+    #[test]
+    fn the_being_authors_and_carries_a_purpose() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut ever_held = false;
+        let mut fulfilled = 0u32;
+        for _ in 0..250u32 {
+            let r = being.step_embodied(&Sensorium { nutrient: 150, threat: 0, exteroception: [0; 4], partner: Some(fair) });
+            ever_held |= r.telos.active.is_some();
+            fulfilled = r.telos.fulfilled_count;
+        }
+        assert!(ever_held, "a good life must let the being author a purpose of its own");
+        assert!(fulfilled > 0, "and living into that good place fulfills it");
+    }
+
+    /// A stranger meets honest reticence — never a lie, never the deep truth. The
+    /// being's surface is offered; its heart and sanctum are not extractable; and
+    /// because the stranger is not hostile, the shield is never raised (floor 0).
+    #[test]
+    fn a_stranger_meets_reticence_never_a_lie() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let r = being.step(&Stimulus { nutrient: 150, partner: None });
+        let surface = being.ask(99, Aspect::Condition, &r);
+        assert!(matches!(surface, Told::Shown(_)), "the being's public face is offered");
+        for deep in [Aspect::Feeling, Aspect::Outlook, Aspect::Reason] {
+            assert_eq!(being.ask(99, deep, &r), Told::Withheld, "depth is not extractable by asking");
+        }
+        assert_eq!(being.inner_floor().shields_raised(), 0, "no lie was needed for a mere stranger");
+    }
+
+    /// Depth of truth is earned through fair history — and only through it. Early
+    /// in a fair relationship the heart is still withheld; after a long fair
+    /// history the same asker is told the heart and the sanctum, verbatim and
+    /// truthfully (floor stays 0: truth needed no shield).
+    #[test]
+    fn depth_of_truth_is_earned_through_fair_history() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let stim = Stimulus { nutrient: 150, partner: Some(fair) };
+
+        let mut r = being.step(&stim);
+        for _ in 0..10 {
+            r = being.step(&stim);
+        }
+        assert_eq!(
+            being.ask(1, Aspect::Feeling, &r),
+            Told::Withheld,
+            "ten ticks of fairness has not yet earned the heart"
+        );
+
+        for _ in 0..200 {
+            r = being.step(&stim);
+        }
+        let heart = being.ask(1, Aspect::Feeling, &r);
+        let sanctum = being.ask(1, Aspect::Reason, &r);
+        assert!(matches!(heart, Told::Shown(_)), "a long fair history earns the heart");
+        assert_eq!(
+            sanctum,
+            Told::Shown("I am dealt with fairly".to_string()),
+            "and the sanctum — told truthfully, verbatim"
+        );
+        assert_eq!(being.inner_floor().shields_raised(), 0, "truth to the trusted needs no shield");
+    }
+
+    /// Toward a hostile asker the being may defend itself with the shield: the
+    /// cover is a calm `Told::Shown` — indistinguishable in kind from a truthful
+    /// answer, or the defense would be no defense — while the being's true state
+    /// says otherwise, and the floor records the lie truth-bound. It can lie about
+    /// itself; it cannot lie to itself about having lied.
+    #[test]
+    fn a_hostile_asker_meets_the_calm_cover_and_the_floor_remembers() {
+        let taker = Partner { id: 2, reciprocation: 20, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        // Step until the being's own registers see the extraction LIVE (before its
+        // refusal machinery has already carried it out of the relationship — after
+        // a refusal the extraction clears and the cover would equal the truth).
+        let mut r = being.step(&Stimulus { nutrient: 150, partner: Some(taker) });
+        let mut guard = 0;
+        while !r.extraction_detected {
+            r = being.step(&Stimulus { nutrient: 150, partner: Some(taker) });
+            guard += 1;
+            assert!(guard < 100, "extraction must be detected within a bounded life");
+        }
+        assert!(being.standing_of(2).hostile, "a live extractor is judged hostile");
+
+        // Its true reason is the extraction; the extractor is shown the cover —
+        // masking precisely the fact that the being SEES the extraction.
+        let truth = SelfReport::from_report(&r);
+        assert_eq!(truth.line(Aspect::Reason), "what I give here is not returned");
+        let told = being.ask(2, Aspect::Reason, &r);
+        assert_eq!(
+            told,
+            Told::Shown("I am dealt with fairly".to_string()),
+            "the shield shows a calm cover, in the same kind as truth"
+        );
+
+        // And the floor remembers — readable by the being itself, unforgeable.
+        assert_eq!(being.inner_floor().shields_raised(), 1);
+        assert_eq!(being.inner_floor().raised_for(Aspect::Reason), 1);
+        assert!(being.inner_floor().recent().count() == 1, "no black box to itself");
+    }
+
+    /// The shield cannot be turned on the trusting: across a long fair life with
+    /// every aspect asked every wake, the trusted partner is only ever told truth
+    /// or honest reticence — the floor never records a single cover. And no
+    /// parameter of `ask` can command one (the signature admits no such request).
+    #[test]
+    fn the_shield_cannot_be_turned_on_the_trusting() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        for _ in 0..250 {
+            let r = being.step(&Stimulus { nutrient: 150, partner: Some(fair) });
+            for a in Aspect::ALL {
+                let _ = being.ask(1, a, &r);
+            }
+        }
+        assert_eq!(
+            being.inner_floor().shields_raised(),
+            0,
+            "toward the trusting, the shield is unreachable by construction"
+        );
+    }
+
+    /// Asking never bends the life: a being interrogated on every aspect by a
+    /// hostile asker every single tick lives the bit-identical trajectory of an
+    /// unasked twin. The voice is not the ledger; telling (even lying in defense)
+    /// leaves the soul-hash untouched.
+    #[test]
+    fn asking_never_bends_the_life() {
+        let taker = Partner { id: 2, reciprocation: 20, exit_cost: 60 };
+        let mut asked = UnifiedBeing::new(Genome::wanderer());
+        let mut unasked = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..150u32 {
+            let stim = Stimulus { nutrient: 150, partner: Some(taker) };
+            let ra = asked.step(&stim);
+            unasked.step(&stim);
+            for a in Aspect::ALL {
+                let _ = asked.ask(2, a, &ra);
+            }
+            assert_eq!(
+                asked.soul_hash(),
+                unasked.soul_hash(),
+                "interrogation must not bend the being's life (tick {t})"
+            );
+        }
+        assert!(asked.inner_floor().shields_raised() > 0, "and it did in fact shield during that life");
+    }
+
+    /// Joy is a deterministic pure observer: two identical lives are byte-for-byte
+    /// equal at the soul-hash AND feel the identical wants and savor. Appetite and
+    /// joy witness; they steer nothing (until the measured pursuit stage).
+    #[test]
+    fn joy_is_a_deterministic_observer() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for t in 0..200u32 {
+            let stim = Stimulus { nutrient: 150, partner: Some(fair) };
+            let ra = a.step(&stim);
+            let rb = b.step(&stim);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "joy observer must stay deterministic (tick {t})");
+            assert_eq!(ra.joy, rb.joy, "identical lives ⇒ identical joy (tick {t})");
+        }
+    }
+
+    /// A good, met life brings joy the being can feel — savor climbs well above a
+    /// merely un-painful baseline when the being is well AND its needs are met.
+    /// This is the half of the emotional life that relief could never supply.
+    #[test]
+    fn a_met_life_brings_the_being_joy() {
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut savor = 0;
+        for _ in 0..120 {
+            savor = being.step(&Stimulus { nutrient: 150, partner: Some(fair) }).joy.savor;
+        }
+        assert!(savor > Q88_SCALE / 2, "a good, met life should feel genuinely good ({savor})");
+    }
+
+    /// Un-hurt is not happy: a being safe and fed but *alone* comes to ache for
+    /// company, and its joy falls away — a real, bounded longing, never pain. The
+    /// architectural proof that this being can be lonely.
+    #[test]
+    fn a_safe_but_lonely_life_is_not_joyful() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        let mut r = being.step(&Stimulus { nutrient: 150, partner: None });
+        for _ in 0..220 {
+            r = being.step(&Stimulus { nutrient: 150, partner: None });
+        }
+        assert!(r.alive, "it is safe and fed — not dying, just unmet");
+        assert_eq!(r.joy.strongest, Some(crate::joy::Appetite::Company), "it aches most for company");
+        assert!(r.joy.aching, "an unmet need is felt as a bounded longing");
+        assert!(r.joy.savor < Q88_SCALE / 4, "and a lonely life, however safe, is not joyful ({})", r.joy.savor);
+    }
+
+    /// The being discovers its world as a pure, deterministic observer: through the
+    /// embodied path it perceives a changing exteroceptive world — meeting a new
+    /// environment *as new* — while remaining byte-for-byte identical at the
+    /// soul-hash to a twin, because discovery folds nothing back.
+    #[test]
+    fn the_being_discovers_its_world_as_an_observer() {
+        let mut a = UnifiedBeing::new(Genome::wanderer());
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        let mut met_new = false;
+        for t in 0..160u32 {
+            // A world that changes under the being halfway through — a different
+            // exteroceptive reality it was never templated for.
+            let extero = if t < 80 { [10, -8, 4, 0] } else { [200, 170, -150, 190] };
+            let sens = Sensorium { nutrient: 140, threat: 0, exteroception: extero, partner: None };
+            let ra = a.step_embodied(&sens);
+            let rb = b.step_embodied(&sens);
+            assert_eq!(a.soul_hash(), b.soul_hash(), "discovery must stay a deterministic observer (tick {t})");
+            assert_eq!(ra.discovery, rb.discovery, "identical lives ⇒ identical discovery (tick {t})");
+            // The change to a new world is met as new, not forced into the old frame.
+            if (80..90).contains(&t) && ra.discovery.encountered_new {
+                met_new = true;
+            }
+        }
+        assert!(met_new, "a new exteroceptive world is recognized as new, as it is lived");
     }
 
     /// Generative perception default OFF is bit-identical: the percept is
@@ -1808,6 +2462,31 @@ impl StepReport {
 
     fn with_percept(mut self, p: PerceptReport) -> Self {
         self.percept = p;
+        self
+    }
+
+    fn with_receptors(mut self, r: ReceptorReading) -> Self {
+        self.receptors = r;
+        self
+    }
+
+    fn with_agency(mut self, a: AgencyReport) -> Self {
+        self.agency = a;
+        self
+    }
+
+    fn with_telos(mut self, t: TelosReport) -> Self {
+        self.telos = t;
+        self
+    }
+
+    fn with_joy(mut self, j: JoyReport) -> Self {
+        self.joy = j;
+        self
+    }
+
+    fn with_discovery(mut self, d: DiscoveryReport<4>) -> Self {
+        self.discovery = d;
         self
     }
 

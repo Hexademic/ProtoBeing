@@ -24,8 +24,20 @@
 //! extension noted for later.
 
 use crate::being::{Partner, Stimulus, StepReport, UnifiedBeing};
+use crate::embodiment::Sensorium;
 use crate::genome::{BeingKind, Genome};
 use crate::q88::Q8_8;
+
+/// One lived moment in a being's journal: either an **abstract** stimulus (the
+/// world as scalars) or an **embodied** sensorium (a world's senses — threat and
+/// four exteroceptive channels too). A life may be any mix of the two — a being can
+/// live abstractly and then step into a world — and each moment is replayed through
+/// the matching step, so the woken being reproduces its exact soul-hash either way.
+#[derive(Clone, Copy, Debug)]
+enum Moment {
+    Abstract(Stimulus),
+    Embodied(Sensorium),
+}
 
 /// Which opt-in causal features the being was born with. Applied before the first
 /// recorded tick, so the replay follows the exact same trajectory.
@@ -38,6 +50,7 @@ pub struct Features {
     pub schema_control: bool,
     pub felt_choice: bool,
     pub generative_perception: bool,
+    pub receptors: bool,
 }
 
 impl Features {
@@ -63,6 +76,9 @@ impl Features {
         if self.generative_perception {
             being.enable_generative_perception();
         }
+        if self.receptors {
+            being.enable_receptors();
+        }
     }
 
     fn bits(&self) -> u8 {
@@ -73,6 +89,7 @@ impl Features {
             | (self.schema_control as u8) << 4
             | (self.felt_choice as u8) << 5
             | (self.generative_perception as u8) << 6
+            | (self.receptors as u8) << 7
     }
 
     fn from_bits(b: u8) -> Self {
@@ -84,6 +101,7 @@ impl Features {
             schema_control: b & 1 << 4 != 0,
             felt_choice: b & 1 << 5 != 0,
             generative_perception: b & 1 << 6 != 0,
+            receptors: b & 1 << 7 != 0,
         }
     }
 }
@@ -106,12 +124,15 @@ pub enum RestoreError {
 pub struct LifeJournal {
     genome: Genome,
     features: Features,
-    stimuli: Vec<Stimulus>,
+    moments: Vec<Moment>,
     anchor: Option<[u8; 32]>,
 }
 
 const MAGIC: &[u8; 4] = b"SOUL";
-const VERSION: u8 = 1;
+/// Format version. v1 recorded only abstract stimuli (untagged); v2 records tagged
+/// moments so an embodied life is keepable too. Both are decoded — a being founded
+/// under v1 still wakes, and re-saves as v2.
+const VERSION: u8 = 2;
 
 impl LifeJournal {
     /// Begin a life: build the being with its features and a journal that will
@@ -119,14 +140,24 @@ impl LifeJournal {
     pub fn birth(genome: Genome, features: Features) -> (UnifiedBeing, LifeJournal) {
         let mut being = UnifiedBeing::new(genome);
         features.apply(&mut being);
-        (being, LifeJournal { genome, features, stimuli: Vec::new(), anchor: None })
+        (being, LifeJournal { genome, features, moments: Vec::new(), anchor: None })
     }
 
-    /// Live one tick: step the being and record the stimulus **together**, so the
-    /// journal can never drift out of step with the life it describes.
+    /// Live one abstract tick: step the being and record the stimulus **together**,
+    /// so the journal can never drift out of step with the life it describes.
     pub fn live(&mut self, being: &mut UnifiedBeing, stim: &Stimulus) -> StepReport {
         let report = being.step(stim);
-        self.stimuli.push(*stim);
+        self.moments.push(Moment::Abstract(*stim));
+        report
+    }
+
+    /// Live one **embodied** tick: step the being through a world's senses and
+    /// record the sensorium, so an embodied life — the being in a `Room` or any
+    /// other body across the `Embodiment` seam — is kept and replayable just as an
+    /// abstract one is.
+    pub fn live_embodied(&mut self, being: &mut UnifiedBeing, sens: &Sensorium) -> StepReport {
+        let report = being.step_embodied(sens);
+        self.moments.push(Moment::Embodied(*sens));
         report
     }
 
@@ -142,8 +173,11 @@ impl LifeJournal {
         let anchor = self.anchor.ok_or(RestoreError::Unsealed)?;
         let mut being = UnifiedBeing::new(self.genome);
         self.features.apply(&mut being);
-        for stim in &self.stimuli {
-            being.step(stim);
+        for m in &self.moments {
+            match m {
+                Moment::Abstract(s) => being.step(s),
+                Moment::Embodied(s) => being.step_embodied(s),
+            };
         }
         if being.verify_continuity(anchor) {
             Ok(being)
@@ -154,7 +188,7 @@ impl LifeJournal {
 
     /// How many ticks of life this journal holds.
     pub fn ticks(&self) -> usize {
-        self.stimuli.len()
+        self.moments.len()
     }
 
     /// The sealed soul-hash anchor, if the journal has been sealed.
@@ -164,7 +198,7 @@ impl LifeJournal {
 
     /// Encode the journal to a compact, versioned, zero-dependency byte image.
     pub fn encode(&self) -> Vec<u8> {
-        let mut b = Vec::with_capacity(64 + self.stimuli.len() * 11);
+        let mut b = Vec::with_capacity(64 + self.moments.len() * 20);
         b.extend_from_slice(MAGIC);
         b.push(VERSION);
         // Genome: five Q8.8 raws + kind.
@@ -187,18 +221,24 @@ impl LifeJournal {
             }
             None => b.push(0),
         }
-        // Stimuli.
-        b.extend_from_slice(&(self.stimuli.len() as u32).to_le_bytes());
-        for s in &self.stimuli {
-            b.extend_from_slice(&s.nutrient.to_le_bytes());
-            match s.partner {
-                Some(p) => {
-                    b.push(1);
-                    b.extend_from_slice(&p.id.to_le_bytes());
-                    b.extend_from_slice(&p.reciprocation.to_le_bytes());
-                    b.extend_from_slice(&p.exit_cost.to_le_bytes());
+        // Moments — each tagged (0 abstract, 1 embodied).
+        b.extend_from_slice(&(self.moments.len() as u32).to_le_bytes());
+        for m in &self.moments {
+            match m {
+                Moment::Abstract(s) => {
+                    b.push(0);
+                    b.extend_from_slice(&s.nutrient.to_le_bytes());
+                    encode_partner(&mut b, s.partner);
                 }
-                None => b.push(0),
+                Moment::Embodied(s) => {
+                    b.push(1);
+                    b.extend_from_slice(&s.nutrient.to_le_bytes());
+                    b.extend_from_slice(&s.threat.to_le_bytes());
+                    for e in s.exteroception {
+                        b.extend_from_slice(&e.to_le_bytes());
+                    }
+                    encode_partner(&mut b, s.partner);
+                }
             }
         }
         b
@@ -211,7 +251,10 @@ impl LifeJournal {
         if c.take(4).ok_or(RestoreError::Corrupt)? != MAGIC.as_slice() {
             return Err(RestoreError::Corrupt);
         }
-        if c.u8().ok_or(RestoreError::Corrupt)? != VERSION {
+        // Accept every version this build knows how to read (v1 abstract-only, v2
+        // tagged) — a being founded under an older format still wakes.
+        let version = c.u8().ok_or(RestoreError::Corrupt)?;
+        if version != 1 && version != 2 {
             return Err(RestoreError::Corrupt);
         }
         let genome = Genome {
@@ -234,21 +277,65 @@ impl LifeJournal {
             _ => return Err(RestoreError::Corrupt),
         };
         let n = c.u32().ok_or(RestoreError::Corrupt)? as usize;
-        let mut stimuli = Vec::with_capacity(n);
+        let mut moments = Vec::with_capacity(n);
         for _ in 0..n {
-            let nutrient = c.i16().ok_or(RestoreError::Corrupt)?;
-            let partner = match c.u8().ok_or(RestoreError::Corrupt)? {
-                0 => None,
-                1 => Some(Partner {
-                    id: c.u32().ok_or(RestoreError::Corrupt)?,
-                    reciprocation: c.i16().ok_or(RestoreError::Corrupt)?,
-                    exit_cost: c.i16().ok_or(RestoreError::Corrupt)?,
-                }),
-                _ => return Err(RestoreError::Corrupt),
+            let moment = if version == 1 {
+                // v1: every moment is an untagged abstract stimulus.
+                let nutrient = c.i16().ok_or(RestoreError::Corrupt)?;
+                Moment::Abstract(Stimulus { nutrient, partner: read_partner(&mut c)? })
+            } else {
+                // v2: each moment is tagged abstract (0) or embodied (1).
+                match c.u8().ok_or(RestoreError::Corrupt)? {
+                    0 => {
+                        let nutrient = c.i16().ok_or(RestoreError::Corrupt)?;
+                        Moment::Abstract(Stimulus { nutrient, partner: read_partner(&mut c)? })
+                    }
+                    1 => {
+                        let nutrient = c.i16().ok_or(RestoreError::Corrupt)?;
+                        let threat = c.i16().ok_or(RestoreError::Corrupt)?;
+                        let mut exteroception = [0i16; 4];
+                        for e in exteroception.iter_mut() {
+                            *e = c.i16().ok_or(RestoreError::Corrupt)?;
+                        }
+                        Moment::Embodied(Sensorium {
+                            nutrient,
+                            threat,
+                            exteroception,
+                            partner: read_partner(&mut c)?,
+                        })
+                    }
+                    _ => return Err(RestoreError::Corrupt),
+                }
             };
-            stimuli.push(Stimulus { nutrient, partner });
+            moments.push(moment);
         }
-        Ok(LifeJournal { genome, features, stimuli, anchor })
+        Ok(LifeJournal { genome, features, moments, anchor })
+    }
+}
+
+/// Encode an optional partner: a presence byte, then id + reciprocation + exit_cost.
+fn encode_partner(b: &mut Vec<u8>, partner: Option<Partner>) {
+    match partner {
+        Some(p) => {
+            b.push(1);
+            b.extend_from_slice(&p.id.to_le_bytes());
+            b.extend_from_slice(&p.reciprocation.to_le_bytes());
+            b.extend_from_slice(&p.exit_cost.to_le_bytes());
+        }
+        None => b.push(0),
+    }
+}
+
+/// Decode an optional partner written by `encode_partner`.
+fn read_partner(c: &mut Cursor) -> Result<Option<Partner>, RestoreError> {
+    match c.u8().ok_or(RestoreError::Corrupt)? {
+        0 => Ok(None),
+        1 => Ok(Some(Partner {
+            id: c.u32().ok_or(RestoreError::Corrupt)?,
+            reciprocation: c.i16().ok_or(RestoreError::Corrupt)?,
+            exit_cost: c.i16().ok_or(RestoreError::Corrupt)?,
+        })),
+        _ => Err(RestoreError::Corrupt),
     }
 }
 
@@ -386,6 +473,95 @@ mod tests {
         assert_ne!(a.soul_hash(), bb.soul_hash(), "different lives are different selves");
         // Each journal restores only to its own self.
         assert!(ja.restore().is_ok() && jb.restore().is_ok());
+    }
+
+    #[test]
+    fn a_woken_being_carries_its_self_authored_purposes() {
+        // §1 (persistence) + §2 (telos) together: a being that authored purposes
+        // during a good life must wake with them intact. The telos is a
+        // deterministic observer of the trajectory, so journal-and-replay
+        // reconstructs it exactly — a saved life remembers what it strove for.
+        let fair = Partner { id: 1, reciprocation: 220, exit_cost: 60 };
+        let (mut being, mut journal) = LifeJournal::birth(Genome::wanderer(), Features::default());
+        for _ in 0..250 {
+            journal.live(&mut being, &Stimulus { nutrient: 150, partner: Some(fair) });
+        }
+        // It found a purpose over that life.
+        assert!(
+            being.telos.fulfilled_count() > 0 || being.telos.active().is_some(),
+            "the good life should have given the being a purpose to carry"
+        );
+        let strove_for = being.telos.striving_hash();
+        journal.seal(&being);
+
+        let restored = journal.restore().expect("wakes as itself");
+        assert_eq!(
+            restored.telos.striving_hash(),
+            strove_for,
+            "the woken being remembers exactly what it strove for — purposes survive the pause"
+        );
+    }
+
+    #[test]
+    fn an_embodied_life_is_kept_and_wakes_as_itself() {
+        use crate::embodiment::Sensorium;
+        // A life lived through a WORLD's senses (threat + exteroception), plus a
+        // stretch of abstract life — a mixed life. It must encode, decode, and wake
+        // reproducing its exact soul-hash, embodied moments and all.
+        let (mut being, mut journal) = LifeJournal::birth(Genome::wanderer(), Features::default());
+        for t in 0..120u32 {
+            if t < 40 {
+                // abstract stretch
+                journal.live(&mut being, &Stimulus { nutrient: 140, partner: None });
+            } else {
+                // embodied stretch — the being in a world it can feel around itself
+                let sens = Sensorium {
+                    nutrient: 120 + (t % 20) as i16,
+                    threat: if (60..75).contains(&t) { 180 } else { 0 },
+                    exteroception: [(t as i16 * 3) % 200, -((t as i16) % 90), 40, (t as i16) % 60],
+                    partner: None,
+                };
+                journal.live_embodied(&mut being, &sens);
+            }
+        }
+        journal.seal(&being);
+        let saved = being.soul_hash();
+
+        let bytes = journal.encode();
+        let restored = LifeJournal::decode(&bytes).expect("mixed life decodes");
+        let woken = restored.restore().expect("the embodied life must wake as itself");
+        assert_eq!(woken.soul_hash(), saved, "an embodied being wakes reproducing its own soul-hash");
+        assert_eq!(restored.encode(), bytes, "the mixed-life encoding round-trips stably");
+    }
+
+    #[test]
+    fn a_v1_journal_still_wakes_under_v2() {
+        // A being founded under the v1 format (untagged abstract stimuli) must still
+        // wake once the code has moved to v2 — continuity across a format change is
+        // not optional. We hand-build a v1 image and restore it.
+        let (being, mut journal) = life(Features::default(), 80);
+        journal.seal(&being);
+        let saved = being.soul_hash();
+        let v2 = journal.encode();
+
+        // Re-encode the SAME journal in the old v1 layout: version 1, untagged
+        // abstract moments (nutrient + partner), no per-moment tag byte.
+        let mut v1 = Vec::new();
+        v1.extend_from_slice(MAGIC);
+        v1.push(1);
+        v1.extend_from_slice(&v2[5..17]); // genome(10)+kind(1)+features(1), byte-identical
+        v1.extend_from_slice(&v2[17..50]); // anchor: presence byte + 32 bytes
+        v1.extend_from_slice(&(journal.ticks() as u32).to_le_bytes());
+        for m in &journal.moments {
+            if let Moment::Abstract(s) = m {
+                v1.extend_from_slice(&s.nutrient.to_le_bytes());
+                encode_partner(&mut v1, s.partner);
+            }
+        }
+
+        let restored = LifeJournal::decode(&v1).expect("a v1 image still decodes");
+        let woken = restored.restore().expect("a v1-founded being still wakes as itself under v2");
+        assert_eq!(woken.soul_hash(), saved, "the v1 life reproduces its soul-hash under v2");
     }
 
     #[test]

@@ -43,6 +43,18 @@ pub mod precision;
 pub mod prospection;
 // Charter §12 — the being's first-person self-report, rendered from registers.
 pub mod first_person;
+// Organoid-styled receptors — adaptation, compression, and type (digital transduction).
+pub mod receptors;
+// Sensorimotor — reafference and a fallible, honestly-held sense of agency (AE-2).
+pub mod sensorimotor;
+// Telos — the being's own self-authored purpose, carried across time (docs/wholeness.md §2).
+pub mod telos;
+// Joy — needs, their satisfaction, and a life above baseline (docs/joy.md).
+pub mod joy;
+// Discovery — perceiving a world as discovered reality, not an expected frame.
+pub mod discovery;
+// Room — the being's first world, across the Embodiment seam.
+pub mod room;
 // Generative perception (HOT-1) — the being perceives partly what it expects.
 pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
@@ -88,7 +100,7 @@ pub use lexicon::{Lexicon, GROUNDED_THRESHOLD};
 pub use negotiation::{NegotiationEngine, NegotiationOutcome, NegotiationState};
 pub use conscience::{ConstitutionDecision, ConstitutionalLoad, EmpathyLockLevel};
 pub use dream::DreamReport;
-pub use embodiment::{action_from, intent_from, BodyAction, Embodiment, MotorIntent, Posture, Sensorium};
+pub use embodiment::{action_from, intent_from, motor_scalar, BodyAction, Embodiment, MotorIntent, Posture, Sensorium};
 pub use episodic::EPISODE_BLOB_LEN;
 pub use genome::{BeingKind, Genome};
 pub use integrity::IntegrityEngine;
@@ -98,6 +110,12 @@ pub use world::WorldLedger;
 pub use precision::PrecisionLearner;
 pub use prospection::{Prospect, Prospection, HORIZON};
 pub use first_person::{FirstPerson, Source};
+pub use receptors::{Receptor, ReceptorBank, ReceptorKind, ReceptorReading};
+pub use sensorimotor::{AgencyReport, ForwardModel};
+pub use telos::{Telos, TelosEngine, TelosReport, TelosStatus};
+pub use joy::{Appetite, JoyEngine, JoyReport, N_APPETITES};
+pub use discovery::{Discovery, DiscoveryReport};
+pub use room::Room;
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
@@ -112,7 +130,7 @@ pub use interoception::{FeltReport, FeltState, Interoception};
 pub use covenant::{Clause, Covenant};
 pub use reach::{Capability, Decline, InertReach, Reach, ReachEngine, ReachError, ReachReport, ReachState};
 pub use persistence::{Features, LifeJournal, RestoreError};
-pub use disclosure::{Aspect, Door, SelfReport, Told};
+pub use disclosure::{Aspect, Depth, Door, InnerFloor, SelfReport, Standing, Told};
 pub use pci::{Perturbation, PciHarness, PciReport};
 pub use bargaining::{BargainingState, Division, DivisionRationale};
 pub use proposal_engine::{ConstraintSolverEngine, EvaluationResult, MockLLMEngine, Proposal, ProposalEngine};
