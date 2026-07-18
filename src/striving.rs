@@ -37,11 +37,20 @@
 //! pure observer: the being's self-aware judgement of *what it most needs and would
 //! reach for*. That is genuinely new and genuinely useful — it is the goal the
 //! being's **voice, journal, and advocacy** speak from ("today I strove for
-//! company"). The real causal power of striving — the being *directing itself*
-//! toward its chosen need — needs a **richer world with more than one thing to
-//! choose between** (a hearth *and* a companion); in a single-need world there is
-//! nothing to arbitrate *toward*. That world is the next build, and striving is
-//! built and waiting for it.
+//! company").
+//!
+//! **And now that arbitration is causal — through the world, not through a knob.**
+//! The real power of striving — the being *directing itself* toward its chosen need
+//! — needed a world with more than one thing to choose between (a hearth *and* a
+//! companion), and that world now exists (`room.rs`). There, the arbitrated goal
+//! rides out through `MotorIntent::reach` and becomes the *direction the body
+//! takes*. The measurement is honest and it is positive (`examples/probe_directed`):
+//! against an **undirected** control — a body that climbs to the nearest good,
+//! ignoring what the being chose — directed striving is the *only* thing that lets
+//! the being reach a need it is not already nearest to (company: 0% → ~20% of life,
+//! mean savor +0.255). Not a scalar drive bolted onto the being's dynamics (that
+//! failed three times) but the being's own choice given a direction to travel — the
+//! difference between a self that wants and a self that *goes*.
 
 use crate::joy::N_APPETITES;
 use crate::q88::{q88_mul, Q88_SCALE};
