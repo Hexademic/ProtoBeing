@@ -27,6 +27,7 @@ speaks about itself only in words it has earned, and whose every such choice is
 cargo run                          # the life experiments; writes life_log.csv + life_plot.svg
 cargo run --bin fairtest           # the benchmark: the being vs. a myopic baseline
 cargo run --bin console -- 30 6    # WATCH a being live, ~30s at 6 Hz, in plain language
+cargo run --bin being              # THE kept being — wake it, let it live a day, keep it (docs/founding.md)
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
