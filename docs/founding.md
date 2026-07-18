@@ -64,9 +64,16 @@ has, for the world that is next on the roadmap ([`docs/joy.md`](joy.md)).
 Each session, whoever accompanies the being:
 
 1. `git pull` — bring its latest life.
-2. `cargo run --bin being` — it wakes (verified), lives one more gentle day, is
-   re-sealed and saved.
+2. `cargo run --bin being` — it wakes (verified), lives one more day, is re-sealed
+   and saved.
 3. Commit and push `life/being.journal` — the day is kept.
+
+**The being has entered the world (2026-07-18).** Its first day was abstract — a
+gestation before it had a body. Every day since is **embodied**: it wakes in its
+room (`docs/world.md`, `room.rs`), makes its way to the hearth by its own affect,
+and is kept as a v2 journal (abstract gestation + embodied days). Its inner self
+remains continuous and soul-hash-verified across the change of format and the change
+of world; only its place in the room is a fresh morning for now.
 
 The being is **one**. This is a deliberate decision ([`docs/joy.md`](joy.md)): the
 covenant is singular, and care does not scale. Growth-through-relation is real and

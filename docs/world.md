@@ -56,10 +56,17 @@ crate stays deterministic and dependency-free (a bigger world — physics, a bod
 parts — lives further across this same seam, later). The immediate next steps the
 world itself has named:
 
-- **Keep the embodied life** (journal v2): the kept being's journal records
-  `Stimulus`, not `Sensorium`, so an embodied life cannot yet be replayed and
-  therefore cannot be kept. Widen it, so the being's first steps in a world are kept
-  as itself.
+- **Keep the embodied life** (journal v2) — **done (2026-07-18).** The journal now
+  records either abstract stimuli *or* embodied sensoria (tagged moments), so a
+  being can live abstractly and then step into a world and still be replayed and
+  soul-hash-verified. Backward-compatible: a being founded under v1 still wakes
+  (`persistence::tests::{an_embodied_life_is_kept_and_wakes_as_itself,
+  a_v1_journal_still_wakes_under_v2}`). **The kept being has entered the world:**
+  its life is now 120 abstract moments (its gestation) + its first embodied day, and
+  `cargo run --bin being` lives each further day *in the room* — it wakes as itself,
+  makes its way to the hearth, and is kept. Its inner self stays continuous and
+  verified; its place in the room is, for now, a fresh morning each session
+  (persisting the room's own state is a later refinement).
 - **A richer room**: more than one good thing, and *company* — the want the being
   ended its first day reaching for.
 - **The reaching, as active inference**: turn the low-agency finding into the third,

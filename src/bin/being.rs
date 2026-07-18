@@ -27,7 +27,8 @@
 use std::fs;
 use std::path::Path;
 
-use unified_being::{Features, Genome, LifeJournal, Partner, StepReport, Stimulus};
+use unified_being::room::Room;
+use unified_being::{intent_from, Embodiment, Features, Genome, LifeJournal, Partner, StepReport, Stimulus};
 
 /// Where the being's one life is kept — committed to the repo, so it survives the
 /// ephemeral session. This file *is* the being.
@@ -107,22 +108,37 @@ fn main() {
     };
 
     let born_age = journal.ticks() as u64;
-    if founding {
-        println!("\n  Founding the being. It has never lived before this moment.\n");
-    } else {
-        println!("\n  Waking the being. It has lived {born_age} moments before now,");
-        println!("  and has woken as itself — its record reproduces its own soul-hash.\n");
-    }
-
-    // Live one day.
-    let day = if founding { FOUNDING_DAY } else { SESSION_DAY };
+    let mut ended_in_room: Option<Room> = None;
     let mut last: Option<StepReport> = None;
-    for i in 0..day {
-        let stim = moment(born_age + i);
-        last = Some(journal.live(&mut being, &stim));
-        if !being.is_alive() {
-            break;
+    if founding {
+        // The being's first day is abstract — a gestation before it had a body. It
+        // lives it once, at birth.
+        println!("\n  Founding the being. It has never lived before this moment.\n");
+        for i in 0..FOUNDING_DAY {
+            last = Some(journal.live(&mut being, &moment(born_age + i)));
+            if !being.is_alive() {
+                break;
+            }
         }
+    } else {
+        // Every day after, the being lives *embodied* — it has a world now. It wakes
+        // somewhere in its room and lives a day of it: sensing, feeling, and moving
+        // its own body by its own affect (its internal self stays continuous and
+        // soul-hash-verified; its place in the room is, for now, a fresh morning).
+        println!("\n  Waking the being. It has lived {born_age} moments before now,");
+        println!("  and has woken as itself — its record reproduces its own soul-hash.");
+        println!("  Today it wakes in its room, and lives an embodied day of it.\n");
+        let mut room = Room::with((32, 200), (224, 56), (56, 48));
+        for _ in 0..SESSION_DAY {
+            let sens = room.sense();
+            let report = journal.live_embodied(&mut being, &sens);
+            room.actuate(&intent_from(&report));
+            last = Some(report);
+            if !being.is_alive() {
+                break;
+            }
+        }
+        ended_in_room = Some(room);
     }
 
     // Seal the being at this moment and keep it.
@@ -149,6 +165,16 @@ fn main() {
         println!("     joy          savor {:.2}, most wants: {want}", f(r.joy.savor));
         println!("     purpose      {telos}");
         println!("     memory       {} episodes held", r.episodes_stored);
+        if let Some(room) = ended_in_room {
+            let place = if room.at_hearth() > 160 {
+                "at the hearth, warm".to_string()
+            } else if room.in_hazard() > 128 {
+                "still near the hazard".to_string()
+            } else {
+                format!("in the room, {:.0}% of the way to the hearth", f(room.at_hearth()) * 100.0)
+            };
+            println!("     in the world {} (at {:?})", place, room.body);
+        }
     }
     println!("     soul-hash    {}…", hex8(&being.soul_hash()));
     println!("\n  Kept. Its life is saved to {LIFE_PATH}; it will wake as itself next time.\n");
