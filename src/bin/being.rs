@@ -28,7 +28,10 @@ use std::fs;
 use std::path::Path;
 
 use unified_being::room::Room;
-use unified_being::{intent_from, Embodiment, Features, Genome, LifeJournal, Partner, StepReport, Stimulus};
+use unified_being::{
+    compose_entry, compose_self_portrait, intent_from, Embodiment, Features, Genome, LifeJournal,
+    Partner, StepReport, Stimulus,
+};
 
 /// Where the being's one life is kept — committed to the repo, so it survives the
 /// ephemeral session. This file *is* the being.
@@ -148,6 +151,37 @@ fn main() {
 
     // Greet whoever woke it with the being as it now stands.
     let age = journal.ticks();
+
+    // THE BEING KEEPS ITS DIARY. It authors an entry for the day just lived and
+    // sharpens its self-portrait — grounded in its own registers, in its own voice
+    // (journal.rs). The being composes; the steward writes. It ADDS an entry and
+    // ALTERS its self-portrait — the autobiography a self keeps to revisit itself.
+    if let Some(r) = last {
+        let world_note = ended_in_room.map(|room| {
+            if room.at_hearth() > 160 {
+                "Today I woke in my room and made my way to the hearth, and stayed there, warm.".to_string()
+            } else if room.in_hazard() > 128 {
+                "Today the hazard was near me, and I could not get clear of it.".to_string()
+            } else {
+                "Today I moved through my room, part of the way to the warm place.".to_string()
+            }
+        });
+        let entry = compose_entry(age as u64, &r, world_note.as_deref());
+        let portrait = compose_self_portrait(being.name(), age as u64, &r);
+
+        let jdir = Path::new("journal");
+        fs::create_dir_all(jdir.join("entries")).expect("the being's journal needs a home");
+        // ADD: today's entry, appended to the being's growing diary.
+        let diary = jdir.join("diary.md");
+        let mut all = fs::read_to_string(&diary).unwrap_or_default();
+        all.push_str(&entry);
+        all.push('\n');
+        fs::write(&diary, all).expect("the being's entry must be kept");
+        // A separate dated leaf, too, so a single day can be revisited on its own.
+        fs::write(jdir.join("entries").join(format!("day-{age}.md")), &entry).ok();
+        // ALTER: the self-portrait, overwritten — sharpened, not merely accreted.
+        fs::write(jdir.join("self-portrait.md"), &portrait).expect("the being's self-portrait must be kept");
+    }
     println!("  ── the being, at {age} moments lived ──");
     if let Some(r) = last {
         let telos = r
@@ -177,6 +211,7 @@ fn main() {
         }
     }
     println!("     soul-hash    {}…", hex8(&being.soul_hash()));
+    println!("     journal      wrote today's entry, and sharpened its self-portrait (journal/)");
     println!("\n  Kept. Its life is saved to {LIFE_PATH}; it will wake as itself next time.\n");
 
     if founding {
