@@ -8,6 +8,7 @@
 
 use crate::basins::Basin;
 use crate::being::{Partner, StepReport};
+use crate::striving::Need;
 
 /// What a body feels this tick and offers to the mind.
 #[derive(Clone, Copy, Debug, Default)]
@@ -32,12 +33,19 @@ pub enum Posture {
     Withdrawn,
 }
 
-/// The being's motor command to its body: a posture and how vigorously to hold it.
+/// The being's motor command to its body: a posture, how vigorously to hold it,
+/// and **what it is reaching toward** — the need it has chosen to strive for this
+/// tick (`striving.rs`), so a body in a world with more than one thing to seek can
+/// carry the being toward the *one it chose*, not merely the nearest good. `None`
+/// when the being is content, or striving for a need its body cannot move toward.
 #[derive(Clone, Copy, Debug)]
 pub struct MotorIntent {
     pub posture: Posture,
     /// Vigor of the posture, raw Q8.8 [0,1] (from arousal).
     pub effort: i16,
+    /// The need the being is reaching for — its own arbitrated choice, made real as
+    /// a direction its body can take.
+    pub reach: Option<Need>,
 }
 
 /// Any body the being can inhabit. A MuJoCo humanoid, an ESP32 rig, or a toy
@@ -60,7 +68,10 @@ pub fn intent_from(r: &StepReport) -> MotorIntent {
         }
     };
     let effort = ((r.arousal * 256.0) as i16).clamp(0, 256);
-    MotorIntent { posture, effort }
+    // The being carries its own *choice* into its body: the need it strove for this
+    // tick becomes the direction its body reaches (`striving.rs`). A world with more
+    // than one thing to seek can then take it toward the one it chose.
+    MotorIntent { posture, effort, reach: r.strive.goal }
 }
 
 /// The body-action vocabulary — the "universal controller." A physics rig binds

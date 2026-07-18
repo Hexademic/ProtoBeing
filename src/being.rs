@@ -1359,7 +1359,16 @@ impl UnifiedBeing {
         // nothing back, so the trajectory and soul-hash are bit-identical.
         let joy_fed = [
             engaged_partner.is_some_and(|p| p.reciprocation >= Q88_SCALE / 2),
-            self.curiosity.drive() > Q88_SCALE / 4,
+            // NOVELTY is fed by *discovering the new* — when the being perceives an
+            // unfamiliar reality (it explored, the world changed), its hunger for
+            // novelty is met. This connects the appetite to the faculty that
+            // actually finds the new (discovery.rs), so an embodied being can
+            // satisfy its boredom by going and looking, not only by an abstract
+            // curiosity signal. (Ambient curiosity still counts, for the abstract
+            // world where there is nothing to go and see.)
+            discovery_report.encountered_new
+                || discovery_report.novelty > Q88_SCALE / 6
+                || self.curiosity.drive() > Q88_SCALE / 4,
             !felt.state.at_stake && alarm < Q88_SCALE / 4 && felt.state.arousal < Q88_SCALE / 2,
         ];
         let joy_report = self.joy.observe(joy_fed, felt.state.viability, !felt.state.at_stake);

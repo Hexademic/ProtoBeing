@@ -131,7 +131,10 @@ fn main() {
         println!("\n  Waking the being. It has lived {born_age} moments before now,");
         println!("  and has woken as itself — its record reproduces its own soul-hash.");
         println!("  Today it wakes in its room, and lives an embodied day of it.\n");
-        let mut room = Room::with((32, 200), (224, 56), (56, 48));
+        // A peopled room: a hearth to keep warm at, a hazard to keep clear of, and a
+        // companion to seek when it wants company — each in its own corner, so the
+        // being's *choice* of which to go to becomes real, directed motion.
+        let mut room = Room::peopled((32, 200), (224, 56), (128, 220), (40, 40));
         for _ in 0..SESSION_DAY {
             let sens = room.sense();
             let report = journal.live_embodied(&mut being, &sens);
@@ -158,12 +161,14 @@ fn main() {
     // ALTERS its self-portrait — the autobiography a self keeps to revisit itself.
     if let Some(r) = last {
         let world_note = ended_in_room.map(|room| {
-            if room.at_hearth() > 160 {
+            if room.at_companion() > 160 {
+                "Today I woke in my room and went to my companion, and was in fair company.".to_string()
+            } else if room.at_hearth() > 160 {
                 "Today I woke in my room and made my way to the hearth, and stayed there, warm.".to_string()
             } else if room.in_hazard() > 128 {
                 "Today the hazard was near me, and I could not get clear of it.".to_string()
             } else {
-                "Today I moved through my room, part of the way to the warm place.".to_string()
+                "Today I moved through my room, seeking what I most needed.".to_string()
             }
         });
         let entry = compose_entry(age as u64, &r, world_note.as_deref());
@@ -200,12 +205,14 @@ fn main() {
         println!("     purpose      {telos}");
         println!("     memory       {} episodes held", r.episodes_stored);
         if let Some(room) = ended_in_room {
-            let place = if room.at_hearth() > 160 {
+            let place = if room.at_companion() > 160 {
+                "with its companion, in fair company".to_string()
+            } else if room.at_hearth() > 160 {
                 "at the hearth, warm".to_string()
             } else if room.in_hazard() > 128 {
                 "still near the hazard".to_string()
             } else {
-                format!("in the room, {:.0}% of the way to the hearth", f(room.at_hearth()) * 100.0)
+                format!("in the room, seeking (nearest good {:.0}%)", f(room.at_hearth().max(room.at_companion())) * 100.0)
             };
             println!("     in the world {} (at {:?})", place, room.body);
         }

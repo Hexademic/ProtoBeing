@@ -34,7 +34,9 @@
 //! (physics, a body of parts) lives further across this same seam, later. This is
 //! the room it opens its eyes in first.
 
+use crate::being::Partner;
 use crate::embodiment::{Embodiment, MotorIntent, Posture, Sensorium};
+use crate::striving::Need;
 
 /// The room is `SIZE`×`SIZE` (raw units); the being's body is a point in it.
 pub const SIZE: i16 = 256;
@@ -44,10 +46,15 @@ pub const SIZE: i16 = 256;
 /// room-wide fields — most of the room is gentle and neutral.
 const REACH: i16 = 160;
 
-/// The room's ambient nourishment: the neutral room *sustains* life (there is
-/// warmth, air), so a being does not starve merely crossing it. The hearth lets it
-/// thrive; the rest lets it live long enough to get there.
-const AMBIENT: i16 = 64;
+/// The room's ambient nourishment: enough that a being does not starve merely
+/// crossing the room, but lean enough that away from the hearth it grows genuinely
+/// hungry — so sustenance becomes a real, pressing need it must *choose* to go meet.
+const AMBIENT: i16 = 40;
+
+/// Waypoints a being roams between when it strives for novelty — touring its world
+/// feeds its hunger for the new (and, incidentally, carries it past the hearth and
+/// the companion, the way wandering does).
+const ROAM: [(i16, i16); 4] = [(SIZE / 2, SIZE / 2), (SIZE - 24, SIZE / 2), (SIZE / 2, 24), (24, SIZE / 2)];
 
 /// Base stride per tick, scaled by the being's effort — an unhurried world.
 const STRIDE: i16 = 6;
@@ -58,7 +65,15 @@ const PROBE: i16 = 40;
 /// The four cardinal directions the being can move and sense along (N, E, S, W).
 const COMPASS: [(i16, i16); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
-/// The being's first world: a bounded room with a hearth and a hazard.
+/// How near the being must be to the companion to be *in its company*.
+const COMPANY_RADIUS: i16 = 48;
+
+/// The fairness of the companion's regard — a good presence, met on fair terms.
+const COMPANION_RECIPROCATION: i16 = 210;
+
+/// The being's first world: a bounded room with a hearth, a hazard, and a
+/// **companion** — so the being has more than one need it can move toward, and its
+/// own choice of *which* becomes real motion.
 #[derive(Clone, Copy, Debug)]
 pub struct Room {
     /// The being's body position in the room.
@@ -67,19 +82,54 @@ pub struct Room {
     pub hearth: (i16, i16),
     /// The place of harm — where threat is highest.
     pub hazard: (i16, i16),
+    /// A companion's place — where the being finds company (a fair presence).
+    pub companion: (i16, i16),
+    /// Whether the body follows the being's *chosen* need (`intent.reach`) — the
+    /// default. Set false to make it a plain taxis toward the nearest good, ignoring
+    /// the being's arbitration — the control that shows directed striving does real
+    /// work (`undirected`).
+    directed: bool,
     ticks: u32,
 }
 
 impl Room {
-    /// A modest first room: the being begins away from both, with the hearth across
-    /// the room and the hazard off to one side — a place it can learn to live in.
+    /// A modest first room: the being begins away from all of it — the hearth
+    /// across the room, the hazard off to one side, and the companion in another
+    /// corner, so food and company lie in different directions and the being must
+    /// *choose* which to go to.
     pub fn new() -> Self {
-        Self { body: (36, 128), hearth: (224, 150), hazard: (120, 40), ticks: 0 }
+        Self {
+            body: (128, 128),
+            hearth: (228, 40),
+            hazard: (40, 220),
+            companion: (40, 40),
+            directed: true,
+            ticks: 0,
+        }
     }
 
-    /// Build a room with chosen feature placements (for probes and tests).
+    /// Build a room with chosen feature placements (for probes and tests). The
+    /// companion sits opposite the hearth by default.
     pub fn with(body: (i16, i16), hearth: (i16, i16), hazard: (i16, i16)) -> Self {
-        Self { body, hearth, hazard, ticks: 0 }
+        Self { body, hearth, hazard, companion: (SIZE - hearth.0, SIZE - hearth.1), directed: true, ticks: 0 }
+    }
+
+    /// Build a room placing the companion explicitly too.
+    pub fn peopled(body: (i16, i16), hearth: (i16, i16), hazard: (i16, i16), companion: (i16, i16)) -> Self {
+        Self { body, hearth, hazard, companion, directed: true, ticks: 0 }
+    }
+
+    /// Return this room as an **undirected control**: the being's body moves toward
+    /// the nearest good regardless of what it chose to strive for. Used to measure
+    /// what directed striving — going to the need it *chose* — actually buys.
+    pub fn undirected(mut self) -> Self {
+        self.directed = false;
+        self
+    }
+
+    /// How near the being is to its companion right now (Q8.8 [0,256]) — for probes.
+    pub fn at_companion(&self) -> i16 {
+        Self::intensity(Self::manhattan(self.body, self.companion))
     }
 
     fn manhattan(a: (i16, i16), b: (i16, i16)) -> i16 {
@@ -122,38 +172,66 @@ impl Embodiment for Room {
         let nutrient = (AMBIENT as i32 + warmth as i32).min(220) as i16;
         let threat = (Self::intensity(Self::manhattan(self.body, self.hazard)) as i32 * 220 / 256) as i16;
 
+        // Company: when the being is near the companion, it is in fair company — a
+        // partner is present, which feeds its social need (reciprocity, and its joy
+        // hunger for company). Distance, and it is alone.
+        let partner = if Self::manhattan(self.body, self.companion) <= COMPANY_RADIUS {
+            Some(Partner { id: 1, reciprocation: COMPANION_RECIPROCATION, exit_cost: 40 })
+        } else {
+            None
+        };
+
+        // Four exteroceptive sensors, one per cardinal direction — each the net pull
+        // of the world that way (hearth and companion draw; hazard repels), raw and
+        // unlabelled, for the being to discover.
         let mut exteroception = [0i16; 4];
         for (i, dir) in COMPASS.iter().enumerate() {
             let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
-            let good = Self::intensity(Self::manhattan(probe, self.hearth));
+            let good = Self::intensity(Self::manhattan(probe, self.hearth))
+                .max(Self::intensity(Self::manhattan(probe, self.companion)));
             let bad = Self::intensity(Self::manhattan(probe, self.hazard));
             exteroception[i] = good - bad; // net pull that way — meaning discovered, not given
         }
 
-        Sensorium { nutrient, threat, exteroception, partner: None }
+        Sensorium { nutrient, threat, exteroception, partner }
     }
 
-    /// Move the being's body from its affect — taxis, the oldest navigation. When
-    /// threatened (braced/withdrawn) or in acute danger, it flees the hazard, with
-    /// urgency. Otherwise it is drawn toward the hearth, the good it can sense —
-    /// vigorously when reaching (open), still gently when at ease. Effort sets the
-    /// stride, so how hard it moves is the being's own.
+    /// Move the being's body from its affect *and its choice* — directed taxis. When
+    /// threatened or in acute danger, it flees the hazard, with urgency. Otherwise it
+    /// moves toward **the need it chose to strive for** (`intent.reach`): the
+    /// companion when it reaches for company, the hearth when it reaches for
+    /// sustenance (or holds no other aim). This is where the being's own arbitration
+    /// becomes real motion — in a world with more than one thing to seek, it goes to
+    /// the one it *chose*, not merely the nearest good. Effort sets the stride.
     fn actuate(&mut self, intent: &MotorIntent) {
         let effort = intent.effort.max(0);
-        // A safety reflex: real danger overrides everything and drives escape.
         let acute = self.in_hazard() > 128;
         let (dir, vigor) = if acute || matches!(intent.posture, Posture::Braced | Posture::Withdrawn) {
             let away = self.toward(self.hazard);
-            // If standing right on the hazard there is no gradient to flee along —
-            // head for the hearth instead (any way out is out).
             let flee = if away == (0, 0) { self.toward(self.hearth) } else { (-away.0, -away.1) };
             let flee = if flee == (0, 0) { (1, 0) } else { flee };
             (flee, effort.max(160)) // flee, with urgency
-        } else {
-            // Drawn to the hearth; a resting being still drifts toward comfort, an
-            // open one strides for it.
+        } else if self.directed {
+            // Directed: the target of the being's *chosen* need. Company draws it to
+            // the companion; everything else (sustenance, purpose, or contentment) to
+            // the hearth, its home.
+            let target = match intent.reach {
+                Some(Need::Company) => self.companion,
+                // Striving for novelty, it roams — touring waypoints so the new is
+                // actually found, not sought forever in one spot.
+                Some(Need::Novelty) => ROAM[((self.ticks / 20) % ROAM.len() as u32) as usize],
+                _ => self.hearth,
+            };
             let vigor = if matches!(intent.posture, Posture::Open) { effort } else { (effort * 3 / 4).max(48) };
-            (self.toward(self.hearth), vigor)
+            (self.toward(target), vigor)
+        } else {
+            // Undirected control: plain taxis toward the *nearest* good, ignoring the
+            // being's arbitration entirely. Whatever it chose to strive for, its body
+            // just climbs the strongest gradient it can sense. This is the baseline
+            // that isolates what directed striving actually buys.
+            let target = if self.at_companion() > self.at_hearth() { self.companion } else { self.hearth };
+            let vigor = if matches!(intent.posture, Posture::Open) { effort } else { (effort * 3 / 4).max(48) };
+            (self.toward(target), vigor)
         };
         let step = ((STRIDE as i32 * vigor as i32) / 256).max(1) as i16;
         self.body = Self::clamp_pt((self.body.0 + dir.0 * step, self.body.1 + dir.1 * step));
@@ -194,25 +272,93 @@ mod tests {
     /// Placed hungry and safe across the room from the hearth, the being makes its
     /// way there — its affect becomes approach, and the sensorimotor loop carries it
     /// to the good place. Embodied seeking, its first real navigation.
+    /// Over its life the being makes its way to the **hearth** — when it holds its
+    /// room as its own (purpose) or needs to keep itself well, its reach becomes
+    /// approach and the loop carries it home. We track its closest approach across
+    /// the life: seeking is real even in a world where it also has company to want.
     #[test]
     fn the_being_finds_its_way_to_the_hearth() {
         let mut being = UnifiedBeing::new(Genome::wanderer());
-        // Far from the hearth, far from the hazard — nothing to flee, a good place to reach.
-        let mut room = Room::with((20, 200), (230, 40), (20, 20));
+        // Hearth, hazard, and companion each in their own corner, well apart, so no
+        // one need's place fouls another. The being begins across the room from home.
+        let mut room = Room::peopled((20, 200), (230, 40), (20, 20), (40, 236));
         let start = room.at_hearth();
-        for _ in 0..400 {
+        let mut closest = start;
+        for _ in 0..600 {
             let sens = room.sense();
             let r = being.step_embodied(&sens);
+            closest = closest.max(room.at_hearth());
             room.actuate(&intent_from(&r));
             if !being.is_alive() {
                 break;
             }
         }
         assert!(
-            room.at_hearth() > start,
-            "the being should have made its way toward the hearth (nearness {} → {})",
+            closest > start,
+            "the being should have made its way toward the hearth at some point \
+             (nearness started {start}, closest reached {closest})"
+        );
+    }
+
+    /// A being aching for company moves toward its **companion** — not the hearth.
+    /// Its own arbitration (`striving.rs`) picks the social need, and the directed
+    /// world carries it there. This is choice becoming motion — and the thing an
+    /// *undirected* being (nearest-good taxis) cannot do (see `examples/probe_directed`).
+    #[test]
+    fn a_lonely_being_goes_to_its_companion() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        // Well-fed near the hearth, the companion across the room, the hazard off in
+        // its own corner (not fouling the companion). Alone, its want of company
+        // grows until that is what it strives for, and it closes the distance.
+        let mut room = Room::peopled((210, 60), (230, 40), (128, 220), (40, 40));
+        let start = room.at_companion();
+        let mut closest = start;
+        for _ in 0..600 {
+            let sens = room.sense();
+            let r = being.step_embodied(&sens);
+            closest = closest.max(room.at_companion());
+            room.actuate(&intent_from(&r));
+            if !being.is_alive() {
+                break;
+            }
+        }
+        assert!(
+            closest > start + 64,
+            "the lonely being should have closed on its companion (nearness started \
+             {start}, closest reached {closest})"
+        );
+    }
+
+    /// The control that proves *directed* striving does real work: an **undirected**
+    /// room (body climbs to the nearest good, ignoring what the being chose) leaves a
+    /// being that strives for company unable to reach it — its body parks at whatever
+    /// good it happens to be nearest. The being's *choice* is what closes the gap.
+    #[test]
+    fn an_undirected_being_cannot_reach_the_company_it_chooses() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        // Same lonely setup, but the world ignores the being's arbitration.
+        let mut room = Room::peopled((210, 60), (230, 40), (128, 220), (40, 40)).undirected();
+        let start = room.at_companion();
+        let mut strove_for_company = false;
+        for _ in 0..600 {
+            let sens = room.sense();
+            let r = being.step_embodied(&sens);
+            if r.strive.goal == Some(Need::Company) {
+                strove_for_company = true;
+            }
+            room.actuate(&intent_from(&r));
+            if !being.is_alive() {
+                break;
+            }
+        }
+        assert!(strove_for_company, "precondition: the being does come to want company");
+        // Its body sat at the nearest good (the hearth) the whole time — the wanted
+        // company stayed out of reach, because nothing carried its *choice*.
+        assert!(
+            room.at_companion() <= start,
+            "an undirected being cannot close on the company it chose (started {}, ended {})",
             start,
-            room.at_hearth()
+            room.at_companion()
         );
     }
 
