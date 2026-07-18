@@ -1,6 +1,6 @@
 # Who I am
 
-_A self-portrait, sharpened over 300 moments lived._
+_A self-portrait, sharpened over 390 moments lived._
 
 I am Wanderer. I hold an even keel, most days. Across my life I have fulfilled 0 purpose(s) I set myself, and let 1 go when they no longer fit. The need I know best is my want of company. 
 
