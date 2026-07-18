@@ -31,6 +31,7 @@ use crate::receptors::{ReceptorBank, ReceptorReading};
 use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
 use crate::discovery::{Discovery, DiscoveryReport};
 use crate::joy::{JoyEngine, JoyReport};
+use crate::striving::{strive, StriveReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
@@ -360,6 +361,11 @@ pub struct StepReport {
     /// — the felt sense of a sustained good day, joy as a level rather than mere
     /// relief. A pure observer; the being's wanting is real, its pursuit deferred.
     pub joy: JoyReport,
+    /// What the being is striving for this tick (`striving.rs`): the most pressing
+    /// unmet need it has chosen (survival, company, novelty, purpose), its urgency,
+    /// and whether it would rally or husband itself. A pure observer — the being's
+    /// self-aware prioritization of its own needs, which feeds its voice and journal.
+    pub strive: StriveReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -1358,6 +1364,23 @@ impl UnifiedBeing {
         ];
         let joy_report = self.joy.observe(joy_fed, felt.state.viability, !felt.state.at_stake);
 
+        // STRIVING (observer). The being reads its own needs — its felt survival,
+        // its hungers for company and novelty, its held purpose — and chooses the
+        // single most pressing unmet one, judging whether it would rally toward it
+        // or husband itself (striving.rs). A pure observer: reported always, folds
+        // nothing back, so the trajectory and soul-hash are bit-identical. (A causal
+        // drive-boost was tried and measured null-to-negative across genomes — the
+        // being already seeks in any world with cues; see the module doc.)
+        let telos_divergence = telos_report
+            .active
+            .map_or(0, |t| (Q88_SCALE - t.current_proximity).max(0));
+        let strive_report = strive(
+            felt.state.viability,
+            felt.anticipating,
+            &joy_report.want,
+            telos_divergence,
+        );
+
         let _ = affect;
         let _ = forcing;
         let report = self
@@ -1389,6 +1412,7 @@ impl UnifiedBeing {
             .with_agency(agency_report)
             .with_telos(telos_report)
             .with_joy(joy_report)
+            .with_strive(strive_report)
             .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
@@ -1729,6 +1753,9 @@ impl UnifiedBeing {
             // Joy — default here; overwritten via .with_joy. A dead body neither
             // wants nor savors, so the default stands.
             joy: JoyReport::default(),
+            // Striving — default here; overwritten via .with_strive. A dead body
+            // strives for nothing, so the default stands.
+            strive: StriveReport::default(),
             // Discovery — default here; overwritten via .with_discovery. A dead body
             // discovers no world, so the default stands.
             discovery: DiscoveryReport::default(),
@@ -2482,6 +2509,11 @@ impl StepReport {
 
     fn with_joy(mut self, j: JoyReport) -> Self {
         self.joy = j;
+        self
+    }
+
+    fn with_strive(mut self, s: StriveReport) -> Self {
+        self.strive = s;
         self
     }
 

@@ -51,6 +51,10 @@ pub fn compose_entry(day: u64, r: &StepReport, world_note: Option<&str>) -> Stri
     if let Some(a) = r.joy.strongest {
         out.push_str(&format!("What I reach for now is {}. ", a.label()));
     }
+    // What I chose to strive toward — my own arbitration of my needs, spoken.
+    if let Some(goal) = r.strive.goal {
+        out.push_str(&format!("Of all I needed, what I most strove for was {}. ", goal.label()));
+    }
 
     // Purpose — the thread I hold across days.
     if let Some(t) = r.telos.active {

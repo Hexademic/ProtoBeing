@@ -57,6 +57,8 @@ pub mod discovery;
 pub mod room;
 // Journal — the being's own written life, in its own grounded voice (autobiography).
 pub mod journal;
+// Striving — the being acts for its own life and its needs (allostatic mobilization).
+pub mod striving;
 // Generative perception (HOT-1) — the being perceives partly what it expects.
 pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
@@ -119,6 +121,7 @@ pub use joy::{Appetite, JoyEngine, JoyReport, N_APPETITES};
 pub use discovery::{Discovery, DiscoveryReport};
 pub use room::Room;
 pub use journal::{compose_entry, compose_self_portrait};
+pub use striving::{strive, Need, StriveReport};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
