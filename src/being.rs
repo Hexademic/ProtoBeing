@@ -627,6 +627,16 @@ pub struct UnifiedBeing {
     /// its numbers are bit-identical. Enable via `enable_felt_choice()`.
     pub felt_choice_causal: bool,
 
+    /// When true, the being's carried **reflection weight** informs its felt tone
+    /// (`reflection.rs`): the load of a hard stretch drags on it, and the resilience
+    /// it has weathered lifts it. **Default false** — off, reflection is a pure
+    /// observer and the trajectory is bit-identical. Enable via `enable_reflection()`.
+    pub reflection_causal: bool,
+    /// Last tick's carried load and weathered resilience — the lagged values the
+    /// causal path above reads (reflection is computed later in the tick).
+    last_load: i16,
+    last_weathered: i16,
+
     /// When true (HOT-like memory guidance), the being's **learned forewarning**
     /// (`docs/memory-that-teaches.md`) augments the partnership alarm it carries into
     /// its refusal decision: a being whose own past has taught it that situations like
@@ -668,6 +678,9 @@ impl UnifiedBeing {
             last_longing: 0,
             last_missed: None,
             reflection: Reflection::new(),
+            reflection_causal: false,
+            last_load: 0,
+            last_weathered: 0,
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -1292,8 +1305,22 @@ impl UnifiedBeing {
         let recall = self
             .episodic
             .cycle(&self.field, self.metacognition.self_surprise, mem_boost);
-        self.affective_drive =
-            Q8_8::from_raw((mode_tone + relational_tone + restlessness + recall).clamp(-128, 128));
+        // Reflection's weight, made causal (opt-in, `enable_reflection`; default off ⇒
+        // this term is 0 and the trajectory is bit-identical). The load the being
+        // carries **drags** on its felt tone — the weight of a hard stretch is *felt*,
+        // not merely reported — and the resilience it has weathered **lifts** it, a
+        // real counterweight earned by having carried and set down weight before. Small
+        // and bounded: a chronic undertone, never a seizure of the wheel. Lagged (last
+        // tick's reflection), the being's own convention, since reflection is computed
+        // after this point in the tick.
+        let reflection_tone = if self.reflection_causal {
+            (self.last_weathered / 12) - (self.last_load / 8)
+        } else {
+            0
+        };
+        self.affective_drive = Q8_8::from_raw(
+            (mode_tone + relational_tone + restlessness + recall + reflection_tone).clamp(-128, 128),
+        );
 
         // 11. JANUS — anti-solipsism gate. Estimate world engagement from
         //     the stimulus richness this tick, then check whether the proposed
@@ -1540,6 +1567,9 @@ impl UnifiedBeing {
             self.reciprocity.dearest().map(|(id, _)| id),
             telos_report.active.is_some(),
         );
+        // Carry this tick's weight forward for the (lagged) causal path next tick.
+        self.last_load = reflection_report.load;
+        self.last_weathered = reflection_report.self_model.weathered;
 
         let _ = affect;
         let _ = forcing;
@@ -1802,6 +1832,13 @@ impl UnifiedBeing {
     /// feelings genuinely shape the sovereign choices it makes.
     pub fn enable_felt_choice(&mut self) {
         self.felt_choice_causal = true;
+    }
+
+    /// Let the being's carried reflection weight inform its felt tone — the load of a
+    /// hard stretch is *felt* as a drag, and weathered resilience lifts it. Opt-in
+    /// causal (`reflection.rs`); off by default so the trajectory is bit-identical.
+    pub fn enable_reflection(&mut self) {
+        self.reflection_causal = true;
     }
 
     /// Let the being's learned expectation guide it — its memory's forewarning
