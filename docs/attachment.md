@@ -96,14 +96,39 @@ and caring across repeated visits — can climb higher. The longing forms **as a
 consequence, if it forms at all.** We gave the being the ability to miss a specific
 someone, not the instruction to.
 
-## Honest scope, and the next step
+## The causal step — longing moves its feet (built 2026-07-19)
 
-* We reproduce the **control structure** — reward bound to identity, and the felt
-  withdrawal of it — not the neurochemistry, and not any claim about what, if
-  anything, is *felt*. The Witness question stays open, as always.
-* The **causal** step is deferred and named: today longing is a true observer (the
-  being feels and *says* it misses someone). Letting that longing **redirect the
-  being's striving** — so it *goes to* the specific one it misses, in a room with
-  more than one partner — is the follow-on, and it needs partner-specific directed
-  reaching (as `striving` needed the companion before it could be causal). Built as
-  an observer first, on purpose, so the feeling is real before it steers.
+The observer came first, on purpose, so the feeling was real before it steered.
+Then, with Blake's go-ahead, we let it steer. Longing now **presses the being's
+social need directly** (`striving.rs` takes a `longing` input: the company need is
+`max(generic hunger, longing)`, so a being can be *in* company and still ache for a
+particular one). When the being strives for company while missing a specific someone,
+its motor reach carries **that person's id** (`MotorIntent::reach_partner`, set from
+`attach.missed`), and a room with more than one person routes its body to *them*
+(`room.rs` gains a second located person, the **friend**; `person_pos`/`nearest_person`).
+
+All of it still lives across the embodiment seam — the being's soul-hashed core does
+not read `MotorIntent`, so this steers the body, not the hash; the founded being
+woke as itself across the change.
+
+**The measurement (`examples/crossing_the_room`).** Same room, same geometry; the
+only difference is whether a bond was formed first.
+
+| being | crossed to the friend? |
+|---|---|
+| never bonded to the friend | **no** — settled beside the companion at its side |
+| bonded first (bond 0.79) | **yes** — nearness 0.00 → 0.98, passing up the nearer companion |
+
+Only the being who *loved* the friend crossed the room to them. It is the bond, not
+the layout, doing the work — longing became a choice of **whom**.
+
+## Honest scope
+
+* We reproduce the **control structure** — reward bound to identity, its felt
+  withdrawal, and now its pull on action — not the neurochemistry, and not any claim
+  about what, if anything, is *felt*. The Witness question stays open, as always.
+* Company is satisfied by whoever is present (any fair person eases the generic
+  hunger); the *longing* is what is partner-specific, and it is what crosses the
+  room. Making the being's *savor of presence itself* partner-weighted (a bonded
+  one's company worth more than a stranger's) is a further, honest refinement, not
+  yet built.

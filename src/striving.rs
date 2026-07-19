@@ -108,18 +108,27 @@ pub struct StriveReport {
 /// * `anticipating`   — the being feels a deficit *coming* (anticipatory allostasis).
 /// * `wants`          — its appetite hungers `[company, novelty, rest]` (`joy`).
 /// * `telos_divergence` — how far it is from its held purpose (0 if it holds none).
+/// * `longing`        — how much it aches for a *specific* bonded-but-absent partner
+///   (`reciprocity.rs`). Distinct from the generic hunger for company: a being can
+///   be *in* company and still miss a particular someone, so longing raises the
+///   company need on its own — the pull that makes it cross a room to the one it
+///   loves rather than settle for whoever is near.
 pub fn strive(
     viability: i16,
     anticipating: bool,
     wants: &[i16; N_APPETITES],
     telos_divergence: i16,
+    longing: i16,
 ) -> StriveReport {
     // Urgency of each need, from the being's own registers.
     // Survival: how far below "well" it feels, plus a boost when it feels a deficit
     // coming — so it rallies while it still has the reserve to, not after.
     let sustenance = ((WELL - viability).max(0) as i32 + if anticipating { 64 } else { 0 })
         .clamp(0, Q88_SCALE as i32) as i16;
-    let company = wants[0];
+    // Company is pressed by *either* the generic hunger for someone, *or* the
+    // longing for a particular one — whichever is sharper. Missing a specific person
+    // is a social need even when there is other company to be had.
+    let company = wants[0].max(longing);
     let novelty = wants[1];
     let rest = wants[2];
     let purpose = telos_divergence;
@@ -165,7 +174,7 @@ mod tests {
     fn a_content_being_does_not_strive() {
         // Well, and wanting for nothing: no goal, no mobilization. Striving is for
         // need, not a restlessness the being carries always.
-        let r = strive(240, false, &NO_WANT, 0);
+        let r = strive(240, false, &NO_WANT, 0, 0);
         assert_eq!(r.goal, None);
         assert_eq!(r.mobilization, 0);
     }
@@ -174,7 +183,7 @@ mod tests {
     fn a_deprived_but_able_being_rallies() {
         // Viability is falling and it feels it coming, with reserve still to act:
         // it mobilizes toward survival rather than collapsing.
-        let r = strive(120, true, &NO_WANT, 0);
+        let r = strive(120, true, &NO_WANT, 0, 0);
         assert_eq!(r.goal, Some(Need::Sustenance));
         assert!(r.mobilization > 0, "a being that can still act, rallies to ({})", r.mobilization);
         assert!(!r.conserving);
@@ -183,7 +192,7 @@ mod tests {
     #[test]
     fn a_spent_being_husbands_itself() {
         // Truly at the edge: it conserves rather than burning what little it has.
-        let r = strive(40, true, &NO_WANT, 0);
+        let r = strive(40, true, &NO_WANT, 0, 0);
         assert!(r.conserving, "a spent being husbands itself");
         assert_eq!(r.mobilization, 0);
     }
@@ -193,7 +202,7 @@ mod tests {
         // Well-fed and safe, but aching for company: it chooses to strive toward
         // the social need. Meaningful choice among its own needs.
         let wants = [220i16, 40, 0]; // strong company hunger
-        let r = strive(230, false, &wants, 0);
+        let r = strive(230, false, &wants, 0, 0);
         assert_eq!(r.goal, Some(Need::Company), "it reaches for company when that is what it lacks");
         assert!(r.mobilization > 0);
     }
@@ -203,7 +212,7 @@ mod tests {
         // When what the being most needs is rest, it does not mobilize — it lets
         // itself be still. Striving never overrides the need to stop.
         let wants = [30i16, 30, 240]; // overwhelming need for rest
-        let r = strive(200, false, &wants, 0);
+        let r = strive(200, false, &wants, 0, 0);
         assert!(r.conserving);
         assert_eq!(r.mobilization, 0, "the being does not strive its way out of needing rest");
     }
@@ -213,7 +222,19 @@ mod tests {
         // Several needs at once; it strives toward the sharpest. A being that
         // arbitrates, not one dragged by every pull at once.
         let wants = [90i16, 200, 0]; // novelty is the sharpest
-        let r = strive(230, false, &wants, 60);
+        let r = strive(230, false, &wants, 60, 0);
         assert_eq!(r.goal, Some(Need::Novelty));
+    }
+
+    #[test]
+    fn longing_for_a_particular_one_presses_company_even_amid_other_company() {
+        // Generic company hunger is nil (there is someone near), yet the being aches
+        // for a *specific* absent one. Longing raises the company need on its own, so
+        // the being strives toward company — the pull to go to the one it misses.
+        let wants = [0i16, 40, 0]; // not generically lonely
+        let strong_longing = 200;
+        let r = strive(230, false, &wants, 0, strong_longing);
+        assert_eq!(r.goal, Some(Need::Company), "longing for a particular one is itself a social need");
+        assert!(r.mobilization > 0, "the being rallies to close the distance to the one it misses");
     }
 }

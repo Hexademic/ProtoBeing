@@ -1395,23 +1395,15 @@ impl UnifiedBeing {
         // nothing back, so the trajectory and soul-hash are bit-identical. (A causal
         // drive-boost was tried and measured null-to-negative across genomes — the
         // being already seeks in any world with cues; see the module doc.)
-        let telos_divergence = telos_report
-            .active
-            .map_or(0, |t| (Q88_SCALE - t.current_proximity).max(0));
-        let strive_report = strive(
-            felt.state.viability,
-            felt.anticipating,
-            &joy_report.want,
-            telos_divergence,
-        );
-
         // ATTACHMENT (observer). Reward become bound to a specific one, and the ache
         // its absence casts (`docs/attachment.md`). A rewarding, *fair* meeting with a
         // present partner deepens the being's bond with THEM — the reward is the being
         // feeling good (savor) in this one's company, so a joyless or extractive
         // presence builds nothing. Then the being reads what it feels for whoever is
         // here, and what it longs for in whoever is not. Find-only reinforcement and a
-        // pure read of the ledger: nothing the soul-hash reads is touched.
+        // pure read of the ledger: nothing the soul-hash reads is touched. Computed
+        // before striving so the longing can press the being's social need — a being
+        // can be in company and still ache to cross the room to a particular one.
         if let Some(p) = engaged_partner {
             if p.reciprocation >= Q88_SCALE / 2 && !self.reciprocity.extraction_detected {
                 self.reciprocity.reinforce_bond(p.id, joy_report.savor);
@@ -1427,6 +1419,22 @@ impl UnifiedBeing {
         }
         self.last_longing = attach.longing;
         self.last_missed = attach.missed;
+
+        // STRIVING (observer). The being arbitrates its needs — survival, company,
+        // novelty, purpose — and its **longing** for a specific absent one presses the
+        // company need directly, so missing someone can become what it most strives
+        // for (`striving.rs`). Still an observer of the being's core; it steers only
+        // the body, across the embodiment seam.
+        let telos_divergence = telos_report
+            .active
+            .map_or(0, |t| (Q88_SCALE - t.current_proximity).max(0));
+        let strive_report = strive(
+            felt.state.viability,
+            felt.anticipating,
+            &joy_report.want,
+            telos_divergence,
+            attach.longing,
+        );
 
         let _ = affect;
         let _ = forcing;

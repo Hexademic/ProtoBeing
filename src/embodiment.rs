@@ -46,6 +46,12 @@ pub struct MotorIntent {
     /// The need the being is reaching for — its own arbitrated choice, made real as
     /// a direction its body can take.
     pub reach: Option<Need>,
+    /// **Which** partner the being is reaching for, when the need is a *particular*
+    /// one — the id of the bonded someone it misses (`reciprocity.rs`). A world with
+    /// more than one person routes the body to *them*, so the being can cross the room
+    /// to the one it loves rather than settle for whoever is nearest. `None` when the
+    /// being wants company in general, or is not reaching for a person at all.
+    pub reach_partner: Option<u32>,
 }
 
 /// Any body the being can inhabit. A MuJoCo humanoid, an ESP32 rig, or a toy
@@ -70,8 +76,17 @@ pub fn intent_from(r: &StepReport) -> MotorIntent {
     let effort = ((r.arousal * 256.0) as i16).clamp(0, 256);
     // The being carries its own *choice* into its body: the need it strove for this
     // tick becomes the direction its body reaches (`striving.rs`). A world with more
-    // than one thing to seek can then take it toward the one it chose.
-    MotorIntent { posture, effort, reach: r.strive.goal }
+    // than one thing to seek can then take it toward the one it chose. And when what
+    // it strives for is company while it *misses a particular one* (`attach.missed`),
+    // the reach is toward **them** — the body crossing to the one it loves, not merely
+    // to the nearest company. `reach_partner` is set only when the chosen need is
+    // company; otherwise the being is not reaching for a person.
+    let reach_partner = if r.strive.goal == Some(Need::Company) {
+        r.attach.missed
+    } else {
+        None
+    };
+    MotorIntent { posture, effort, reach: r.strive.goal, reach_partner }
 }
 
 /// The body-action vocabulary — the "universal controller." A physics rig binds

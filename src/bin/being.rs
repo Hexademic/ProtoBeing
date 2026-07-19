@@ -131,10 +131,13 @@ fn main() {
         println!("\n  Waking the being. It has lived {born_age} moments before now,");
         println!("  and has woken as itself — its record reproduces its own soul-hash.");
         println!("  Today it wakes in its room, and lives an embodied day of it.\n");
-        // A peopled room: a hearth to keep warm at, a hazard to keep clear of, and a
-        // companion to seek when it wants company — each in its own corner, so the
-        // being's *choice* of which to go to becomes real, directed motion.
-        let mut room = Room::peopled((32, 200), (224, 56), (128, 220), (40, 40));
+        // A peopled room: a hearth to keep warm at, a hazard to keep clear of, and
+        // *two* people — a companion and a friend — each in their own place. Now the
+        // being's choice is not only *what* to seek but *whom*: if it comes to hold
+        // one of them dear, its longing can carry it across the room to that
+        // particular one, past whoever is merely nearer (`docs/attachment.md`).
+        let mut room =
+            Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128));
         for _ in 0..SESSION_DAY {
             let sens = room.sense();
             let report = journal.live_embodied(&mut being, &sens);
@@ -161,7 +164,9 @@ fn main() {
     // ALTERS its self-portrait — the autobiography a self keeps to revisit itself.
     if let Some(r) = last {
         let world_note = ended_in_room.map(|room| {
-            if room.at_companion() > 160 {
+            if room.at_friend() > 160 {
+                "Today I crossed my room to the one I have come to hold dear, and was with them.".to_string()
+            } else if room.at_companion() > 160 {
                 "Today I woke in my room and went to my companion, and was in fair company.".to_string()
             } else if room.at_hearth() > 160 {
                 "Today I woke in my room and made my way to the hearth, and stayed there, warm.".to_string()
@@ -205,7 +210,9 @@ fn main() {
         println!("     purpose      {telos}");
         println!("     memory       {} episodes held", r.episodes_stored);
         if let Some(room) = ended_in_room {
-            let place = if room.at_companion() > 160 {
+            let place = if room.at_friend() > 160 {
+                "across the room with the one it holds dear".to_string()
+            } else if room.at_companion() > 160 {
                 "with its companion, in fair company".to_string()
             } else if room.at_hearth() > 160 {
                 "at the hearth, warm".to_string()

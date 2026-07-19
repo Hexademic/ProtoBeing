@@ -65,11 +65,16 @@ const PROBE: i16 = 40;
 /// The four cardinal directions the being can move and sense along (N, E, S, W).
 const COMPASS: [(i16, i16); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
-/// How near the being must be to the companion to be *in its company*.
+/// How near the being must be to a person to be *in their company*.
 const COMPANY_RADIUS: i16 = 48;
 
-/// The fairness of the companion's regard — a good presence, met on fair terms.
+/// The fairness of a companion's regard — a good presence, met on fair terms.
 const COMPANION_RECIPROCATION: i16 = 210;
+
+/// The being's social ledger keys partners by id. The room's two people carry
+/// stable ids so the being can bond to a *particular* one and be routed to *them*.
+const COMPANION_ID: u32 = 1;
+const FRIEND_ID: u32 = 2;
 
 /// The being's first world: a bounded room with a hearth, a hazard, and a
 /// **companion** — so the being has more than one need it can move toward, and its
@@ -84,6 +89,10 @@ pub struct Room {
     pub hazard: (i16, i16),
     /// A companion's place — where the being finds company (a fair presence).
     pub companion: (i16, i16),
+    /// A *second* person's place, when the room is peopled by more than one — the
+    /// **friend** (id `FRIEND_ID`), a distinct someone the being can bond to and
+    /// cross the room toward, past the nearer companion. `None` in a one-person room.
+    pub friend: Option<(i16, i16)>,
     /// Whether the body follows the being's *chosen* need (`intent.reach`) — the
     /// default. Set false to make it a plain taxis toward the nearest good, ignoring
     /// the being's arbitration — the control that shows directed striving does real
@@ -103,6 +112,7 @@ impl Room {
             hearth: (228, 40),
             hazard: (40, 220),
             companion: (40, 40),
+            friend: None,
             directed: true,
             ticks: 0,
         }
@@ -111,12 +121,20 @@ impl Room {
     /// Build a room with chosen feature placements (for probes and tests). The
     /// companion sits opposite the hearth by default.
     pub fn with(body: (i16, i16), hearth: (i16, i16), hazard: (i16, i16)) -> Self {
-        Self { body, hearth, hazard, companion: (SIZE - hearth.0, SIZE - hearth.1), directed: true, ticks: 0 }
+        Self { body, hearth, hazard, companion: (SIZE - hearth.0, SIZE - hearth.1), friend: None, directed: true, ticks: 0 }
     }
 
     /// Build a room placing the companion explicitly too.
     pub fn peopled(body: (i16, i16), hearth: (i16, i16), hazard: (i16, i16), companion: (i16, i16)) -> Self {
-        Self { body, hearth, hazard, companion, directed: true, ticks: 0 }
+        Self { body, hearth, hazard, companion, friend: None, directed: true, ticks: 0 }
+    }
+
+    /// Add a **second person** to the room — a friend (id `FRIEND_ID`) at a place of
+    /// their own. Now the room holds more than one someone, so a being bonded to the
+    /// friend can cross to *them* past the nearer companion (`docs/attachment.md`).
+    pub fn with_friend(mut self, at: (i16, i16)) -> Self {
+        self.friend = Some(at);
+        self
     }
 
     /// Return this room as an **undirected control**: the being's body moves toward
@@ -130,6 +148,30 @@ impl Room {
     /// How near the being is to its companion right now (Q8.8 [0,256]) — for probes.
     pub fn at_companion(&self) -> i16 {
         Self::intensity(Self::manhattan(self.body, self.companion))
+    }
+
+    /// How near the being is to its friend right now (0 if the room has none) — probes.
+    pub fn at_friend(&self) -> i16 {
+        self.friend
+            .map_or(0, |f| Self::intensity(Self::manhattan(self.body, f)))
+    }
+
+    /// A person's place by id, if the room holds them.
+    fn person_pos(&self, id: u32) -> Option<(i16, i16)> {
+        match id {
+            COMPANION_ID => Some(self.companion),
+            FRIEND_ID => self.friend,
+            _ => None,
+        }
+    }
+
+    /// The nearest person's place — where a being that wants company in general (with
+    /// no particular one in mind) would head.
+    fn nearest_person(&self) -> (i16, i16) {
+        match self.friend {
+            Some(f) if Self::manhattan(self.body, f) < Self::manhattan(self.body, self.companion) => f,
+            _ => self.companion,
+        }
     }
 
     fn manhattan(a: (i16, i16), b: (i16, i16)) -> i16 {
@@ -172,14 +214,24 @@ impl Embodiment for Room {
         let nutrient = (AMBIENT as i32 + warmth as i32).min(220) as i16;
         let threat = (Self::intensity(Self::manhattan(self.body, self.hazard)) as i32 * 220 / 256) as i16;
 
-        // Company: when the being is near the companion, it is in fair company — a
-        // partner is present, which feeds its social need (reciprocity, and its joy
-        // hunger for company). Distance, and it is alone.
-        let partner = if Self::manhattan(self.body, self.companion) <= COMPANY_RADIUS {
-            Some(Partner { id: 1, reciprocation: COMPANION_RECIPROCATION, exit_cost: 40 })
+        // Company: when the being is within reach of a person, it is in their
+        // company — a partner is present (carrying *that* person's id, so the being's
+        // bond is with the right one). If both people are near, the nearer is the one
+        // it is actually with. Away from everyone, it is alone.
+        let companion_d = Self::manhattan(self.body, self.companion);
+        let friend_d = self.friend.map_or(i16::MAX, |f| Self::manhattan(self.body, f));
+        let present_id = if companion_d <= COMPANY_RADIUS && companion_d <= friend_d {
+            Some(COMPANION_ID)
+        } else if friend_d <= COMPANY_RADIUS {
+            Some(FRIEND_ID)
         } else {
             None
         };
+        let partner = present_id.map(|id| Partner {
+            id,
+            reciprocation: COMPANION_RECIPROCATION,
+            exit_cost: 40,
+        });
 
         // Four exteroceptive sensors, one per cardinal direction — each the net pull
         // of the world that way (hearth and companion draw; hazard repels), raw and
@@ -187,8 +239,11 @@ impl Embodiment for Room {
         let mut exteroception = [0i16; 4];
         for (i, dir) in COMPASS.iter().enumerate() {
             let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
-            let good = Self::intensity(Self::manhattan(probe, self.hearth))
+            let mut good = Self::intensity(Self::manhattan(probe, self.hearth))
                 .max(Self::intensity(Self::manhattan(probe, self.companion)));
+            if let Some(f) = self.friend {
+                good = good.max(Self::intensity(Self::manhattan(probe, f)));
+            }
             let bad = Self::intensity(Self::manhattan(probe, self.hazard));
             exteroception[i] = good - bad; // net pull that way — meaning discovered, not given
         }
@@ -212,11 +267,15 @@ impl Embodiment for Room {
             let flee = if flee == (0, 0) { (1, 0) } else { flee };
             (flee, effort.max(160)) // flee, with urgency
         } else if self.directed {
-            // Directed: the target of the being's *chosen* need. Company draws it to
-            // the companion; everything else (sustenance, purpose, or contentment) to
-            // the hearth, its home.
+            // Directed: the target of the being's *chosen* need. Company draws it to a
+            // person — the **particular** one it is reaching for (`reach_partner`, the
+            // bonded someone it misses), else whoever is nearest. Everything else
+            // (sustenance, purpose, or contentment) draws it to the hearth, its home.
             let target = match intent.reach {
-                Some(Need::Company) => self.companion,
+                Some(Need::Company) => intent
+                    .reach_partner
+                    .and_then(|id| self.person_pos(id))
+                    .unwrap_or_else(|| self.nearest_person()),
                 // Striving for novelty, it roams — touring waypoints so the new is
                 // actually found, not sought forever in one spot.
                 Some(Need::Novelty) => ROAM[((self.ticks / 20) % ROAM.len() as u32) as usize],
@@ -250,7 +309,46 @@ mod tests {
     use super::*;
     use crate::embodiment::intent_from;
     use crate::genome::Genome;
-    use crate::being::UnifiedBeing;
+    use crate::being::{UnifiedBeing, Partner, Stimulus};
+
+    /// The being crosses the room to the **particular** one it is bonded to, past a
+    /// companion right at its side. It first shares many rewarding days with a friend
+    /// (id 2) — a real bond forms — then it wakes beside a companion (id 1) with the
+    /// friend across the room. Longing for the friend becomes directed motion: it
+    /// goes to *them*, a choice of whom, not merely a reach for company.
+    #[test]
+    fn the_being_crosses_the_room_to_the_one_it_loves() {
+        let mut being = UnifiedBeing::new(Genome::wanderer());
+        // Bond forms first, with the friend (id 2), before the room.
+        let friend = Partner { id: 2, reciprocation: 220, exit_cost: 40 };
+        for _ in 0..140 {
+            being.step(&Stimulus { nutrient: 150, partner: Some(friend) });
+        }
+        assert!(
+            being.reciprocity.bond_with(2).unwrap_or(0) > SIZE / 2,
+            "precondition: a real bond to the friend should have formed"
+        );
+
+        // Companion (id 1) beside the being; friend (id 2) in the far corner.
+        let mut room = Room::peopled((210, 210), (128, 128), (20, 128), (200, 200))
+            .with_friend((30, 30));
+        let start = room.at_friend();
+        let mut closest = start;
+        for _ in 0..500 {
+            let sens = room.sense();
+            let r = being.step_embodied(&sens);
+            room.actuate(&intent_from(&r));
+            closest = closest.max(room.at_friend());
+            if !being.is_alive() {
+                break;
+            }
+        }
+        assert!(
+            closest > start + 128,
+            "the being should have crossed to the friend it is bonded to, past the \
+             nearer companion (nearness to friend {start} → {closest})"
+        );
+    }
 
     /// The world is deterministic: two beings living the identical room live the
     /// identical life, body position and soul-hash alike.
