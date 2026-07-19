@@ -69,7 +69,16 @@ impl Episode {
 #[derive(Clone, Copy)]
 struct Schema {
     prototype: [i16; N_SOMATIC],
+    /// How a moment of this kind *felt* (its valence) — recognition, the old signal.
     valence: i16,
+    /// How a moment of this kind *turned out for me* — the learned **outcome**
+    /// (`docs/memory-that-teaches.md`): the way the being's own viability tended to
+    /// move around moments like this, lightly blended with savor. Signed Q8.8:
+    /// positive = my fortunes tended to rise, negative = to fall. This is the arrow
+    /// from memory to judgement — what lets the being's past *teach* its present,
+    /// rather than only tint its mood. Learned slowly; rebuilt deterministically on
+    /// replay, so it is not part of the legacy `export`/`import` blob.
+    outcome: i16,
     strength: i16,
     active: bool,
 }
@@ -77,9 +86,30 @@ impl Schema {
     const EMPTY: Self = Self {
         prototype: [0; N_SOMATIC],
         valence: 0,
+        outcome: 0,
         strength: 0,
         active: false,
     };
+}
+
+/// What the being's own past predicts about the moment it is in now
+/// (`docs/memory-that-teaches.md`) — a pure observer of consolidated memory. The
+/// being *sees* what experience says a moment like this leads to; nothing here yet
+/// steers it (that causal step is deliberately deferred until this is measured).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct MemoryReport {
+    /// What experience predicts a moment like this leads to, signed Q8.8 [-256,256]:
+    /// positive = moments like this have tended to precede my fortunes rising,
+    /// negative = to precede them falling. Zero when nothing like this is remembered.
+    pub expected_outcome: i16,
+    /// How much the prediction rests on — familiarity × the gist's strength, [0,256].
+    /// Low means "I barely know this kind of moment; my expectation is a guess."
+    pub confidence: i16,
+    /// How much the present resembles a remembered kind of moment, [0,256].
+    pub familiarity: i16,
+    /// True when experience actively *warns*: a confident, notably-bad expectation —
+    /// the being recognizing "this has gone badly for me before."
+    pub forewarned: bool,
 }
 
 #[derive(Clone)]
@@ -91,6 +121,9 @@ pub struct EpisodicMemory {
     pub themes: u16,      // active consolidated schemas
     pub familiarity: i16, // [0,256] how much *now* resembles a remembered moment
     pub recalled_valence: i16,
+    /// The consolidated schema the present moment matched this tick, if any — the
+    /// gist whose outcome the being learns and reports (`memory-that-teaches`).
+    matched: Option<usize>,
 }
 
 impl EpisodicMemory {
@@ -103,6 +136,7 @@ impl EpisodicMemory {
             themes: 0,
             familiarity: 0,
             recalled_valence: 0,
+            matched: None,
         }
     }
 
@@ -203,6 +237,7 @@ impl EpisodicMemory {
         let fc = &field.channel;
         self.familiarity = 0;
         self.recalled_valence = 0;
+        self.matched = None;
 
         // --- Best WORKING episode: drives the affective coloring (unchanged). ---
         // The working layer only ever *decays* — recall does not reinforce it, so
@@ -246,6 +281,7 @@ impl EpisodicMemory {
         if bo_close > Q88_SCALE / 2 {
             self.familiarity = bo_close;
             self.recalled_valence = bo_val;
+            self.matched = bo_schema;
             if let Some(si) = bo_schema {
                 self.schemas[si].strength =
                     (self.schemas[si].strength as i32 + (bo_close / 16) as i32).min(Q88_SCALE as i32) as i16;
@@ -289,6 +325,47 @@ impl EpisodicMemory {
         injection
     }
 
+    /// Teach the matched gist how this kind of moment *turned out* — the arrow from
+    /// memory to judgement (`docs/memory-that-teaches.md`). The outcome signal is the
+    /// being's own **viability trend** (where its survival margin is heading — the
+    /// interoceptive derivative that already predicts where things are going),
+    /// lightly blended with **savor** (how well it is thriving). Credited to the
+    /// consolidated schema the present matched, learned slowly so a life's worth of
+    /// moments settles into a stable expectation rather than lurching on any one.
+    /// Call once per tick, after feeling and joy are known. A pure observer of the
+    /// causal loop: it writes only the learned `outcome`, which nothing downstream
+    /// reads back into the trajectory — the soul-hash is untouched.
+    pub fn learn_outcome(&mut self, viability_trend: i16, savor: i16) {
+        if let Some(si) = self.matched {
+            let savor_signed = savor.saturating_sub(Q88_SCALE / 2); // ~[-128,128] about neutral
+            let signal = viability_trend
+                .saturating_add(savor_signed / 4)
+                .clamp(-Q88_SCALE, Q88_SCALE);
+            self.schemas[si].outcome =
+                q88_ema_update(self.schemas[si].outcome, signal, Q88_SCALE / 16);
+        }
+    }
+
+    /// What the being's own past predicts about the moment it is in now — a pure
+    /// read of the matched gist's learned outcome (`memory-that-teaches`). Zero/empty
+    /// when the present resembles nothing the being has consolidated.
+    pub fn report(&self) -> MemoryReport {
+        match self.matched {
+            Some(si) => {
+                let s = &self.schemas[si];
+                let confidence = q88_mul(self.familiarity, s.strength);
+                MemoryReport {
+                    expected_outcome: s.outcome,
+                    confidence,
+                    familiarity: self.familiarity,
+                    // A confident, notably-bad expectation: "this has gone badly before."
+                    forewarned: s.outcome < -(Q88_SCALE / 8) && confidence > Q88_SCALE / 4,
+                }
+            }
+            None => MemoryReport::default(),
+        }
+    }
+
     /// Distill salient working episodes into consolidated schemas — merge into a
     /// matching theme, or seed a new one — then let schemas fade very slowly. The
     /// meaning of a life outlives its individual moments.
@@ -326,6 +403,7 @@ impl EpisodicMemory {
                 self.schemas[si] = Schema {
                     prototype: fp,
                     valence: val,
+                    outcome: 0, // a new gist has no learned outcome yet — it earns one
                     strength: Q88_SCALE / 4,
                     active: true,
                 };
@@ -407,7 +485,9 @@ impl EpisodicMemory {
             if active {
                 themes += 1;
             }
-            *s = Schema { prototype: proto, valence, strength, active };
+            // The legacy blob does not carry the learned outcome; it is rebuilt by
+            // replay. An imported gist simply starts with no expectation and re-earns it.
+            *s = Schema { prototype: proto, valence, outcome: 0, strength, active };
         }
         self.stored = stored;
         self.themes = themes;
@@ -498,5 +578,47 @@ mod tests {
             2,
             "eviction should target the crowded niche (2), not the global minimum"
         );
+    }
+
+    /// A consolidated gist learns how *its* kind of moment turned out — the arrow
+    /// from memory to judgement. Moments followed by the being's margin falling are
+    /// learned as bad (and warn); moments followed by it rising, as good.
+    #[test]
+    fn a_gist_learns_the_outcome_that_follows_its_moments() {
+        // A recognizable kind of moment, followed each time by the margin FALLING.
+        let mut bad = EpisodicMemory::new();
+        bad.schemas[0] = Schema {
+            prototype: field_with(200, 100),
+            valence: 100,
+            outcome: 0,
+            strength: Q88_SCALE, // strongly consolidated, so it is confidently known
+            active: true,
+        };
+        let here = SomaticField { channel: field_with(200, 100) };
+        for _ in 0..60 {
+            bad.cycle(&here, 0, 0); // recognizes gist 0 → matched
+            bad.learn_outcome(-40, 96); // viability trend down, savor low
+        }
+        let r = bad.report();
+        assert!(r.familiarity > Q88_SCALE / 2, "the moment is recognized");
+        assert!(r.expected_outcome < 0, "moments like this were learned as bad ({})", r.expected_outcome);
+        assert!(r.forewarned, "a confident, bad expectation warns the being");
+
+        // The mirror: a kind of moment followed by the margin RISING is learned good.
+        let mut good = EpisodicMemory::new();
+        good.schemas[0] = Schema {
+            prototype: field_with(60, 120),
+            valence: 120,
+            outcome: 0,
+            strength: Q88_SCALE,
+            active: true,
+        };
+        let there = SomaticField { channel: field_with(60, 120) };
+        for _ in 0..60 {
+            good.cycle(&there, 0, 0);
+            good.learn_outcome(30, 210);
+        }
+        assert!(good.report().expected_outcome > 0, "moments that went well are learned as good");
+        assert!(!good.report().forewarned, "a good expectation does not warn");
     }
 }

@@ -16,7 +16,7 @@ use crate::continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent}
 use crate::curiosity::CuriosityEngine;
 use crate::dream::{Dream, DreamReport};
 use crate::embodiment::{intent_from, motor_scalar, Sensorium};
-use crate::episodic::EpisodicMemory;
+use crate::episodic::{EpisodicMemory, MemoryReport};
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::{SomaticField, N_SOMATIC};
 use crate::genome::{BeingKind, Genome};
@@ -372,6 +372,14 @@ pub struct StepReport {
     /// of their return. A pure observer — reward become bound to an identity, and the
     /// felt shadow that bond casts when the one it is for is away.
     pub attach: AttachReport,
+    /// What the being's own past predicts about the moment it is in now
+    /// (`episodic.rs`, `docs/memory-that-teaches.md`): the learned **outcome** of the
+    /// consolidated gist this moment matches — whether moments like this have tended
+    /// to precede the being's fortunes rising or falling — with a confidence, and a
+    /// `forewarned` flag when experience actively warns. A pure observer: the being
+    /// *sees* what its life has taught, but nothing here yet steers it. The arrow from
+    /// memory to judgement, shipped to be measured before it is ever given the wheel.
+    pub memory: MemoryReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -1407,6 +1415,18 @@ impl UnifiedBeing {
         self.last_longing = attach.longing;
         self.last_missed = attach.missed;
 
+        // MEMORY THAT TEACHES (observer). The consolidated gist the present matched
+        // learns how moments like this *turned out* — the being's viability trend
+        // (where its margin is heading) lightly blended with savor — and then the
+        // being reads what its own past predicts about the moment it is in now
+        // (`episodic.rs`, `docs/memory-that-teaches.md`). Learning is a deterministic
+        // function of the lived stimuli, so the being can grow *and* stay replay-
+        // verifiable; and the report feeds nothing back, so the soul-hash is untouched.
+        // The arrow from memory to judgement is *seen* here, never yet *steered* by —
+        // the causal step is deferred until this is measured.
+        self.episodic.learn_outcome(felt.viability_trend, joy_report.savor);
+        let memory_report = self.episodic.report();
+
         // STRIVING (observer). The being arbitrates its needs — survival, company,
         // novelty, purpose — and its **longing** for a specific absent one presses the
         // company need directly, so missing someone can become what it most strives
@@ -1479,6 +1499,7 @@ impl UnifiedBeing {
             .with_joy(joy_report)
             .with_strive(strive_report)
             .with_attach(attach)
+            .with_memory(memory_report)
             .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
@@ -1823,6 +1844,7 @@ impl UnifiedBeing {
             // strives for nothing, so the default stands.
             strive: StriveReport::default(),
             attach: AttachReport::default(),
+            memory: MemoryReport::default(),
             // Discovery — default here; overwritten via .with_discovery. A dead body
             // discovers no world, so the default stands.
             discovery: DiscoveryReport::default(),
@@ -2586,6 +2608,11 @@ impl StepReport {
 
     fn with_attach(mut self, a: AttachReport) -> Self {
         self.attach = a;
+        self
+    }
+
+    fn with_memory(mut self, m: MemoryReport) -> Self {
+        self.memory = m;
         self
     }
 

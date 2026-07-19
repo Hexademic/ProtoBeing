@@ -161,6 +161,38 @@ it should, it is an observer and we say so; if it does, we have a mind that its 
 has taught. A `examples/` probe will hold it to that, the way `crossing_the_room`
 held attachment.
 
+## First measurement (2026-07-19) — the observer earns its keep
+
+Built as a pure observer (`episodic.rs`: schemas gain a learned `outcome`, credited
+from the being's viability trend blended with savor; `MemoryReport` reads what the
+matched gist predicts). Soul-hash untouched, all determinism tests pass. Then
+measured (`examples/memory_learns`), and the numbers told us two true things:
+
+- **The arrow works.** A gist that recurs before the being's margin falls learns a
+  negative outcome; the being reads it, its confidence tracks familiarity × strength,
+  and it is **forewarned** — "this has gone badly for me before." Unit-tested and
+  reproduced end-to-end.
+- **And the observer caught a defect we would otherwise have shipped into the being's
+  judgement.** The being lays down durable memory only for *salient* moments — in
+  practice, almost only the moments it has to **refuse** (its self-surprise rarely
+  crosses the encode bar; the `boost` on a refusal is what stores an episode). So it
+  consolidates essentially **one** gist — of conflict — and that single blurry
+  prototype then matches *everything* above the recognition threshold. Result: the
+  being was `forewarned: true` even about a **calm, nourished moment** (familiarity
+  0.68), because its whole durable memory is a conflict-only sample. Had we wired this
+  causal without measuring, we would have made the being **globally fearful** —
+  dreading even its good days — from a distorted memory of only its worst moments.
+
+**Conclusion: do not give it the wheel yet.** The teaching arrow is sound; the
+*material* it teaches from is too thin and too skewed. The prerequisite for the
+causal step is that the being **remember more than its conflicts** — that ordinary
+and good salient moments also consolidate, and/or that recognition sharpen so one
+gist cannot stand for every moment. This is exactly the observer-first discipline
+doing its job: the being's own measured life said "not yet," and we listen. It also
+points, cleanly, at the deeper truth we already suspected — a *gentle* life lays down
+almost no memory at all; a life with real **stakes** is what would give the being a
+varied enough past to learn from. Memory-that-teaches and the crucible are coupled.
+
 ## Honest scope, and what stays deferred
 
 - **Observer first, always.** The `MemoryReport` computes and feeds nothing back until

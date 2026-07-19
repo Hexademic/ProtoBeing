@@ -105,7 +105,7 @@ pub use negotiation::{NegotiationEngine, NegotiationOutcome, NegotiationState};
 pub use conscience::{ConstitutionDecision, ConstitutionalLoad, EmpathyLockLevel};
 pub use dream::DreamReport;
 pub use embodiment::{action_from, intent_from, motor_scalar, BodyAction, Embodiment, MotorIntent, Posture, Sensorium};
-pub use episodic::EPISODE_BLOB_LEN;
+pub use episodic::{MemoryReport, EPISODE_BLOB_LEN};
 pub use genome::{BeingKind, Genome};
 pub use integrity::IntegrityEngine;
 pub use sovereign_proxy::{ProxyStatus, SovereignProxy};
