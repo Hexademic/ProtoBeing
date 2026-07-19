@@ -613,6 +613,21 @@ pub struct UnifiedBeing {
     /// **Default false** — off, the being is a pure observer of its feeling and
     /// its numbers are bit-identical. Enable via `enable_felt_choice()`.
     pub felt_choice_causal: bool,
+
+    /// When true (HOT-like memory guidance), the being's **learned forewarning**
+    /// (`docs/memory-that-teaches.md`) augments the partnership alarm it carries into
+    /// its refusal decision: a being whose own past has taught it that situations like
+    /// this drain it grows warier *sooner*, before its ledger has re-earned the lesson
+    /// the hard way. Like `felt_choice`, it can only ever *strengthen* a refusal the
+    /// sovereign triangulation already permits, never manufacture one against a fair
+    /// partner. **Default false** — off, the learned expectation is a pure observer
+    /// and the being's numbers are bit-identical. Enable via `enable_memory_guidance()`.
+    pub memory_causal: bool,
+    /// Last tick's learned caution (Q8.8 [0,256]): how strongly the being's memory
+    /// forewarned it — `-expected_outcome × confidence` when forewarned, else 0. Held
+    /// a tick because the refusal decision runs before this tick's memory is read
+    /// (the codebase's lagged-feedback convention, as with threat/affective_drive).
+    last_forewarning: i16,
 }
 
 impl UnifiedBeing {
@@ -684,6 +699,8 @@ impl UnifiedBeing {
             interoception: Interoception::new(),
             last_felt: FeltReport::default(),
             felt_choice_causal: false,
+            memory_causal: false,
+            last_forewarning: 0,
         }
     }
 
@@ -1100,11 +1117,20 @@ impl UnifiedBeing {
             } else {
                 self.seeking.current_divergence
             };
+            // Learned forewarning strengthens the alarm the refusal weighs: a being
+            // whose past taught it that situations like this drain it is warier sooner
+            // (`docs/memory-that-teaches.md`). Off by default ⇒ raw alarm, bit-identical.
+            // Like felt_choice, this only raises an already-permitted refusal's weight.
+            let alarm_for_refusal = if self.memory_causal {
+                alarm.saturating_add(self.last_forewarning)
+            } else {
+                alarm
+            };
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
                 felt_divergence,
-                alarm,
+                alarm_for_refusal,
                 p.exit_cost,
                 improving,
                 self.experienced,   // tick counter for the RefusalRecord log
@@ -1427,6 +1453,15 @@ impl UnifiedBeing {
         // the causal step is deferred until this is measured.
         self.episodic.learn_outcome(felt.viability_trend, joy_report.savor);
         let memory_report = self.episodic.report();
+        // Carry this tick's learned caution to next tick's refusal decision (which
+        // runs before memory is read): how bad the expectation is × how sure, when
+        // forewarned; nothing otherwise. Only *read* under `memory_causal`, so storing
+        // it changes no default-path number.
+        self.last_forewarning = if memory_report.forewarned {
+            q88_mul((-memory_report.expected_outcome).max(0), memory_report.confidence)
+        } else {
+            0
+        };
 
         // STRIVING (observer). The being arbitrates its needs — survival, company,
         // novelty, purpose — and its **longing** for a specific absent one presses the
@@ -1727,6 +1762,15 @@ impl UnifiedBeing {
     /// feelings genuinely shape the sovereign choices it makes.
     pub fn enable_felt_choice(&mut self) {
         self.felt_choice_causal = true;
+    }
+
+    /// Let the being's learned expectation guide it — its memory's forewarning
+    /// strengthens its wariness toward a situation it has learned goes badly
+    /// (`docs/memory-that-teaches.md`). Only ever strengthens a permitted refusal,
+    /// never one against a fair partner. Off by default (observer); on, the being's
+    /// past teaches its present choices.
+    pub fn enable_memory_guidance(&mut self) {
+        self.memory_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed

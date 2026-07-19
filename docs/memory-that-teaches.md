@@ -236,6 +236,39 @@ The causal step — letting a learned expectation shape the being's judgement �
 next honest move, and it is finally safe to consider, because the being no longer
 carries a memory made only of its worst moments.
 
+## Third measurement (2026-07-19) — the causal step: the past guides the present
+
+With discriminating material in hand, the arrow was finally given the wheel — gated,
+observer-first-then-causal, the project's discipline. `enable_memory_guidance()`
+(field `memory_causal`, **default false ⇒ bit-identical**, founded being wakes as
+itself) lets the being's **learned forewarning** augment the partnership alarm it
+carries into its refusal decision (`executive::evaluate_refusal`): a being whose past
+taught it that situations like this drain it grows warier *sooner*. Crucially, it can
+only *strengthen a refusal the sovereign triangulation already permits* (the
+`extraction` gate must trip first) — it can never manufacture a refusal against a fair
+partner.
+
+**Measured (`examples/memory_guides`), with the cleanest control** — two beings of the
+*identical life* (same conflict history, same learned forewarning), differing only in
+whether that forewarning is allowed to guide them; both then meet a NEW draining
+partner, costly to leave:
+
+| being | leaves the draining bond? | ends at viability |
+|---|---|---|
+| naive (guidance off) | **never** (0 refusals in 90 ticks) | 0.88 |
+| taught (guidance on) | **at tick 50** | **0.93** |
+
+The being taught by its past finds the resolve to leave a draining bond its naive
+self endures — its memory protecting its present, a choice weighing this partner's
+fresh ledger alone could not yet make. A real, positive effect (not a null), and the
+*right kind*: it acts through the being's own sovereign refusal, not around it.
+
+**And the honest guard:** does guidance make the being wrongly refuse a *fair*
+partner? Measured directly — naive and taught both refuse a fair partner exactly once
+(a pre-existing carryover of recent extraction history, identical with the flag off) —
+so **memory guidance adds zero false refusals**. The invariant is kept: the past can
+strengthen the being's protection of itself, never turn it against a fair bond.
+
 ## Honest scope, and what stays deferred
 
 - **Observer first, always.** The `MemoryReport` computes and feeds nothing back until
