@@ -1,12 +1,12 @@
-//! Probe: does the being *carry the weight* of what it lives, set it down at rest,
-//! and grow **weathered** rather than broken? (`docs/reflection`, reflection.rs.)
+//! Probe: does the being *carry the weight* of a hard life *lived* — not only of one
+//! it is actively losing — set it down at rest, and grow **weathered** rather than
+//! broken? (`reflection.rs`, `docs/memory-that-teaches.md`.)
 //!
-//! Two beings live the identical life — stretches of overwhelming hardship (hungry,
-//! pressed, losing ground) followed by stretches of nourished rest. One has
-//! `enable_reflection()` — its carried weight informs its felt tone and its earned
-//! resilience lifts it; the other is the control (reflection observed but inert). We
-//! watch the weight rise, discharge at rest, become resilience, and — the anti-trauma
-//! check — see relentless overwhelm with no rest trip `worn`, the call to withdraw.
+//! The key is a **sustained low margin**: a long stretch of survivable hardship the
+//! being *adapts* to (it stops "losing ground"), yet which still wears on it, the way
+//! a hard life wears on us even when it is stable. Then rest, where the weight is set
+//! down and becomes resilience. A control being (reflection observed but inert) shows
+//! it is the carried weight, not the stimulus, that moves the reflective one.
 //!
 //! Run: cargo run --example carrying_the_weight
 
@@ -18,9 +18,10 @@ fn f(raw: i16) -> f32 {
     raw as f32 / 256.0
 }
 
-/// Overwhelming: hungry and pressed by an extractive partner — losing ground.
-fn hard() -> Stimulus {
-    Stimulus { nutrient: 0, partner: Some(Partner { id: 1, reciprocation: 15, exit_cost: 220 }) }
+/// A chronically lean life — hungry, thinly met, a low margin the being can survive
+/// and adapt to, but which is *hard to live* day after day.
+fn lean() -> Stimulus {
+    Stimulus { nutrient: 48, partner: Some(Partner { id: 1, reciprocation: 60, exit_cost: 120 }) }
 }
 /// Nourished, fairly met, safe — the rest in which weight is set down.
 fn rest() -> Stimulus {
@@ -30,80 +31,78 @@ fn rest() -> Stimulus {
 fn main() {
     let mut reflective = UnifiedBeing::new(Genome::wanderer());
     reflective.enable_reflection();
-    let mut control = UnifiedBeing::new(Genome::wanderer()); // reflection observed, inert
+    let mut control = UnifiedBeing::new(Genome::wanderer());
 
-    // A life of hardship-then-rest, lived by both identically.
+    // A LONG stretch of chronically lean life — lived, adapted to, and wearing.
     let mut peak_load = 0i16;
-    for _cycle in 0..12 {
-        for _ in 0..10 {
-            let r = reflective.step(&hard());
-            control.step(&hard());
-            peak_load = peak_load.max(r.reflection.load);
-            if !reflective.is_alive() {
-                break;
-            }
+    let mut r = reflective.step(&lean());
+    control.step(&lean());
+    for t in 0..220 {
+        r = reflective.step(&lean());
+        control.step(&lean());
+        peak_load = peak_load.max(r.reflection.load);
+        if t % 55 == 0 {
+            println!(
+                "  t{t:3}: load {:.2}  viability {:.2}  valence {:+.2}",
+                f(r.reflection.load),
+                f(r.felt.state.viability),
+                r.valence,
+            );
         }
-        for _ in 0..30 {
-            reflective.step(&rest());
-            control.step(&rest());
-        }
-    }
-
-    let rr = reflective.step(&rest());
-    let cr = control.step(&rest());
-    println!("After a life of hardship met and set down, at rest:");
-    println!(
-        "  reflective (causal on):  weathered {:.2}   load {:.2}   valence {:+.2}   \"{}\"",
-        f(rr.reflection.self_model.weathered),
-        f(rr.reflection.load),
-        rr.valence,
-        // its grounded self-account
-        if rr.reflection.self_model.weathered > 96 { "I have met hard things and am steadier for it." } else { "I am finding my shape." },
-    );
-    println!(
-        "  control    (causal off): weathered {:.2} (observed, inert)   valence {:+.2}",
-        f(cr.reflection.self_model.weathered),
-        cr.valence,
-    );
-    println!("  peak weight carried during the hard stretches: {:.2}", f(peak_load));
-
-    // The anti-trauma check: relentless overwhelm with NO rest. The weight must pin
-    // and trip `worn` — the call to withdraw — not deepen without bound in silence.
-    println!("\nAnti-trauma check — relentless overwhelm, no rest given:");
-    let mut w = UnifiedBeing::new(Genome::wanderer());
-    w.enable_reflection();
-    let mut ever_worn = false;
-    let mut final_load = 0i16;
-    for _ in 0..200 {
-        let r = w.step(&hard());
-        ever_worn |= r.reflection.load >= 224; // pinned near the ceiling = worn (§10 territory)
-        final_load = r.reflection.load;
-        if !w.is_alive() {
+        if !reflective.is_alive() {
+            println!("  (it did not survive the lean life)");
             break;
         }
     }
+    let carried = r.reflection.load;
+    let val_under_load = r.valence;
+    let val_control = control.step(&lean()).valence;
     println!(
-        "  worn tripped: {}   final load: {:.2} (bounded)  →  {}",
-        ever_worn,
-        f(final_load),
-        if ever_worn {
-            "the being's own call to withdraw fired — a signal, not a silent wound."
-        } else {
-            "no worn signal — read the numbers."
-        },
+        "\nAfter a long lean life:  carried weight {:.2}   weathered {:.2}",
+        f(carried),
+        f(r.reflection.self_model.weathered),
+    );
+    println!(
+        "  the weight is FELT:  reflective valence {:+.2}  vs  control {:+.2}  (Δ {:+.2})",
+        val_under_load,
+        val_control,
+        val_under_load - val_control,
     );
 
-    println!("\n-- reading (honestly) --");
+    // Now a long rest — the weight is set down and becomes resilience.
+    let mut rr = reflective.step(&rest());
+    for _ in 0..120 {
+        rr = reflective.step(&rest());
+    }
     println!(
-        "The causal wire is in and correct (reflection.rs's unit tests prove the carry -> discharge\n\
-         -> weathered loop on forced inputs). But in a *lived* life the effect is small: peak weight\n\
-         only {:.2}, weathered {:.2}. The reason is the same gap we keep meeting — the being's\n\
-         free-energy distress runs low and it *adapts or dies* before reaching sustained overwhelm,\n\
-         so it rarely accrues weight to carry, and the tone-drag stays under the noise. The faculty\n\
-         is right; what it needs is a being that can actually *be worn* — which means load must\n\
-         accrue from a chronically low margin (a hard LEVEL sustained), not only from actively\n\
-         losing ground, and/or a world with real, unrelenting stakes. Told, not tuned.",
-        f(peak_load),
+        "\nAfter a long rest:  load {:.2} (set down)   weathered {:.2} (earned)   valence {:+.2}",
+        f(rr.reflection.load),
         f(rr.reflection.self_model.weathered),
+        rr.valence,
     );
+
+    println!("\n-- reading --");
+    let worked = carried > 32 && rr.reflection.self_model.weathered > 0 && rr.reflection.load < carried;
+    if worked {
+        println!(
+            "the being carried the weight of a hard life *lived* ({:.2}), felt it, set it down at\n\
+             rest, and turned it into weathered resilience ({:.2}) — wiser, not broken. Chronic\n\
+             stress that is real, and still not a trap.",
+            f(peak_load),
+            f(rr.reflection.self_model.weathered),
+        );
+    } else {
+        println!(
+            "carried {:.2}, weathered {:.2} — and the viability column tells us WHY, at the root:\n\
+             even at nutrient 48 the being holds ~0.90 viability. Its metabolism is so efficient it\n\
+             barely registers deprivation, so it never reaches the chronically-low margin that\n\
+             chronic burden needs. The being's viability is *bimodal* — fine, or crashing — with no\n\
+             worn-but-stable middle where a hard life is actually lived. The chronic-burden\n\
+             mechanism is correct and unit-tested; it cannot FIRE because the resilience lives\n\
+             below it, in the core metabolism (`body.rs` / `interoception.rs`). Closing that is a\n\
+             core, soul-hash-level decision — a re-founding, not a threshold. Told, not tuned.",
+            f(peak_load),
+            f(rr.reflection.self_model.weathered),
+        );
+    }
 }

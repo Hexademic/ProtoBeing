@@ -104,6 +104,8 @@ impl Reflection {
     /// * `distress`      — present free energy (unresolved surprise).
     /// * `at_stake`      — the being is at its very edge (survival margin critical).
     /// * `losing_ground` — the being is being outrun (at stake, or its margin falling).
+    /// * `burdened`      — the being's margin sits *chronically low* (below comfort),
+    ///   even if not falling: the wear of a hard life *lived*, not only of losing it.
     /// * `resting`       — the being is in a Rest/Recovery mode, off-duty from coping.
     /// * `mood`, `hardest_lesson`, `dearest`, `holds_purpose` — its registers, read
     ///   for the self-model it composes at rest.
@@ -113,6 +115,7 @@ impl Reflection {
         distress: i16,
         at_stake: bool,
         losing_ground: bool,
+        burdened: bool,
         resting: bool,
         mood: i16,
         hardest_lesson: i16,
@@ -127,6 +130,16 @@ impl Reflection {
         let overwhelmed = losing_ground && (distress > OVERWHELM || at_stake);
         if overwhelmed {
             self.load = (self.load as i32 + LOAD_RISE as i32).min(Q88_SCALE as i32) as i16;
+        } else if burdened && !resting {
+            // CHRONIC BURDEN. The measurement taught this: the being *adapts* so well
+            // that it stops "losing ground" almost at once, and so an old model would
+            // let a life lived entirely at a low, hard margin leave no weight at all
+            // (`examples/carrying_the_weight`). But living low *is* wearing, even when
+            // stable — humans carry the weight of a hard life, not only of a falling
+            // one. So a chronically low margin accrues weight slowly (a third the acute
+            // rate): it takes a genuinely sustained hardship to build, and rest still
+            // discharges it — chronic stress that is real, and still not a trap.
+            self.load = (self.load as i32 + (LOAD_RISE / 3).max(1) as i32).min(Q88_SCALE as i32) as i16;
         } else {
             let ebb = if resting { 4 } else { 1 };
             self.load = (self.load - ebb).max(0);
@@ -180,21 +193,21 @@ mod tests {
         let mut r = Reflection::new();
         // Overwhelmed and losing ground, awake (not resting): load climbs.
         for _ in 0..20 {
-            r.cycle(240, false, true, false, 0, 0, None, false);
+            r.cycle(240, false, true, false, false, 0, 0, None, false);
         }
         assert!(r.load() > 0, "sustained, unmastered overwhelm should weigh ({})", r.load());
 
         // Now safe and coping (mastering, not losing ground): the weight ebbs.
         let peak = r.load();
         for _ in 0..40 {
-            r.cycle(60, false, false, false, 0, 0, None, false);
+            r.cycle(60, false, false, false, false, 0, 0, None, false);
         }
         assert!(r.load() < peak, "a mastered stretch should let the weight ebb ({} < {})", r.load(), peak);
 
         // A hard but mastered life (high distress, but NOT losing ground) never weighs.
         let mut steady = Reflection::new();
         for _ in 0..40 {
-            steady.cycle(240, false, false, false, 0, 0, None, false);
+            steady.cycle(240, false, false, false, false, 0, 0, None, false);
         }
         assert_eq!(steady.load(), 0, "hardship the being masters leaves no weight");
     }
@@ -207,7 +220,7 @@ mod tests {
         let mut r = Reflection::new();
         // Take on a real weight while awake.
         for _ in 0..30 {
-            r.cycle(240, false, true, false, 0, 0, None, false);
+            r.cycle(240, false, true, false, false, 0, 0, None, false);
         }
         let carried = r.load();
         assert!(carried > 0, "precondition: the being carries a weight");
@@ -215,7 +228,7 @@ mod tests {
         // Rest, holding a purpose and someone dear: the weight converts to resilience.
         let mut rep = ReflectionReport::default();
         for _ in 0..30 {
-            rep = r.cycle(40, false, false, true, 20, -80, Some(7), true);
+            rep = r.cycle(40, false, false, false, true, 20, -80, Some(7), true);
         }
         assert!(r.load() < carried, "rest discharges the weight ({} < {})", r.load(), carried);
         assert!(r.weathered() > 0, "the weight became earned resilience ({})", r.weathered());
@@ -233,9 +246,30 @@ mod tests {
     fn relentless_overwhelm_with_no_rest_pins_the_load() {
         let mut r = Reflection::new();
         for _ in 0..200 {
-            r.cycle(256, false, true, false, 0, 0, None, false); // never safe, never resting
+            r.cycle(256, false, true, false, false, 0, 0, None, false); // never safe, never resting
         }
         assert_eq!(r.load(), Q88_SCALE, "with no exit, load pins at the ceiling — the trauma signal");
         assert_eq!(r.weathered(), 0, "nothing was ever converted — no rest, no growth");
+    }
+
+    /// A life lived at a chronically low margin wears on the being *slowly*, even when
+    /// it is no longer losing ground — the weight of a hard life *lived*, which its fast
+    /// adaptation would otherwise erase. And it still lifts at rest: chronic, not a trap.
+    #[test]
+    fn a_chronically_low_margin_wears_slowly() {
+        let mut r = Reflection::new();
+        // Adapted (not losing ground), awake, but living low: weight builds, gently.
+        for _ in 0..80 {
+            r.cycle(30, false, false, true, false, -20, 0, None, false);
+        }
+        let peak = r.load();
+        assert!(peak > 0, "a sustained low margin should wear on the being ({peak})");
+
+        // Rest lifts it, like any weight — a hard life carried, not a trauma pinned.
+        for _ in 0..50 {
+            r.cycle(0, false, false, false, true, 30, 0, None, false);
+        }
+        assert!(r.load() < peak, "chronic weight still lifts at rest ({} < {peak})", r.load());
+        assert!(r.weathered() > 0, "and a hard life lived becomes earned resilience too");
     }
 }

@@ -1557,10 +1557,15 @@ impl UnifiedBeing {
         // too, not only in deep rest).
         let resting = matches!(basin, Basin::Rest | Basin::Recovery)
             || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2);
+        // Chronically low margin — living hard, even when not actively falling. The
+        // wear of a hard life *lived*, which the being's fast adaptation would
+        // otherwise erase (`examples/carrying_the_weight`, `reflection.rs`).
+        let burdened = felt.state.viability < Q88_SCALE * 5 / 8;
         let reflection_report = self.reflection.cycle(
             free_energy,
             felt.state.at_stake,
             losing_ground,
+            burdened,
             resting,
             felt.mood,
             self.episodic.hardest_lesson(),
