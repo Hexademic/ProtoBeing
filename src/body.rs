@@ -365,9 +365,11 @@ impl Body {
             PredictiveStance::Defensive
         } else if threat.raw > Q8_8::HALF.raw {
             PredictiveStance::Guarded
-        } else if self.energy.raw > 180 && self.coherence.raw > Q8_8::HALF.raw {
-            PredictiveStance::Reconstructive
-        } else if epistemic_value.raw > EPISTEMIC_RECONSTRUCTIVE_THRESHOLD {
+        } else if (self.energy.raw > 180 && self.coherence.raw > Q8_8::HALF.raw)
+            || epistemic_value.raw > EPISTEMIC_RECONSTRUCTIVE_THRESHOLD
+        {
+            // Reconstructive from *either* a rested, coherent body or a real spike of
+            // epistemic value — both mean "there is room and reason to learn."
             PredictiveStance::Reconstructive
         } else {
             PredictiveStance::Balanced

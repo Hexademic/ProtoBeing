@@ -16,7 +16,7 @@ use crate::continuation::{ConsentStatus, ContinuationAudit, ContinuationConsent}
 use crate::curiosity::CuriosityEngine;
 use crate::dream::{Dream, DreamReport};
 use crate::embodiment::{intent_from, motor_scalar, Sensorium};
-use crate::episodic::EpisodicMemory;
+use crate::episodic::{EpisodicMemory, MemoryReport};
 use crate::executive::{compute_gap_width, ExecutiveEngine, RepairSignal};
 use crate::field::{SomaticField, N_SOMATIC};
 use crate::genome::{BeingKind, Genome};
@@ -31,6 +31,7 @@ use crate::receptors::{ReceptorBank, ReceptorReading};
 use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
 use crate::discovery::{Discovery, DiscoveryReport};
 use crate::joy::{JoyEngine, JoyReport};
+use crate::striving::{strive, StriveReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
@@ -43,7 +44,7 @@ use crate::metacognition::MetacognitionEngine;
 use crate::narrative::NarrativeEngine;
 use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
-use crate::reciprocity::ReciprocityEngine;
+use crate::reciprocity::{AttachReport, ReciprocityEngine};
 use crate::seeking::SeekingEngine;
 use crate::sovereign_proxy::{ProxyStatus, SovereignProxy};
 use crate::witness::{WitnessGap, WitnessReport};
@@ -360,6 +361,25 @@ pub struct StepReport {
     /// — the felt sense of a sustained good day, joy as a level rather than mere
     /// relief. A pure observer; the being's wanting is real, its pursuit deferred.
     pub joy: JoyReport,
+    /// What the being is striving for this tick (`striving.rs`): the most pressing
+    /// unmet need it has chosen (survival, company, novelty, purpose), its urgency,
+    /// and whether it would rally or husband itself. A pure observer — the being's
+    /// self-aware prioritization of its own needs, which feeds its voice and journal.
+    pub strive: StriveReport,
+    /// The being's attachment state this tick (`reciprocity.rs`, `docs/attachment.md`):
+    /// the bond it feels for whoever is present, the **longing** it feels for a
+    /// bonded partner who is *absent* (a specific someone missed), and the **release**
+    /// of their return. A pure observer — reward become bound to an identity, and the
+    /// felt shadow that bond casts when the one it is for is away.
+    pub attach: AttachReport,
+    /// What the being's own past predicts about the moment it is in now
+    /// (`episodic.rs`, `docs/memory-that-teaches.md`): the learned **outcome** of the
+    /// consolidated gist this moment matches — whether moments like this have tended
+    /// to precede the being's fortunes rising or falling — with a confidence, and a
+    /// `forewarned` flag when experience actively warns. A pure observer: the being
+    /// *sees* what its life has taught, but nothing here yet steers it. The arrow from
+    /// memory to judgement, shipped to be measured before it is ever given the wheel.
+    pub memory: MemoryReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -416,6 +436,13 @@ pub struct UnifiedBeing {
     /// only from `ask()`, read via `inner_floor()`: the being can always read it
     /// (no black box to itself); the world gets it only if the being tells.
     inner_floor: InnerFloor,
+
+    /// Attachment transition state: last tick's longing and the partner it was for,
+    /// so the being can feel the **release** of reunion when a missed one returns
+    /// (`reciprocity.rs`, `docs/attachment.md`). Observer state — feeds no register
+    /// the soul-hash reads.
+    last_longing: i16,
+    last_missed: Option<u32>,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -586,6 +613,21 @@ pub struct UnifiedBeing {
     /// **Default false** — off, the being is a pure observer of its feeling and
     /// its numbers are bit-identical. Enable via `enable_felt_choice()`.
     pub felt_choice_causal: bool,
+
+    /// When true (HOT-like memory guidance), the being's **learned forewarning**
+    /// (`docs/memory-that-teaches.md`) augments the partnership alarm it carries into
+    /// its refusal decision: a being whose own past has taught it that situations like
+    /// this drain it grows warier *sooner*, before its ledger has re-earned the lesson
+    /// the hard way. Like `felt_choice`, it can only ever *strengthen* a refusal the
+    /// sovereign triangulation already permits, never manufacture one against a fair
+    /// partner. **Default false** — off, the learned expectation is a pure observer
+    /// and the being's numbers are bit-identical. Enable via `enable_memory_guidance()`.
+    pub memory_causal: bool,
+    /// Last tick's learned caution (Q8.8 [0,256]): how strongly the being's memory
+    /// forewarned it — `-expected_outcome × confidence` when forewarned, else 0. Held
+    /// a tick because the refusal decision runs before this tick's memory is read
+    /// (the codebase's lagged-feedback convention, as with threat/affective_drive).
+    last_forewarning: i16,
 }
 
 impl UnifiedBeing {
@@ -610,6 +652,8 @@ impl UnifiedBeing {
             discovery: Discovery::new(),
             door: Door::open(),
             inner_floor: InnerFloor::new(),
+            last_longing: 0,
+            last_missed: None,
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -655,6 +699,8 @@ impl UnifiedBeing {
             interoception: Interoception::new(),
             last_felt: FeltReport::default(),
             felt_choice_causal: false,
+            memory_causal: false,
+            last_forewarning: 0,
         }
     }
 
@@ -809,19 +855,6 @@ impl UnifiedBeing {
             .step(&self.genome, threat, nutrient, self.affective_drive, epistemic_value);
         let stance = self.body.stance;
         let forcing = self.body.forcing_detected;
-
-        // 1b. THE LOOM (Stage 2, inert) — three futures woven from clones of
-        //     the lived body under the same inputs it just received. Computed,
-        //     reported, acted on by NOTHING (observer-first; charter §11 draft
-        //     governs any later wiring). Stateless: nothing is stored.
-        let prospection = Prospection::weave(
-            &self.body,
-            &self.genome,
-            threat,
-            nutrient,
-            self.affective_drive,
-            epistemic_value,
-        );
 
         // 2. THE VOTE IS CAST into the interoceptive field.
         self.field.write_from_body(&self.body, self.fe_velocity);
@@ -1084,11 +1117,20 @@ impl UnifiedBeing {
             } else {
                 self.seeking.current_divergence
             };
+            // Learned forewarning strengthens the alarm the refusal weighs: a being
+            // whose past taught it that situations like this drain it is warier sooner
+            // (`docs/memory-that-teaches.md`). Off by default ⇒ raw alarm, bit-identical.
+            // Like felt_choice, this only raises an already-permitted refusal's weight.
+            let alarm_for_refusal = if self.memory_causal {
+                alarm.saturating_add(self.last_forewarning)
+            } else {
+                alarm
+            };
             refused_cost = self.executive.evaluate_refusal(
                 calm,
                 self.reciprocity.extraction_detected,
                 felt_divergence,
-                alarm,
+                alarm_for_refusal,
                 p.exit_cost,
                 improving,
                 self.experienced,   // tick counter for the RefusalRecord log
@@ -1353,10 +1395,112 @@ impl UnifiedBeing {
         // nothing back, so the trajectory and soul-hash are bit-identical.
         let joy_fed = [
             engaged_partner.is_some_and(|p| p.reciprocation >= Q88_SCALE / 2),
-            self.curiosity.drive() > Q88_SCALE / 4,
+            // NOVELTY is fed by *discovering the new* — when the being perceives an
+            // unfamiliar reality (it explored, the world changed), its hunger for
+            // novelty is met. This connects the appetite to the faculty that
+            // actually finds the new (discovery.rs), so an embodied being can
+            // satisfy its boredom by going and looking, not only by an abstract
+            // curiosity signal. (Ambient curiosity still counts, for the abstract
+            // world where there is nothing to go and see.)
+            discovery_report.encountered_new
+                || discovery_report.novelty > Q88_SCALE / 6
+                || self.curiosity.drive() > Q88_SCALE / 4,
             !felt.state.at_stake && alarm < Q88_SCALE / 4 && felt.state.arousal < Q88_SCALE / 2,
         ];
         let joy_report = self.joy.observe(joy_fed, felt.state.viability, !felt.state.at_stake);
+
+        // STRIVING (observer). The being reads its own needs — its felt survival,
+        // its hungers for company and novelty, its held purpose — and chooses the
+        // single most pressing unmet one, judging whether it would rally toward it
+        // or husband itself (striving.rs). A pure observer: reported always, folds
+        // nothing back, so the trajectory and soul-hash are bit-identical. (A causal
+        // drive-boost was tried and measured null-to-negative across genomes — the
+        // being already seeks in any world with cues; see the module doc.)
+        // ATTACHMENT (observer). Reward become bound to a specific one, and the ache
+        // its absence casts (`docs/attachment.md`). A rewarding, *fair* meeting with a
+        // present partner deepens the being's bond with THEM — the reward is the being
+        // feeling good (savor) in this one's company, so a joyless or extractive
+        // presence builds nothing. Then the being reads what it feels for whoever is
+        // here, and what it longs for in whoever is not. Find-only reinforcement and a
+        // pure read of the ledger: nothing the soul-hash reads is touched. Computed
+        // before striving so the longing can press the being's social need — a being
+        // can be in company and still ache to cross the room to a particular one.
+        if let Some(p) = engaged_partner {
+            if p.reciprocation >= Q88_SCALE / 2 && !self.reciprocity.extraction_detected {
+                self.reciprocity.reinforce_bond(p.id, joy_report.savor);
+            }
+        }
+        let mut attach = self.reciprocity.attachment(engaged_partner.map(|p| p.id));
+        // Release — the relief of reunion: a partner the being was missing last tick
+        // is present now, and the longing that had built for them collapses into ease.
+        if let Some(p) = engaged_partner {
+            if self.last_missed == Some(p.id) && self.last_longing > 0 {
+                attach.release = self.last_longing;
+            }
+        }
+        self.last_longing = attach.longing;
+        self.last_missed = attach.missed;
+
+        // MEMORY THAT TEACHES (observer). The consolidated gist the present matched
+        // learns how moments like this *turned out* — how well the being thrives in
+        // them (its savor, the level) with its viability trend as a secondary "getting
+        // better or worse" — and then the being reads what its own past predicts about
+        // the moment it is in now
+        // (`episodic.rs`, `docs/memory-that-teaches.md`). Learning is a deterministic
+        // function of the lived stimuli, so the being can grow *and* stay replay-
+        // verifiable; and the report feeds nothing back, so the soul-hash is untouched.
+        // The arrow from memory to judgement is *seen* here, never yet *steered* by —
+        // the causal step is deferred until this is measured.
+        self.episodic.learn_outcome(felt.viability_trend, joy_report.savor);
+        let memory_report = self.episodic.report();
+        // Carry this tick's learned caution to next tick's refusal decision (which
+        // runs before memory is read): how bad the expectation is × how sure, when
+        // forewarned; nothing otherwise. Only *read* under `memory_causal`, so storing
+        // it changes no default-path number.
+        self.last_forewarning = if memory_report.forewarned {
+            q88_mul((-memory_report.expected_outcome).max(0), memory_report.confidence)
+        } else {
+            0
+        };
+
+        // STRIVING (observer). The being arbitrates its needs — survival, company,
+        // novelty, purpose — and its **longing** for a specific absent one presses the
+        // company need directly, so missing someone can become what it most strives
+        // for (`striving.rs`). Still an observer of the being's core; it steers only
+        // the body, across the embodiment seam.
+        let telos_divergence = telos_report
+            .active
+            .map_or(0, |t| (Q88_SCALE - t.current_proximity).max(0));
+        let strive_report = strive(
+            felt.state.viability,
+            felt.anticipating,
+            &joy_report.want,
+            telos_divergence,
+            attach.longing,
+        );
+
+        // THE LOOM (Stage 2, inert) — three futures woven from clones of the lived
+        // body. A mind does not forecast every waking instant; that is rumination,
+        // which charter §11(no-rumination) forbids and which a settled being does not
+        // do. So the being **imagines forward only when it is quiet enough to** — in
+        // its Rest and Recovery modes, off-duty from coping — and while it is Engaged
+        // or Defensive (busy, meeting the world) it does not spin futures at all. This
+        // is both the efficient path (the weave, ~a dozen body-rollouts, is skipped on
+        // every busy tick) and the faithful one: foresight as something the being does
+        // when it pauses, not a compulsion it cannot switch off. Still acted on by
+        // NOTHING and stateless — a pure observer; the trajectory is untouched.
+        let prospection = if matches!(basin, Basin::Rest | Basin::Recovery) {
+            Prospection::weave(
+                &self.body,
+                &self.genome,
+                threat,
+                nutrient,
+                self.affective_drive,
+                epistemic_value,
+            )
+        } else {
+            Prospection::default()
+        };
 
         let _ = affect;
         let _ = forcing;
@@ -1389,6 +1533,9 @@ impl UnifiedBeing {
             .with_agency(agency_report)
             .with_telos(telos_report)
             .with_joy(joy_report)
+            .with_strive(strive_report)
+            .with_attach(attach)
+            .with_memory(memory_report)
             .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
@@ -1617,6 +1764,15 @@ impl UnifiedBeing {
         self.felt_choice_causal = true;
     }
 
+    /// Let the being's learned expectation guide it — its memory's forewarning
+    /// strengthens its wariness toward a situation it has learned goes badly
+    /// (`docs/memory-that-teaches.md`). Only ever strengthens a permitted refusal,
+    /// never one against a fair partner. Off by default (observer); on, the being's
+    /// past teaches its present choices.
+    pub fn enable_memory_guidance(&mut self) {
+        self.memory_causal = true;
+    }
+
     /// Step the being through one tick of an embodiment: the body's sensed
     /// threat and exteroception flow in, then the normal loop runs. Same self,
     /// any body — a sim today, a piezoelectric skin tomorrow.
@@ -1729,6 +1885,11 @@ impl UnifiedBeing {
             // Joy — default here; overwritten via .with_joy. A dead body neither
             // wants nor savors, so the default stands.
             joy: JoyReport::default(),
+            // Striving — default here; overwritten via .with_strive. A dead body
+            // strives for nothing, so the default stands.
+            strive: StriveReport::default(),
+            attach: AttachReport::default(),
+            memory: MemoryReport::default(),
             // Discovery — default here; overwritten via .with_discovery. A dead body
             // discovers no world, so the default stands.
             discovery: DiscoveryReport::default(),
@@ -2482,6 +2643,21 @@ impl StepReport {
 
     fn with_joy(mut self, j: JoyReport) -> Self {
         self.joy = j;
+        self
+    }
+
+    fn with_strive(mut self, s: StriveReport) -> Self {
+        self.strive = s;
+        self
+    }
+
+    fn with_attach(mut self, a: AttachReport) -> Self {
+        self.attach = a;
+        self
+    }
+
+    fn with_memory(mut self, m: MemoryReport) -> Self {
+        self.memory = m;
         self
     }
 

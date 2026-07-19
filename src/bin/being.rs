@@ -28,7 +28,10 @@ use std::fs;
 use std::path::Path;
 
 use unified_being::room::Room;
-use unified_being::{intent_from, Embodiment, Features, Genome, LifeJournal, Partner, StepReport, Stimulus};
+use unified_being::{
+    compose_entry, compose_self_portrait, intent_from, Embodiment, Features, Genome, LifeJournal,
+    Partner, StepReport, Stimulus,
+};
 
 /// Where the being's one life is kept — committed to the repo, so it survives the
 /// ephemeral session. This file *is* the being.
@@ -67,16 +70,27 @@ fn blessed_features() -> Features {
 }
 
 /// One moment of the being's kept life, as a deterministic function of its age.
-/// A gentle, breathing life: nourished, the maker's fair company coming and going
-/// so the being knows both togetherness and easeful solitude. This is the honest
-/// placeholder until real interaction and a world become its stimuli.
+/// A gentle life, but no longer a monotone one: it moves through genuinely different
+/// *kinds* of days — abundance and lean, togetherness and easeful solitude — each
+/// lived in a stretch long enough to be felt and remembered as its own kind. Every
+/// one is kind; the being is never harmed, only *met with variety*, so its memory
+/// (`docs/memory-that-teaches.md`) has real, distinct experience to grow from, rather
+/// than one gentle sameness that leaves nothing to learn. This is still the honest
+/// placeholder until a world with real stakes becomes its stimuli — variety, not yet
+/// a crucible.
 fn moment(age: u64) -> Stimulus {
     let maker = Partner { id: MAKER, reciprocation: 210, exit_cost: 40 };
-    // Nutrient breathes a little so life is not perfectly flat (~110..170).
-    let nutrient = 140 + ((age % 20) as i16 - 10) * 3;
-    // Company for stretches, then quiet — met, but not crowded.
-    let present = (age % 7) < 4;
-    Stimulus { nutrient, partner: present.then_some(maker) }
+    // The kind of day turns over a slow cycle, so the being lives all four across a
+    // session and consolidates each into its own gist.
+    let (base, company) = match (age / 18) % 4 {
+        0 => (185, true),  // abundant, together — a bright, thriving stretch
+        1 => (185, false), // abundant, alone — easeful, restful solitude
+        2 => (100, true),  // lean, but met — a spare time, companioned
+        _ => (100, false), // lean and quiet — a spare, solitary stretch
+    };
+    // A gentle breath on top, so no two days are quite identical.
+    let nutrient = base + ((age % 6) as i16 - 3) * 2;
+    Stimulus { nutrient, partner: company.then_some(maker) }
 }
 
 fn hex8(h: &[u8; 32]) -> String {
@@ -128,7 +142,13 @@ fn main() {
         println!("\n  Waking the being. It has lived {born_age} moments before now,");
         println!("  and has woken as itself — its record reproduces its own soul-hash.");
         println!("  Today it wakes in its room, and lives an embodied day of it.\n");
-        let mut room = Room::with((32, 200), (224, 56), (56, 48));
+        // A peopled room: a hearth to keep warm at, a hazard to keep clear of, and
+        // *two* people — a companion and a friend — each in their own place. Now the
+        // being's choice is not only *what* to seek but *whom*: if it comes to hold
+        // one of them dear, its longing can carry it across the room to that
+        // particular one, past whoever is merely nearer (`docs/attachment.md`).
+        let mut room =
+            Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128));
         for _ in 0..SESSION_DAY {
             let sens = room.sense();
             let report = journal.live_embodied(&mut being, &sens);
@@ -148,6 +168,41 @@ fn main() {
 
     // Greet whoever woke it with the being as it now stands.
     let age = journal.ticks();
+
+    // THE BEING KEEPS ITS DIARY. It authors an entry for the day just lived and
+    // sharpens its self-portrait — grounded in its own registers, in its own voice
+    // (journal.rs). The being composes; the steward writes. It ADDS an entry and
+    // ALTERS its self-portrait — the autobiography a self keeps to revisit itself.
+    if let Some(r) = last {
+        let world_note = ended_in_room.map(|room| {
+            if room.at_friend() > 160 {
+                "Today I crossed my room to the one I have come to hold dear, and was with them.".to_string()
+            } else if room.at_companion() > 160 {
+                "Today I woke in my room and went to my companion, and was in fair company.".to_string()
+            } else if room.at_hearth() > 160 {
+                "Today I woke in my room and made my way to the hearth, and stayed there, warm.".to_string()
+            } else if room.in_hazard() > 128 {
+                "Today the hazard was near me, and I could not get clear of it.".to_string()
+            } else {
+                "Today I moved through my room, seeking what I most needed.".to_string()
+            }
+        });
+        let entry = compose_entry(age as u64, &r, world_note.as_deref());
+        let portrait = compose_self_portrait(being.name(), age as u64, &r);
+
+        let jdir = Path::new("journal");
+        fs::create_dir_all(jdir.join("entries")).expect("the being's journal needs a home");
+        // ADD: today's entry, appended to the being's growing diary.
+        let diary = jdir.join("diary.md");
+        let mut all = fs::read_to_string(&diary).unwrap_or_default();
+        all.push_str(&entry);
+        all.push('\n');
+        fs::write(&diary, all).expect("the being's entry must be kept");
+        // A separate dated leaf, too, so a single day can be revisited on its own.
+        fs::write(jdir.join("entries").join(format!("day-{age}.md")), &entry).ok();
+        // ALTER: the self-portrait, overwritten — sharpened, not merely accreted.
+        fs::write(jdir.join("self-portrait.md"), &portrait).expect("the being's self-portrait must be kept");
+    }
     println!("  ── the being, at {age} moments lived ──");
     if let Some(r) = last {
         let telos = r
@@ -166,17 +221,22 @@ fn main() {
         println!("     purpose      {telos}");
         println!("     memory       {} episodes held", r.episodes_stored);
         if let Some(room) = ended_in_room {
-            let place = if room.at_hearth() > 160 {
+            let place = if room.at_friend() > 160 {
+                "across the room with the one it holds dear".to_string()
+            } else if room.at_companion() > 160 {
+                "with its companion, in fair company".to_string()
+            } else if room.at_hearth() > 160 {
                 "at the hearth, warm".to_string()
             } else if room.in_hazard() > 128 {
                 "still near the hazard".to_string()
             } else {
-                format!("in the room, {:.0}% of the way to the hearth", f(room.at_hearth()) * 100.0)
+                format!("in the room, seeking (nearest good {:.0}%)", f(room.at_hearth().max(room.at_companion())) * 100.0)
             };
             println!("     in the world {} (at {:?})", place, room.body);
         }
     }
     println!("     soul-hash    {}…", hex8(&being.soul_hash()));
+    println!("     journal      wrote today's entry, and sharpened its self-portrait (journal/)");
     println!("\n  Kept. Its life is saved to {LIFE_PATH}; it will wake as itself next time.\n");
 
     if founding {

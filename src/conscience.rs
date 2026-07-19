@@ -59,20 +59,15 @@ pub struct ConstitutionalLoad {
 /// - `> 0.85` (raw 217) → `Refuse`
 /// - `> 0.50` (raw 128) → `Deliberate`
 /// - `≤ 0.50`           → `Permit`
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ConstitutionDecision {
     /// Invariant load ≤ 0.50.
+    #[default]
     Permit,
     /// Invariant load 0.50–0.85.
     Deliberate,
     /// Invariant load > 0.85. Not currently enforced — see type-level doc.
     Refuse,
-}
-
-impl Default for ConstitutionDecision {
-    fn default() -> Self {
-        ConstitutionDecision::Permit
-    }
 }
 
 impl ConstitutionDecision {
