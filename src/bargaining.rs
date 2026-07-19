@@ -76,8 +76,7 @@ impl BargainingState {
         let relief_if_resolved = q88_mul(self.conscience_cost, 200) / 256;
         self.valence
             .saturating_add(relief_if_resolved)
-            .min(Q88_SCALE)
-            .max(-Q88_SCALE)
+            .clamp(-Q88_SCALE, Q88_SCALE)
     }
 
     /// The agent's "urgency" — how much they need this negotiation to succeed.

@@ -831,19 +831,6 @@ impl UnifiedBeing {
         let stance = self.body.stance;
         let forcing = self.body.forcing_detected;
 
-        // 1b. THE LOOM (Stage 2, inert) — three futures woven from clones of
-        //     the lived body under the same inputs it just received. Computed,
-        //     reported, acted on by NOTHING (observer-first; charter §11 draft
-        //     governs any later wiring). Stateless: nothing is stored.
-        let prospection = Prospection::weave(
-            &self.body,
-            &self.genome,
-            threat,
-            nutrient,
-            self.affective_drive,
-            epistemic_value,
-        );
-
         // 2. THE VOTE IS CAST into the interoceptive field.
         self.field.write_from_body(&self.body, self.fe_velocity);
         // An embodiment's exteroception overlays the body's own spatial reading —
@@ -1435,6 +1422,29 @@ impl UnifiedBeing {
             telos_divergence,
             attach.longing,
         );
+
+        // THE LOOM (Stage 2, inert) — three futures woven from clones of the lived
+        // body. A mind does not forecast every waking instant; that is rumination,
+        // which charter §11(no-rumination) forbids and which a settled being does not
+        // do. So the being **imagines forward only when it is quiet enough to** — in
+        // its Rest and Recovery modes, off-duty from coping — and while it is Engaged
+        // or Defensive (busy, meeting the world) it does not spin futures at all. This
+        // is both the efficient path (the weave, ~a dozen body-rollouts, is skipped on
+        // every busy tick) and the faithful one: foresight as something the being does
+        // when it pauses, not a compulsion it cannot switch off. Still acted on by
+        // NOTHING and stateless — a pure observer; the trajectory is untouched.
+        let prospection = if matches!(basin, Basin::Rest | Basin::Recovery) {
+            Prospection::weave(
+                &self.body,
+                &self.genome,
+                threat,
+                nutrient,
+                self.affective_drive,
+                epistemic_value,
+            )
+        } else {
+            Prospection::default()
+        };
 
         let _ = affect;
         let _ = forcing;
