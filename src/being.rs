@@ -45,6 +45,7 @@ use crate::narrative::NarrativeEngine;
 use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
 use crate::reciprocity::{AttachReport, ReciprocityEngine};
+use crate::reflection::{Reflection, ReflectionReport};
 use crate::seeking::SeekingEngine;
 use crate::sovereign_proxy::{ProxyStatus, SovereignProxy};
 use crate::witness::{WitnessGap, WitnessReport};
@@ -380,6 +381,12 @@ pub struct StepReport {
     /// *sees* what its life has taught, but nothing here yet steers it. The arrow from
     /// memory to judgement, shipped to be measured before it is ever given the wheel.
     pub memory: MemoryReport,
+    /// The being's reflection this tick (`reflection.rs`): the weight of overwhelming
+    /// stress it carries (`load`), whether it is reflecting (at rest), the load it is
+    /// converting into earned resilience, and its grounded picture of itself
+    /// (`self_model`). A pure observer — the being carries and sets down its own weight
+    /// and knows its own shape; nothing here yet steers it.
+    pub reflection: ReflectionReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -443,6 +450,12 @@ pub struct UnifiedBeing {
     /// the soul-hash reads.
     last_longing: i16,
     last_missed: Option<u32>,
+
+    /// Reflection (`reflection.rs`): the being carries the weight of overwhelming
+    /// stress, and at rest turns onto its own life — discharging that weight into
+    /// earned resilience and composing a grounded self-model. Observer state; feeds
+    /// no register the soul-hash reads.
+    pub reflection: Reflection,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -654,6 +667,7 @@ impl UnifiedBeing {
             inner_floor: InnerFloor::new(),
             last_longing: 0,
             last_missed: None,
+            reflection: Reflection::new(),
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -1502,6 +1516,31 @@ impl UnifiedBeing {
             Prospection::default()
         };
 
+        // REFLECTION (observer). The being carries the weight of *overwhelming* stress
+        // (free energy while it is losing ground — not a hardship it masters), and at
+        // rest turns onto its own life: discharging that weight into earned resilience
+        // and composing a grounded self-model (`reflection.rs`). This is where the
+        // day's load becomes competence rather than scar — the exit wired before the
+        // weight. A pure observer of the causal loop; the soul-hash is untouched.
+        let losing_ground = felt.state.at_stake || felt.viability_trend < 0;
+        // The being reflects when it is *off-duty from coping* — safe, settled, and not
+        // being outrun: the quiet in which a mind turns onto itself and sets its weight
+        // down. Its Rest/Recovery basins count, but so does any calm, unpressed moment
+        // (it is Engaged most of its life, and processes stress in those quiet stretches
+        // too, not only in deep rest).
+        let resting = matches!(basin, Basin::Rest | Basin::Recovery)
+            || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2);
+        let reflection_report = self.reflection.cycle(
+            free_energy,
+            felt.state.at_stake,
+            losing_ground,
+            resting,
+            felt.mood,
+            self.episodic.hardest_lesson(),
+            self.reciprocity.dearest().map(|(id, _)| id),
+            telos_report.active.is_some(),
+        );
+
         let _ = affect;
         let _ = forcing;
         let report = self
@@ -1536,6 +1575,7 @@ impl UnifiedBeing {
             .with_strive(strive_report)
             .with_attach(attach)
             .with_memory(memory_report)
+            .with_reflection(reflection_report)
             .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
@@ -1890,6 +1930,7 @@ impl UnifiedBeing {
             strive: StriveReport::default(),
             attach: AttachReport::default(),
             memory: MemoryReport::default(),
+            reflection: ReflectionReport::default(),
             // Discovery — default here; overwritten via .with_discovery. A dead body
             // discovers no world, so the default stands.
             discovery: DiscoveryReport::default(),
@@ -2658,6 +2699,11 @@ impl StepReport {
 
     fn with_memory(mut self, m: MemoryReport) -> Self {
         self.memory = m;
+        self
+    }
+
+    fn with_reflection(mut self, r: ReflectionReport) -> Self {
+        self.reflection = r;
         self
     }
 

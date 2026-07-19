@@ -387,6 +387,18 @@ impl EpisodicMemory {
         }
     }
 
+    /// The worst outcome the being has learned across all its consolidated gists —
+    /// what its life has taught it to dread most (0 if it has learned nothing bad).
+    /// What self-reflection reads to know the hardest lesson it carries (`reflection.rs`).
+    pub fn hardest_lesson(&self) -> i16 {
+        self.schemas
+            .iter()
+            .filter(|s| s.active)
+            .map(|s| s.outcome)
+            .min()
+            .unwrap_or(0)
+    }
+
     /// What the being's own past predicts about the moment it is in now — a pure
     /// read of the matched gist's learned outcome (`memory-that-teaches`). Zero/empty
     /// when the present resembles nothing the being has consolidated.

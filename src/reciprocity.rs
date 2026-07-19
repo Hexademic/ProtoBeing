@@ -231,6 +231,16 @@ impl ReciprocityEngine {
         self.ledgers.iter().find(|l| l.active && l.id == id).map(|l| l.bond)
     }
 
+    /// The one the being holds most dear — its strongest bond, and how deep — if any.
+    /// What self-reflection reads to know whose absence would weigh on it (`reflection.rs`).
+    pub fn dearest(&self) -> Option<(u32, i16)> {
+        self.ledgers
+            .iter()
+            .filter(|l| l.active && l.bond > 0)
+            .max_by_key(|l| l.bond)
+            .map(|l| (l.id, l.bond))
+    }
+
     /// The being's attachment state this tick, given who (if anyone) is present:
     /// the bond with whoever is here, and — for the most-bonded partner who is
     /// *not* — how much it **longs** for them (bond × how long they have been gone,
