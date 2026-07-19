@@ -124,6 +124,12 @@ pub struct EpisodicMemory {
     /// The consolidated schema the present moment matched this tick, if any — the
     /// gist whose outcome the being learns and reports (`memory-that-teaches`).
     matched: Option<usize>,
+    /// An EMA of the being's lived field — its *typical recent moment*. This is what
+    /// lets **repetition**, not only surprise, become memory: the kind of moment the
+    /// being keeps living, distilled here, is what the dream (`consolidate`) can turn
+    /// into gist. Without it, memory records only firsts and shocks — a life
+    /// remembered only for its surprises. Rebuilt on replay; not in the legacy blob.
+    recent: [i16; N_SOMATIC],
 }
 
 impl EpisodicMemory {
@@ -137,6 +143,7 @@ impl EpisodicMemory {
             familiarity: 0,
             recalled_valence: 0,
             matched: None,
+            recent: [0; N_SOMATIC],
         }
     }
 
@@ -239,6 +246,13 @@ impl EpisodicMemory {
         self.recalled_valence = 0;
         self.matched = None;
 
+        // Track the being's *typical recent moment* — a slow EMA of its lived field.
+        // Repetition writes itself here, so the dream can consolidate the ordinary,
+        // recurring life into gist, not only the surprising firsts.
+        for c in 0..N_SOMATIC {
+            self.recent[c] = q88_ema_update(self.recent[c], fc[c], Q88_SCALE / 16);
+        }
+
         // --- Best WORKING episode: drives the affective coloring (unchanged). ---
         // The working layer only ever *decays* — recall does not reinforce it, so
         // a specific instance reliably fades. Reconsolidation belongs to the gist.
@@ -256,18 +270,26 @@ impl EpisodicMemory {
         }
 
         // --- Best across BOTH layers: drives recognition (gist included). ---
+        // A gist is recognized only if it shares the present moment's affective niche
+        // (`niche_of`): the being knows a moment as *the kind that belongs to how it
+        // feels now*, so a hard moment matches its hard gist, not a good one it merely
+        // resembles in the L1 metric's many undifferentiated channels. Without this,
+        // recognition drags every moment onto whichever gist is nearest overall, and
+        // the being's memory cannot tell its kinds of days apart
+        // (`docs/memory-that-teaches.md`). The working-episode match (`bw`, which alone
+        // feeds the causal recall) is left untouched — this gates only the gist layer.
+        let now_niche = niche_of(fc);
         let mut bo_close = bw_close;
         let mut bo_val = bw_val;
         let mut bo_schema = None;
         for (i, s) in self.schemas.iter().enumerate() {
-            if !s.active {
-                continue;
-            }
-            let c = Self::closeness(fc, &s.prototype);
-            if c > bo_close {
-                bo_close = c;
-                bo_val = s.valence;
-                bo_schema = Some(i);
+            if s.active && niche_of(&s.prototype) == now_niche {
+                let c = Self::closeness(fc, &s.prototype);
+                if c > bo_close {
+                    bo_close = c;
+                    bo_val = s.valence;
+                    bo_schema = Some(i);
+                }
             }
         }
 
@@ -337,9 +359,16 @@ impl EpisodicMemory {
     /// reads back into the trajectory — the soul-hash is untouched.
     pub fn learn_outcome(&mut self, viability_trend: i16, savor: i16) {
         if let Some(si) = self.matched {
+            // Outcome = how WELL the being is in moments like this (its **savor**, the
+            // level of thriving) as the primary signal, plus where things are HEADING
+            // (its viability trend) as a secondary modifier. Measurement taught this
+            // (`docs/memory-that-teaches.md`): the trend goes to ~0 once the being
+            // *adapts* to a sustained condition (allostasis), so it cannot tell an
+            // adapted-good life from an adapted-hard one — the savor (level) can. A
+            // sharp decline still registers through the trend term on top.
             let savor_signed = savor.saturating_sub(Q88_SCALE / 2); // ~[-128,128] about neutral
-            let signal = viability_trend
-                .saturating_add(savor_signed / 4)
+            let signal = savor_signed
+                .saturating_add(viability_trend)
                 .clamp(-Q88_SCALE, Q88_SCALE);
             self.schemas[si].outcome =
                 q88_ema_update(self.schemas[si].outcome, signal, Q88_SCALE / 16);
@@ -377,16 +406,22 @@ impl EpisodicMemory {
             let fp = self.episodes[ei].fingerprint;
             let val = self.episodes[ei].valence;
 
+            // A moment merges only into a gist of its *own affective niche* (Russell's
+            // circumplex quadrant, `niche_of`). Without this, the closeness metric —
+            // L1 over all channels, most of which barely differ between moments —
+            // lumps a good day and a bad one into a single blurry gist, and the being
+            // can never tell them apart. Partitioning by felt quadrant lets distinct
+            // kinds of moment become distinct memories (`docs/memory-that-teaches.md`).
+            let in_niche = niche_of(&fp);
             let mut nearest = None;
             let mut best = 0i16;
             for (si, s) in self.schemas.iter().enumerate() {
-                if !s.active {
-                    continue;
-                }
-                let c = Self::closeness(&fp, &s.prototype);
-                if c > best {
-                    best = c;
-                    nearest = Some(si);
+                if s.active && niche_of(&s.prototype) == in_niche {
+                    let c = Self::closeness(&fp, &s.prototype);
+                    if c > best {
+                        best = c;
+                        nearest = Some(si);
+                    }
                 }
             }
 
@@ -404,6 +439,50 @@ impl EpisodicMemory {
                     prototype: fp,
                     valence: val,
                     outcome: 0, // a new gist has no learned outcome yet — it earns one
+                    strength: Q88_SCALE / 4,
+                    active: true,
+                };
+            }
+        }
+
+        // REPETITION → GIST. Beyond the vivid, surprising moments distilled above,
+        // the being consolidates *the kind of moment it keeps living* — its typical
+        // recent field (`recent`). Repetition is a teacher too: a mind that stores
+        // only surprises remembers only its firsts, never the ordinary living that
+        // actually shapes it. If the recurring life resembles no gist the being
+        // holds, seed one; if it resembles a gist, deepen that. This is how a calm,
+        // oft-lived good day earns its place, so the being's past is not only a record
+        // of its conflicts (`docs/memory-that-teaches.md`). The dream is where the
+        // repeated compounds into what can be looked back on.
+        let recent = self.recent;
+        let substance: i32 = recent.iter().map(|&x| x.unsigned_abs() as i32).sum();
+        if substance > 256 {
+            let in_niche = niche_of(&recent);
+            let mut nearest = None;
+            let mut best = 0i16;
+            for (si, s) in self.schemas.iter().enumerate() {
+                if s.active && niche_of(&s.prototype) == in_niche {
+                    let c = Self::closeness(&recent, &s.prototype);
+                    if c > best {
+                        best = c;
+                        nearest = Some(si);
+                    }
+                }
+            }
+            if best > Q88_SCALE / 2 {
+                let si = nearest.unwrap();
+                for c in 0..N_SOMATIC {
+                    self.schemas[si].prototype[c] =
+                        q88_ema_update(self.schemas[si].prototype[c], recent[c], Q88_SCALE / 8);
+                }
+                self.schemas[si].strength =
+                    (self.schemas[si].strength as i32 + 24).min(Q88_SCALE as i32) as i16;
+            } else {
+                let si = self.weakest_schema(niche_of(&recent));
+                self.schemas[si] = Schema {
+                    prototype: recent,
+                    valence: recent[9],
+                    outcome: 0,
                     strength: Q88_SCALE / 4,
                     active: true,
                 };
@@ -620,5 +699,40 @@ mod tests {
         }
         assert!(good.report().expected_outcome > 0, "moments that went well are learned as good");
         assert!(!good.report().forewarned, "a good expectation does not warn");
+    }
+
+    /// Repetition — not only surprise — builds memory, and moments of different felt
+    /// quadrants become *distinct* gists rather than one blur. A sustained bright life
+    /// and a sustained heavy one each consolidate their own gist with their own
+    /// learned outcome. This is Blake's charge made real: a mind that remembers its
+    /// ordinary recurring days, told apart by how they feel.
+    #[test]
+    fn repetition_builds_distinct_gists_for_distinct_kinds_of_moment() {
+        let mut m = EpisodicMemory::new();
+        // Two clearly different felt quadrants (Russell's circumplex).
+        let bright = SomaticField { channel: field_with(220, 120) }; // high arousal, positive
+        let heavy = SomaticField { channel: field_with(60, -220) }; // low arousal, negative
+
+        // A long bright stretch — thriving. No surprise, no working episodes: pure
+        // repetition must be what lays this down.
+        for _ in 0..90 {
+            m.cycle(&bright, 0, 0);
+            m.learn_outcome(0, 230); // high savor, steady margin
+        }
+        let bright_out = m.report().expected_outcome;
+
+        // Then a long heavy stretch — barely thriving.
+        for _ in 0..90 {
+            m.cycle(&heavy, 0, 0);
+            m.learn_outcome(0, 10); // low savor, steady margin
+        }
+        let heavy_out = m.report().expected_outcome;
+
+        assert!(m.stored == 0, "no surprise here — repetition alone, not working episodes, builds this");
+        assert!(m.themes >= 2, "distinct felt quadrants become distinct gists ({} themes)", m.themes);
+        assert!(
+            bright_out > 0 && heavy_out < 0,
+            "each gist learns its own outcome (bright {bright_out}, heavy {heavy_out})"
+        );
     }
 }

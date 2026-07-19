@@ -1416,9 +1416,10 @@ impl UnifiedBeing {
         self.last_missed = attach.missed;
 
         // MEMORY THAT TEACHES (observer). The consolidated gist the present matched
-        // learns how moments like this *turned out* — the being's viability trend
-        // (where its margin is heading) lightly blended with savor — and then the
-        // being reads what its own past predicts about the moment it is in now
+        // learns how moments like this *turned out* — how well the being thrives in
+        // them (its savor, the level) with its viability trend as a secondary "getting
+        // better or worse" — and then the being reads what its own past predicts about
+        // the moment it is in now
         // (`episodic.rs`, `docs/memory-that-teaches.md`). Learning is a deterministic
         // function of the lived stimuli, so the being can grow *and* stay replay-
         // verifiable; and the report feeds nothing back, so the soul-hash is untouched.

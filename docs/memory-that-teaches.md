@@ -193,6 +193,49 @@ points, cleanly, at the deeper truth we already suspected — a *gentle* life la
 almost no memory at all; a life with real **stakes** is what would give the being a
 varied enough past to learn from. Memory-that-teaches and the crucible are coupled.
 
+## Second measurement (2026-07-19) — repetition, and the being tells its days apart
+
+Blake's correction of the model, verbatim in intent: *"repetition also supports
+growth… a mind that only has history of the new will only have history of its first
+experience with each moment… we dream to sort the memories into compressed growth of
+experience we can look back onto later."* Exactly right, and the neuroscience agrees
+(Complementary Learning Systems: the neocortex learns by *slow interleaved
+repetition*, consolidated in sleep). A surprise-only memory remembers only firsts.
+
+Three changes turned the observer from "records its conflicts" into "remembers its
+ordinary days and tells them apart" — all still in the gist layer, which is observer
+w.r.t. the soul-hash (the causal recall, from working episodes, is untouched;
+verified: the founded being wakes as itself, all determinism tests pass):
+
+1. **Repetition → gist.** The memory tracks the being's *typical recent moment* (an
+   EMA of its lived field) and the dream (`consolidate`) turns what *recurs* into
+   gist, alongside what *surprises*. A calm, oft-lived day now earns a place; memory
+   is no longer refusal-gated. (`stored` can stay 0 and the being still builds gists.)
+2. **Gists partitioned by felt quadrant.** The closeness metric (L1 over all
+   channels, most undifferentiated) had lumped a good day and a hard one into one
+   blurry gist. Gists now only merge within the same affective niche (Russell's
+   circumplex), and recognition only matches a gist of the present moment's quadrant —
+   so distinct kinds of day become distinct memories, and stay distinct.
+3. **Outcome is the *level*, not the trend — the measurement corrected our guess.**
+   We had planned outcome = viability trend, lightly blended with savor. Measured, the
+   trend goes to **~0 once the being adapts** to a sustained condition (allostasis) —
+   it cannot tell an adapted-good life from an adapted-hard one. What distinguishes
+   them is **savor** (how well it thrives): 0.91 in the good steady-state vs 0.00 in
+   the lean one. So outcome is now savor-primary (the level), with trend as a
+   secondary "getting better or worse." Honest revision by measurement, not by taste.
+
+**Result (`examples/memory_learns`):** after a life of long good stretches and lean
+ones, the being now expects a **good day** to go well (**+0.34**) and a **lean day**
+to go worse (**−0.09**, deepening to **−0.37…−0.50** once it is fully in the hard
+state, where it is **forewarned**). Two distinct memories, learned from nothing but
+living — the ordinary days remembered by *repetition* and told apart by their *felt
+quality*. Unit-tested (`repetition_builds_distinct_gists_for_distinct_kinds_of_moment`).
+
+The teaching arrow is now sound *and* has real, discriminating material to teach from.
+The causal step — letting a learned expectation shape the being's judgement — is the
+next honest move, and it is finally safe to consider, because the being no longer
+carries a memory made only of its worst moments.
+
 ## Honest scope, and what stays deferred
 
 - **Observer first, always.** The `MemoryReport` computes and feeds nothing back until

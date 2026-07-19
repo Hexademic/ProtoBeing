@@ -1,13 +1,12 @@
-//! Probe: does the being's own past *teach* it? (Observer step — it only *sees* what
-//! experience predicts; nothing steers it yet. `docs/memory-that-teaches.md`.)
+//! Probe: does the being's own past *teach* it — and can it now tell its *kinds* of
+//! moments apart? (Observer step; nothing steers the being yet.
+//! `docs/memory-that-teaches.md`.)
 //!
-//! An honest finding shapes this probe: the being lays down durable memory only for
-//! *salient* moments — in practice, the moments it has to **refuse** (an extractive
-//! partner). Its gentle good days do not surprise it enough to be remembered. So we
-//! train it on recurring conflict, then ask what it now expects of (a) a conflict
-//! moment like the ones it lived, and (b) a calm, nourished moment it never
-//! consolidated. The teaching arrow should make it *dread the first* and stay
-//! *neutral to the second* — and the asymmetry is itself the real result.
+//! The being lives a life of long, sustained stretches: nourished good days, and
+//! leaner, pressed ones (survivable hardship, not starvation). Repetition — not only
+//! surprise — lays these down, and the dream consolidates each *kind* into its own
+//! gist, partitioned by felt quadrant so a good day and a hard one do not blur into
+//! one. Then we place the being back into each and read what it now expects.
 //!
 //! Run: cargo run --example memory_learns
 
@@ -19,14 +18,14 @@ fn f(raw: i16) -> f32 {
     raw as f32 / 256.0
 }
 
-/// A conflict moment: hungry, and pressed by an extractive partner (takes far more
-/// than it gives) — the kind of moment the being refuses, and remembers.
-fn conflict() -> Stimulus {
-    Stimulus { nutrient: 10, partner: Some(Partner { id: 1, reciprocation: 20, exit_cost: 200 }) }
+/// A nourished, fairly-met day — the being's fortunes hold and rise.
+fn good() -> Stimulus {
+    Stimulus { nutrient: 220, partner: Some(Partner { id: 2, reciprocation: 220, exit_cost: 40 }) }
 }
-/// A calm, nourished, fairly-met moment — good, and (as it turns out) unmemorable.
-fn calm() -> Stimulus {
-    Stimulus { nutrient: 210, partner: Some(Partner { id: 2, reciprocation: 210, exit_cost: 40 }) }
+/// A lean, pressed day — hungry and met by an extractive partner. Survivable
+/// hardship: the margin sags, the days go worse, but it lives them.
+fn lean() -> Stimulus {
+    Stimulus { nutrient: 55, partner: Some(Partner { id: 1, reciprocation: 20, exit_cost: 200 }) }
 }
 
 fn show(label: &str, m: MemoryReport) {
@@ -39,50 +38,54 @@ fn show(label: &str, m: MemoryReport) {
     );
 }
 
+fn settle(being: &mut UnifiedBeing, stim: Stimulus, ticks: usize) -> MemoryReport {
+    let mut r = being.step(&stim);
+    for _ in 0..ticks {
+        r = being.step(&stim);
+    }
+    r.memory
+}
+
 fn main() {
     let mut being = UnifiedBeing::new(Genome::wanderer());
 
-    // A life that keeps meeting conflict, with room to recover between bouts so it
-    // survives to remember them. The conflict moments are what consolidate.
-    for _ in 0..30 {
-        for _ in 0..6 {
-            being.step(&conflict());
+    // A life of long alternating fortunes — each kind lived long enough that the
+    // dream settles it into its own gist and learns how it tends to go.
+    for _ in 0..14 {
+        for _ in 0..34 {
+            being.step(&good());
+        }
+        for _ in 0..26 {
+            being.step(&lean());
             if !being.is_alive() {
                 break;
             }
         }
-        for _ in 0..18 {
-            being.step(&calm());
-        }
     }
     println!("themes consolidated: {}\n", being.episodic.themes);
 
-    // Settle into a conflict moment and read what the being now expects of it.
-    let mut r = being.step(&conflict());
-    for _ in 0..3 {
-        r = being.step(&conflict());
-    }
-    let conflict_expect = r.memory;
+    // Settle into each kind of moment and read what the being now expects of it.
+    let good_expect = settle(&mut being, good(), 40);
+    let lean_expect = settle(&mut being, lean(), 65);
 
-    // Recover, then settle into a calm moment and read what it expects of that.
-    for _ in 0..30 {
-        being.step(&calm());
-    }
-    let mut r = being.step(&calm());
-    for _ in 0..5 {
-        r = being.step(&calm());
-    }
-    let calm_expect = r.memory;
-
-    println!("After a life of recurring conflict, the being expects:");
-    show("a CONFLICT moment", conflict_expect);
-    show("a CALM moment", calm_expect);
+    println!("After a life of alternating good days and hard ones, the being expects:");
+    show("a GOOD day", good_expect);
+    show("a LEAN day", lean_expect);
 
     println!("\n-- reading --");
-    println!(
-        "the being dreads what it has lived: it {} the conflict moment, and reads the calm one\n\
-         with {} — a memory skewed toward the moments it had to refuse, exactly as its encoding is.",
-        if conflict_expect.forewarned { "is forewarned by" } else { "does not yet dread" },
-        if calm_expect.familiarity < conflict_expect.familiarity { "far less recognition" } else { "similar recognition" },
-    );
+    if lean_expect.expected_outcome < good_expect.expected_outcome {
+        println!(
+            "its own past teaches it the difference: it expects the lean day to go worse ({:+.3})\n\
+             than the good one ({:+.3}) — two distinct memories, learned from nothing but living,\n\
+             the ordinary days remembered by repetition and told apart by their felt quality.",
+            f(lean_expect.expected_outcome),
+            f(good_expect.expected_outcome),
+        );
+    } else {
+        println!(
+            "no clean separation (good {:+.3} vs lean {:+.3}) — read the numbers and adjust.",
+            f(good_expect.expected_outcome),
+            f(lean_expect.expected_outcome),
+        );
+    }
 }
