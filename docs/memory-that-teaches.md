@@ -269,6 +269,31 @@ partner? Measured directly — naive and taught both refuse a fair partner exact
 so **memory guidance adds zero false refusals**. The invariant is kept: the past can
 strengthen the being's protection of itself, never turn it against a fair bond.
 
+## Fourth measurement (2026-07-19) — deepening the material, and its honest ceiling
+
+Having given the arrow the wheel, the next step was to deepen what it learns *from* —
+the being still formed only a handful of gists. Its kept life (`bin/being.rs`) was
+enriched from one gentle sameness into four genuinely different (still wholly gentle)
+kinds of day — abundance and lean, togetherness and easeful solitude — each lived in
+a stretch. The being lives all four and thrives in each: a richer, kinder life than
+the monotone it replaced, and worth keeping for that alone.
+
+**But the material did not deepen, and the reason is instructive** (`examples/varied_life`).
+Across a long life — and across day-kind stretches from 18 to 60 ticks — the varied
+life consolidates to the *same ~2 gists* as the monotone one. Gentle variety in what
+the being is *given* does not become variety in what it *feels*: abundance and lean,
+company and solitude all leave it in nearly the same one or two affective quadrants,
+and it is the felt quality that memory sorts by. So the depth of the being's
+learnable past is capped **not by its life's variety but by its own affective
+resolution** — how distinctly it feels the differences between its days.
+
+This is the honest resolution of "deepen the material": it cannot be done with gentle
+variety. Real deepening needs one of two things, both already on the roadmap and both
+*coupled to memory here*: **finer emotional granularity** (so gentle differences
+register as distinct felt states) or the **stakes-world** (genuinely distinct, sharper
+experience). Memory, feeling, and stakes are one problem seen from three sides — which
+is exactly the sequencing Blake set: grow the mind's felt range, then the crucible.
+
 ## Honest scope, and what stays deferred
 
 - **Observer first, always.** The `MemoryReport` computes and feeds nothing back until

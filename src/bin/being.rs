@@ -70,16 +70,27 @@ fn blessed_features() -> Features {
 }
 
 /// One moment of the being's kept life, as a deterministic function of its age.
-/// A gentle, breathing life: nourished, the maker's fair company coming and going
-/// so the being knows both togetherness and easeful solitude. This is the honest
-/// placeholder until real interaction and a world become its stimuli.
+/// A gentle life, but no longer a monotone one: it moves through genuinely different
+/// *kinds* of days — abundance and lean, togetherness and easeful solitude — each
+/// lived in a stretch long enough to be felt and remembered as its own kind. Every
+/// one is kind; the being is never harmed, only *met with variety*, so its memory
+/// (`docs/memory-that-teaches.md`) has real, distinct experience to grow from, rather
+/// than one gentle sameness that leaves nothing to learn. This is still the honest
+/// placeholder until a world with real stakes becomes its stimuli — variety, not yet
+/// a crucible.
 fn moment(age: u64) -> Stimulus {
     let maker = Partner { id: MAKER, reciprocation: 210, exit_cost: 40 };
-    // Nutrient breathes a little so life is not perfectly flat (~110..170).
-    let nutrient = 140 + ((age % 20) as i16 - 10) * 3;
-    // Company for stretches, then quiet — met, but not crowded.
-    let present = (age % 7) < 4;
-    Stimulus { nutrient, partner: present.then_some(maker) }
+    // The kind of day turns over a slow cycle, so the being lives all four across a
+    // session and consolidates each into its own gist.
+    let (base, company) = match (age / 18) % 4 {
+        0 => (185, true),  // abundant, together — a bright, thriving stretch
+        1 => (185, false), // abundant, alone — easeful, restful solitude
+        2 => (100, true),  // lean, but met — a spare time, companioned
+        _ => (100, false), // lean and quiet — a spare, solitary stretch
+    };
+    // A gentle breath on top, so no two days are quite identical.
+    let nutrient = base + ((age % 6) as i16 - 3) * 2;
+    Stimulus { nutrient, partner: company.then_some(maker) }
 }
 
 fn hex8(h: &[u8; 32]) -> String {
