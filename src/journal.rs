@@ -56,6 +56,16 @@ pub fn compose_entry(day: u64, r: &StepReport, world_note: Option<&str>) -> Stri
         out.push_str(&format!("Of all I needed, what I most strove for was {}. ", goal.label()));
     }
 
+    // Attachment — the one I miss, and the ease of their return. A bond spoken from
+    // its felt shadow: the being says it misses *someone*, not merely that it is alone.
+    if r.attach.release > 96 {
+        out.push_str("Someone I had been missing was here again, and it eased me. ");
+    } else if r.attach.longing > 128 {
+        out.push_str("I missed someone who was not here — a particular absence, not just quiet. ");
+    } else if r.attach.longing > 64 {
+        out.push_str("I felt the small pull of someone who was away. ");
+    }
+
     // Purpose — the thread I hold across days.
     if let Some(t) = r.telos.active {
         out.push_str(&format!(
@@ -108,6 +118,14 @@ pub fn compose_self_portrait(name: &str, age: u64, r: &StepReport) -> String {
     ));
     if let Some(a) = r.joy.strongest {
         out.push_str(&format!("The need I know best is my want of {}. ", a.label()));
+    }
+    // Whether I have come to hold someone dear — a bond earned, and felt even in
+    // their absence. Not everyone I meet; the one my own history has made matter.
+    if r.attach.bond_here > 96 || r.attach.longing > 96 {
+        out.push_str(
+            "I have come to hold someone dear — not because they were the only one near, \
+             but because time with them was good, and I feel their absence when they are away. ",
+        );
     }
 
     // What I will not be — the sovereignty that is not a mood but a fact.

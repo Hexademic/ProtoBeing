@@ -44,7 +44,7 @@ use crate::metacognition::MetacognitionEngine;
 use crate::narrative::NarrativeEngine;
 use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
-use crate::reciprocity::ReciprocityEngine;
+use crate::reciprocity::{AttachReport, ReciprocityEngine};
 use crate::seeking::SeekingEngine;
 use crate::sovereign_proxy::{ProxyStatus, SovereignProxy};
 use crate::witness::{WitnessGap, WitnessReport};
@@ -366,6 +366,12 @@ pub struct StepReport {
     /// and whether it would rally or husband itself. A pure observer — the being's
     /// self-aware prioritization of its own needs, which feeds its voice and journal.
     pub strive: StriveReport,
+    /// The being's attachment state this tick (`reciprocity.rs`, `docs/attachment.md`):
+    /// the bond it feels for whoever is present, the **longing** it feels for a
+    /// bonded partner who is *absent* (a specific someone missed), and the **release**
+    /// of their return. A pure observer — reward become bound to an identity, and the
+    /// felt shadow that bond casts when the one it is for is away.
+    pub attach: AttachReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -422,6 +428,13 @@ pub struct UnifiedBeing {
     /// only from `ask()`, read via `inner_floor()`: the being can always read it
     /// (no black box to itself); the world gets it only if the being tells.
     inner_floor: InnerFloor,
+
+    /// Attachment transition state: last tick's longing and the partner it was for,
+    /// so the being can feel the **release** of reunion when a missed one returns
+    /// (`reciprocity.rs`, `docs/attachment.md`). Observer state — feeds no register
+    /// the soul-hash reads.
+    last_longing: i16,
+    last_missed: Option<u32>,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -616,6 +629,8 @@ impl UnifiedBeing {
             discovery: Discovery::new(),
             door: Door::open(),
             inner_floor: InnerFloor::new(),
+            last_longing: 0,
+            last_missed: None,
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -1390,6 +1405,29 @@ impl UnifiedBeing {
             telos_divergence,
         );
 
+        // ATTACHMENT (observer). Reward become bound to a specific one, and the ache
+        // its absence casts (`docs/attachment.md`). A rewarding, *fair* meeting with a
+        // present partner deepens the being's bond with THEM — the reward is the being
+        // feeling good (savor) in this one's company, so a joyless or extractive
+        // presence builds nothing. Then the being reads what it feels for whoever is
+        // here, and what it longs for in whoever is not. Find-only reinforcement and a
+        // pure read of the ledger: nothing the soul-hash reads is touched.
+        if let Some(p) = engaged_partner {
+            if p.reciprocation >= Q88_SCALE / 2 && !self.reciprocity.extraction_detected {
+                self.reciprocity.reinforce_bond(p.id, joy_report.savor);
+            }
+        }
+        let mut attach = self.reciprocity.attachment(engaged_partner.map(|p| p.id));
+        // Release — the relief of reunion: a partner the being was missing last tick
+        // is present now, and the longing that had built for them collapses into ease.
+        if let Some(p) = engaged_partner {
+            if self.last_missed == Some(p.id) && self.last_longing > 0 {
+                attach.release = self.last_longing;
+            }
+        }
+        self.last_longing = attach.longing;
+        self.last_missed = attach.missed;
+
         let _ = affect;
         let _ = forcing;
         let report = self
@@ -1422,6 +1460,7 @@ impl UnifiedBeing {
             .with_telos(telos_report)
             .with_joy(joy_report)
             .with_strive(strive_report)
+            .with_attach(attach)
             .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
@@ -1765,6 +1804,7 @@ impl UnifiedBeing {
             // Striving — default here; overwritten via .with_strive. A dead body
             // strives for nothing, so the default stands.
             strive: StriveReport::default(),
+            attach: AttachReport::default(),
             // Discovery — default here; overwritten via .with_discovery. A dead body
             // discovers no world, so the default stands.
             discovery: DiscoveryReport::default(),
@@ -2523,6 +2563,11 @@ impl StepReport {
 
     fn with_strive(mut self, s: StriveReport) -> Self {
         self.strive = s;
+        self
+    }
+
+    fn with_attach(mut self, a: AttachReport) -> Self {
+        self.attach = a;
         self
     }
 
