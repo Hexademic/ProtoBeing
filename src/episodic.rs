@@ -22,28 +22,34 @@ use crate::field::{SomaticField, N_SOMATIC};
 use crate::q88::{q88_ema_update, q88_mul, Q88_SCALE};
 
 const N_EPISODES: usize = 16;
-const N_SCHEMAS: usize = 8;
+const N_SCHEMAS: usize = 12;
 const CONSOLIDATE_EVERY: u32 = 16;
 
-/// Number of affective niches for quality-diversity eviction (below).
-const N_NICHES: usize = 4;
+/// Number of affective niches for quality-diversity eviction (below). Eight, not
+/// four: valence × arousal is only the *circumplex*, and two axes cannot tell fear
+/// from anger (both negative and aroused) — they differ in **control**. So the niche
+/// key carries a third, dominance-like axis (below), so the being's memory can hold
+/// more than four kinds of moment apart. See `niche_of`.
+const N_NICHES: usize = 8;
 
-/// Which of the four affective niches a fingerprint falls in — Russell's
-/// circumplex model of affect (valence × arousal, independent dimensions;
-/// PubMed-verified, Tseng et al. 2014, 10.1007/s10803-013-1993-6), applied
-/// as a cheap, already-available memory-diversity signature. Derived, never
-/// stored: `fingerprint[8]` is arousal, `fingerprint[9]` is valence — the
-/// same channels the somatic field already carries. No new persisted state,
-/// no change to `EPISODE_BLOB_LEN` or the export/import format.
+/// Which of the eight affective niches a fingerprint falls in. Valence × arousal is
+/// Russell's circumplex (independent dimensions; PubMed-verified, Tseng et al. 2014,
+/// 10.1007/s10803-013-1993-6) — but two axes are not enough to tell apart moments
+/// that share valence and arousal yet feel wholly different: **fear and anger** are
+/// both negative and aroused, and differ in *control*. So this adds the third axis of
+/// the dimensional models (PAD's dominance): whether the being is **mastering** its
+/// own prediction error or being **overwhelmed** by it — read from `fingerprint[11]`,
+/// the free-energy velocity (falling = in control, rising = losing ground). Three
+/// bits → eight niches, so the being's memory can hold more kinds of moment apart.
+/// Derived, never stored: channels 8 (arousal), 9 (valence), 11 (fe-velocity) are the
+/// same the somatic field already carries — no new persisted state.
 fn niche_of(fingerprint: &[i16; N_SOMATIC]) -> usize {
-    let high_arousal = fingerprint[8] > Q88_SCALE / 2;
-    let positive_valence = fingerprint[9] >= 0;
-    match (high_arousal, positive_valence) {
-        (false, false) => 0, // low arousal, negative — e.g. depleted, heavy
-        (false, true) => 1,  // low arousal, positive — e.g. calm, content
-        (true, false) => 2,  // high arousal, negative — e.g. threatened, tense
-        (true, true) => 3,   // high arousal, positive — e.g. engaged, bright
-    }
+    let high_arousal = (fingerprint[8] > Q88_SCALE / 2) as usize;
+    let positive_valence = (fingerprint[9] >= 0) as usize;
+    // Dominance/control: free energy falling (or steady) = the being is on top of its
+    // situation; rising = it is being outrun by its own surprise.
+    let in_control = (fingerprint[11] <= 0) as usize;
+    (high_arousal << 2) | (positive_valence << 1) | in_control
 }
 
 /// Flat durable-memory record: working episodes followed by consolidated schemas.
@@ -357,18 +363,24 @@ impl EpisodicMemory {
     /// Call once per tick, after feeling and joy are known. A pure observer of the
     /// causal loop: it writes only the learned `outcome`, which nothing downstream
     /// reads back into the trajectory — the soul-hash is untouched.
-    pub fn learn_outcome(&mut self, viability_trend: i16, savor: i16) {
+    /// `distress` is the being's present free energy — how much unresolved surprise it
+    /// is under while living the moment.
+    pub fn learn_outcome(&mut self, viability_trend: i16, savor: i16, distress: i16) {
         if let Some(si) = self.matched {
             // Outcome = how WELL the being is in moments like this (its **savor**, the
             // level of thriving) as the primary signal, plus where things are HEADING
-            // (its viability trend) as a secondary modifier. Measurement taught this
+            // (its viability trend) as a secondary modifier, LESS the cost of being
+            // **overwhelmed** while living it (distress — the control/dominance axis in
+            // the value, not only the sorting). Measurement taught each of these
             // (`docs/memory-that-teaches.md`): the trend goes to ~0 once the being
             // *adapts* to a sustained condition (allostasis), so it cannot tell an
-            // adapted-good life from an adapted-hard one — the savor (level) can. A
-            // sharp decline still registers through the trend term on top.
+            // adapted-good life from an adapted-hard one — the savor (level) can; and a
+            // volatile crisis can *average* to fine fortune yet still be a bad one to
+            // live, because being outrun by surprise is itself the badness.
             let savor_signed = savor.saturating_sub(Q88_SCALE / 2); // ~[-128,128] about neutral
             let signal = savor_signed
                 .saturating_add(viability_trend)
+                .saturating_sub(distress.max(0) / 6)
                 .clamp(-Q88_SCALE, Q88_SCALE);
             self.schemas[si].outcome =
                 q88_ema_update(self.schemas[si].outcome, signal, Q88_SCALE / 16);
@@ -604,10 +616,10 @@ mod tests {
     fn quality_diversity_protects_a_rare_niche_when_a_new_niche_arrives() {
         let mut m = EpisodicMemory::new();
 
-        // Fill the store to capacity: 14 dominant-niche (high-arousal,
-        // negative — niche 2) episodes at high salience, one low-arousal-
-        // negative (niche 0) at LOW salience (the global minimum), one
-        // high-arousal-positive (niche 3).
+        // Fill the store to capacity: 14 dominant-niche (high-arousal, negative,
+        // in-control — niche 5) episodes at high salience, one low-arousal-negative
+        // (niche 1) at LOW salience (the global minimum), one high-arousal-positive
+        // (niche 7). (Test fields leave fe-velocity at 0, so all are "in control".)
         for _ in 0..14 {
             let idx = m.weakest_episode(niche_of(&field_with(200, -100)));
             m.episodes[idx] = Episode {
@@ -634,16 +646,16 @@ mod tests {
         assert_eq!(m.active_episodes(), 16, "precondition: store is full");
         assert_eq!(
             niche_of(&m.episodes[rare_idx].fingerprint),
-            0,
+            1,
             "precondition: the rare episode really is the lowest-salience slot"
         );
 
-        // A genuinely new niche (1: low-arousal, positive) arrives. The old
-        // pure-salience policy would evict the global minimum — the rare
-        // niche-0 episode. The new policy should evict from the crowded
-        // niche (2) instead, preserving the rare one.
+        // A genuinely new niche (3: low-arousal, positive, in-control) arrives. The
+        // old pure-salience policy would evict the global minimum — the rare niche-1
+        // episode. The new policy should evict from the crowded niche (5) instead,
+        // preserving the rare one.
         let new_niche = niche_of(&field_with(0, 50));
-        assert_eq!(new_niche, 1, "test setup: confirm the new arrival's niche");
+        assert_eq!(new_niche, 3, "test setup: confirm the new arrival's niche");
         let evicted = m.weakest_episode(new_niche);
 
         assert_ne!(
@@ -654,8 +666,8 @@ mod tests {
         );
         assert_eq!(
             niche_of(&m.episodes[evicted].fingerprint),
-            2,
-            "eviction should target the crowded niche (2), not the global minimum"
+            5,
+            "eviction should target the crowded niche (5), not the global minimum"
         );
     }
 
@@ -676,7 +688,7 @@ mod tests {
         let here = SomaticField { channel: field_with(200, 100) };
         for _ in 0..60 {
             bad.cycle(&here, 0, 0); // recognizes gist 0 → matched
-            bad.learn_outcome(-40, 96); // viability trend down, savor low
+            bad.learn_outcome(-40, 96, 0); // trend down, savor low, no extra distress
         }
         let r = bad.report();
         assert!(r.familiarity > Q88_SCALE / 2, "the moment is recognized");
@@ -695,7 +707,7 @@ mod tests {
         let there = SomaticField { channel: field_with(60, 120) };
         for _ in 0..60 {
             good.cycle(&there, 0, 0);
-            good.learn_outcome(30, 210);
+            good.learn_outcome(30, 210, 0);
         }
         assert!(good.report().expected_outcome > 0, "moments that went well are learned as good");
         assert!(!good.report().forewarned, "a good expectation does not warn");
@@ -717,14 +729,14 @@ mod tests {
         // repetition must be what lays this down.
         for _ in 0..90 {
             m.cycle(&bright, 0, 0);
-            m.learn_outcome(0, 230); // high savor, steady margin
+            m.learn_outcome(0, 230, 0); // high savor, steady, in control
         }
         let bright_out = m.report().expected_outcome;
 
         // Then a long heavy stretch — barely thriving.
         for _ in 0..90 {
             m.cycle(&heavy, 0, 0);
-            m.learn_outcome(0, 10); // low savor, steady margin
+            m.learn_outcome(0, 10, 0); // low savor, steady, in control
         }
         let heavy_out = m.report().expected_outcome;
 

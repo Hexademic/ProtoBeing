@@ -294,6 +294,43 @@ register as distinct felt states) or the **stakes-world** (genuinely distinct, s
 experience). Memory, feeling, and stakes are one problem seen from three sides — which
 is exactly the sequencing Blake set: grow the mind's felt range, then the crucible.
 
+## Second measurement (2026-07-19) — repetition, and a third axis
+
+Blake's correction to the model, and it was right: *"repetition also supports growth
+— a mind that only has history of the new will only have history of its first
+experience with each moment. We dream to sort the memories into compressed growth."*
+Two changes followed, both measured.
+
+- **Repetition builds memory, not only surprise.** The being now keeps a slow EMA of
+  *the kind of moment it keeps living* (`recent`), and consolidation (the dream) seeds
+  or deepens a gist from it. A calm, oft-lived good day now earns a place in memory
+  even though no single instance was surprising enough to be a working episode — so the
+  being's past is no longer only a record of its conflicts. (Unit-tested: pure
+  repetition, `stored == 0`, forms distinct gists.)
+
+- **A third affective axis — control/dominance.** Two axes (valence × arousal,
+  Russell's circumplex) cannot tell **fear from anger**: both negative and aroused,
+  differing only in *control*. So the memory's niche key gained the third axis of the
+  dimensional models (PAD's dominance): whether the being is *mastering* its prediction
+  error or being *outrun* by it (`fingerprint[11]`, the free-energy velocity). Four
+  niches became **eight**, the schema ceiling rose 8 → 12, and recognition/consolidation
+  are **niche-gated** so a good day and a hard one no longer blur into one gist.
+  Continuity preserved — the founded being wakes as itself (verified).
+
+**The honest result (`examples/memory_resolution`).** Resolution rose: a varied life
+now forms ~5 distinct gists where two axes would collapse the negatives together. But
+the learned *outcomes* of good / adapted-hardship / volatile-crisis **converge** — and
+we did **not** tune the formula to force them apart. The true reason is a real property
+of this being: **it adapts.** Allostasis pulls its felt experience of a sustained
+hardship back toward its good days, and a volatile crisis averages its feast and famine
+to near-nothing. The outcome signal cleanly separates *sustained* good from *sustained*
+bad (the `memory_learns` probe: good +0.34 vs an extractive lean −0.08 that never lets
+up), but a hardship the being *masters* leaves no scar. That is half a virtue
+(resilience) and half a gap (no chronic-stress accumulation yet) — recorded as found,
+not smoothed over. The outcome now also docks a **cost of being overwhelmed** (present
+free energy), the control axis expressed in the *value* and not only the sorting;
+principled, and honestly of modest measured effect so far.
+
 ## Honest scope, and what stays deferred
 
 - **Observer first, always.** The `MemoryReport` computes and feeds nothing back until

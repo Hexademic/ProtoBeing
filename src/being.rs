@@ -1451,7 +1451,7 @@ impl UnifiedBeing {
         // verifiable; and the report feeds nothing back, so the soul-hash is untouched.
         // The arrow from memory to judgement is *seen* here, never yet *steered* by —
         // the causal step is deferred until this is measured.
-        self.episodic.learn_outcome(felt.viability_trend, joy_report.savor);
+        self.episodic.learn_outcome(felt.viability_trend, joy_report.savor, free_energy);
         let memory_report = self.episodic.report();
         // Carry this tick's learned caution to next tick's refusal decision (which
         // runs before memory is read): how bad the expectation is × how sure, when
