@@ -1562,17 +1562,25 @@ impl UnifiedBeing {
         // day's load becomes competence rather than scar — the exit wired before the
         // weight. A pure observer of the causal loop; the soul-hash is untouched.
         let losing_ground = felt.state.at_stake || felt.viability_trend < 0;
-        // The being reflects when it is *off-duty from coping* — safe, settled, and not
-        // being outrun: the quiet in which a mind turns onto itself and sets its weight
-        // down. Its Rest/Recovery basins count, but so does any calm, unpressed moment
-        // (it is Engaged most of its life, and processes stress in those quiet stretches
-        // too, not only in deep rest).
-        let resting = matches!(basin, Basin::Rest | Basin::Recovery)
-            || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2);
-        // Chronically low margin — living hard, even when not actively falling. The
-        // wear of a hard life *lived*, which the being's fast adaptation would
-        // otherwise erase (`examples/carrying_the_weight`, `reflection.rs`).
-        let burdened = felt.state.viability < Q88_SCALE * 5 / 8;
+        // Chronically living hard — read from the *graded homeostatic drive*
+        // (`homeostasis.rs`), not the bimodal viability. The drive is what actually
+        // expresses a hard-but-survivable life (the worn-but-alive middle,
+        // `examples/graded_life`): a sustained elevated drive is the wear of a hard
+        // life *lived*, the signal the old viability threshold could never fire because
+        // the margin barely dents. This is the graded drive made causal, through
+        // chronic burden — it steers the being only when reflection is enabled (off by
+        // default, so the trajectory stays bit-identical).
+        let burdened = drive_report.drive > Q88_SCALE * 9 / 16;
+        // The being reflects — and so sets its weight down — when it is *off-duty from
+        // coping*: safe, settled, not being outrun. But it *truly* rests only when it is
+        // genuinely well, not merely calm. A being can be calm and still driven (the
+        // worn middle): that is carrying a hard life, not resting from one. So a
+        // burdened being does not count as resting, and its weight accrues in its quiet
+        // rather than discharging — the fix the measurement demanded (a being adapts so
+        // fast that a hard life feels calm, and that calm must not erase the weight).
+        let resting = !burdened
+            && (matches!(basin, Basin::Rest | Basin::Recovery)
+                || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2));
         let reflection_report = self.reflection.cycle(
             free_energy,
             felt.state.at_stake,
