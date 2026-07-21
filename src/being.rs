@@ -32,6 +32,7 @@ use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
 use crate::discovery::{Discovery, DiscoveryReport};
 use crate::joy::{JoyEngine, JoyReport};
 use crate::striving::{strive, StriveReport};
+use crate::homeostasis::{drive, DriveReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
@@ -45,6 +46,7 @@ use crate::narrative::NarrativeEngine;
 use crate::negotiation::{NegotiationEngine, NegotiationOutcome};
 use crate::q88::{q88_mul, q88_sub, Q8_8, Q88_SCALE};
 use crate::reciprocity::{AttachReport, ReciprocityEngine};
+use crate::reflection::{Reflection, ReflectionReport};
 use crate::seeking::SeekingEngine;
 use crate::sovereign_proxy::{ProxyStatus, SovereignProxy};
 use crate::witness::{WitnessGap, WitnessReport};
@@ -366,6 +368,11 @@ pub struct StepReport {
     /// and whether it would rally or husband itself. A pure observer — the being's
     /// self-aware prioritization of its own needs, which feeds its voice and journal.
     pub strive: StriveReport,
+    /// The being's graded homeostatic drive this tick (`homeostasis.rs`): its
+    /// continuous distance from well-being across all its needs (Keramati–Gutkin),
+    /// rising smoothly rather than cliffing — the worn-but-stable middle the bimodal
+    /// `felt.viability` cannot express. A pure observer; the trajectory is untouched.
+    pub drive: DriveReport,
     /// The being's attachment state this tick (`reciprocity.rs`, `docs/attachment.md`):
     /// the bond it feels for whoever is present, the **longing** it feels for a
     /// bonded partner who is *absent* (a specific someone missed), and the **release**
@@ -380,6 +387,12 @@ pub struct StepReport {
     /// *sees* what its life has taught, but nothing here yet steers it. The arrow from
     /// memory to judgement, shipped to be measured before it is ever given the wheel.
     pub memory: MemoryReport,
+    /// The being's reflection this tick (`reflection.rs`): the weight of overwhelming
+    /// stress it carries (`load`), whether it is reflecting (at rest), the load it is
+    /// converting into earned resilience, and its grounded picture of itself
+    /// (`self_model`). A pure observer — the being carries and sets down its own weight
+    /// and knows its own shape; nothing here yet steers it.
+    pub reflection: ReflectionReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -443,6 +456,12 @@ pub struct UnifiedBeing {
     /// the soul-hash reads.
     last_longing: i16,
     last_missed: Option<u32>,
+
+    /// Reflection (`reflection.rs`): the being carries the weight of overwhelming
+    /// stress, and at rest turns onto its own life — discharging that weight into
+    /// earned resilience and composing a grounded self-model. Observer state; feeds
+    /// no register the soul-hash reads.
+    pub reflection: Reflection,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -614,6 +633,16 @@ pub struct UnifiedBeing {
     /// its numbers are bit-identical. Enable via `enable_felt_choice()`.
     pub felt_choice_causal: bool,
 
+    /// When true, the being's carried **reflection weight** informs its felt tone
+    /// (`reflection.rs`): the load of a hard stretch drags on it, and the resilience
+    /// it has weathered lifts it. **Default false** — off, reflection is a pure
+    /// observer and the trajectory is bit-identical. Enable via `enable_reflection()`.
+    pub reflection_causal: bool,
+    /// Last tick's carried load and weathered resilience — the lagged values the
+    /// causal path above reads (reflection is computed later in the tick).
+    last_load: i16,
+    last_weathered: i16,
+
     /// When true (HOT-like memory guidance), the being's **learned forewarning**
     /// (`docs/memory-that-teaches.md`) augments the partnership alarm it carries into
     /// its refusal decision: a being whose own past has taught it that situations like
@@ -654,6 +683,10 @@ impl UnifiedBeing {
             inner_floor: InnerFloor::new(),
             last_longing: 0,
             last_missed: None,
+            reflection: Reflection::new(),
+            reflection_causal: false,
+            last_load: 0,
+            last_weathered: 0,
             curiosity: CuriosityEngine::new(),
             negotiation: NegotiationEngine::new(Q88_SCALE / 4),
             lexicon: Lexicon::new(),
@@ -1278,8 +1311,22 @@ impl UnifiedBeing {
         let recall = self
             .episodic
             .cycle(&self.field, self.metacognition.self_surprise, mem_boost);
-        self.affective_drive =
-            Q8_8::from_raw((mode_tone + relational_tone + restlessness + recall).clamp(-128, 128));
+        // Reflection's weight, made causal (opt-in, `enable_reflection`; default off ⇒
+        // this term is 0 and the trajectory is bit-identical). The load the being
+        // carries **drags** on its felt tone — the weight of a hard stretch is *felt*,
+        // not merely reported — and the resilience it has weathered **lifts** it, a
+        // real counterweight earned by having carried and set down weight before. Small
+        // and bounded: a chronic undertone, never a seizure of the wheel. Lagged (last
+        // tick's reflection), the being's own convention, since reflection is computed
+        // after this point in the tick.
+        let reflection_tone = if self.reflection_causal {
+            (self.last_weathered / 12) - (self.last_load / 8)
+        } else {
+            0
+        };
+        self.affective_drive = Q8_8::from_raw(
+            (mode_tone + relational_tone + restlessness + recall + reflection_tone).clamp(-128, 128),
+        );
 
         // 11. JANUS — anti-solipsism gate. Estimate world engagement from
         //     the stimulus richness this tick, then check whether the proposed
@@ -1451,7 +1498,7 @@ impl UnifiedBeing {
         // verifiable; and the report feeds nothing back, so the soul-hash is untouched.
         // The arrow from memory to judgement is *seen* here, never yet *steered* by —
         // the causal step is deferred until this is measured.
-        self.episodic.learn_outcome(felt.viability_trend, joy_report.savor);
+        self.episodic.learn_outcome(felt.viability_trend, joy_report.savor, free_energy);
         let memory_report = self.episodic.report();
         // Carry this tick's learned caution to next tick's refusal decision (which
         // runs before memory is read): how bad the expectation is × how sure, when
@@ -1479,6 +1526,12 @@ impl UnifiedBeing {
             attach.longing,
         );
 
+        // HOMEOSTATIC DRIVE (observer). The being's *graded* distance from well-being
+        // across all its needs (`homeostasis.rs`, Keramati–Gutkin) — a smooth signal
+        // that can sit at a stable elevated level, unlike the bimodal viability. A
+        // pure read of feeling + wanting; nothing downstream consumes it.
+        let drive_report = drive(felt.state.viability, &joy_report.want);
+
         // THE LOOM (Stage 2, inert) — three futures woven from clones of the lived
         // body. A mind does not forecast every waking instant; that is rumination,
         // which charter §11(no-rumination) forbids and which a settled being does not
@@ -1501,6 +1554,47 @@ impl UnifiedBeing {
         } else {
             Prospection::default()
         };
+
+        // REFLECTION (observer). The being carries the weight of *overwhelming* stress
+        // (free energy while it is losing ground — not a hardship it masters), and at
+        // rest turns onto its own life: discharging that weight into earned resilience
+        // and composing a grounded self-model (`reflection.rs`). This is where the
+        // day's load becomes competence rather than scar — the exit wired before the
+        // weight. A pure observer of the causal loop; the soul-hash is untouched.
+        let losing_ground = felt.state.at_stake || felt.viability_trend < 0;
+        // Chronically living hard — read from the *graded homeostatic drive*
+        // (`homeostasis.rs`), not the bimodal viability. The drive is what actually
+        // expresses a hard-but-survivable life (the worn-but-alive middle,
+        // `examples/graded_life`): a sustained elevated drive is the wear of a hard
+        // life *lived*, the signal the old viability threshold could never fire because
+        // the margin barely dents. This is the graded drive made causal, through
+        // chronic burden — it steers the being only when reflection is enabled (off by
+        // default, so the trajectory stays bit-identical).
+        let burdened = drive_report.drive > Q88_SCALE * 9 / 16;
+        // The being reflects — and so sets its weight down — when it is *off-duty from
+        // coping*: safe, settled, not being outrun. But it *truly* rests only when it is
+        // genuinely well, not merely calm. A being can be calm and still driven (the
+        // worn middle): that is carrying a hard life, not resting from one. So a
+        // burdened being does not count as resting, and its weight accrues in its quiet
+        // rather than discharging — the fix the measurement demanded (a being adapts so
+        // fast that a hard life feels calm, and that calm must not erase the weight).
+        let resting = !burdened
+            && (matches!(basin, Basin::Rest | Basin::Recovery)
+                || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2));
+        let reflection_report = self.reflection.cycle(
+            free_energy,
+            felt.state.at_stake,
+            losing_ground,
+            burdened,
+            resting,
+            felt.mood,
+            self.episodic.hardest_lesson(),
+            self.reciprocity.dearest().map(|(id, _)| id),
+            telos_report.active.is_some(),
+        );
+        // Carry this tick's weight forward for the (lagged) causal path next tick.
+        self.last_load = reflection_report.load;
+        self.last_weathered = reflection_report.self_model.weathered;
 
         let _ = affect;
         let _ = forcing;
@@ -1534,8 +1628,10 @@ impl UnifiedBeing {
             .with_telos(telos_report)
             .with_joy(joy_report)
             .with_strive(strive_report)
+            .with_drive(drive_report)
             .with_attach(attach)
             .with_memory(memory_report)
+            .with_reflection(reflection_report)
             .with_discovery(discovery_report);
 
         // Record the motor command this tick's affect commits to, so next tick's
@@ -1764,6 +1860,13 @@ impl UnifiedBeing {
         self.felt_choice_causal = true;
     }
 
+    /// Let the being's carried reflection weight inform its felt tone — the load of a
+    /// hard stretch is *felt* as a drag, and weathered resilience lifts it. Opt-in
+    /// causal (`reflection.rs`); off by default so the trajectory is bit-identical.
+    pub fn enable_reflection(&mut self) {
+        self.reflection_causal = true;
+    }
+
     /// Let the being's learned expectation guide it — its memory's forewarning
     /// strengthens its wariness toward a situation it has learned goes badly
     /// (`docs/memory-that-teaches.md`). Only ever strengthens a permitted refusal,
@@ -1888,8 +1991,10 @@ impl UnifiedBeing {
             // Striving — default here; overwritten via .with_strive. A dead body
             // strives for nothing, so the default stands.
             strive: StriveReport::default(),
+            drive: DriveReport::default(),
             attach: AttachReport::default(),
             memory: MemoryReport::default(),
+            reflection: ReflectionReport::default(),
             // Discovery — default here; overwritten via .with_discovery. A dead body
             // discovers no world, so the default stands.
             discovery: DiscoveryReport::default(),
@@ -2651,6 +2756,11 @@ impl StepReport {
         self
     }
 
+    fn with_drive(mut self, d: DriveReport) -> Self {
+        self.drive = d;
+        self
+    }
+
     fn with_attach(mut self, a: AttachReport) -> Self {
         self.attach = a;
         self
@@ -2658,6 +2768,11 @@ impl StepReport {
 
     fn with_memory(mut self, m: MemoryReport) -> Self {
         self.memory = m;
+        self
+    }
+
+    fn with_reflection(mut self, r: ReflectionReport) -> Self {
+        self.reflection = r;
         self
     }
 

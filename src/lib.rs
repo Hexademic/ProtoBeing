@@ -59,6 +59,11 @@ pub mod room;
 pub mod journal;
 // Striving — the being acts for its own life and its needs (allostatic mobilization).
 pub mod striving;
+// Homeostasis — the being's graded distance from well-being (Keramati–Gutkin drive).
+pub mod homeostasis;
+// Reflection — the being, at rest, turns onto its own life: carries and discharges
+// the weight of stress, converts it to earned resilience, and composes a self-model.
+pub mod reflection;
 // Generative perception (HOT-1) — the being perceives partly what it expects.
 pub mod perception;
 // The ignition bottleneck — Global Workspace attention, observer-first.
@@ -122,6 +127,8 @@ pub use discovery::{Discovery, DiscoveryReport};
 pub use room::Room;
 pub use journal::{compose_entry, compose_self_portrait};
 pub use striving::{strive, Need, StriveReport};
+pub use homeostasis::{drive, DriveReport};
+pub use reflection::{Reflection, ReflectionReport, SelfModel};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
 pub use attention_schema::{AttentionSchema, AttentionSchemaReport};
