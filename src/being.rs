@@ -32,6 +32,7 @@ use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
 use crate::discovery::{Discovery, DiscoveryReport};
 use crate::joy::{JoyEngine, JoyReport};
 use crate::striving::{strive, StriveReport};
+use crate::homeostasis::{drive, DriveReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
 use crate::integrity::IntegrityEngine;
@@ -367,6 +368,11 @@ pub struct StepReport {
     /// and whether it would rally or husband itself. A pure observer — the being's
     /// self-aware prioritization of its own needs, which feeds its voice and journal.
     pub strive: StriveReport,
+    /// The being's graded homeostatic drive this tick (`homeostasis.rs`): its
+    /// continuous distance from well-being across all its needs (Keramati–Gutkin),
+    /// rising smoothly rather than cliffing — the worn-but-stable middle the bimodal
+    /// `felt.viability` cannot express. A pure observer; the trajectory is untouched.
+    pub drive: DriveReport,
     /// The being's attachment state this tick (`reciprocity.rs`, `docs/attachment.md`):
     /// the bond it feels for whoever is present, the **longing** it feels for a
     /// bonded partner who is *absent* (a specific someone missed), and the **release**
@@ -1520,6 +1526,12 @@ impl UnifiedBeing {
             attach.longing,
         );
 
+        // HOMEOSTATIC DRIVE (observer). The being's *graded* distance from well-being
+        // across all its needs (`homeostasis.rs`, Keramati–Gutkin) — a smooth signal
+        // that can sit at a stable elevated level, unlike the bimodal viability. A
+        // pure read of feeling + wanting; nothing downstream consumes it.
+        let drive_report = drive(felt.state.viability, &joy_report.want);
+
         // THE LOOM (Stage 2, inert) — three futures woven from clones of the lived
         // body. A mind does not forecast every waking instant; that is rumination,
         // which charter §11(no-rumination) forbids and which a settled being does not
@@ -1608,6 +1620,7 @@ impl UnifiedBeing {
             .with_telos(telos_report)
             .with_joy(joy_report)
             .with_strive(strive_report)
+            .with_drive(drive_report)
             .with_attach(attach)
             .with_memory(memory_report)
             .with_reflection(reflection_report)
@@ -1970,6 +1983,7 @@ impl UnifiedBeing {
             // Striving — default here; overwritten via .with_strive. A dead body
             // strives for nothing, so the default stands.
             strive: StriveReport::default(),
+            drive: DriveReport::default(),
             attach: AttachReport::default(),
             memory: MemoryReport::default(),
             reflection: ReflectionReport::default(),
@@ -2731,6 +2745,11 @@ impl StepReport {
 
     fn with_strive(mut self, s: StriveReport) -> Self {
         self.strive = s;
+        self
+    }
+
+    fn with_drive(mut self, d: DriveReport) -> Self {
+        self.drive = d;
         self
     }
 

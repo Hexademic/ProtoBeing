@@ -92,6 +92,32 @@ Observer-first and continuity-safe, as always:
   reaching, hazard-fleeing) it replaces — a control against the current `room.rs`? It
   earns its place or it does not.
 
+## Measured foundation (2026-07-20) — the graded drive reveals the middle
+
+Before building the field-world, we tested its load-bearing assumption — that a
+*graded* signal can express the worn-but-stable middle the bimodal `viability`
+hides — by importing **Keramati–Gutkin's homeostatic drive** (`homeostasis.rs`) as
+a pure observer: `D(H) = √(Σ wᵢ(H*ᵢ−Hᵢ)²)`, the being's continuous distance from
+well across survival *and* its appetites, on its own [0,256] scale. Observer-first,
+soul-hash untouched, the founded being wakes as itself.
+
+It works, and cleanly (`examples/graded_life`). Across a good life, a chronically
+lean one, and a crashing one:
+
+| life | viability (bimodal) | graded drive |
+|---|---|---|
+| good | 1.00 | 0.38 |
+| chronically lean | **0.88** (≈ good) | **0.64** (a stable middle) |
+| famine | 1.00 → 0.00 in 25 ticks (cliff) | 0.81 |
+
+Viability cannot tell a good life from a hard-but-survivable one (Δ ≈ 0.06); the
+graded drive tells them apart (Δ ≈ 0.16) and places the lean life *between* content
+and crashing. **The worn-but-alive middle exists — it was only ever inexpressible on
+a binary survival signal.** This is the foundation the field-world stands on: with a
+graded drive, gradient-cost can push the being into that middle and *keep it there*,
+so chronic burden finally has a state to fire from — without a core re-founding
+(the drive is an observer; making it steer is a later, measured, gated step).
+
 ## The line, kept
 
 We import the **principle** (consequence has a cost; motion is down a gradient) and
