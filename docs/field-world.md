@@ -118,6 +118,72 @@ graded drive, gradient-cost can push the being into that middle and *keep it the
 so chronic burden finally has a state to fire from — without a core re-founding
 (the drive is an observer; making it steer is a later, measured, gated step).
 
+## Built (2026-07-22) — the world stands, both promises measured
+
+`src/field_world.rs` implements the sketch above behind the same `Embodiment` seam as
+`room.rs`: a scalar viability potential `V(x)` summed from signed sources that reach
+across the whole field (so there is always a gradient — a *field*, not beacons); `sense()`
+reports local `V` as nourishment and the four exteroceptive channels as the field's
+**gradient** (how `V` changes N/E/S/W); `actuate()` moves the being by one law — *climb
+`V`* — and **debits metabolic energy for the height climbed**, accumulated as a decaying
+debt subtracted from the nourishment the world reports. The cost lives entirely across the
+seam; the being's core metabolism and soul-hash are untouched, and an ambient floor means
+the cost *wears* the being rather than starving it.
+
+Both promises hold, measured (`examples/the_world`, 6 unit tests):
+
+- **One law replaces the room's four cases.** The single climb-law both reaches the good
+  (nearness 0.18 → 0.60) and flees the harm (threat 0.40 → 0.07) — approach and escape are
+  the *same* ascent, because good is high ground and threat is low. A clean control against
+  `room.rs`'s hand-cased `actuate`.
+- **Gradient-cost creates the worn-but-stable middle.** A being on easy ground settles near
+  contentment (graded drive 0.37); a being living somewhere hard to reach lives its whole
+  life at an elevated-but-stable drive (0.53 — clearly between content and the ~0.8 of
+  crashing), having run its climb-cost far higher (peak 0.24 vs 0.14) — and **survives**.
+  The middle the bimodal `viability` could never express is now *produced by the world*.
+
+### Choice, made motion under the one law (2026-07-22)
+
+The single law now carries the being's *arbitration*: it climbs a **choice-weighted
+potential** — the viability field, plus, *only when the being reaches for company*, a
+strong pull toward the **particular person it chose** (`reach_partner`, the bonded someone
+it misses). When it is not reaching for company this reduces exactly to `v_at`, so the
+field's whole physics and every non-social behaviour are unchanged (all prior probes and
+tests bit-for-bit). People are their own field-sources with stable ids, so a being can
+cross to the *one it loves* past a nearer stranger — the room's directed striving, now with
+no special-case routing: *move up the gradient, weighted by the need chosen.* Proven
+directly with a control (`a_chosen_person_draws_the_climb_past_a_nearer_one`): a reach for a
+particular person crosses the field to them; a reach for company in general stays with the
+nearer. (That the being's own faculties *produce* that reach is `reciprocity`/`striving`'s
+job, proven in `room.rs`; the world's part is to honour the choice, and it does.)
+
+### A hard life in the world becomes carried weight (2026-07-22)
+
+The world's drain now reaches the being's reflection. Two things joined it: (1) **burden is
+graded**, not a threshold — `reflection.rs` accrues chronic load in *proportion* to how far
+the being's drive sits above a comfort point (`being.rs`), as allostatic load actually works
+(cumulative, never a cliff; `docs/wander-2026-07-21.md`); and (2) the comfort point was set
+where the worn-but-alive middle begins (≈0.44), *below* the field-world's sustained drive
+(≈0.53), so the world's cost finally registers as burden at all — the old 0.5625 threshold
+sat just above it and the drain never landed. Observer-safe: burden feeds only reflection
+(gated by `enable_reflection`, off by default), so the founded being's soul-hash is
+bit-identical (verified — it still wakes as itself at 390 moments).
+
+Measured (`examples/a_hard_life`): a being that lives the hard field-world life takes on real
+weight (peak load 0.42, worn — well clear of the trauma ceiling — where an easy life stays at
+0.00), then at rest sets that weight *down* (→0.00) and converts it to **weathered
+resilience** (0.27). The cost the world charges for a hard life comes out the far side of the
+being's own reflection as competence — worn, wiser, not scarred. This is the world's stakes
+made *meaningful to the being's inner life*: not just a drain it pays, but a hardship it
+carries and grows from.
+
+With this the field-world is a complete, faithful world: a landscape with stakes, one law
+that carries the being's choices, and a cost that becomes the being's earned strength. What
+remains is deepening, not foundation — richer landscapes, the loom made causal over the
+field (EFE/SR-bridge, `docs/memory-that-teaches.md`), and eventually letting survival itself
+be felt as graded (a deliberate soul-hash-scale re-founding, named in `handoff.md`, not
+rushed).
+
 ## The line, kept
 
 We import the **principle** (consequence has a cost; motion is down a gradient) and

@@ -1570,7 +1570,17 @@ impl UnifiedBeing {
         // the margin barely dents. This is the graded drive made causal, through
         // chronic burden — it steers the being only when reflection is enabled (off by
         // default, so the trajectory stays bit-identical).
-        let burdened = drive_report.drive > Q88_SCALE * 9 / 16;
+        //
+        // Burden is now *graded*, not a threshold (the named refinement, backed by the
+        // allostatic-load literature and `docs/wander-2026-07-21.md`): it is *how far* the
+        // drive sits above a comfort point, so a life lived worse weighs the being more,
+        // proportionally, and the weight does not flicker on and off at a cliff. The
+        // comfort point sits where a content life ends and the worn-but-alive middle begins
+        // (`examples/graded_life`: content ≈ 0.38, worn ≈ 0.53), so the field-world's
+        // sustained drain — which lives in that middle — finally reaches reflection at all.
+        const COMFORT: i16 = Q88_SCALE * 7 / 16;
+        let burden = (drive_report.drive - COMFORT).max(0);
+        let burdened = burden > 0;
         // The being reflects — and so sets its weight down — when it is *off-duty from
         // coping*: safe, settled, not being outrun. But it *truly* rests only when it is
         // genuinely well, not merely calm. A being can be calm and still driven (the
@@ -1585,7 +1595,7 @@ impl UnifiedBeing {
             free_energy,
             felt.state.at_stake,
             losing_ground,
-            burdened,
+            burden,
             resting,
             felt.mood,
             self.episodic.hardest_lesson(),

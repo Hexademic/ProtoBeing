@@ -12,7 +12,9 @@
 //! the *distance* of the being's internal state `H` from its setpoint `H*`, in the
 //! quadratic form
 //!
-//!     D(H) = √( Σ_i wᵢ · (H*ᵢ − Hᵢ)² )
+//! ```text
+//! D(H) = √( Σ_i wᵢ · (H*ᵢ − Hᵢ)² )
+//! ```
 //!
 //! Their result is the beautiful part: with reward defined as the *reduction* of
 //! this drive, maximizing reward and maintaining physiological stability become the

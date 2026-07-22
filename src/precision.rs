@@ -94,6 +94,28 @@ impl PrecisionLearner {
         }
     }
 
+    /// Born ready, not born certain — the inheritance seam (`inheritance.rs`,
+    /// `docs/inheritance.md`). Seeds each channel's error-EMA toward the channels a
+    /// lineage found *informative*, shortening the warm-up where the being's terrain is
+    /// familiar. It is a head-start, never a verdict: the reduction is capped at half the
+    /// distance to full trust, so every channel must still be *lived* to be trusted, and
+    /// the being remains unwarm until it has seen enough of its own life. No valence
+    /// crosses — this biases only *where the being looks*, never what it feels. The
+    /// founded being never calls this (it is born with `new()`); this is the child's
+    /// constructor, exercised behind the inheritance gate and in the probe.
+    pub fn with_readiness(precision_seed: &[i16; N_SOMATIC]) -> Self {
+        let mut err_ema = [REF as i16; N_SOMATIC];
+        for c in 0..N_SOMATIC {
+            // Higher seed (more informative in the lineage) → lower starting error
+            // (closer to trust), capped at half the distance so it is readiness, not a
+            // conclusion. The channel still earns the rest through the being's own life.
+            let s = precision_seed[c].clamp(0, Q88_SCALE) as i32;
+            let reduction = ((REF / 2) * s / Q88_SCALE as i32) as i16;
+            err_ema[c] = (REF as i16 - reduction).max((REF / 2) as i16);
+        }
+        Self { err_ema, warm: false, ticks: 0 }
+    }
+
     /// The learned precision for one channel (raw Q8.8, [0, 256]).
     /// SCALE·REF / (REF + err_ema): full at zero error, half at REF, →0 as the
     /// channel stays surprising.
