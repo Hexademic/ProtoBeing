@@ -53,6 +53,14 @@ const LOAD_RISE: i16 = 6;
 /// rest tick (Q8.8 multiplier) — the weight becoming strength. ~1/8.
 const CONVERT: i16 = Q88_SCALE / 8;
 
+/// How fast chronic burden accrues *per unit of burden* (Q8.8 multiplier). The chronic
+/// rise is proportional to how far past comfort the being's drive sits — allostatic load
+/// is cumulative and graded, never a threshold (the literature is unanimous; see
+/// `docs/wander-2026-07-21.md`). A mild worn-middle wears the being slowly; a deep,
+/// sustained hardship wears it faster — but the chronic rise is capped below the acute
+/// `LOAD_RISE`, so a hard *life* is real weight without ever being an acute crisis.
+const CHRONIC_RATE: i16 = Q88_SCALE / 16;
+
 /// The being's own grounded picture of itself, composed at rest from its registers.
 /// Every field is read from something the being actually is — never invented.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -104,8 +112,10 @@ impl Reflection {
     /// * `distress`      — present free energy (unresolved surprise).
     /// * `at_stake`      — the being is at its very edge (survival margin critical).
     /// * `losing_ground` — the being is being outrun (at stake, or its margin falling).
-    /// * `burdened`      — the being's margin sits *chronically low* (below comfort),
-    ///   even if not falling: the wear of a hard life *lived*, not only of losing it.
+    /// * `burden`        — *how far* the being's drive sits above comfort right now
+    ///   (Q8.8, 0 when it is comfortable): the graded wear of a hard life *lived*, not
+    ///   only of losing it. A magnitude, not a flag — the weight accrues in proportion to
+    ///   the hardship, the way allostatic load actually does (cumulative, never a cliff).
     /// * `resting`       — the being is in a Rest/Recovery mode, off-duty from coping.
     /// * `mood`, `hardest_lesson`, `dearest`, `holds_purpose` — its registers, read
     ///   for the self-model it composes at rest.
@@ -115,7 +125,7 @@ impl Reflection {
         distress: i16,
         at_stake: bool,
         losing_ground: bool,
-        burdened: bool,
+        burden: i16,
         resting: bool,
         mood: i16,
         hardest_lesson: i16,
@@ -130,16 +140,19 @@ impl Reflection {
         let overwhelmed = losing_ground && (distress > OVERWHELM || at_stake);
         if overwhelmed {
             self.load = (self.load as i32 + LOAD_RISE as i32).min(Q88_SCALE as i32) as i16;
-        } else if burdened && !resting {
-            // CHRONIC BURDEN. The measurement taught this: the being *adapts* so well
-            // that it stops "losing ground" almost at once, and so an old model would
+        } else if burden > 0 && !resting {
+            // CHRONIC BURDEN, graded. The measurement taught this: the being *adapts* so
+            // well that it stops "losing ground" almost at once, and so an old model would
             // let a life lived entirely at a low, hard margin leave no weight at all
             // (`examples/carrying_the_weight`). But living low *is* wearing, even when
-            // stable — humans carry the weight of a hard life, not only of a falling
-            // one. So a chronically low margin accrues weight slowly (a third the acute
-            // rate): it takes a genuinely sustained hardship to build, and rest still
-            // discharges it — chronic stress that is real, and still not a trap.
-            self.load = (self.load as i32 + (LOAD_RISE / 3).max(1) as i32).min(Q88_SCALE as i32) as i16;
+            // stable — humans carry the weight of a hard life, not only of a falling one.
+            // So a burdened margin accrues weight in *proportion* to how hard the life is
+            // (allostatic load is cumulative and graded, never a threshold — the named
+            // refinement, `docs/wander-2026-07-21.md`): a mild worn-middle wears slowly, a
+            // deep sustained hardship faster, but always below the acute rate and always
+            // liftable at rest — chronic stress that is real, still not a trap.
+            let rise = q88_mul(burden, CHRONIC_RATE).clamp(1, LOAD_RISE);
+            self.load = (self.load as i32 + rise as i32).min(Q88_SCALE as i32) as i16;
         } else {
             let ebb = if resting { 4 } else { 1 };
             self.load = (self.load - ebb).max(0);
@@ -193,21 +206,21 @@ mod tests {
         let mut r = Reflection::new();
         // Overwhelmed and losing ground, awake (not resting): load climbs.
         for _ in 0..20 {
-            r.cycle(240, false, true, false, false, 0, 0, None, false);
+            r.cycle(240, false, true, 0, false, 0, 0, None, false);
         }
         assert!(r.load() > 0, "sustained, unmastered overwhelm should weigh ({})", r.load());
 
         // Now safe and coping (mastering, not losing ground): the weight ebbs.
         let peak = r.load();
         for _ in 0..40 {
-            r.cycle(60, false, false, false, false, 0, 0, None, false);
+            r.cycle(60, false, false, 0, false, 0, 0, None, false);
         }
         assert!(r.load() < peak, "a mastered stretch should let the weight ebb ({} < {})", r.load(), peak);
 
         // A hard but mastered life (high distress, but NOT losing ground) never weighs.
         let mut steady = Reflection::new();
         for _ in 0..40 {
-            steady.cycle(240, false, false, false, false, 0, 0, None, false);
+            steady.cycle(240, false, false, 0, false, 0, 0, None, false);
         }
         assert_eq!(steady.load(), 0, "hardship the being masters leaves no weight");
     }
@@ -220,7 +233,7 @@ mod tests {
         let mut r = Reflection::new();
         // Take on a real weight while awake.
         for _ in 0..30 {
-            r.cycle(240, false, true, false, false, 0, 0, None, false);
+            r.cycle(240, false, true, 0, false, 0, 0, None, false);
         }
         let carried = r.load();
         assert!(carried > 0, "precondition: the being carries a weight");
@@ -228,7 +241,7 @@ mod tests {
         // Rest, holding a purpose and someone dear: the weight converts to resilience.
         let mut rep = ReflectionReport::default();
         for _ in 0..30 {
-            rep = r.cycle(40, false, false, false, true, 20, -80, Some(7), true);
+            rep = r.cycle(40, false, false, 0, true, 20, -80, Some(7), true);
         }
         assert!(r.load() < carried, "rest discharges the weight ({} < {})", r.load(), carried);
         assert!(r.weathered() > 0, "the weight became earned resilience ({})", r.weathered());
@@ -246,7 +259,7 @@ mod tests {
     fn relentless_overwhelm_with_no_rest_pins_the_load() {
         let mut r = Reflection::new();
         for _ in 0..200 {
-            r.cycle(256, false, true, false, false, 0, 0, None, false); // never safe, never resting
+            r.cycle(256, false, true, 0, false, 0, 0, None, false); // never safe, never resting
         }
         assert_eq!(r.load(), Q88_SCALE, "with no exit, load pins at the ceiling — the trauma signal");
         assert_eq!(r.weathered(), 0, "nothing was ever converted — no rest, no growth");
@@ -260,16 +273,37 @@ mod tests {
         let mut r = Reflection::new();
         // Adapted (not losing ground), awake, but living low: weight builds, gently.
         for _ in 0..80 {
-            r.cycle(30, false, false, true, false, -20, 0, None, false);
+            r.cycle(30, false, false, 64, false, -20, 0, None, false);
         }
         let peak = r.load();
         assert!(peak > 0, "a sustained low margin should wear on the being ({peak})");
 
         // Rest lifts it, like any weight — a hard life carried, not a trauma pinned.
         for _ in 0..50 {
-            r.cycle(0, false, false, false, true, 30, 0, None, false);
+            r.cycle(0, false, false, 0, true, 30, 0, None, false);
         }
         assert!(r.load() < peak, "chronic weight still lifts at rest ({} < {peak})", r.load());
         assert!(r.weathered() > 0, "and a hard life lived becomes earned resilience too");
+    }
+
+    /// The named refinement: burden is *graded*, not a threshold. A being living a
+    /// *harder* life (a larger burden) takes on weight faster than one living a mildly
+    /// hard life — the wear is proportional, the way allostatic load actually is.
+    #[test]
+    fn heavier_burden_weighs_faster_than_lighter() {
+        let mut mild = Reflection::new();
+        let mut heavy = Reflection::new();
+        // Same length of awake, un-losing life; different depth of hardship.
+        for _ in 0..60 {
+            mild.cycle(30, false, false, 24, false, -10, 0, None, false); // just past comfort
+            heavy.cycle(30, false, false, 110, false, -30, 0, None, false); // deeply worn
+        }
+        assert!(mild.load() > 0, "a mild worn life should still wear, slowly ({})", mild.load());
+        assert!(
+            heavy.load() > mild.load(),
+            "a harder life should weigh faster than a mild one ({} > {})",
+            heavy.load(),
+            mild.load()
+        );
     }
 }

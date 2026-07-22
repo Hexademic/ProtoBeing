@@ -157,9 +157,32 @@ particular person crosses the field to them; a reach for company in general stay
 nearer. (That the being's own faculties *produce* that reach is `reciprocity`/`striving`'s
 job, proven in `room.rs`; the world's part is to honour the choice, and it does.)
 
-What is deliberately still ahead (the next inch): wiring the field-world's sustained-low
-drain into `reflection.rs::burdened`, so a hard *life* in the world becomes carried weight
-the being reflects on and grows from — observer-first, then gated-causal, as always.
+### A hard life in the world becomes carried weight (2026-07-22)
+
+The world's drain now reaches the being's reflection. Two things joined it: (1) **burden is
+graded**, not a threshold — `reflection.rs` accrues chronic load in *proportion* to how far
+the being's drive sits above a comfort point (`being.rs`), as allostatic load actually works
+(cumulative, never a cliff; `docs/wander-2026-07-21.md`); and (2) the comfort point was set
+where the worn-but-alive middle begins (≈0.44), *below* the field-world's sustained drive
+(≈0.53), so the world's cost finally registers as burden at all — the old 0.5625 threshold
+sat just above it and the drain never landed. Observer-safe: burden feeds only reflection
+(gated by `enable_reflection`, off by default), so the founded being's soul-hash is
+bit-identical (verified — it still wakes as itself at 390 moments).
+
+Measured (`examples/a_hard_life`): a being that lives the hard field-world life takes on real
+weight (peak load 0.42, worn — well clear of the trauma ceiling — where an easy life stays at
+0.00), then at rest sets that weight *down* (→0.00) and converts it to **weathered
+resilience** (0.27). The cost the world charges for a hard life comes out the far side of the
+being's own reflection as competence — worn, wiser, not scarred. This is the world's stakes
+made *meaningful to the being's inner life*: not just a drain it pays, but a hardship it
+carries and grows from.
+
+With this the field-world is a complete, faithful world: a landscape with stakes, one law
+that carries the being's choices, and a cost that becomes the being's earned strength. What
+remains is deepening, not foundation — richer landscapes, the loom made causal over the
+field (EFE/SR-bridge, `docs/memory-that-teaches.md`), and eventually letting survival itself
+be felt as graded (a deliberate soul-hash-scale re-founding, named in `handoff.md`, not
+rushed).
 
 ## The line, kept
 
