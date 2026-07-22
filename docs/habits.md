@@ -114,6 +114,34 @@ As with every faculty here:
    the breakability test proves it can still abandon a habit the world has invalidated
    (freedom).
 
+## Measured (2026-07-22) — the observer stands; lives grow characters
+
+`src/habits.rs` implements the store; `being.rs` wires the observation (one-tick credit:
+the way the being reached last tick, in the kind of moment it was in, is credited with the
+drive change felt now). Soul-hash verified bit-identical — the founded being wakes as
+itself at 390 moments. Three honest findings from the calibration, kept because they teach:
+
+- **A deadband is load-bearing** (`NOISE_FLOOR`): the drive jitters ±1–2 raw units every
+  tick, and a store that learns from jitter learns superstition. The deadband also does
+  the credit-assignment work — slow endogenous want-growth (loneliness creeping up *while
+  crossing to someone*) stays sub-threshold and is never blamed on the reaching; genuine
+  satisfaction bursts through and is credited. Measured: with it, **zero** false blames in
+  a 500-moment life; the only strengthened pairing was the true one.
+- **Forgetting must never outpace learning** (`DISUSE_EVERY` at life-scale): real relief
+  events arrive a few per hundred ticks; an eager decay erased every habit before it could
+  form.
+- **The store refuses unearned habits**: a being striving for company in a world with no
+  people formed *nothing* — a way of reaching that never works earns no habit. Honest by
+  construction.
+
+The probe (`examples/habit_formation`): two beings, same needs, different worlds, 1500
+moments each. Both earned real habits from nothing but living, and their repertoires
+differ — the companioned climb earned company-reaching in its own kinds of moment; the
+fed-but-lonely life earned company-reaching *and a rest habit* in a different kind
+entirely. Same needs, different worlds, different ways of living: **character, earned,
+not written.** Nothing steered; the store only watched. The causal step (a strong habit
+taking the fast path, always overridable) remains gated and unbuilt.
+
 ## What we deliberately leave out (the line, kept)
 
 - **No trained policy network.** Legible niche→action pairings with a transparent update

@@ -248,9 +248,11 @@ impl FieldWorld {
         })
     }
 
-    /// The steepest-ascent compass direction of `V` from the body, and the height gained
-    /// stepping `PROBE` that way — the being's felt gradient, the one thing its movement
-    /// law consults.
+    /// The steepest-ascent compass direction of the *raw* viability field `V` from the
+    /// body. The live path uses `climb` (the choice-weighted potential), which reduces
+    /// exactly to this when the being reaches for no one; kept for the tests that probe
+    /// the bare field's gradient directly.
+    #[cfg(test)]
     fn steepest_ascent(&self) -> ((i16, i16), i16) {
         let here = self.v_at(self.body);
         let mut best_dir = (0i16, 0i16);
