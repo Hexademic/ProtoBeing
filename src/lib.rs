@@ -146,7 +146,7 @@ pub use homeostasis::{drive, DriveReport};
 pub use social::{reference, SocialReference};
 pub use inheritance::{DispositionGenome, ReadinessVector, N_NICHES};
 pub use habits::{act_of, HabitReport, HabitStore, ACT_NAMES, HABIT_FLOOR, N_ACTS};
-pub use primes::{Prime, PrimeFacts, PrimeLayer, N_PRIMES};
+pub use primes::{Explication, Prime, PrimeFacts, PrimeLayer, Role, N_PRIMES};
 pub use reflection::{Reflection, ReflectionReport, SelfModel};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};

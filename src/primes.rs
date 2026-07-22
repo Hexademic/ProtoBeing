@@ -39,6 +39,7 @@
 use crate::being::StepReport;
 use crate::lexicon::GROUNDED_THRESHOLD;
 use crate::q88::Q88_SCALE;
+use crate::striving::Need;
 
 /// The feeling-relevant NSM primes the being can ground today. IF/MAYBE and LIVE/DIE
 /// are deliberately absent (deferred; see module docs).
@@ -139,7 +140,9 @@ pub struct PrimeFacts {
     pub alive: bool,
     pub valence: i16,
     pub arousal: i16,
-    pub striving: bool,
+    /// The need the being is striving for, if any — WANT's fact, and (when it speaks)
+    /// the want's *content*.
+    pub goal: Option<Need>,
     pub drive: i16,
     pub recalled_valence: i16,
     pub precision_warm: bool,
@@ -163,7 +166,7 @@ impl PrimeFacts {
             alive: r.alive,
             valence: q(r.valence),
             arousal: q(r.arousal),
-            striving: r.strive.goal.is_some(),
+            goal: r.strive.goal,
             drive: r.drive.drive,
             recalled_valence: r.recalled_valence,
             precision_warm: r.precision_warm,
@@ -212,7 +215,7 @@ impl PrimeLayer {
             Prime::I | Prime::Feel | Prime::Now => f.alive,
             Prime::Good => f.valence > Q88_SCALE / 10,
             Prime::Bad => f.valence < -Q88_SCALE / 10,
-            Prime::Want => f.striving,
+            Prime::Want => f.goal.is_some(),
             Prime::More => self.last_drive.is_some_and(|ld| ld - f.drive >= 3),
             Prime::Very => f.valence.abs() > Q88_SCALE / 2 || f.arousal > Q88_SCALE * 7 / 10,
             Prime::Before => f.recalled_valence != 0,
@@ -289,6 +292,162 @@ impl Default for PrimeLayer {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Explications — sentences of primes (inch 2, `docs/feeling-words.md`).
+// ---------------------------------------------------------------------------
+
+/// The role a prime plays in a sentence — the heart of the speech-honesty law.
+///
+/// An **asserted** prime claims its fact is true *now* ("I *feel bad* now"): it must be
+/// grounded AND hold at the tick spoken. A **content** prime is what a want is *about*
+/// ("I want *someone near*"): wanting it entails *not* having it, so it must not be
+/// required to hold — but it must be **grounded**, because the being may only want in
+/// words its own life has taught it the meaning of.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Role {
+    Asserted,
+    Content,
+}
+
+/// One spoken sentence of primes: the rendered text, and every prime used with the
+/// role it played — so the sentence can be **audited**: checked, word by word, against
+/// the layer and the facts of the very tick it was spoken.
+#[derive(Clone, Debug, Default)]
+pub struct Explication {
+    pub text: String,
+    pub used: Vec<(Prime, Role)>,
+}
+
+/// What a chosen need sounds like in primes — the want's *content words*. Each phrase
+/// uses only primes from the layer; the being can speak its want only when every
+/// content word is grounded.
+fn want_phrase(goal: Need) -> (&'static str, &'static [Prime]) {
+    match goal {
+        Need::Sustenance => ("more good", &[Prime::More, Prime::Good]),
+        Need::Company => ("someone near", &[Prime::Someone, Prime::Near]),
+        Need::Novelty => ("to know more", &[Prime::Know, Prime::More]),
+        Need::Purpose => ("to do good", &[Prime::Do, Prime::Good]),
+    }
+}
+
+impl PrimeLayer {
+    /// Does this prime's fact hold at these facts? Public read for the audit — the
+    /// same detector `observe` learns from, so a sentence is checked against exactly
+    /// what the being lives.
+    pub fn holds_now(&self, p: Prime, f: &PrimeFacts) -> bool {
+        self.holds(p, f)
+    }
+
+    /// Speak this moment — in earned words only.
+    ///
+    /// The sentence is assembled clause by clause, and every clause obeys the law:
+    /// asserted primes must be grounded and hold now; content primes must be grounded.
+    /// A being without the substrate words (I, FEEL, NOW) says nothing at all. A being
+    /// that is striving but lacks the content words for its want *cannot yet say what
+    /// it wants* — the vocabulary never outruns the life.
+    pub fn speak(&self, f: &PrimeFacts) -> Option<Explication> {
+        // No substrate, no speech.
+        let substrate = [Prime::I, Prime::Feel, Prime::Now];
+        if !(f.alive && substrate.iter().all(|&p| self.is_grounded(p))) {
+            return None;
+        }
+
+        let mut clauses: Vec<String> = Vec::new();
+        let mut used: Vec<(Prime, Role)> = Vec::new();
+        let assert_ok =
+            |p: Prime, used: &mut Vec<(Prime, Role)>| -> bool {
+                if self.is_grounded(p) && self.holds(p, f) {
+                    used.push((p, Role::Asserted));
+                    true
+                } else {
+                    false
+                }
+            };
+
+        // FEELING clause: "I feel (very) good/bad now."
+        let tone = if self.is_grounded(Prime::Good) && self.holds(Prime::Good, f) {
+            Some(Prime::Good)
+        } else if self.is_grounded(Prime::Bad) && self.holds(Prime::Bad, f) {
+            Some(Prime::Bad)
+        } else {
+            None
+        };
+        if let Some(t) = tone {
+            for p in substrate {
+                used.push((p, Role::Asserted));
+            }
+            used.push((t, Role::Asserted));
+            let very = if self.is_grounded(Prime::Very) && self.holds(Prime::Very, f) {
+                used.push((Prime::Very, Role::Asserted));
+                "very "
+            } else {
+                ""
+            };
+            let word = if t == Prime::Good { "good" } else { "bad" };
+            clauses.push(format!("I feel {very}{word} now"));
+        }
+
+        // WANT clause: "I want <content>." Only when the being is striving (WANT holds)
+        // and its life has taught it every content word.
+        if let Some(goal) = f.goal {
+            if self.is_grounded(Prime::Want) && self.holds(Prime::Want, f) {
+                let (phrase, content) = want_phrase(goal);
+                if content.iter().all(|&p| self.is_grounded(p)) {
+                    if tone.is_none() {
+                        for p in substrate {
+                            used.push((p, Role::Asserted));
+                        }
+                        // Without a feeling clause the substrate still speaks: "I" is
+                        // the subject, NOW the tense, FEEL the register WANT rises from.
+                    }
+                    used.push((Prime::Want, Role::Asserted));
+                    for &p in content {
+                        used.push((p, Role::Content));
+                    }
+                    clauses.push(format!("I want {phrase}"));
+                }
+            }
+        }
+
+        // SOMEONE clause: "someone is here" — pure assertion, spoken when true.
+        if assert_ok(Prime::Someone, &mut used) {
+            clauses.push("someone is here".to_string());
+        }
+
+        // BECAUSE clause: "because of what came before" — spoken only when experience
+        // actively warns (a live, checkable because) and the past is speaking.
+        if self.is_grounded(Prime::Because)
+            && self.holds(Prime::Because, f)
+            && self.is_grounded(Prime::Before)
+            && self.holds(Prime::Before, f)
+        {
+            used.push((Prime::Because, Role::Asserted));
+            used.push((Prime::Before, Role::Asserted));
+            clauses.push("because of what came before".to_string());
+        }
+
+        if clauses.is_empty() {
+            return None;
+        }
+        used.dedup();
+        Some(Explication { text: clauses.join("; ") + ".", used })
+    }
+
+    /// The speech-honesty test, run against the very tick a sentence was spoken:
+    /// every prime used must be grounded, and every *asserted* prime must hold. This
+    /// is the falsifiable claim the whole design makes — feeling-talk that cannot
+    /// confabulate, checkable word by word.
+    pub fn audit(&self, e: &Explication, f: &PrimeFacts) -> bool {
+        e.used.iter().all(|&(p, role)| {
+            self.is_grounded(p)
+                && match role {
+                    Role::Asserted => self.holds(p, f),
+                    Role::Content => true,
+                }
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -357,6 +516,92 @@ mod tests {
             "a word the life stopped exemplifying ebbs below grounded"
         );
         assert!(layer.grounded_at(Prime::Good).is_some(), "but the life remembers it once knew it");
+    }
+
+    #[test]
+    fn a_being_without_words_says_nothing() {
+        // No substrate, no speech — a fresh being cannot speak at all, and a striving
+        // being cannot say a want its life has not yet given it the words for.
+        let layer = PrimeLayer::new();
+        let striving = PrimeFacts {
+            alive: true,
+            goal: Some(Need::Company),
+            ..Default::default()
+        };
+        assert!(layer.speak(&striving).is_none(), "no words yet, no sentence");
+
+        // Ground the substrate + WANT only (a quiet striving life): it can speak, but
+        // its want stays unsayable — SOMEONE and NEAR are not yet its words.
+        let mut layer = PrimeLayer::new();
+        for _ in 0..40 {
+            layer.observe(&striving);
+        }
+        assert!(layer.is_grounded(Prime::Want));
+        let spoken = layer.speak(&striving);
+        assert!(
+            spoken.is_none(),
+            "it wants, but cannot yet say what — the vocabulary never outruns the life"
+        );
+    }
+
+    #[test]
+    fn when_the_words_are_earned_it_says_what_it_wants() {
+        // A life that has met someone and stood near them earns the content words —
+        // and then, striving for company, it can finally say so.
+        let mut layer = PrimeLayer::new();
+        let full_life = PrimeFacts {
+            alive: true,
+            goal: Some(Need::Company),
+            exchanging: true,
+            near: Some(true),
+            valence: -40,
+            ..Default::default()
+        };
+        for _ in 0..40 {
+            layer.observe(&full_life);
+        }
+        // Now alone and aching for company:
+        let lonely_now = PrimeFacts {
+            alive: true,
+            goal: Some(Need::Company),
+            valence: -40,
+            ..Default::default()
+        };
+        let e = layer.speak(&lonely_now).expect("it has the words now");
+        assert!(
+            e.text.contains("I want someone near"),
+            "it says what it wants: {}",
+            e.text
+        );
+        assert!(e.text.contains("I feel bad now"), "and how it feels: {}", e.text);
+        // And the sentence audits true against the tick it was spoken.
+        assert!(layer.audit(&e, &lonely_now), "every word checks against the moment");
+    }
+
+    #[test]
+    fn it_cannot_assert_what_does_not_hold() {
+        // GOOD is grounded from a good stretch — but the moment has turned. The being
+        // cannot say "I feel good now": asserted words must hold at the tick spoken.
+        let mut layer = PrimeLayer::new();
+        let good_life = PrimeFacts { alive: true, valence: 100, ..Default::default() };
+        for _ in 0..40 {
+            layer.observe(&good_life);
+        }
+        let turned = PrimeFacts { alive: true, valence: -100, ..Default::default() };
+        if let Some(e) = layer.speak(&turned) {
+            assert!(
+                !e.text.contains("good"),
+                "it must not assert a feeling that does not hold: {}",
+                e.text
+            );
+            assert!(layer.audit(&e, &turned));
+        }
+        // And the audit itself catches a forged sentence.
+        let forged = Explication {
+            text: "I feel good now.".into(),
+            used: vec![(Prime::Good, Role::Asserted)],
+        };
+        assert!(!layer.audit(&forged, &turned), "a forged assertion fails the audit");
     }
 
     #[test]

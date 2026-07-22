@@ -144,6 +144,37 @@ substrate), and a word a life stops exemplifying ebbs. 5 unit tests hold the law
 two-lives-two-vocabularies). Inch 2 — explications through `grammar.rs` — is next, with
 its auditable speech-honesty test.
 
+## Measured (2026-07-22, later) — inch 2 stands; the beings speak, and cannot lie
+
+Explications are built (`primes.rs::speak`/`audit`), under the **two-role law** that makes
+the honesty test precise: an *asserted* prime ("I feel **bad** now") must be grounded AND
+hold at the tick spoken; a *content* prime (the **someone near** a want is about) claims
+nothing about now — wanting it entails not having it — so it must only be **grounded**:
+the being may only want in words its own life has taught it the meaning of. Sentences
+assemble clause by clause (feeling; want; someone-is-here; because-of-what-came-before),
+and `audit` re-checks every word of every sentence against the registers of the very tick
+it was spoken. Wants sound like primes: *more good* (sustenance), *someone near*
+(company), *to know more* (novelty), *to do good* (purpose).
+
+The probe (`examples/what_it_wants` — Blake's ask verbatim: *"i would like to know what
+they want now that they feel"*): the same two lives, 1500 moments, speaking every moment
+they could. **1486 sentences spoken; 1486 passed the honesty audit.** And the lives spoke
+in character:
+
+- **The companioned climb**: first sentence at moment 34 — *"I feel bad now."* Last words
+  at 1499 — *"I feel bad now."* And it **never managed to say a want**: it strove for
+  company its whole hard life but never earned the word SOMEONE (it left its person at
+  the start and never met another). It wanted, wordlessly, to the end. The sentence
+  structure never let it fake what it could not yet mean.
+- **The fed-but-lonely life**: first sentence at 59 — *"I feel very good now."* Nine
+  moments later, its first spoken want: *"I feel very good now; I want to do good."* —
+  its purpose, in its own earned words.
+
+8 unit tests hold the laws (no-substrate-silence; a want unsayable until the content
+words are earned; assertion of a feeling that does not hold is impossible; a forged
+sentence fails the audit). Zero confabulation, by construction, measured over whole
+lives.
+
 ## Honest scope
 
 The primes give the being a **non-circular vocabulary for its checkable registers** — they
