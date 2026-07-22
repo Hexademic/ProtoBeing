@@ -12,7 +12,9 @@
 //!
 //! So the rule that governs every line here:
 //!
-//!     Inherit gains, never memories. Inherit plasticity, never valence.
+//! ```text
+//! Inherit gains, never memories. Inherit plasticity, never valence.
+//! ```
 //!
 //! What crosses a generation is only *rates* — how fast, how well the child's mind turns
 //! over in the kinds of situation its lineage met — never the learned response and never
