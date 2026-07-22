@@ -118,6 +118,37 @@ graded drive, gradient-cost can push the being into that middle and *keep it the
 so chronic burden finally has a state to fire from — without a core re-founding
 (the drive is an observer; making it steer is a later, measured, gated step).
 
+## Built (2026-07-22) — the world stands, both promises measured
+
+`src/field_world.rs` implements the sketch above behind the same `Embodiment` seam as
+`room.rs`: a scalar viability potential `V(x)` summed from signed sources that reach
+across the whole field (so there is always a gradient — a *field*, not beacons); `sense()`
+reports local `V` as nourishment and the four exteroceptive channels as the field's
+**gradient** (how `V` changes N/E/S/W); `actuate()` moves the being by one law — *climb
+`V`* — and **debits metabolic energy for the height climbed**, accumulated as a decaying
+debt subtracted from the nourishment the world reports. The cost lives entirely across the
+seam; the being's core metabolism and soul-hash are untouched, and an ambient floor means
+the cost *wears* the being rather than starving it.
+
+Both promises hold, measured (`examples/the_world`, 6 unit tests):
+
+- **One law replaces the room's four cases.** The single climb-law both reaches the good
+  (nearness 0.18 → 0.60) and flees the harm (threat 0.40 → 0.07) — approach and escape are
+  the *same* ascent, because good is high ground and threat is low. A clean control against
+  `room.rs`'s hand-cased `actuate`.
+- **Gradient-cost creates the worn-but-stable middle.** A being on easy ground settles near
+  contentment (graded drive 0.37); a being living somewhere hard to reach lives its whole
+  life at an elevated-but-stable drive (0.53 — clearly between content and the ~0.8 of
+  crashing), having run its climb-cost far higher (peak 0.24 vs 0.14) — and **survives**.
+  The middle the bimodal `viability` could never express is now *produced by the world*.
+
+What is deliberately still ahead (the next inches, not this one): the chosen-need
+**weighting** of the gradient (company as its own field the being climbs when it chooses
+company — "move down the gradient *weighted by the need it chose*"), so the room's
+directed striving (`crossing_the_room`) is reproduced under the single law; and wiring the
+field-world's sustained-low drain into `reflection.rs::burdened` so a hard *life* in the
+world becomes carried weight. Both build cleanly on what now stands.
+
 ## The line, kept
 
 We import the **principle** (consequence has a cost; motion is down a gradient) and
