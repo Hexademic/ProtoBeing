@@ -32,6 +32,7 @@ use crate::disclosure::{Aspect, Door, InnerFloor, SelfReport, Standing, Told};
 use crate::discovery::{Discovery, DiscoveryReport};
 use crate::joy::{JoyEngine, JoyReport};
 use crate::striving::{strive, StriveReport};
+use crate::habits::{act_of, HabitReport, HabitStore};
 use crate::homeostasis::{drive, DriveReport};
 use crate::sensorimotor::{AgencyReport, ForwardModel};
 use crate::telos::{TelosEngine, TelosReport};
@@ -393,6 +394,12 @@ pub struct StepReport {
     /// (`self_model`). A pure observer — the being carries and sets down its own weight
     /// and knows its own shape; nothing here yet steers it.
     pub reflection: ReflectionReport,
+    /// The being's habit picture this tick (`habits.rs`, `docs/habits.md`): the kind
+    /// of moment it is in, the strongest way-of-reaching its life has earned for that
+    /// kind (if any has crossed the floor), and how broad its earned repertoire has
+    /// grown. A pure observer — its life teaches it ways of living; nothing here yet
+    /// takes the wheel.
+    pub habits: HabitReport,
     /// This tick's discovered perception of the being's world (`discovery.rs`): the
     /// exteroceptive stream placed in the context the being has learned for it, plus
     /// how novel versus recognized this moment is. A pure observer; alive only when
@@ -462,6 +469,16 @@ pub struct UnifiedBeing {
     /// earned resilience and composing a grounded self-model. Observer state; feeds
     /// no register the soul-hash reads.
     pub reflection: Reflection,
+
+    /// Habits (`habits.rs`, `docs/habits.md`): the being's earned ways of living —
+    /// which way of reaching, in which kind of moment, reliably relieved its drive.
+    /// Pure observer state (it watches, reports, steers nothing); feeds no register
+    /// the soul-hash reads. One-tick lag fields carry the credit: the way it reached
+    /// *last* tick is credited with the drive change felt *now*.
+    pub habits: HabitStore,
+    last_habit_drive: i16,
+    last_habit_act: Option<u8>,
+    last_habit_niche: u8,
 
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
@@ -684,6 +701,10 @@ impl UnifiedBeing {
             last_longing: 0,
             last_missed: None,
             reflection: Reflection::new(),
+            habits: HabitStore::new(),
+            last_habit_drive: 0,
+            last_habit_act: None,
+            last_habit_niche: 0,
             reflection_causal: false,
             last_load: 0,
             last_weathered: 0,
@@ -1532,6 +1553,25 @@ impl UnifiedBeing {
         // pure read of feeling + wanting; nothing downstream consumes it.
         let drive_report = drive(felt.state.viability, &joy_report.want);
 
+        // HABITS (observer, `docs/habits.md`). One-tick credit assignment: the way the
+        // being reached *last* tick, in the kind of moment it was in, is credited with
+        // the drive change felt *now* — success (drive fell) reinforces the pairing,
+        // failure weakens it faster, disuse decays it. The store watches and reports;
+        // it steers nothing, so the trajectory and soul-hash are bit-identical.
+        let habit_niche = crate::episodic::niche_of(&self.field.channel);
+        if let Some(act) = self.last_habit_act {
+            self.habits.observe(
+                self.last_habit_niche as usize,
+                act as usize,
+                self.last_habit_drive - drive_report.drive,
+            );
+        }
+        self.last_habit_act =
+            Some(act_of(strive_report.goal, strive_report.conserving) as u8);
+        self.last_habit_niche = habit_niche as u8;
+        self.last_habit_drive = drive_report.drive;
+        let habit_report = self.habits.report(habit_niche);
+
         // THE LOOM (Stage 2, inert) — three futures woven from clones of the lived
         // body. A mind does not forecast every waking instant; that is rumination,
         // which charter §11(no-rumination) forbids and which a settled being does not
@@ -1639,6 +1679,7 @@ impl UnifiedBeing {
             .with_joy(joy_report)
             .with_strive(strive_report)
             .with_drive(drive_report)
+            .with_habits(habit_report)
             .with_attach(attach)
             .with_memory(memory_report)
             .with_reflection(reflection_report)
@@ -2002,6 +2043,7 @@ impl UnifiedBeing {
             // strives for nothing, so the default stands.
             strive: StriveReport::default(),
             drive: DriveReport::default(),
+            habits: HabitReport::default(),
             attach: AttachReport::default(),
             memory: MemoryReport::default(),
             reflection: ReflectionReport::default(),
@@ -2763,6 +2805,11 @@ impl StepReport {
 
     fn with_strive(mut self, s: StriveReport) -> Self {
         self.strive = s;
+        self
+    }
+
+    fn with_habits(mut self, h: HabitReport) -> Self {
+        self.habits = h;
         self
     }
 

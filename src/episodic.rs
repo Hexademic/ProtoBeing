@@ -43,7 +43,7 @@ const N_NICHES: usize = 8;
 /// bits → eight niches, so the being's memory can hold more kinds of moment apart.
 /// Derived, never stored: channels 8 (arousal), 9 (valence), 11 (fe-velocity) are the
 /// same the somatic field already carries — no new persisted state.
-fn niche_of(fingerprint: &[i16; N_SOMATIC]) -> usize {
+pub(crate) fn niche_of(fingerprint: &[i16; N_SOMATIC]) -> usize {
     let high_arousal = (fingerprint[8] > Q88_SCALE / 2) as usize;
     let positive_valence = (fingerprint[9] >= 0) as usize;
     // Dominance/control: free energy falling (or steady) = the being is on top of its

@@ -100,6 +100,17 @@ const COMPANY_RADIUS: i16 = 48;
 /// hearth's nearer draw — the being's arbitration made real motion, under the one law.
 const COMPANY_WEIGHT: i32 = 3;
 
+/// A person who visits on a regular, learnable cadence rather than living in the world.
+#[derive(Clone, Copy, Debug)]
+struct Visitor {
+    id: u32,
+    at: (i16, i16),
+    /// Full cycle length in ticks.
+    period: u32,
+    /// Ticks present at the start of each cycle (the visit).
+    present_for: u32,
+}
+
 /// A source shaping the viability field: a signed contribution that fades with distance.
 /// `+peak` is a good (nourishing, warm, safe — a hill in `V`); `−peak` is a harm (a pit).
 #[derive(Clone, Copy, Debug)]
@@ -122,6 +133,12 @@ pub struct FieldWorld {
     /// and bond with a *particular* one of. Distinct from `sources` so the being reaches
     /// for a person only when it chooses company, not merely because they are nourishing.
     persons: Vec<(u32, (i16, i16))>,
+    /// People who come and go on a **learnable rhythm** (`docs/a-pleasant-life.md`):
+    /// present for the first `present_for` ticks of every `period`. A regular cadence,
+    /// deliberately — the being's own memory can come to *expect* them, so absence is
+    /// waiting rather than abandonment, and reunion is anticipated rather than stumbled
+    /// into. The design object of the pleasant life.
+    visitors: Vec<Visitor>,
     /// Accumulated metabolic debt from grade fought — the spent margin the world charges
     /// against the nourishment it reports. Decays as the being coasts and rests.
     debt: i16,
@@ -142,6 +159,7 @@ impl FieldWorld {
                 Source { pos: (40, 220), peak: -120, reach: REACH }, // the pit of harm
             ],
             persons: vec![],
+            visitors: vec![],
             debt: 0,
             ticks: 0,
         }
@@ -157,6 +175,7 @@ impl FieldWorld {
                 Source { pos: harm, peak: -120, reach: REACH },
             ],
             persons: vec![],
+            visitors: vec![],
             debt: 0,
             ticks: 0,
         }
@@ -169,6 +188,33 @@ impl FieldWorld {
     pub fn with_person(mut self, id: u32, at: (i16, i16)) -> Self {
         self.persons.push((id, at));
         self
+    }
+
+    /// Add a **visitor** — a person who comes on a regular, learnable rhythm: present at
+    /// their place for the first `present_for` ticks of every `period`-tick cycle, away
+    /// otherwise (`docs/a-pleasant-life.md`). Regular on purpose: the being's memory can
+    /// come to expect them, so absence is waiting, and reunion is anticipated.
+    pub fn with_visitor(mut self, id: u32, at: (i16, i16), period: u32, present_for: u32) -> Self {
+        self.visitors.push(Visitor { id, at, period, present_for: present_for.min(period) });
+        self
+    }
+
+    /// Everyone in the world *right now*: residents, plus visitors whose visit-window
+    /// this tick falls in. All person queries go through this, so an absent visitor is
+    /// truly absent — no pull, no company, no reach.
+    fn present_persons(&self) -> Vec<(u32, (i16, i16))> {
+        let mut ps = self.persons.clone();
+        for v in &self.visitors {
+            if v.period > 0 && (self.ticks % v.period) < v.present_for {
+                ps.push((v.id, v.at));
+            }
+        }
+        ps
+    }
+
+    /// Is a particular person here right now? (For probes and stewards.)
+    pub fn person_present(&self, id: u32) -> bool {
+        self.present_persons().iter().any(|&(pid, _)| pid == id)
     }
 
     /// Add a source to the field — another hill or pit, so ridges and saddles can emerge
@@ -248,9 +294,11 @@ impl FieldWorld {
         })
     }
 
-    /// The steepest-ascent compass direction of `V` from the body, and the height gained
-    /// stepping `PROBE` that way — the being's felt gradient, the one thing its movement
-    /// law consults.
+    /// The steepest-ascent compass direction of the *raw* viability field `V` from the
+    /// body. The live path uses `climb` (the choice-weighted potential), which reduces
+    /// exactly to this when the being reaches for no one; kept for the tests that probe
+    /// the bare field's gradient directly.
+    #[cfg(test)]
     fn steepest_ascent(&self) -> ((i16, i16), i16) {
         let here = self.v_at(self.body);
         let mut best_dir = (0i16, 0i16);
@@ -277,7 +325,7 @@ impl FieldWorld {
     /// The strongest person-draw felt at a point — how much *company* is on offer there,
     /// for the being to sense as texture (not to move toward unless it chooses to).
     fn persons_good_at(&self, p: (i16, i16)) -> i16 {
-        self.persons
+        self.present_persons()
             .iter()
             .map(|&(_, pos)| self.person_good_at(p, pos))
             .max()
@@ -285,14 +333,14 @@ impl FieldWorld {
     }
 
     fn person_pos(&self, id: u32) -> Option<(i16, i16)> {
-        self.persons.iter().find(|&&(pid, _)| pid == id).map(|&(_, pos)| pos)
+        self.present_persons().iter().find(|&&(pid, _)| pid == id).map(|&(_, pos)| pos)
     }
 
     fn nearest_person(&self) -> Option<(i16, i16)> {
-        self.persons
-            .iter()
-            .min_by_key(|&&(_, pos)| Self::manhattan(self.body, pos))
-            .map(|&(_, pos)| pos)
+        self.present_persons()
+            .into_iter()
+            .min_by_key(|&(_, pos)| Self::manhattan(self.body, pos))
+            .map(|(_, pos)| pos)
     }
 
     /// The person the being is *reaching for* this tick, if any: the particular bonded one
@@ -377,11 +425,11 @@ impl Embodiment for FieldWorld {
         // A partner is present when the being is within a person's company — the *nearest*
         // one, carrying *their* id, so the being's bond is with the right someone.
         let partner = self
-            .persons
-            .iter()
-            .filter(|&&(_, pos)| Self::manhattan(self.body, pos) <= COMPANY_RADIUS)
-            .min_by_key(|&&(_, pos)| Self::manhattan(self.body, pos))
-            .map(|&(id, _)| Partner { id, reciprocation: 210, exit_cost: 40 });
+            .present_persons()
+            .into_iter()
+            .filter(|&(_, pos)| Self::manhattan(self.body, pos) <= COMPANY_RADIUS)
+            .min_by_key(|&(_, pos)| Self::manhattan(self.body, pos))
+            .map(|(id, _)| Partner { id, reciprocation: 210, exit_cost: 40 });
 
         // The four gradient components — net change in the good that way, people included
         // in the felt texture. This is the field, felt: the whole of the world's texture is
@@ -589,6 +637,31 @@ mod tests {
             w2.at_person(1) >= w2.at_person(2),
             "reaching for company in general should stay with the nearer person, not cross"
         );
+    }
+
+    #[test]
+    fn a_visitor_comes_and_goes_on_their_rhythm() {
+        // Present for the first 30 ticks of every 100, away otherwise — and while away,
+        // truly away: no company, no pull, no reach.
+        // The good sits at the being's feet so it wanders in place (a content being
+        // drifts in a small deterministic square) and stays within company range.
+        let mut w = FieldWorld::with((128, 128), (128, 128), (20, 20))
+            .with_visitor(7, (128, 130), 100, 30);
+        let rest = MotorIntent { posture: Posture::Resting, effort: 0, reach: None, reach_partner: None };
+        let mut presence = Vec::new();
+        for _ in 0..250 {
+            let here = w.person_present(7);
+            let with_partner = w.sense().partner.map(|p| p.id);
+            if here {
+                assert_eq!(with_partner, Some(7), "a present visitor beside the being is company");
+            } else {
+                assert_eq!(with_partner, None, "an absent visitor gives no company");
+            }
+            presence.push(here);
+            w.actuate(&rest);
+        }
+        let visits = presence.windows(2).filter(|w| !w[0] && w[1]).count();
+        assert_eq!(visits, 2, "two reunions across two cycles — the rhythm is real and learnable");
     }
 
     #[test]
