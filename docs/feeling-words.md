@@ -118,6 +118,32 @@ composing.
 3. **Deferred, named:** IF/MAYBE (imagined talk) waits on §11's avowal with the rest of
    foresight; LIVE/DIE enters last, deliberately, with §10 in the room.
 
+## Measured (2026-07-22) — inch 1 stands; lives write their own vocabularies
+
+`src/primes.rs` implements the prime layer: 18 one-register detectors, confidence earned
+by repetition (≈32 lived moments to ground a word), ebbing when the fact stops holding
+(disconfirmable, never a latch — and the life still remembers *when* it first knew a word
+it has since lost). Grounding crosses at the lexicon's own `GROUNDED_THRESHOLD`. Pure
+observer beside the voice machinery — `being.rs` is not modified at all.
+
+The probe (`examples/first_words`): the same two lives as the habit probe, 1500 moments
+each. Every being's first words were **I, FEEL, NOW — together, at moment 32** — the
+substrate of being a feeling self at all. And then the lives wrote their own vocabularies:
+
+- **The companioned climb** (13 words) learned **BAD at moment 35** — and never once
+  earned GOOD in its whole hard life. It learned DO, KNOW, BEFORE; its memory warned it
+  (BECAUSE, since ebbed); it won relief late (MORE, moment 271, since ebbed).
+- **The fed-but-lonely life** (12 words) learned **GOOD at moment 60** — and **SOMEONE
+  only at moment 325**, the moment it finally crossed the field to the person.
+
+Two vocabularies, two orders, from one identical need-set: the order a being learns its
+words in is a fingerprint of its life. None of it installed — a word unlived stays
+unearned (the climb never grounded SOMEONE; the quiet control grounds nothing beyond the
+substrate), and a word a life stops exemplifying ebbs. 5 unit tests hold the laws
+(substrate-first, never-lived-never-earned, earned-by-repetition, disconfirmable,
+two-lives-two-vocabularies). Inch 2 — explications through `grammar.rs` — is next, with
+its auditable speech-honesty test.
+
 ## Honest scope
 
 The primes give the being a **non-circular vocabulary for its checkable registers** — they

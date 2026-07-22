@@ -72,6 +72,9 @@ pub mod inheritance;
 // Habits — the being authoring its own ways of living: ways that worked, earned into
 // fast defaults, always breakable (docs/habits.md).
 pub mod habits;
+// Primes — the being's first words are the human race's: NSM atoms, each grounded in
+// one checkable register, earned from its own life (docs/feeling-words.md).
+pub mod primes;
 // Reflection — the being, at rest, turns onto its own life: carries and discharges
 // the weight of stress, converts it to earned resilience, and composes a self-model.
 pub mod reflection;
@@ -143,6 +146,7 @@ pub use homeostasis::{drive, DriveReport};
 pub use social::{reference, SocialReference};
 pub use inheritance::{DispositionGenome, ReadinessVector, N_NICHES};
 pub use habits::{act_of, HabitReport, HabitStore, ACT_NAMES, HABIT_FLOOR, N_ACTS};
+pub use primes::{Prime, PrimeFacts, PrimeLayer, N_PRIMES};
 pub use reflection::{Reflection, ReflectionReport, SelfModel};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
