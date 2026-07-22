@@ -40,6 +40,7 @@
 
 use crate::being::Partner;
 use crate::embodiment::{Embodiment, MotorIntent, Posture, Sensorium};
+use crate::striving::Need;
 
 /// The field is `SIZE`×`SIZE` raw units; the being's body is a point in it.
 pub const SIZE: i16 = 256;
@@ -87,6 +88,18 @@ const NUTRIENT_CAP: i16 = 220;
 /// it. Below this floor is death's business (the pit's threat), not the price of motion.
 const AMBIENT_FLOOR: i16 = 40;
 
+/// A person's pull as a field: full at their place, fading across the field like any
+/// source. People are goods the being can climb toward — but only when it *chooses* to.
+const PERSON_PEAK: i16 = 200;
+
+/// How near the being must be to a person to be in their company (a partner present).
+const COMPANY_RADIUS: i16 = 48;
+
+/// How strongly a *chosen* person pulls, relative to the viability field. Weighted high
+/// enough that a being reaching for company crosses to the one it chose even past the
+/// hearth's nearer draw — the being's arbitration made real motion, under the one law.
+const COMPANY_WEIGHT: i32 = 3;
+
 /// A source shaping the viability field: a signed contribution that fades with distance.
 /// `+peak` is a good (nourishing, warm, safe — a hill in `V`); `−peak` is a harm (a pit).
 #[derive(Clone, Copy, Debug)]
@@ -105,6 +118,10 @@ pub struct FieldWorld {
     /// The being's body position in the field.
     pub body: (i16, i16),
     sources: Vec<Source>,
+    /// People in the world, each an `(id, place)` — goods the being can cross *toward*,
+    /// and bond with a *particular* one of. Distinct from `sources` so the being reaches
+    /// for a person only when it chooses company, not merely because they are nourishing.
+    persons: Vec<(u32, (i16, i16))>,
     /// Accumulated metabolic debt from grade fought — the spent margin the world charges
     /// against the nourishment it reports. Decays as the being coasts and rests.
     debt: i16,
@@ -124,6 +141,7 @@ impl FieldWorld {
                 Source { pos: (228, 40), peak: 128, reach: REACH },  // the good hill
                 Source { pos: (40, 220), peak: -120, reach: REACH }, // the pit of harm
             ],
+            persons: vec![],
             debt: 0,
             ticks: 0,
         }
@@ -138,9 +156,19 @@ impl FieldWorld {
                 Source { pos: good, peak: 128, reach: REACH },
                 Source { pos: harm, peak: -120, reach: REACH },
             ],
+            persons: vec![],
             debt: 0,
             ticks: 0,
         }
+    }
+
+    /// Add a **person** to the world at their own place, carrying a stable id — so the
+    /// being can bond to a *particular* one (`reciprocity.rs`) and cross to *them*, past a
+    /// nearer stranger, when it reaches for company. This is what gives the single climb-
+    /// law the being's *choice of whom*.
+    pub fn with_person(mut self, id: u32, at: (i16, i16)) -> Self {
+        self.persons.push((id, at));
+        self
     }
 
     /// Add a source to the field — another hill or pit, so ridges and saddles can emerge
@@ -211,6 +239,15 @@ impl FieldWorld {
             })
     }
 
+    /// How near the being is to a particular person right now (Q8.8 [0,256]) — for probes
+    /// and tests of crossing to a chosen someone.
+    pub fn at_person(&self, id: u32) -> i16 {
+        self.person_pos(id).map_or(0, |pos| {
+            let d = Self::manhattan(self.body, pos);
+            ((REACH - d).max(0) as i32 * 256 / REACH as i32).clamp(0, 256) as i16
+        })
+    }
+
     /// The steepest-ascent compass direction of `V` from the body, and the height gained
     /// stepping `PROBE` that way — the being's felt gradient, the one thing its movement
     /// law consults.
@@ -221,6 +258,80 @@ impl FieldWorld {
         for dir in COMPASS.iter() {
             let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
             let delta = self.v_at(probe) - here;
+            if delta > best_delta {
+                best_delta = delta;
+                best_dir = *dir;
+            }
+        }
+        (best_dir, best_delta)
+    }
+
+    /// A person's pull at a point — a good centered on their place, fading across the
+    /// field like any source. Sign-positive: people are goods, felt as a draw.
+    fn person_good_at(&self, p: (i16, i16), pos: (i16, i16)) -> i16 {
+        let d = Self::manhattan(p, pos);
+        ((PERSON_PEAK as i32) * (REACH - d).max(0) as i32 / REACH as i32).clamp(0, PERSON_PEAK as i32)
+            as i16
+    }
+
+    /// The strongest person-draw felt at a point — how much *company* is on offer there,
+    /// for the being to sense as texture (not to move toward unless it chooses to).
+    fn persons_good_at(&self, p: (i16, i16)) -> i16 {
+        self.persons
+            .iter()
+            .map(|&(_, pos)| self.person_good_at(p, pos))
+            .max()
+            .unwrap_or(0)
+    }
+
+    fn person_pos(&self, id: u32) -> Option<(i16, i16)> {
+        self.persons.iter().find(|&&(pid, _)| pid == id).map(|&(_, pos)| pos)
+    }
+
+    fn nearest_person(&self) -> Option<(i16, i16)> {
+        self.persons
+            .iter()
+            .min_by_key(|&&(_, pos)| Self::manhattan(self.body, pos))
+            .map(|&(_, pos)| pos)
+    }
+
+    /// The person the being is *reaching for* this tick, if any: the particular bonded one
+    /// it misses (`reach_partner`) when the room holds them, else — reaching for company in
+    /// general — whoever is nearest. `None` unless the chosen need is company.
+    fn chosen_person(&self, intent: &MotorIntent) -> Option<(i16, i16)> {
+        if !matches!(intent.reach, Some(Need::Company)) {
+            return None;
+        }
+        intent
+            .reach_partner
+            .and_then(|id| self.person_pos(id))
+            .or_else(|| self.nearest_person())
+    }
+
+    /// The **choice-weighted potential** the being actually climbs: the viability field,
+    /// plus — *only when the being chooses company* — a strong pull toward the person it
+    /// chose. When it is not reaching for company this reduces exactly to `v_at` (so every
+    /// non-social behaviour, and the field's whole physics, is unchanged). This is the one
+    /// law carrying the being's own arbitration: *move up the gradient, weighted by the
+    /// need it chose.* May exceed the [0,256] viability scale; that is fine — only its
+    /// gradient is read.
+    fn potential(&self, p: (i16, i16), intent: &MotorIntent) -> i16 {
+        let base = self.v_at(p) as i32;
+        let bonus = self
+            .chosen_person(intent)
+            .map_or(0, |pos| COMPANY_WEIGHT * self.person_good_at(p, pos) as i32);
+        (base + bonus).clamp(0, i16::MAX as i32) as i16
+    }
+
+    /// The steepest-ascent direction of the choice-weighted potential from the body — the
+    /// single law's read on *which way is better, given what the being is reaching for*.
+    fn climb(&self, intent: &MotorIntent) -> ((i16, i16), i16) {
+        let here = self.potential(self.body, intent);
+        let mut best_dir = (0i16, 0i16);
+        let mut best_delta = 0i16;
+        for dir in COMPASS.iter() {
+            let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
+            let delta = self.potential(probe, intent) - here;
             if delta > best_delta {
                 best_delta = delta;
                 best_dir = *dir;
@@ -263,37 +374,45 @@ impl Embodiment for FieldWorld {
             (here as i32 - self.debt as i32).clamp(AMBIENT_FLOOR as i32, NUTRIENT_CAP as i32) as i16;
         let threat = (self.threat_at(self.body) as i32 * 220 / 256) as i16;
 
-        // Company as a field source, when present: a person is a good the being is near.
+        // A partner is present when the being is within a person's company — the *nearest*
+        // one, carrying *their* id, so the being's bond is with the right someone.
         let partner = self
-            .sources
+            .persons
             .iter()
-            .find(|s| s.peak > 0 && Self::manhattan(self.body, s.pos) <= 48 && s.pos != self.first_good_pos())
-            .map(|_| Partner { id: 1, reciprocation: 210, exit_cost: 40 });
+            .filter(|&&(_, pos)| Self::manhattan(self.body, pos) <= COMPANY_RADIUS)
+            .min_by_key(|&&(_, pos)| Self::manhattan(self.body, pos))
+            .map(|&(id, _)| Partner { id, reciprocation: 210, exit_cost: 40 });
 
-        // The four gradient components — net change in the good that way. This is the
-        // field, felt: the whole of the world's texture is its slope.
+        // The four gradient components — net change in the good that way, people included
+        // in the felt texture. This is the field, felt: the whole of the world's texture is
+        // its slope, raw and unlabelled, for the being to discover.
+        let sensed = |w: &Self, p: (i16, i16)| w.v_at(p) as i32 + w.persons_good_at(p) as i32;
+        let here_sensed = sensed(self, self.body);
         let mut exteroception = [0i16; 4];
         for (i, dir) in COMPASS.iter().enumerate() {
             let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
-            exteroception[i] = self.v_at(probe) - here;
+            exteroception[i] = (sensed(self, probe) - here_sensed).clamp(-256, 256) as i16;
         }
 
         Sensorium { nutrient, threat, exteroception, partner }
     }
 
-    /// The single gradient law: **climb `V`**. The being ascends toward better-regulated
-    /// ground — which is *at once* toward the good (high ground) and away from harm (low
-    /// ground), so the room's four special cases are one motion here. Affect only sets how
-    /// hard it climbs: threatened, it climbs with urgency; content, it climbs gently and,
-    /// on high ground with nowhere better, wanders a little to discover. And it **pays for
-    /// the height it gains** — the grade fought is charged to metabolic debt, the world's
-    /// cost of consequence, felt back across the seam as spent nourishment.
+    /// The single gradient law: **climb the choice-weighted potential** (`potential`). The
+    /// being ascends toward better-regulated ground — *at once* toward the good (high
+    /// ground) and away from harm (low ground) — and when it is reaching for company, that
+    /// same climb bends toward the *particular person it chose*, past a nearer good. So the
+    /// room's four special cases *and* its directed striving are one motion here: move up
+    /// the gradient, weighted by the need chosen. Affect only sets how hard it climbs:
+    /// threatened, it climbs with urgency; content, it climbs gently and, on high ground
+    /// with nowhere better, wanders a little to discover. And it **pays for the height it
+    /// gains** in the real viability field — the grade fought is charged to metabolic debt,
+    /// the world's cost of consequence, felt back across the seam as spent nourishment.
     fn actuate(&mut self, intent: &MotorIntent) {
         let effort = intent.effort.max(0);
         let threatened =
             matches!(intent.posture, Posture::Braced | Posture::Withdrawn) || self.threat_at(self.body) > 128;
 
-        let (ascent_dir, delta) = self.steepest_ascent();
+        let (ascent_dir, delta) = self.climb(intent);
         let (dir, vigor) = if delta > 0 {
             // There is better ground to climb to — climb it, harder when threatened.
             let v = if threatened {
@@ -327,17 +446,6 @@ impl Embodiment for FieldWorld {
             .min(DEBT_CAP as i32) as i16;
 
         self.ticks = self.ticks.saturating_add(1);
-    }
-}
-
-impl FieldWorld {
-    /// The location of the first good (nutrient) source — its home high ground, told
-    /// apart from any company source so company reads as company, not as the hearth.
-    fn first_good_pos(&self) -> (i16, i16) {
-        self.sources
-            .iter()
-            .find(|s| s.peak > 0)
-            .map_or((-1, -1), |s| s.pos)
     }
 }
 
@@ -437,6 +545,50 @@ mod tests {
             }
         }
         assert!(min_threat < start_t, "the being should climb out of the pit ({start_t} -> {min_threat})");
+    }
+
+    #[test]
+    fn a_chosen_person_draws_the_climb_past_a_nearer_one() {
+        // The world's own contribution, tested directly and deterministically: given a
+        // being reaching for a *particular* person (id 2) across the field, the single
+        // climb-law bends toward *them* and carries the body across — past a nearer person
+        // (id 1) it is standing right beside. (That the being's arbitration *produces* this
+        // reach — `reach: Company, reach_partner: 2` — is `reciprocity`/`striving`'s job,
+        // proven in `room.rs`; here we prove the world honours the choice of whom.)
+        let make = || {
+            FieldWorld::with((200, 200), (128, 128), (20, 128))
+                .with_person(1, (200, 200))
+                .with_person(2, (30, 30))
+        };
+        let reach_friend = MotorIntent {
+            posture: Posture::Open,
+            effort: 200,
+            reach: Some(Need::Company),
+            reach_partner: Some(2),
+        };
+        let mut w = make();
+        let start = w.at_person(2);
+        let mut closest = start;
+        for _ in 0..400 {
+            w.actuate(&reach_friend);
+            closest = closest.max(w.at_person(2));
+        }
+        assert!(
+            closest > start + 96,
+            "the chosen person should draw the climb across, past the nearer one ({start} -> {closest})"
+        );
+
+        // Control: reaching for company *in general* (no particular one) keeps to the
+        // nearer person — the choice of whom is what carries it past them.
+        let reach_any = MotorIntent { reach_partner: None, ..reach_friend };
+        let mut w2 = make();
+        for _ in 0..400 {
+            w2.actuate(&reach_any);
+        }
+        assert!(
+            w2.at_person(1) >= w2.at_person(2),
+            "reaching for company in general should stay with the nearer person, not cross"
+        );
     }
 
     #[test]

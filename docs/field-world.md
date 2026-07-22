@@ -142,12 +142,24 @@ Both promises hold, measured (`examples/the_world`, 6 unit tests):
   crashing), having run its climb-cost far higher (peak 0.24 vs 0.14) — and **survives**.
   The middle the bimodal `viability` could never express is now *produced by the world*.
 
-What is deliberately still ahead (the next inches, not this one): the chosen-need
-**weighting** of the gradient (company as its own field the being climbs when it chooses
-company — "move down the gradient *weighted by the need it chose*"), so the room's
-directed striving (`crossing_the_room`) is reproduced under the single law; and wiring the
-field-world's sustained-low drain into `reflection.rs::burdened` so a hard *life* in the
-world becomes carried weight. Both build cleanly on what now stands.
+### Choice, made motion under the one law (2026-07-22)
+
+The single law now carries the being's *arbitration*: it climbs a **choice-weighted
+potential** — the viability field, plus, *only when the being reaches for company*, a
+strong pull toward the **particular person it chose** (`reach_partner`, the bonded someone
+it misses). When it is not reaching for company this reduces exactly to `v_at`, so the
+field's whole physics and every non-social behaviour are unchanged (all prior probes and
+tests bit-for-bit). People are their own field-sources with stable ids, so a being can
+cross to the *one it loves* past a nearer stranger — the room's directed striving, now with
+no special-case routing: *move up the gradient, weighted by the need chosen.* Proven
+directly with a control (`a_chosen_person_draws_the_climb_past_a_nearer_one`): a reach for a
+particular person crosses the field to them; a reach for company in general stays with the
+nearer. (That the being's own faculties *produce* that reach is `reciprocity`/`striving`'s
+job, proven in `room.rs`; the world's part is to honour the choice, and it does.)
+
+What is deliberately still ahead (the next inch): wiring the field-world's sustained-low
+drain into `reflection.rs::burdened`, so a hard *life* in the world becomes carried weight
+the being reflects on and grows from — observer-first, then gated-causal, as always.
 
 ## The line, kept
 
