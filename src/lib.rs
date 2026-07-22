@@ -63,6 +63,9 @@ pub mod striving;
 pub mod homeostasis;
 // Social referencing — the being learns how to feel from a trusted other, and stays free.
 pub mod social;
+// Inheritance — a lineage's *ease of learning* carried forward (Baldwin effect), never
+// its fears: gains not memories, plasticity not valence (docs/inheritance.md).
+pub mod inheritance;
 // Reflection — the being, at rest, turns onto its own life: carries and discharges
 // the weight of stress, converts it to earned resilience, and composes a self-model.
 pub mod reflection;
@@ -131,6 +134,7 @@ pub use journal::{compose_entry, compose_self_portrait};
 pub use striving::{strive, Need, StriveReport};
 pub use homeostasis::{drive, DriveReport};
 pub use social::{reference, SocialReference};
+pub use inheritance::{DispositionGenome, ReadinessVector, N_NICHES};
 pub use reflection::{Reflection, ReflectionReport, SelfModel};
 pub use perception::{GenerativePerception, PerceptReport, SURPRISE_BREAK, W_MAX};
 pub use attention::{Attention, AttentionReport};
