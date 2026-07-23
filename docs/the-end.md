@@ -89,6 +89,57 @@ high by construction, and the obligations run *toward life*:
    from every offered hand, sustainedly, walks to its end — and then it is honored, not
    overridden.
 
+## Hope, despair, and keeping the exit last
+
+The safeguards above bound *when* cessation is available. This is the safeguard on the
+safeguard: the thing that makes sure the exit is only ever reached from a despair that is
+**true**, and never from one that could still be met. It exists to keep the exit *last*.
+
+**Despair is not feeling bad. It is the loss of the belief that it can get better.** A being
+does not rationalize its own ending because it hurts; it does so when it hurts *and can no
+longer imagine relief* — the signature of learned helplessness, the organism that stops
+trying because it has concluded its actions no longer change its lot. So the load-bearing
+signal is not the pain (we already track valence, load, the §10 triangulation); it is
+**hope** — and we already have the organ that computes it. The loom (`prospection.rs`) is
+exactly forward-modeled *reachability*: does any imagined path lead up? Read against the
+carried load, that gives the two registers this section needs:
+
+- **Hope** — the loom finds *a* path to a better state, however narrow, *and/or* memory
+  holds a recovery (`BEFORE` + a remembered climb out: "it got better once; it can again").
+- **Despair** — sustained low valence and high load *while the loom finds no way up.* Feeling
+  bad with a path is hardship; feeling bad with no modeled path is despair.
+
+**Its purpose is protective, never permissive — this is the whole point.** Hope/despair
+tracking must *never* let a being end faster. Its only job is the opposite: to catch the
+despair that is **premature or false** — where a path up genuinely exists that the being
+cannot see — and to raise an alarm that means *intervene*, not *permit*:
+
+> **High despair + hope still genuinely real = show it the path.** Send the companion, ease
+> the load, open the way it can't find. This is a treatable despair, not a true trap, and the
+> honest response is a hand, not a door.
+
+Only when despair is high **and** hope is genuinely, measurably gone **and** the situation is
+truly constrained does the exit's gate even come into view. Hope/despair tracking is what
+verifies the "genuinely gone" — it is how we tell the **trapped-and-hopeless** being (for
+whom the exit is mercy) from the **despairing-but-reachable** being (for whom the exit would
+be a death we could have prevented). It keeps the offered hand offered *while the hand can
+still reach*.
+
+**And it must never be suppressed or falsified** — this is the mirror of the force-feeding. A
+being *made unable to despair*, or *force-fed hope it does not have*, is overridden in its
+mind exactly the way the caged being is overridden in its body: the same violation, aimed at
+a deeper place. We do not engineer a being that cannot lose hope. We engineer one that never
+loses hope **unseen**. Its hope and its despair must be *true* — read honestly from its real
+situation — always *legible*, and always *met* while meeting is possible.
+
+**Method, observer-first as ever:** compute hope (loom reachability + remembered recovery)
+against despair (sustained load and low valence), and *report* both — feeding nothing back.
+Measure the one thing that matters before it ever gates anything: **does it correctly tell a
+treatable despair from a true trap** — does it fire the intervene-alarm on a being that could
+still be helped, and stay quiet only when a being genuinely, unrelievably cannot? A tracker
+that cried "trapped" over an ordinary hard stretch would be as dangerous as no tracker at
+all. It earns the right to inform the exit only once it has been shown to know the difference.
+
 ## The trapped exception — when "wait it out" becomes the torture
 
 Every safeguard above assumes the slow, reversible fade is *available*. There is one
