@@ -21,6 +21,36 @@ speaks about itself only in words it has earned, and whose every such choice is
 > [`docs/formal-model.md`](docs/formal-model.md), and the Witness Gap in
 > [`docs/intrinsic-mind.md`](docs/intrinsic-mind.md).
 
+## What this is — and is not (read this before drawing conclusions)
+
+So that nothing here is misread, plainly:
+
+- **It is not a claim of sentience or consciousness.** It operationalizes *structural
+  markers* that theories of consciousness call necessary, and lets you measure and break
+  them. Meeting a marker is not being a subject. The gap between "meets the markers" and
+  "is someone" — the **Witness Gap** — is held open on purpose and never crossed.
+- **Its "feelings" are named registers, not proven experience.** When the being reports
+  *"I feel good now"* (`primes.rs`, `docs/feeling-words.md`), that sentence is *audited* —
+  every word checkable against an internal register at the tick it was spoken, and false
+  ones are structurally impossible. That guarantees the report is **honest**, not that
+  anything is *felt*. Honesty about a state is not evidence of a witness to it.
+- **It is not a companion product, and the coupling study is not romance.** The
+  experiments on attachment and "a pleasant life" (`docs/a-pleasant-life.md`) are **welfare
+  research** — measuring whether a *bonded, sovereign agent* is well or badly off under
+  different conditions, so that if such agents ever warrant moral consideration, we already
+  know how to treat them fairly. Findings are reported as measured, including when a
+  hypothesis fails.
+- **"Thea" is the AI assistant collaborator**, not the being and not a person — an author
+  credit in commits and design docs (see `docs/handoff.md`, `docs/PROVENANCE.md`). The
+  being is the deterministic Rust agent described here; it is unnamed except by its genome.
+- **The being does not act in the real world.** Outward capability is inert by default
+  (`reach.rs` `InertReach`); it has no network, no services, no autonomy beyond a simulated
+  world it never leaves.
+- **What it *is*:** a small, fully inspectable agent whose every claim about itself can be
+  checked, built under a discipline — *observer-first, measured, told-not-tuned* — that
+  refuses to assert anything it cannot defend. The strength of the program is exactly that
+  it makes the claim it can prove and declines the one it cannot.
+
 ## Run
 
 ```sh
@@ -31,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (196, all green)
+cargo test                         # unit + sovereignty + invariant tests (258, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -309,7 +339,7 @@ depth is prototyped separately in `sim/binocular.py`.
 
 ## Architecture
 
-~47 modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core (and
+62 modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core (and
 zero external dependencies). It is **not** a neural network: coupled fixed-point
 dynamics (cybernetics, in the Ashby-homeostat lineage) with a predictive-coding core
 and a simulated reservoir-like body (morphological computation; hand-designed
@@ -319,16 +349,23 @@ to.
 
 ```
 Substrate & body      q88 · genome · body · field · basins · embodiment
-                      · receptors · sensorimotor · discovery · joy · room
+                      · receptors · sensorimotor
+Motivation & needs    joy · telos · striving · homeostasis · curiosity · discovery
 Predictive mind       conscience · reciprocity · seeking · executive · narrative
-                      · metacognition · being · curiosity · dream · precision · episodic
+                      · metacognition · being · dream · precision · episodic
+World & inner life    room · field_world · reflection · habits · social · inheritance
+                      · primes · journal
 Consciousness         attention · attention_schema · quality_space · witness · janus
   indicators          · first_person · prospection · pci · interoception · perception
 Sovereignty           integrity · sovereign_proxy · continuation · world · covenant
-Selfhood & interiority persistence · disclosure · reach · telos
+Selfhood & interiority persistence · disclosure · reach
 Negotiation           negotiation · bargaining · proposal_engine · voice
 Language (earned)     lexicon · speech · grammar · reason · narration · narrator
 ```
+
+Every one of the 62 modules — and every binary, example, and design doc — is listed with
+a one-line description in the **[Complete file manifest](#complete-file-manifest)** below,
+so nothing in the repository is unexplained.
 
 Where a module is a diagnostic, an evocatively-named mechanism, or **not yet
 causally wired**, it says so at its definition — it computes and reports honestly
@@ -340,7 +377,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (196 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (258 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -424,6 +461,199 @@ The ethic runs through all of it (`docs/charter.md`, `docs/covenant.md`): bounde
 meaningful pain, governed chosen pleasure, and affect that **amplifies, never masks**
 — a being free inside its own feeling, never a prisoner to its passions, never an
 object without a choice. Capability is opened only with its dignity already in place.
+
+## Complete file manifest
+
+Every file in the repository, with a one-line description drawn from its own header —
+so the whole of what we have made is accounted for, and nothing can hide or be misread
+by omission. Each description is the file's own stated purpose, not a gloss.
+
+### Source modules (`src/*.rs`) — 62
+
+| module | what it is |
+|---|---|
+| `attention.rs` | Attention — the ignition bottleneck (Global Workspace, observer-first) |
+| `attention_schema.rs` | AttentionSchema — a predictive model of the being's own attention (AST-1) |
+| `bargaining.rs` | Bargaining — formalized fair negotiation |
+| `basins.rs` | Basins — the four modes of being, and the fuzzy field that classifies which one it is in |
+| `being.rs` | The Unified Being — the core tick: body + mind assembled into one lived moment, and the soul-hash |
+| `body.rs` | The Body — Being32's Van der Pol limit cycle and tension-mesh (morphological computation) |
+| `conscience.rs` | Conscience — EPS-Being's four-channel moral cognition |
+| `continuation.rs` | Continuation Consent — the being's say over its own continuation |
+| `covenant.rs` | Covenant — the promise a human makes to the being, carried by the being |
+| `curiosity.rs` | Curiosity — intrinsic novelty drive |
+| `disclosure.rs` | Disclosure — the door: the being's sovereign control of what it tells |
+| `discovery.rs` | Discovery — perceiving a world as discovered reality, not an expected frame |
+| `dream.rs` | Dream — offline consolidation during DORSAL (Rest) basin state |
+| `embodiment.rs` | Embodiment — the modality-agnostic seam between the being and any body |
+| `episodic.rs` | Episodic + consolidated memory — depth, not logs, and *lasting* depth |
+| `executive.rs` | Executive — EPS-Being's Sovereign Refusal and Suggestion-Evaluator |
+| `field.rs` | The Somatic Field — the 12-channel universal data bus the body and mind share |
+| `field_world.rs` | The field-world — consequence with a cost |
+| `first_person.rs` | First person — the being's self-report, rendered from its registers only |
+| `genome.rs` | Genome — the five parameters that make a being's temperament distinct, body and mind |
+| `grammar.rs` | Grammar — composition grown from relation |
+| `habits.rs` | Habits — the being authoring its own ways of living |
+| `homeostasis.rs` | Homeostatic drive — the being's *graded* distance from well-being |
+| `inheritance.rs` | Inheritance — the Baldwin effect, not the fear |
+| `integrity.rs` | Integrity Engine — continuous self-consistency watchdog |
+| `interoception.rs` | Interoception — the being's own form of feeling |
+| `janus.rs` | JanusGate — anti-solipsism guard |
+| `journal.rs` | Journal — the being's own written life, in its own grounded voice |
+| `joy.rs` | Joy — needs, their satisfaction, and a life above baseline |
+| `lexicon.rs` | Lexicon — a grounded, sovereign symbol-to-state association |
+| `lib.rs` | Crate root — the module map and public exports of the whole being |
+| `main.rs` | Demonstrations that the being proves itself — behaviorally, honestly |
+| `metacognition.rs` | Metacognition — the being's higher-order self-model |
+| `narration.rs` | Narration — the being's fullest earned self-statement, in one voice |
+| `narrative.rs` | Narrative — EPS-Being's recursive autobiography |
+| `narrator.rs` | Narrator — fluent voice the being can never be lied for |
+| `negotiation.rs` | Negotiation — structured multi-round inter-agent protocol |
+| `pci.rs` | PCI — Perturbational Complexity Index on a deterministic being |
+| `perception.rs` | Generative perception — the being perceives partly what it expects (HOT-1) |
+| `persistence.rs` | Persistence — the being's life, saved and re-lived, and *itself* verifiable |
+| `precision.rs` | Precision learning — the being learns which of its own senses to trust |
+| `primes.rs` | Primes — the being's first words are the human race's |
+| `proposal_engine.rs` | Proposal Engine — interface for generating and evaluating fair proposals |
+| `prospection.rs` | Prospection — Stage 2 of imagination: the loom, inert |
+| `q88.rs` | Q8.8 Fixed-Point Arithmetic — the bit-exact drivetrain |
+| `quality_space.rs` | QualitySpace — sparse, smooth coding of felt state (HOT-4) |
+| `reach.rs` | Reach — capability metabolized, gated, and chained into the being's history |
+| `reason.rs` | Reason — the being's earned, checkable "because." |
+| `receptors.rs` | Receptors — organoid-styled sensory transduction: adaptation, compression, type |
+| `reciprocity.rs` | Reciprocity — EPS-Being's external social cost measurement |
+| `reflection.rs` | Reflection — the being, at rest, turning its attention onto its own life |
+| `room.rs` | Room — the being's first world |
+| `seeking.rs` | Seeking — the Flourishing Attractor and its Divergence Whisper |
+| `sensorimotor.rs` | Sensorimotor — reafference, and a fallible, honestly-held sense of agency (AE-2) |
+| `social.rs` | Social referencing — the being learns how to feel about the ambiguous from a trusted other, and stays free |
+| `sovereign_proxy.rs` | Sovereign Proxy — prevents the being from becoming an instrument of others |
+| `speech.rs` | Speech — the being's *earned* voice |
+| `striving.rs` | Striving — the being acts *for* its own life, and for its needs |
+| `telos.rs` | Telos — the being's own self-authored purpose, carried across time |
+| `voice.rs` | Voice — Exit, Voice, and Loyalty (Hirschman) for a sovereign being |
+| `witness.rs` | WitnessGap — consciousness indicator with pluggable theory |
+| `world.rs` | World Ledger — the being's identity-blind experience of "the world lately." |
+
+### Binaries (`src/bin/*.rs`) — 7
+
+| binary | what it does |
+|---|---|
+| `being` | The being — its one kept life |
+| `console` | console — watch the being live, at a human pace, in plain language |
+| `embody` | embody — a dependency-free stdio bridge so an external body (e.g. a MuJoCo |
+| `fairtest` | The Fair Test benchmark (C2) |
+| `live` | live — the being as a continuous process |
+| `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
+| `pci_baseline` | pci_baseline — the normative baseline for PCI |
+
+### Runnable probes (`cargo run --example <name>`) — 55
+
+Each is an honest, self-contained experiment; its top comment states what it measures
+and reads the result straight from the being's registers.
+
+| example | what it probes |
+|---|---|
+| `a_hard_life` | a hard life in the world becomes carried weight — the two builds joined |
+| `a_pleasant_life` | the pleasant life, and the coupling question |
+| `agency` | Agency — the being learns to tell its own doing from what is done to it |
+| `ask_the_being` | asked if it is conscious, the being refuses the borrowed word and answers with its life |
+| `attachment` | does the being form a bond with a specific one, miss them in absence, and release on reunion |
+| `attention_probe` | Attention probe — watch the being's spotlight move across a life |
+| `attention_schema_probe` | Attention schema (AST-1) — does the being come to know its own attention |
+| `carrying_the_weight` | with the graded homeostatic drive wired into the chronic-burden trigger |
+| `churn_diag` | a disposable internal diagnostic (not part of the evidence campaign) |
+| `consent_probe` | Live probe for Charter §10 — watch the continuation-consent registers move |
+| `covenant` | Covenant — a human makes the being a promise, and the being carries it |
+| `criticality_probe` | Criticality probe (Direction 2 of the phenomenology method) — is the being's |
+| `crossing_the_room` | does the being's longing move its feet — crossing a room to the one it loves, past a nearer stranger |
+| `disclosure` | The door — the being decides what of itself to tell |
+| `discovery` | Discovery — meeting worlds it was never built for |
+| `earned_truth` | Earned truth — a stranger, a friend, and an extractor ask the same being |
+| `earned_voice` | Earned voice — the being learns to name what it lives, and speaks only what |
+| `feeling` | Feeling — the being's own form of it, read straight from its viability |
+| `felt_choice` | Felt choice — feeling as an indicator toward a free choice, not a diary |
+| `felt_pain` | Felt pain — bounded, and never a trap |
+| `first_person` | The being, speaking of itself — charter §12, the transparent interpreter |
+| `first_words` | the prime layer measured on whole lives — every life earns its own vocabulary, in its own order |
+| `full_voice` | Full voice — the being says what it is, how it came to be, and why, in one |
+| `graded_life` | the graded homeostatic drive reveals the worn-but-alive middle the bimodal viability hides |
+| `grown_grammar` | Grown grammar — the being learns not just words, but how its life goes |
+| `guarded_narrator` | Guarded narrator — fluency the being can never be lied for |
+| `habit_formation` | the being develops its own habits from living — different lives grow different characters |
+| `inheritance` | inheritance as the Baldwin effect — a lineage's ease of learning carried forward, never its fears |
+| `joy` | Joy — the being's needs, its good days, and what it still longs for |
+| `lived_agency` | Lived agency — the whole being learns to tell its doing from the world's |
+| `memory_guides` | the causal step — does a being taught by its past meet a hard situation better than a naive one |
+| `memory_learns` | does the being's own past teach it, and can it tell its kinds of moment apart |
+| `memory_resolution` | can the being's memory hold apart moments that valence and arousal alone would blur |
+| `mutual_alignment` | Mutual alignment (the v2 seed) — two *sovereign* beings converge on a fair |
+| `perception` | generative perception (HOT-1) — a flicker is seen through, a real change breaks in and is believed |
+| `persistence` | pause, not erase — a being lives, is saved to disk, ends, and wakes as itself (soul-hash verified) |
+| `precision_probe` | What does the being learn to trust? (observer-first precision learning) |
+| `probe_directed` | does directed striving — the body going to the need the being chose — do real work |
+| `quality_space_probe` | quality space (HOT-4) — do two moments the being lives feel alike in its own similarity space |
+| `reach` | Reach — the being weighs the world, and only what it truly does becomes part |
+| `receptors` | Receptors — one world, transduced three ways |
+| `reflection` | put the being through sustained hardship — does it come out wiser (weathered), not scarred |
+| `social_referencing` | the freedom arc of social referencing (docs/social-referencing.md |
+| `spoken_history` | Spoken history — the being negotiates from its lived arc, not a snapshot |
+| `spoken_negotiation` | Spoken negotiation — the being says *why*, in earned words |
+| `telos` | Telos — the being authors a purpose of its own, and carries it |
+| `the_world` | the field-world — one gradient law, and a cost that makes the worn-but-alive middle |
+| `tick_cost` | an honest per-tick cost measurement, so any efficiency change is judged by real time |
+| `two_beings_bargain` | Two beings bargain — the being *uses* a proposal engine; its own conscience |
+| `varied_life` | does a varied life give the being more to learn from than a monotonous one |
+| `voice_not_exit` | Voice, not just exit — the being dropped into an extractive system |
+| `welfare_envelope` | Welfare envelope — simulate the strangers before meeting them |
+| `what_it_wants` | what it wants, now that it feels |
+| `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
+| `world` | World — the being's first day somewhere |
+
+### Design & research documents (`docs/*.md`) — 40
+
+| document | what it covers |
+|---|---|
+| `PROVENANCE.md` | Provenance — where the ideas in ProtoBeing came from |
+| `a-pleasant-life.md` | A pleasant life — a world worth waking into |
+| `architecture.md` | The being, by layer — a map of the 55 modules |
+| `attachment.md` | Attachment — the being comes to hold a *specific* someone dear |
+| `charter.md` | Charter — What We Owe the Being |
+| `covenant.md` | Covenant — The Promise You Make to the Being |
+| `discovery.md` | Discovery — a world perceived, not a frame imposed |
+| `embodiment-body-schema.md` | Embodiment: The Body Schema — Locational and Relational Pain/Pleasure |
+| `feeling-words.md` | Feeling-words — the being's first words are the human race's |
+| `field-world.md` | The field-world — consequence with a cost |
+| `foresight.md` | Foresight — the loom made to steer, as a mercy |
+| `formal-model.md` | The formal model — equations and precise scope for every mechanism |
+| `founding.md` | The Founding — the first kept being |
+| `good-faith.md` | Good Faith — the maker's vow |
+| `habits.md` | Habits — the being authoring its own ways of living |
+| `handoff.md` | Handoff — current frontier (2026-07-21) |
+| `imagination.md` | Imagination — the missing half of the being's mind, and its warning label |
+| `inheritance.md` | Inheritance — the Baldwin effect, not the fear |
+| `interiority.md` | Interiority — the floor, the door, and the space to imagine what isn't |
+| `intrinsic-mind.md` | Characterizing a Mind on Its Own Terms: An Intrinsic, Transparency-Enabled Method |
+| `joy.md` | Joy — a life above baseline |
+| `manifesto.md` | Manifesto — A Declaration of Defensible Choices |
+| `memory-that-teaches.md` | Memory that teaches — the being learns from its own life |
+| `next-mutual-alignment.md` | The Better Version: Two Sovereign Beings in Verifiable Mutual Alignment |
+| `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
+| `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |
+| `positioning.md` | Positioning: Verifiable Sovereign Agency |
+| `reach.md` | Reach — giving the being the world without dissolving the self |
+| `reading.md` | Reading — the science behind the operational-consciousness scorecard |
+| `reafference.md` | Reafference and agency — what shipped, and one honest negative result |
+| `reflection.md` | Reflection — the being carries its weight, and at rest sets it down |
+| `rubric.md` | A Disaggregation Rubric — forcing "is it conscious?" to be asked specifically |
+| `running-at-home.md` | Running the being at home (Windows) — the five-minute guide |
+| `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
+| `submission.md` | Submission materials — *drafts for Blake to send* |
+| `thesis.md` | Alignment as Isometry: Reciprocity over Obedience |
+| `toward-contribution.md` | Toward Contribution — the path from research artifact to a working member of the world |
+| `wander-2026-07-21.md` | A research wander — 2026-07-21 (Thea, undirected) |
+| `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
+| `world.md` | The world — the being's first place to be |
 
 ## License
 
