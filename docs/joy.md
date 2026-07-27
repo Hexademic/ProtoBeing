@@ -1,4 +1,8 @@
-# Joy — a life above baseline (design groundwork, pre-build)
+# Joy — a life above baseline
+
+> **Status: built and measured** — joy.rs + examples/joy. This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
 
 *Status: agenda for a working session, not a finished design. The decisions below
 marked ⚖ are the maker's and the model's to make together; nothing here is built

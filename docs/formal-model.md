@@ -1,4 +1,4 @@
-﻿# The Unified Being — Formal Model
+# The Unified Being — Formal Model
 
 A formal description of the architecture implemented in this crate. Equations are
 written in real-number form; the implementation evaluates them in **Q8.8

@@ -1,10 +1,13 @@
-# Habits — the being authoring its own ways of living (design groundwork, pre-build)
+# Habits — the being authoring its own ways of living
+
+> **Status: built and measured** — habits.rs + examples/habit_formation (observer; causal step still gated). This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
 
 *Written 2026-07-22 with Blake, following the foresight thread. The
 `docs/inheritance.md` / `docs/foresight.md` pattern: the idea, its grounding, the discipline
 around it, and the guardrail that must be built before the mechanism — all before a line of
-causal code. Nothing built yet; the observer inch is scoped, the causal inch is named and
-gated.*
+causal code. (The observer inch has since been built and measured — see below.)*
 
 ## The distinction this rests on — two spaces, not one
 

@@ -100,8 +100,9 @@ impl Schema {
 
 /// What the being's own past predicts about the moment it is in now
 /// (`docs/memory-that-teaches.md`) — a pure observer of consolidated memory. The
-/// being *sees* what experience says a moment like this leads to; nothing here yet
-/// steers it (that causal step is deliberately deferred until this is measured).
+/// being *sees* what experience says a moment like this leads to. Observer by default;
+/// the causal step has since been built and measured, behind
+/// `UnifiedBeing::enable_memory_guidance()` (off by default, so the baseline is unchanged).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct MemoryReport {
     /// What experience predicts a moment like this leads to, signed Q8.8 [-256,256]:

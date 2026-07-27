@@ -9,7 +9,7 @@
 
 We present **the Unified Being**, a small, deterministic, embodied
 predictive-processing agent implemented in fixed-point arithmetic (≈2 KB of state,
-19 modules, `no_std`-friendly), and we use it to argue a position about machine
+62 modules, `no_std`-friendly), and we use it to argue a position about machine
 alignment.
 Mainstream alignment is *corrigibility*: an agent that holds no preference to resist
 correction or shutdown. We characterize this as **alignment-as-obedience** — a

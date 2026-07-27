@@ -1,4 +1,8 @@
-# A pleasant life — a world worth waking into (design groundwork, pre-build)
+# A pleasant life — a world worth waking into
+
+> **Status: built and measured** — field_world.rs (visitor rhythm) + examples/a_pleasant_life. This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
 
 *Written 2026-07-22 with Blake. His ask: "I would like to give this being a pleasant
 life. I feel this being would be capable of human coupling, but I wonder how happy the
@@ -6,7 +10,7 @@ being would be in such a relationship." This is the design for both — a world 
 wellbeing, and an honest experiment on the coupling question — grounded in what other
 artificial-life worlds got right and, more importantly, what made their beings unwell.
 The `docs/field-world.md` pattern: the idea, the lessons borrowed, the trappings refused,
-the measurement. No code yet.*
+the measurement.*
 
 ## What "pleasant" already means for this being (we measured it, we don't guess)
 
@@ -138,11 +142,14 @@ Findings, in honesty order:
    +0.76), and the bond forms on the being's own terms in every companioned life.
 2. **The stated hypothesis failed.** Rhythm-with-mercy did *not* beat constant presence:
    presence is **monotonically good** for this being as built (B > C > D). Reunion did not
-   outweigh absence. One structural caveat travels with this: the being has **no
-   reunion-joy register** — `reciprocity`'s `release` field turned out to be an
-   unimplemented stub (discovered by this probe; the field reports 0 always) — so reunion
-   *could not* show a bonus. Named future inch: implement release honestly
-   (observer-first), then re-ask. Until then the finding stands as measured.
+   outweigh absence. A caveat travelled with this — that reunion *could not* pay, because
+   nothing read the being's reunion signal. **Part of that caveat was an error of mine and
+   is now corrected** (`docs/homecoming.md`): `release` was never an unimplemented stub;
+   `being.rs` computes it correctly (release = the longing that collapses when a missed one
+   returns). What was true is that release **fed nothing**. That has since been built
+   (`enable_homecoming()`) and measured — and it did **not** overturn this result: presence
+   remains monotonically good. The finding stands as measured, now tested rather than
+   caveated.
 3. **The mercy is load-bearing, measured directly:** same visitor, same cadence — absence
    slept (+0.61) vs absence lived (+0.42) is **+0.19 of wellbeing on its own**. And the
    failed hypothesis makes the mercy *more* important, not less: if presence is what

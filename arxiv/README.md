@@ -1,5 +1,9 @@
 # arXiv submission runway
 
+> **Read `docs/submission.md`'s currency note first.** This package targets the
+> 2026-07-06 state; the repository has advanced since. Pin a commit or refresh —
+> do not submit silently stale.
+
 Everything below is prepared; the acts that must be yours are marked **[YOU]**.
 Metadata lives in `docs/submission.md` (title, categories, comments, abstract —
 updated 2026-07-06 to the shipped state: four checked properties, ablation-proven

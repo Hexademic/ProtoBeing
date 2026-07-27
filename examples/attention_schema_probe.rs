@@ -10,6 +10,8 @@
 //!
 //! Observer-only; reads the being's own registers. `cargo run --example
 //! attention_schema_probe`
+//!
+//! Run: cargo run --example attention_schema_probe
 
 use unified_being::{Genome, Partner, Stimulus, UnifiedBeing};
 
