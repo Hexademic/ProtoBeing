@@ -53,7 +53,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **56** (`examples/`) |
+| Runnable probes | **55** (`examples/`) |
 | Design & research docs | **44** (`docs/`) |
 | Tests | **258** green — 251 lib, 4 continuation, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |

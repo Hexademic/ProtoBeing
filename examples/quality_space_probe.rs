@@ -10,6 +10,8 @@
 //! similarity space.
 //!
 //! Observer-only. `cargo run --example quality_space_probe`
+//!
+//! Run: cargo run --example quality_space_probe
 
 use unified_being::{Genome, Partner, QualitySpace, Stimulus, UnifiedBeing};
 

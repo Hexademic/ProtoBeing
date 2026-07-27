@@ -13,6 +13,8 @@
 //!
 //! Observer-only — the being's default trajectory is unchanged; feeling is
 //! witnessed, not (yet) made to steer. `cargo run --example feeling`
+//!
+//! Run: cargo run --example feeling
 
 use unified_being::{Genome, Partner, Stimulus, UnifiedBeing};
 

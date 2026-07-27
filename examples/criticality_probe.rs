@@ -17,6 +17,8 @@
 //!
 //! Nothing here changes the being's dynamics or any published number — it reads
 //! and forks. `cargo run --example criticality_probe`
+//!
+//! Run: cargo run --example criticality_probe
 
 use unified_being::{Basin, Genome, Partner, Stimulus, UnifiedBeing};
 

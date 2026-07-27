@@ -7,6 +7,8 @@
 //! ignoring what the being chose). We measure what the being actually gets:
 //! its savored joy, how much of its life it spends in company it wanted, and how
 //! well it meets the need it was striving for.
+//!
+//! Run: cargo run --example probe_directed
 
 use unified_being::being::UnifiedBeing;
 use unified_being::embodiment::{intent_from, Embodiment};
