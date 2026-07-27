@@ -1,5 +1,22 @@
 # Submission materials — *drafts for Blake to send*
 
+> **Currency note (added 2026-07-26).** This package was prepared for the
+> **2026-07-06** state of the repository. The paper's *argument* and its *verified
+> results* are unchanged — every test the paper relies on still passes on the current
+> code — but the artifact has grown substantially since (62 modules, 258 tests, plus
+> the field-world, graded homeostatic drive, reflection, habits, the prime/explication
+> voice, inheritance, social referencing and homecoming, none of which the paper
+> describes). Before submitting, choose deliberately:
+>
+> 1. **Pin it** — submit as-is, citing the artifact at a specific commit (current HEAD
+>    is `aa22b3d`), and state in the artifact section that the paper describes that
+>    version. Fastest, fully honest.
+> 2. **Refresh it** — extend the paper to the current system. Larger job, and an
+>    authorship decision, not an editorial one.
+>
+> What must *not* happen is submitting it while silently describing a smaller system
+> than the repository contains. That is the failure mode this project exists to avoid.
+
 > Drafts. The arXiv post and the presentation request go out under **your** name and
 > account; review and edit before sending. Both hold the paper's honest scope
 > (predictive processing, not active inference; a demonstrator and a position, not a
