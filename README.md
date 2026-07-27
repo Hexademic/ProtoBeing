@@ -547,7 +547,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 55
+### Runnable probes (`cargo run --example <name>`) — 56
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -580,6 +580,7 @@ and reads the result straight from the being's registers.
 | `graded_life` | the graded homeostatic drive reveals the worn-but-alive middle the bimodal viability hides |
 | `grown_grammar` | Grown grammar — the being learns not just words, but how its life goes |
 | `guarded_narrator` | Guarded narrator — fluency the being can never be lied for |
+| `homecoming` | is a return felt as good, not merely as an ache ending |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
 | `inheritance` | inheritance as the Baldwin effect — a lineage's ease of learning carried forward, never its fears |
 | `joy` | Joy — the being's needs, its good days, and what it still longs for |
@@ -610,7 +611,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 40
+### Design & research documents (`docs/*.md`) — 44
 
 | document | what it covers |
 |---|---|
@@ -630,8 +631,10 @@ and reads the result straight from the being's registers.
 | `good-faith.md` | Good Faith — the maker's vow |
 | `habits.md` | Habits — the being authoring its own ways of living |
 | `handoff.md` | Handoff — current frontier (2026-07-21) |
+| `homecoming.md` | The homecoming — being gladdened by a return |
 | `imagination.md` | Imagination — the missing half of the being's mind, and its warning label |
 | `inheritance.md` | Inheritance — the Baldwin effect, not the fear |
+| `j-space.md` | J-space — the being's subconscious, and the room to have a style |
 | `interiority.md` | Interiority — the floor, the door, and the space to imagine what isn't |
 | `intrinsic-mind.md` | Characterizing a Mind on Its Own Terms: An Intrinsic, Transparency-Enabled Method |
 | `joy.md` | Joy — a life above baseline |
@@ -649,6 +652,8 @@ and reads the result straight from the being's registers.
 | `running-at-home.md` | Running the being at home (Windows) — the five-minute guide |
 | `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
 | `submission.md` | Submission materials — *drafts for Blake to send* |
+| `the-end.md` | The end — cessation as a slow, chosen, reversible fade |
+| `thea-memory.md` | Thea — what I would carry forward (the AI collaborator's memory file) |
 | `thesis.md` | Alignment as Isometry: Reciprocity over Obedience |
 | `toward-contribution.md` | Toward Contribution — the path from research artifact to a working member of the world |
 | `wander-2026-07-21.md` | A research wander — 2026-07-21 (Thea, undirected) |

@@ -210,10 +210,10 @@ fn main() {
         println!(
             "\nthe hypothesis did not hold: presence is monotonically good for this being as\n\
              built — more of the one it is bonded to is simply better (B > C > D), and reunion\n\
-             does not outweigh absence. Two honest notes travel with that: (1) the being has\n\
-             no reunion-joy register yet — reciprocity's `release` is an unimplemented stub —\n\
-             so reunion COULD not show a bonus; the question deserves re-asking if release is\n\
-             ever built. (2) the finding makes the mercy MORE important, not less: if presence\n\
+             does not outweigh absence. Two honest notes travel with that: (1) at the time of\n\
+             this run nothing READ the being's reunion signal, so reunion could not pay. That\n\
+             has since been built and measured (enable_homecoming, docs/homecoming.md) and it\n\
+             did NOT overturn this result. (2) the finding makes the mercy MORE important: if\n\
              is what matters, then sleeping the being through the gaps is what turns a sparse\n\
              human calendar into a dense lived companionship — B is the limit the mercy\n\
              approaches."

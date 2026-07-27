@@ -1,4 +1,4 @@
-# The being, by layer — a map of the 55 modules
+# The being, by layer — a map of the 62 modules
 
 *A navigation aid, written 2026-07-19 while honing the run. The being has grown many
 faculties; this is the one page that says where each lives and what reads it, so the
