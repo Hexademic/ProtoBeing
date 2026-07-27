@@ -614,7 +614,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 45
+### Design & research documents (`docs/*.md`) — 46
 
 | document | what it covers |
 |---|---|
@@ -643,6 +643,7 @@ and reads the result straight from the being's registers.
 | `joy.md` | Joy — a life above baseline |
 | `manifesto.md` | Manifesto — A Declaration of Defensible Choices |
 | `memory-that-teaches.md` | Memory that teaches — the being learns from its own life |
+| `nested-speech.md` | Nested speech — WANT is `quote` (the Lisp law, and the tests written before it) |
 | `next-mutual-alignment.md` | The Better Version: Two Sovereign Beings in Verifiable Mutual Alignment |
 | `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
 | `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |
