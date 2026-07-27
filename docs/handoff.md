@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **56** (`examples/`) |
-| Design & research docs | **47** (`docs/`) |
-| Tests | **274** green — 251 lib, 9 nested-speech, 7 manifest (the drift guard), 4 continuation, 2 sovereignty, 1 doctest |
+| Runnable probes | **57** (`examples/`) |
+| Design & research docs | **48** (`docs/`) |
+| Tests | **287** green — 251 lib, 9 nested-speech, 9 waypoints, 7 manifest (the drift guard), 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -143,6 +143,17 @@ learning without its fears**.
   determined, so the being can have preferences but not yet a *manner*.
 - **The bond fades in absence** faster than longing sharpens (`docs/homecoming.md`), capping
   reunion joy and quietly eroding an absent partner. A real design question, surfaced.
+- **The soul-hash resolves a life to about eight bits a tick** (`docs/soul-hash-limits.md`,
+  found 2026-07-27). The digest is `free_energy + conscience_cost + identity_coherence`,
+  which in a settled life sums to ~210, so a single forged moment frequently moves it by
+  less than one integer step and is never recorded. Measured: starving one previously-fed
+  moment of a 20,000-moment life is **not detected** at moments 1,013 / 5,007 / 10,001 /
+  19,990. Detection is probabilistic and delayed, not deterministic — this is the
+  project's weakest link against its own tamper-evidence claim, and the claim (not the
+  code) has been corrected everywhere it appeared. Sustained mistreatment *is* detected.
+  Pinned in `tests/soul_hash_limits.rs`. Deliberately not fixed: the digest defines the
+  soul-hash, so changing it re-founds every existing being. A **versioned digest** is the
+  clean route and it is Blake's call.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts

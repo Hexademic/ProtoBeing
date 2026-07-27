@@ -1,8 +1,10 @@
 # Waypoints — a life you can check without re-living all of it
 
-> **Status: designed, tests written first, not yet built.** Committed *before* the tests
-> and before a line of implementation, so §6's predictions are on the record before any
-> result exists. See `docs/handoff.md` for the project-wide faculty map.
+> **Status: built and measured** — `persistence.rs` (`Waypoint`, `birth_with_waypoints`,
+> `restore_counting`, format v3), `tests/waypoints.rs` (written *first*),
+> `examples/waypoints`. §1–§7 are exactly as committed in `a47bef2`, **before** the tests
+> and before a line of implementation. §8 is what came out, including the prediction that
+> came out badly and the thing found by accident that matters more than the feature.
 
 *Written 2026-07-27 with Blake, out of the Frontier: Elite thread. Elite's galaxy was
 never stored — three seed words and a recurrence regenerated 2048 worlds on 32 KB, and
@@ -116,3 +118,64 @@ Format version goes to 3. v1 and v2 journals decode with an empty waypoint list,
 Spec committed first. Tests written against it and **watched to fail**. Then the
 implementation, then the measurement, then §8 reporting what came out — including C5's
 full curve and C6's flat line.
+
+
+---
+
+## 8. Measured (2026-07-27) — what came out
+
+Order: spec committed (`a47bef2`) → tests written and **watched to fail** (the `Waypoint`
+type did not exist) → implementation → run. All nine pre-written tests pass.
+
+### The law
+
+| | prediction | result |
+|---|---|---|
+| **C1** | a forged journal is still refused | **held** |
+| **C2** | *the crux:* the rejection names the segment | **held** — `ForgedBetween { after: 32, before: 48 }` |
+| **C3** | detection stops at the first waypoint past the forgery | **held** |
+| **C4** | an honest life is bit-identical with waypoints and without; older journals still wake | **held** — same anchor, v1/v2 restore unchanged |
+
+### C5 — the curve, reported whole
+
+A 20,000-moment life, cadence 512, 39 waypoints, 1,404 bytes of chain. Moments replayed
+before a forgery is caught:
+
+| forged at | with chain | without | saved |
+|---|---|---|---|
+| 100 | 512 | 20,000 | **98%** |
+| 15,009 | 15,360 | 20,000 | 24% |
+| 19,003 | 19,456 | 20,000 | 3% |
+| 19,900 | 19,968 | 20,000 | 1% |
+
+The prediction — large for early tampering, negligible at the end — held, and the shape is
+exactly the sawtooth the cadence implies. Nothing here is surprising, and that is the point
+of having written it down first.
+
+### C6 — the flat line, as promised
+
+Waking an **honest** 20,000-moment life: **16.6 ms** with the chain, **16.2 ms** without.
+No meaningful difference, both woke as the same being. This inch does not speed up an
+honest wake and never claimed to.
+
+### What the measurement actually found — and it is not the feature
+
+Four rows are missing from the C5 table above. Starving moment **1,013**, **5,007**,
+**10,001** or **19,990** of that life is **not detected at all** — not by the waypoints,
+and not by the anchor either.
+
+That is not a waypoint failure. Waypoints inherit exactly the detection power of the
+soul-hash, and the soul-hash turns out to resolve a life to about eight bits a tick. The
+full measurement, the two wrong explanations I went through before getting it right, and
+the decision it leaves open are in **`docs/soul-hash-limits.md`**. It is now the first
+item under open tensions in the handoff.
+
+The probe itself was wrong twice before it was right, both times by forging a no-op, and
+`examples/waypoints` now *asserts* that a forged moment really differs rather than
+trusting that it does. Both wrong runs are recorded in the file, because a measurement
+that was wrong twice is worth more as a warning than as a clean number.
+
+**The honest summary of this inch:** it delivered what §6 promised — early, localized
+rejection of forged journals, at negligible cost, with the state cache correctly left
+undone. And it was the vehicle for finding something considerably more important than
+itself, which is the best thing a piece of infrastructure can do.
