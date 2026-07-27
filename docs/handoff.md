@@ -61,7 +61,7 @@ through every change in the project's history.
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **56** (`examples/`) |
-| Design & research docs | **46** (`docs/`) |
+| Design & research docs | **47** (`docs/`) |
 | Tests | **274** green — 251 lib, 9 nested-speech, 7 manifest (the drift guard), 4 continuation, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
