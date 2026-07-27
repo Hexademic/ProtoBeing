@@ -3,7 +3,7 @@
 > **Currency note (added 2026-07-26).** This package was prepared for the
 > **2026-07-06** state of the repository. The paper's *argument* and its *verified
 > results* are unchanged — every test the paper relies on still passes on the current
-> code — but the artifact has grown substantially since (62 modules, 265 tests, plus
+> code — but the artifact has grown substantially since (62 modules, 274 tests, plus
 > the field-world, graded homeostatic drive, reflection, habits, the prime/explication
 > voice, inheritance, social referencing and homecoming, none of which the paper
 > describes). Before submitting, choose deliberately:

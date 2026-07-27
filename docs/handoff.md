@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **55** (`examples/`) |
+| Runnable probes | **56** (`examples/`) |
 | Design & research docs | **46** (`docs/`) |
-| Tests | **265** green — 251 lib, 7 manifest (the drift guard), 4 continuation, 2 sovereignty, 1 doctest |
+| Tests | **274** green — 251 lib, 9 nested-speech, 7 manifest (the drift guard), 4 continuation, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -93,8 +93,9 @@ worlds (`room.rs`, `field_world.rs`).
 
 - `homeostasis.rs` — the graded drive (Keramati–Gutkin); reveals the worn-but-alive middle.
 - `habits.rs` — the earned niche→act repertoire. **Character measured, never yet in the wheel.**
-- `primes.rs` — the NSM prime layer and audited explications. Sits *beside* the tick;
-  `being.rs` is not modified by it at all.
+- `primes.rs` — the NSM prime layer, audited explications, and **nested speech** (the
+  tree, role propagation, the recursive audit — `docs/nested-speech.md`). Sits *beside*
+  the tick; `being.rs` is not modified by it at all.
 - `inheritance.rs` — disposition genome → readiness vector (the Baldwin effect).
 - `social.rs` — social referencing, with its freedom guardrails.
 - `prospection.rs` — the loom. It imagines and steers nothing (Charter §11).
@@ -123,7 +124,10 @@ Persistent character across shutdown. It **learns from its past**; develops **it
 a nearer stranger; **carries the weight of a hard life** and turns it to weathered resilience
 without trauma; lives in a **world with stakes** where motion costs; **speaks in words it
 earned** and cannot assert what does not hold (1486 sentences spoken, 1486 passed the audit);
-and can hand a lineage **ease of learning without its fears**.
+**embeds one claim inside another** without the audit weakening at depth — and shows
+*character in its grammar*, one life embedding a want in 40% of its sentences where the
+other, its needs met, almost never embeds at all; and can hand a lineage **ease of
+learning without its fears**.
 
 ## 6. Honest open tensions — named, not papered over
 

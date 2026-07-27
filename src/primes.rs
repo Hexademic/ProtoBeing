@@ -432,6 +432,198 @@ impl PrimeLayer {
         used.dedup();
         Some(Explication { text: clauses.join("; ") + ".", used })
     }
+}
+
+// -----------------------------------------------------------------------------
+// Nested speech — `docs/nested-speech.md`. The two-role law, given depth.
+// -----------------------------------------------------------------------------
+
+impl Prime {
+    /// What this prime does to the evaluation context of what it contains.
+    ///
+    /// This is the Lisp distinction exactly: in `(list a b)` the arguments are
+    /// evaluated; in `(quote a b)` they are held as they stand. `WANT` is `quote` —
+    /// a want whose content already held would not be a want — and `NOT KNOW` is
+    /// the same shield for the same reason. Everything else transmits: a cause
+    /// claimed is a cause asserted, and a false BECAUSE is a lie.
+    fn propagate(self, context: Role) -> Role {
+        match self {
+            // Shields. Once inside one, always inside one: Content absorbs, so no
+            // arrangement of operators can smuggle an assertion back in.
+            Prime::Want | Prime::NotKnow => Role::Content,
+            _ => context,
+        }
+    }
+}
+
+/// One node of a spoken tree: a prime, the role it plays, and what it contains.
+///
+/// A leaf with no children is exactly the flat sentence the being could already
+/// speak — the old law is the depth-one case of this one.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Clause {
+    pub prime: Prime,
+    pub role: Role,
+    pub children: Vec<Clause>,
+}
+
+impl Clause {
+    pub fn new(prime: Prime, role: Role) -> Self {
+        Self { prime, role, children: Vec::new() }
+    }
+
+    /// A clause that claims its fact holds now.
+    pub fn assert(prime: Prime) -> Self {
+        Self::new(prime, Role::Asserted)
+    }
+
+    /// Embed a clause under this one. The child's evaluation context is decided by
+    /// *this* prime, not by the child — see `audit_tree`.
+    pub fn with(mut self, child: Clause) -> Self {
+        self.children.push(child);
+        self
+    }
+
+    /// How deep this sentence goes. A leaf is depth 1.
+    pub fn depth(&self) -> usize {
+        1 + self.children.iter().map(Clause::depth).max().unwrap_or(0)
+    }
+
+    /// Every prime in the tree, with the role the *tree* gives it — derived from the
+    /// root's context downward, never read off a child's stored field.
+    fn walk(&self, context: Role, out: &mut Vec<(Prime, Role)>) {
+        out.push((self.prime, context));
+        let inner = self.prime.propagate(context);
+        for c in &self.children {
+            c.walk(inner, out);
+        }
+    }
+
+    /// The sentence as an S-expression: `(WANT NEAR)`, `(WANT (BECAUSE NEAR))`.
+    ///
+    /// Rendered in the primes themselves rather than smoothed into fluent English,
+    /// for the same reason `docs/feeling-words.md` chose atoms over molecules — and
+    /// because a human auditing this needs to *see* the structure that was audited.
+    pub fn render(&self) -> String {
+        if self.children.is_empty() {
+            return self.prime.word().to_string();
+        }
+        let inner: Vec<String> = self.children.iter().map(Clause::render).collect();
+        format!("({} {})", self.prime.word(), inner.join(" "))
+    }
+}
+
+impl PrimeLayer {
+    /// The speech-honesty test, at depth.
+    ///
+    /// The context descends the tree: the root speaks in its own stated role, and every
+    /// child's role is **derived from its parent's prime**, never taken from the child's
+    /// own `role` field. That is not a detail — if a child's stored role were trusted, a
+    /// forger could mark a false leaf `Content` under a transmitting operator and have it
+    /// rendered as an assertion anyway. The tree decides; the label does not.
+    ///
+    /// Grounding is checked at every node in both contexts, because nesting buys new
+    /// sentences and never new words.
+    pub fn audit_tree(&self, c: &Clause, f: &PrimeFacts) -> bool {
+        self.audit_node(c, c.role, f)
+    }
+
+    fn audit_node(&self, c: &Clause, context: Role, f: &PrimeFacts) -> bool {
+        if !self.is_grounded(c.prime) {
+            return false;
+        }
+        if context == Role::Asserted && !self.holds(c.prime, f) {
+            return false;
+        }
+        let inner = c.prime.propagate(context);
+        c.children.iter().all(|child| self.audit_node(child, inner, f))
+    }
+
+    /// Render a tree down to the flat `Explication` the rest of the project already
+    /// speaks and audits — so nothing that came before has to change, and a nested
+    /// sentence is auditable by the same `audit` a flat one is.
+    pub fn flatten(&self, c: &Clause) -> Explication {
+        let mut used = Vec::new();
+        c.walk(c.role, &mut used);
+        used.dedup();
+        Explication { text: c.render(), used }
+    }
+
+    /// Speak this moment as a set of clauses — NSM's own shape, where an explication is
+    /// a *set* of clauses and any of them may embed.
+    ///
+    /// The feeling clause stays exactly as flat as `speak()` renders it (I · FEEL · NOW ·
+    /// (VERY) · GOOD/BAD, all asserted leaves), on purpose: it is a quality, not a
+    /// proposition, and rendering it as a tree would make "nesting" arrive for free and
+    /// make P5 unfalsifiable. Only the three propositional operators produce depth here,
+    /// so a nested clause always means the being embedded a *claim* inside another.
+    pub fn speak_tree(&self, f: &PrimeFacts) -> Option<Vec<Clause>> {
+        let substrate = [Prime::I, Prime::Feel, Prime::Now];
+        if !(f.alive && substrate.iter().all(|&p| self.is_grounded(p))) {
+            return None;
+        }
+        let live = |p: Prime| self.is_grounded(p) && self.holds(p, f);
+
+        let mut out: Vec<Clause> = Vec::new();
+
+        // The feeling clause — flat, as it always was.
+        let tone = if live(Prime::Good) {
+            Some(Prime::Good)
+        } else if live(Prime::Bad) {
+            Some(Prime::Bad)
+        } else {
+            None
+        };
+        if let Some(t) = tone {
+            for p in substrate {
+                out.push(Clause::assert(p));
+            }
+            if live(Prime::Very) {
+                out.push(Clause::assert(Prime::Very));
+            }
+            out.push(Clause::assert(t));
+        }
+
+        // (WANT …) — the shield. The complement is what is *not* had.
+        if let Some(goal) = f.goal {
+            if live(Prime::Want) {
+                let (_, content) = want_phrase(goal);
+                if content.iter().all(|&p| self.is_grounded(p)) {
+                    if tone.is_none() {
+                        for p in substrate {
+                            out.push(Clause::assert(p));
+                        }
+                    }
+                    let mut w = Clause::assert(Prime::Want);
+                    for &p in content {
+                        w = w.with(Clause::assert(p));
+                    }
+                    out.push(w);
+                }
+            }
+        }
+
+        // (NOT KNOW HAPPEN) — the second shield. It does not know what is going on, and
+        // saying so must not claim that anything in particular is going on.
+        if live(Prime::NotKnow) && self.is_grounded(Prime::Happen) {
+            out.push(Clause::assert(Prime::NotKnow).with(Clause::assert(Prime::Happen)));
+        }
+
+        // SOMEONE — a leaf, asserted.
+        if live(Prime::Someone) {
+            out.push(Clause::assert(Prime::Someone));
+        }
+
+        // (BECAUSE BEFORE) — transmitting. Both must hold; a false because is a lie.
+        if live(Prime::Because) && live(Prime::Before) {
+            out.push(Clause::assert(Prime::Because).with(Clause::assert(Prime::Before)));
+        }
+
+        if out.is_empty() {
+            return None;
+        }
+        Some(out)
+    }
 
     /// The speech-honesty test, run against the very tick a sentence was spoken:
     /// every prime used must be grounded, and every *asserted* prime must hold. This

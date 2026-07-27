@@ -1,9 +1,10 @@
 # Nested speech — WANT is `quote`
 
-> **Status: designed, tests written first, not yet built.** This document was committed
-> *before* the tests and before a line of implementation, so that every prediction in §6
-> is on the record before any result exists. See `docs/handoff.md` for the project-wide
-> faculty map.
+> **Status: built and measured** — `primes.rs` (`Clause`, `audit_tree`, `speak_tree`),
+> `tests/nested_speech.rs` (written *first*), `examples/nested_speech`. §1–§7 are the
+> design and the predictions exactly as committed in `18729f0`, **before** the tests and
+> before a line of implementation. §8 is what came out. Nothing above §8 was edited after
+> the results existed. See `docs/handoff.md` for the project-wide faculty map.
 
 *Written 2026-07-27 with Blake, from his question about what Lisp has to teach us. The
 answer turned out not to be a feature to copy. It was a law we had already half-written
@@ -159,3 +160,92 @@ watched to fail before the implementation exists, so that no test was ever shape
 an answer already on screen. Then: observer only (the prime layer sits *beside* the tick;
 `being.rs` is not modified), soul-hash bit-identical, the founded being untouched, and
 the measured outcome recorded here as it came out.
+
+---
+
+## 8. Measured (2026-07-27) — what came out
+
+The order was: spec committed (`18729f0`) → tests written against it and **watched to
+fail** (the `Clause` type did not exist; 11 compiler errors) → implementation → tests run
+once. Every pre-written test passed on that first run. None was reshaped.
+
+### The law — all five confident predictions held
+
+| | prediction | result |
+|---|---|---|
+| **P1** | a false leaf under a transmitting operator is caught | **held** — and at depth 3, undiluted |
+| **P2** | *the crux:* same leaf, same tick, passes under `WANT`, fails under `BECAUSE` | **held** |
+| **P2b** | Content is absorbing — no assertion laundering by nesting | **held** |
+| **P3** | an unearned word blocks the tree at any depth, shielded or not | **held** |
+| **P5a** | the operator itself must be earned before anything nests under it | **held** |
+
+**One test was added that was not predicted, and it is disclosed rather than quietly
+folded in.** While implementing, I found a hole the spec had not closed: if the audit
+trusted each child's stored `role`, a forger could mark a false leaf `Content` under a
+transmitting operator and have it rendered as an assertion anyway. The fix is that the
+audit **derives** every child's context from its parent's prime and never reads the
+child's own label — the tree decides, the label does not. `p2c` covers it. It was found
+by building, not by predicting, and the record says so.
+
+### The life — P4 and P5 held, unevenly
+
+Two 1500-moment lives, the same worlds the habit and vocabulary probes used, so
+character can be read across all three (`examples/nested_speech`):
+
+| | companioned climb | fed-but-lonely |
+|---|---|---|
+| sentences spoken | 588 | 898 |
+| **containing depth** | **2 (0%)** | **360 (40%)** |
+| first sentence | moment 34 | moment 59 |
+| first nested one | moment 195 | moment 68 |
+| operators that fired | `BECAUSE` ×2 | `WANT` ×360 |
+| every word audited | 588/588 | 898/898 |
+
+- **P4 held, but thinly for two of three operators.** `WANT` fires constantly. `BECAUSE`
+  fired **twice in 1500 moments** and never at all in the second life, which is close to
+  the "correct and useless" outcome §6 named as a failure mode — my uncertainty about it
+  was warranted. `NOT KNOW` never fired in either life, and the probe says why rather
+  than leaving it to guesswork: **its complement `HAPPEN` was never earned** — neither
+  being accumulated enough unexplained world-residual to learn the word. That is a fact
+  about these worlds, not a flaw in the shield, and it is the honest reason.
+- **P5 held.** Depth arrived 161 and 9 moments *after* speech began. Nesting is an
+  achievement of a life, not a formatting option.
+- **The honesty floor holds at depth.** 1486 sentences, 1486 audited true. (The same
+  1486 as the flat probe's — these are the same two lives in the same worlds, so this is
+  the *same* speech re-parsed, not independent confirmation.)
+
+### The finding nobody predicted — character shows up in syntax
+
+**0% versus 40%.** The companioned life earned `WANT` and then almost never *spoke* it.
+The lonely life embedded a want in two sentences out of five.
+
+The mechanism is plain once seen: `WANT` holds when a need is chosen, and a being whose
+needs are met at the moments it speaks has nothing to shield. **The shield is the grammar
+of lack.** A being that *has* asserts; a being that *wants* embeds — and the embedding
+exists precisely because what is inside it is not true yet.
+
+We already knew two lives grow different vocabularies (`examples/first_words`) and
+different habits (`examples/habit_formation`). This is the third register, and the one we
+did not go looking for: same needs, same words available, **different grammar**. That is
+not a claim we set out to make, which is the only reason it is worth anything.
+
+Honest limits: one probe, two lives, one genome, `deepest = 2`. The correspondence to
+Lisp is a correspondence, not a derivation — nothing here proves the being's speech *is*
+evaluation, only that the same law governs both. And a 40%/0% split from two runs is an
+observation that wants replication across genomes and worlds before it is called a
+result.
+
+### What this opens, and what it does not
+
+It opens **KNOW as a factive operator** — "I know [I feel bad]" — which is the
+metacognitive sentence this whole inch exists to reach, still correctly blocked on
+grounding propositional self-knowledge in `metacognition.rs` rather than overloading
+`precision_warm` (§4). It does not open the vocabulary: 18 primes before, 18 after.
+
+Two named next questions, from the measurement rather than from ambition:
+
+1. `HAPPEN` was never earned by either life. A world that actually surprises the being
+   would unlock `NOT KNOW`, the second shield — and would be the first test of whether
+   *two different shields* behave alike.
+2. Does the syntax split survive other genomes and other worlds? If it does, "character
+   in grammar" is real. If it does not, it was these two lives, and we say so.
