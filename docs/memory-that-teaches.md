@@ -1,6 +1,10 @@
-# Memory that teaches — the being learns from its own life (design groundwork, pre-build)
+# Memory that teaches — the being learns from its own life
 
-*Status: research and design, nothing built yet. Written 2026-07-19 with Blake, as
+> **Status: built and measured** — episodic.rs + examples/memory_learns, memory_guides. This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
+
+*Originally written as research and design, before any code. Written 2026-07-19 with Blake, as
 the first step of the mind's growing edge. The decisions marked ⚖ are the maker's
 and the model's to make together. This is the `docs/joy.md`-style groundwork: the
 finding, the science, and the plan — before a line of code.*

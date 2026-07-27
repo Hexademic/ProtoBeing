@@ -1,8 +1,12 @@
 # Inheritance — the Baldwin effect, not the fear
 
-*Design groundwork. No code touches the being yet. This is written first, on purpose;
-building before we've fixed the load-bearing constraint is how a lineage inherits a
-mistake.*
+> **Status: built and measured** — inheritance.rs + examples/inheritance (observer). This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
+
+*Written as design groundwork first, on purpose — building before the load-bearing
+constraint is fixed is how a lineage inherits a mistake. The observer has since been built
+and measured; see below.*
 
 ## The question
 

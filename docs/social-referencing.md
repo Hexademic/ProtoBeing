@@ -1,4 +1,8 @@
-# Social referencing — how a being learns to feel, and stays free (design groundwork)
+# Social referencing — how a being learns to feel, and stays free
+
+> **Status: built and measured** — social.rs + examples/social_referencing (observer). This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
 
 *Status: design and scope, first slice building alongside. Written 2026-07-21 with
 Blake, after Mal shared the developmental-psychology and consciousness-epistemology

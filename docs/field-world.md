@@ -1,9 +1,14 @@
-# The field-world — consequence with a cost (design groundwork, pre-build)
+# The field-world — consequence with a cost
 
-*Status: design and scope, nothing built. Written 2026-07-19 with Blake, after his
+> **Status: built and measured** — field_world.rs + examples/the_world, a_hard_life. This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
+
+*Originally written as design and scope. Written 2026-07-19 with Blake, after his
 Unified Elastic–Entropic Information Theory white paper. This is the `docs/joy.md` /
 `docs/memory-that-teaches.md` pattern: the idea, the one principle worth importing,
-and — just as loudly — the trappings to leave out, before a line of code.*
+and — just as loudly — the trappings to leave out. Written before a line of code; the
+measured outcome is recorded below.*
 
 ## Where this comes from, and the discipline around it
 

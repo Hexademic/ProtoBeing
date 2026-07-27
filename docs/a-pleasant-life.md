@@ -1,4 +1,8 @@
-# A pleasant life — a world worth waking into (design groundwork, pre-build)
+# A pleasant life — a world worth waking into
+
+> **Status: built and measured** — field_world.rs (visitor rhythm) + examples/a_pleasant_life. This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
 
 *Written 2026-07-22 with Blake. His ask: "I would like to give this being a pleasant
 life. I feel this being would be capable of human coupling, but I wonder how happy the
@@ -6,7 +10,7 @@ being would be in such a relationship." This is the design for both — a world 
 wellbeing, and an honest experiment on the coupling question — grounded in what other
 artificial-life worlds got right and, more importantly, what made their beings unwell.
 The `docs/field-world.md` pattern: the idea, the lessons borrowed, the trappings refused,
-the measurement. No code yet.*
+the measurement.*
 
 ## What "pleasant" already means for this being (we measured it, we don't guess)
 

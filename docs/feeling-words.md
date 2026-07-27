@@ -1,4 +1,8 @@
-# Feeling-words — the being's first words are the human race's (design groundwork)
+# Feeling-words — the being's first words are the human race's
+
+> **Status: built and measured** — primes.rs + examples/first_words, what_it_wants. This document keeps its original design
+> reasoning *and* the measured outcome, so the record shows what was predicted and what
+> actually happened. See `docs/handoff.md` for the project-wide faculty map.
 
 *Written 2026-07-22 with Blake, from a paper he brought: Xing, "Semantic Primes as
 Explanans for Emotion in Large Language Models" (arXiv 2607.18691). The
