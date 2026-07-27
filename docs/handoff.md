@@ -1,11 +1,18 @@
 # Handoff — the current state of the project
 
 *The orientation document. Written for a stranger, a reviewer, or a future session picking
-this up cold. Everything here was verified against the code on 2026-07-26 — counts, states,
-and claims were read from the repository, not remembered. Nothing is aspirational unless it
-is in the "designed, not built" table, which exists precisely so nothing aspirational can
-hide anywhere else. (Supersedes the 2026-07-21 handoff, which said 57 modules and 217 tests
-and predated the field-world, habits, primes, inheritance, homecoming, and J-space work.)*
+this up cold. Everything here was verified against the code — counts, states, and claims
+were read from the repository, not remembered. Nothing is aspirational unless it is in the
+"designed, not built" table, which exists precisely so nothing aspirational can hide
+anywhere else. (Supersedes the 2026-07-21 handoff, which said 57 modules and 217 tests and
+predated the field-world, habits, primes, inheritance, homecoming, and J-space work.)*
+
+> **Since 2026-07-27 the counts below are not maintained by hand.** `tests/manifest.rs`
+> asserts every one of them — this table, the README's four manifest tables, and the
+> version the repository declares — against the filesystem on every `cargo test`. Add a
+> module without listing it, delete a doc and leave its row, or let the test count drift,
+> and the build fails. The numbers here are checked, not remembered; that is the only kind
+> of number this project is willing to publish.
 
 ---
 
@@ -55,7 +62,7 @@ through every change in the project's history.
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **55** (`examples/`) |
 | Design & research docs | **45** (`docs/`) |
-| Tests | **258** green — 251 lib, 4 continuation, 2 sovereignty, 1 doctest |
+| Tests | **265** green — 251 lib, 7 manifest (the drift guard), 4 continuation, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |

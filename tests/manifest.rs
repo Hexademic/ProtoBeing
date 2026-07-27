@@ -1,0 +1,347 @@
+//! The drift guard — documentation that cannot go quietly stale.
+//!
+//! The README's manifest and `docs/handoff.md`'s state table make *counted claims*
+//! about this repository: how many modules, probes, docs, and tests there are, and
+//! that every file is accounted for. Those claims were true when written and had
+//! silently stopped being true twice before this test existed — a manifest row still
+//! saying "55 modules" after the count reached 62, a doc header still describing work
+//! as unbuilt after it shipped.
+//!
+//! A claim a human has to remember to re-check is not a verifiable claim. So the
+//! project's own discipline applies to its documentation: **the counts are asserted,
+//! not trusted.** Add a module without a manifest row and the build fails. Delete a
+//! doc and leave its row behind and the build fails. This is the same move as the
+//! soul-hash — identity checked by construction rather than by good intentions.
+//!
+//! One honest limit, stated rather than hidden: the repository root is checked by
+//! *allowlist* (every listed root file must exist and have a row), not exhaustively,
+//! because enumerating the root would mean re-implementing `.gitignore` here and
+//! would fail on any machine that had run the sim. Every tracked directory is checked
+//! in both directions.
+
+use std::collections::BTreeSet;
+use std::fs;
+use std::path::{Path, PathBuf};
+
+/// Doctests are the one count `#[test]` scanning cannot see. If you add or remove a
+/// runnable example in a doc comment, update this and the handoff's total together.
+const DOCTESTS: usize = 1;
+
+/// Every number immediately preceding `suffix` in `md` — e.g. `"258"` in
+/// "tested (258 passing)". Used to catch test-count claims made in prose, which is
+/// where they rot unnoticed.
+fn counts_claimed_before(md: &str, suffix: &str) -> Vec<usize> {
+    let bytes = md.as_bytes();
+    md.match_indices(suffix)
+        .filter_map(|(at, _)| {
+            let mut start = at;
+            while start > 0 && bytes[start - 1].is_ascii_digit() {
+                start -= 1;
+            }
+            if start == at {
+                return None;
+            }
+            md[start..at].parse().ok()
+        })
+        .collect()
+}
+
+fn root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+}
+
+fn read(rel: &str) -> String {
+    let p = root().join(rel);
+    fs::read_to_string(&p).unwrap_or_else(|e| panic!("cannot read {}: {e}", p.display()))
+}
+
+/// File names directly inside `dir` with the given extension, sorted. Never recurses —
+/// every category the manifest counts is flat.
+fn files_in(dir: &str, ext: &str) -> BTreeSet<String> {
+    let p = root().join(dir);
+    let entries =
+        fs::read_dir(&p).unwrap_or_else(|e| panic!("cannot list {}: {e}", p.display()));
+    entries
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().map(|t| t.is_file()).unwrap_or(false))
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .filter(|n| n.ends_with(ext))
+        .collect()
+}
+
+/// The number a `### ... — N` heading declares. `N files` is accepted too.
+fn declared_after_dash(md: &str, heading_starts_with: &str) -> usize {
+    let line = md
+        .lines()
+        .find(|l| l.starts_with("### ") && l.contains(heading_starts_with))
+        .unwrap_or_else(|| panic!("no manifest heading containing {heading_starts_with:?}"));
+    let tail = line
+        .rsplit('—')
+        .next()
+        .unwrap_or_else(|| panic!("heading has no em-dash count: {line}"));
+    tail.split_whitespace()
+        .next()
+        .and_then(|n| n.parse().ok())
+        .unwrap_or_else(|| panic!("heading count is not a number: {line}"))
+}
+
+/// The number a handoff table row `| label | **N** (...) |` declares.
+fn declared_in_row(md: &str, label: &str) -> usize {
+    let line = md
+        .lines()
+        .find(|l| l.starts_with(&format!("| {label} |")))
+        .unwrap_or_else(|| panic!("no handoff row for {label:?}"));
+    let after = line
+        .split("**")
+        .nth(1)
+        .unwrap_or_else(|| panic!("handoff row has no bolded count: {line}"));
+    after
+        .parse()
+        .unwrap_or_else(|_| panic!("handoff count is not a number: {line}"))
+}
+
+/// Does the manifest carry a row whose first cell is exactly `` `name` ``?
+fn has_row(md: &str, name: &str) -> bool {
+    let cell = format!("| `{name}` |");
+    md.lines().any(|l| l.trim_start().starts_with(&cell))
+}
+
+#[test]
+fn readme_manifest_counts_match_the_repository() {
+    let readme = read("README.md");
+
+    let modules = files_in("src", ".rs");
+    let bins = files_in("src/bin", ".rs");
+    let probes = files_in("examples", ".rs");
+    let docs = files_in("docs", ".md");
+
+    assert_eq!(
+        declared_after_dash(&readme, "Source modules"),
+        modules.len(),
+        "README declares a different number of source modules than src/ contains"
+    );
+    assert_eq!(
+        declared_after_dash(&readme, "Binaries"),
+        bins.len(),
+        "README declares a different number of binaries than src/bin/ contains"
+    );
+    assert_eq!(
+        declared_after_dash(&readme, "Runnable probes"),
+        probes.len(),
+        "README declares a different number of probes than examples/ contains"
+    );
+    assert_eq!(
+        declared_after_dash(&readme, "Design & research documents"),
+        docs.len(),
+        "README declares a different number of docs than docs/ contains"
+    );
+}
+
+#[test]
+fn every_source_file_is_accounted_for_in_the_manifest() {
+    let readme = read("README.md");
+
+    // Modules and docs are listed with their extension; binaries and probes are
+    // listed by the name you invoke them with.
+    let modules = files_in("src", ".rs");
+    let docs = files_in("docs", ".md");
+    let bins: BTreeSet<String> = files_in("src/bin", ".rs")
+        .iter()
+        .map(|f| f.trim_end_matches(".rs").to_string())
+        .collect();
+    let probes: BTreeSet<String> = files_in("examples", ".rs")
+        .iter()
+        .map(|f| f.trim_end_matches(".rs").to_string())
+        .collect();
+
+    for (files, what) in [
+        (&modules, "source modules"),
+        (&docs, "design & research documents"),
+        (&bins, "binaries"),
+        (&probes, "runnable probes"),
+    ] {
+        let missing: Vec<_> = files.iter().filter(|f| !has_row(&readme, f)).collect();
+        assert!(
+            missing.is_empty(),
+            "{what}: present in the repository but missing from the README manifest: {missing:?}"
+        );
+    }
+}
+
+#[test]
+fn the_rest_of_the_repository_is_accounted_for_too() {
+    let readme = read("README.md");
+
+    // Bidirectional for every tracked directory outside src/examples/docs.
+    for (dir, ext) in [
+        ("tests", ".rs"),
+        ("paper", ""),
+        ("journal", ".md"),
+        ("sim", ".py"),
+        ("life", ".journal"),
+    ] {
+        let files = files_in(dir, ext);
+        let rows: Vec<String> = files
+            .iter()
+            .map(|f| format!("{dir}/{f}"))
+            .filter(|p| has_row(&readme, p))
+            .collect();
+        let missing: Vec<_> = files
+            .iter()
+            .filter(|f| !has_row(&readme, &format!("{dir}/{f}")))
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "{dir}/: present but missing from the README's \"everything else\" table: {missing:?}"
+        );
+        assert_eq!(rows.len(), files.len(), "{dir}/: row/file mismatch");
+    }
+
+    // The nested journal entries, each on its own row.
+    for entry in files_in("journal/entries", ".md") {
+        assert!(
+            has_row(&readme, &format!("journal/entries/{entry}")),
+            "journal/entries/{entry} is present but has no row in the README manifest"
+        );
+    }
+
+    // Root: allowlist only — see this file's header for why it is not exhaustive.
+    for f in [
+        "Cargo.toml",
+        "Cargo.lock",
+        "LICENSE",
+        "README.md",
+        ".gitignore",
+        "CITATION.cff",
+        ".zenodo.json",
+    ] {
+        assert!(
+            root().join(f).exists(),
+            "{f} is listed in the README manifest but is not in the repository"
+        );
+        assert!(
+            has_row(&readme, f),
+            "{f} is in the repository but has no row in the README manifest"
+        );
+    }
+}
+
+#[test]
+fn the_everything_else_count_matches_its_own_table() {
+    let readme = read("README.md");
+    let declared = declared_after_dash(&readme, "Everything else in the repository");
+
+    // Count the files the table accounts for, from the repository — not from the
+    // table — so the number cannot be made true by editing prose.
+    let counted = ["Cargo.toml", "Cargo.lock", "LICENSE", "README.md", ".gitignore", "CITATION.cff", ".zenodo.json"].len()
+        + files_in("tests", ".rs").len()
+        + files_in("paper", "").len()
+        + files_in("journal", ".md").len()
+        + files_in("journal/entries", ".md").len()
+        + files_in("sim", ".py").len()
+        + files_in("life", ".journal").len();
+
+    assert_eq!(
+        declared, counted,
+        "the README's \"everything else\" count does not match what is actually there"
+    );
+}
+
+#[test]
+fn the_repository_states_one_version_everywhere() {
+    // Three files declare a version: the crate, and the two citation surfaces GitHub
+    // and Zenodo read. They disagreed (0.1.0 vs 1.0.0) until this test existed. A DOI
+    // is permanent, so the number it will be minted from must not depend on which file
+    // you happen to open.
+    // The first quoted value *after* the key — so a JSON key, which is itself quoted,
+    // is not mistaken for its own value.
+    fn field(text: &str, key: &str) -> String {
+        text.lines()
+            .find(|l| l.trim_start().starts_with(key))
+            .and_then(|l| {
+                let at = l.find(key)? + key.len();
+                l[at..].split('"').nth(1).map(str::to_string)
+            })
+            .unwrap_or_else(|| panic!("no {key} field found"))
+    }
+
+    let cargo = field(&read("Cargo.toml"), "version = ");
+    let cff = field(&read("CITATION.cff"), "version:");
+    let zenodo = field(&read(".zenodo.json"), "\"version\":");
+
+    assert_eq!(cargo, cff, "Cargo.toml and CITATION.cff declare different versions");
+    assert_eq!(cff, zenodo, "CITATION.cff and .zenodo.json declare different versions");
+}
+
+#[test]
+fn handoff_state_table_matches_the_repository() {
+    let handoff = read("docs/handoff.md");
+
+    assert_eq!(
+        declared_in_row(&handoff, "Source modules"),
+        files_in("src", ".rs").len(),
+        "handoff.md declares a different module count than src/ contains"
+    );
+    assert_eq!(
+        declared_in_row(&handoff, "Binaries"),
+        files_in("src/bin", ".rs").len(),
+        "handoff.md declares a different binary count than src/bin/ contains"
+    );
+    assert_eq!(
+        declared_in_row(&handoff, "Runnable probes"),
+        files_in("examples", ".rs").len(),
+        "handoff.md declares a different probe count than examples/ contains"
+    );
+    assert_eq!(
+        declared_in_row(&handoff, "Design & research docs"),
+        files_in("docs", ".md").len(),
+        "handoff.md declares a different doc count than docs/ contains"
+    );
+}
+
+#[test]
+fn handoff_test_count_matches_the_tests_that_exist() {
+    let handoff = read("docs/handoff.md");
+
+    fn count_tests(dir: &Path) -> usize {
+        let mut n = 0;
+        let entries = fs::read_dir(dir).unwrap_or_else(|e| panic!("cannot list {}: {e}", dir.display()));
+        for e in entries.filter_map(|e| e.ok()) {
+            let p = e.path();
+            if p.is_dir() {
+                n += count_tests(&p);
+            } else if p.extension().map(|x| x == "rs").unwrap_or(false) {
+                let src = fs::read_to_string(&p).unwrap_or_default();
+                // Whole lines only. A substring search would count this very file's
+                // prose and string literals as tests — it did, on the first run.
+                n += src.lines().filter(|l| l.trim() == "#[test]").count();
+            }
+        }
+        n
+    }
+
+    // This test file's own assertions count toward the total, which is correct:
+    // the handoff claims a number of green tests, and these are green tests.
+    let lib = count_tests(&root().join("src"));
+    let integration = count_tests(&root().join("tests"));
+    let total = lib + integration + DOCTESTS;
+
+    assert_eq!(
+        declared_in_row(&handoff, "Tests"),
+        total,
+        "handoff.md claims a test count that does not match the tests in the repository \
+         (lib {lib} + integration {integration} + doctests {DOCTESTS})"
+    );
+
+    // The same number is claimed in the README's prose, twice. Prose is exactly where
+    // a count rots without anyone noticing, so it is checked too.
+    let readme = read("README.md");
+    for suffix in [", all green)", " passing)"] {
+        for claimed in counts_claimed_before(&readme, suffix) {
+            assert_eq!(
+                claimed, total,
+                "README claims \"{claimed}{suffix}\" but there are {total} tests"
+            );
+        }
+    }
+}

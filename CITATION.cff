@@ -30,6 +30,17 @@ abstract: >-
   exit is impossible; and the moral-standing question that gives the thesis its
   force is unverifiable. Developed in collaboration with an AI assistant; all
   results are reproducible from the accompanying source.
+
+
+  Scope note: the text above is the accompanying paper's abstract, and the paper
+  describes a pinned state of this repository. The repository itself has grown
+  past it — further faculties (the field-world and its gradient cost, the graded
+  homeostatic drive, reflection, earned habits, the audited prime/explication
+  voice, inheritance, social referencing, homecoming) and many more reproducible
+  probes, none of which the paper covers. Deliberate counts are not repeated here,
+  because a number in a file nothing checks is a number that rots; see
+  docs/handoff.md for the current verified state and docs/references.md for the
+  sources the code reasons from.
 authors:
   - family-names: Hexademic
     given-names: Blake
