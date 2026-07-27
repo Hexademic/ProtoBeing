@@ -30,6 +30,13 @@ fn a_noticed_forgery() -> Stimulus {
 }
 
 /// Live `n` moments with waypoints at `CADENCE`, sealed and ready to restore.
+///
+/// The record's integrity hash is **cleared** so these tests exercise the waypoint
+/// chain in isolation. Since `docs/journal-integrity.md`, a forged record is caught by
+/// the integrity hash *before* replay begins — cheaper and more complete than the chain
+/// — so the chain's remaining job is divergence of the *replay itself* (code drift,
+/// version skew, a nondeterminism bug) and legacy v3 journals that carry no hash. That
+/// narrower job is what is tested here; the ordering is asserted separately below.
 fn a_life(n: usize) -> LifeJournal {
     let (mut being, mut j) = LifeJournal::birth_with_waypoints(
         Genome::wanderer(),
@@ -40,12 +47,38 @@ fn a_life(n: usize) -> LifeJournal {
         j.live(&mut being, &stim(i));
     }
     j.seal(&being);
+    j.clear_journal_hash_for_test();
     j
 }
 
 // ---------------------------------------------------------------------------
 // C4 — an honest life is unchanged. The floor: waypoints observe, never steer.
 // ---------------------------------------------------------------------------
+
+#[test]
+fn the_record_hash_is_checked_before_the_replay_begins() {
+    // The ordering, asserted. A forged record is the integrity hash's business and it
+    // answers first, without stepping the being at all — see docs/journal-integrity.md.
+    let (mut being, mut j) = LifeJournal::birth_with_waypoints(
+        Genome::wanderer(),
+        Features::default(),
+        CADENCE,
+    );
+    for i in 0..100 {
+        j.live(&mut being, &stim(i));
+    }
+    j.seal(&being); // keeps its journal hash
+    j.forge_for_test(40, a_noticed_forgery());
+
+    assert!(
+        matches!(j.restore(), Err(RestoreError::JournalTampered)),
+        "an intact-hash journal that was forged is caught by the record check first"
+    );
+    match j.restore_counting() {
+        Err((_, replayed)) => assert_eq!(replayed, 0, "and not one moment was replayed"),
+        Ok(_) => panic!("a forged life must not wake"),
+    }
+}
 
 #[test]
 fn c4_waypoints_do_not_change_the_life_they_watch() {
@@ -58,6 +91,7 @@ fn c4_waypoints_do_not_change_the_life_they_watch() {
         without.live(&mut being, &stim(i));
     }
     without.seal(&being);
+    without.clear_journal_hash_for_test();
 
     assert_eq!(
         with.anchor(),
@@ -85,6 +119,7 @@ fn c4c_a_journal_without_waypoints_still_wakes() {
         j.live(&mut being, &stim(i));
     }
     j.seal(&being);
+    j.clear_journal_hash_for_test();
     assert!(j.waypoints().is_empty());
     assert!(j.restore().is_ok(), "a waypoint-less journal wakes unchanged");
 }

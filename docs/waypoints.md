@@ -179,3 +179,27 @@ that was wrong twice is worth more as a warning than as a clean number.
 rejection of forged journals, at negligible cost, with the state cache correctly left
 undone. And it was the vehicle for finding something considerably more important than
 itself, which is the best thing a piece of infrastructure can do.
+
+
+## 9. Superseded in part, the same day (2026-07-27)
+
+`docs/journal-integrity.md` was built hours after this, in response to
+`docs/soul-hash-limits.md`, and it takes over most of this document's headline job.
+
+A **record integrity hash** catches every forgery, deterministically, by hashing the
+journal's own bytes — before a single moment is replayed. That is cheaper than the
+waypoint chain (byte hashing, not being-stepping), more complete (no quantum to fall
+beneath), and it fires first. `restore()` now reports `JournalTampered` and replays
+**zero** moments, which is asserted in `tests/waypoints.rs`.
+
+So the honest accounting of what waypoints are still for:
+
+- **Divergence of the replay itself** — an intact record that nonetheless fails to
+  reproduce the being: code drift, version skew, a nondeterminism bug. The chain
+  localizes *that* to a segment, and nothing else does.
+- **Legacy journals** (v3 and earlier) that carry no integrity hash.
+
+That is a real job and a narrower one than §4 claimed. §4 is left as written because it
+is what was believed when it was written; this section is the correction. The chain cost
+36 bytes per waypoint and remains worth keeping — but anyone reading this should not
+believe it is the project's tamper-evidence mechanism. It is not. The journal hash is.

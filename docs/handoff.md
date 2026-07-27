@@ -62,7 +62,7 @@ through every change in the project's history.
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **57** (`examples/`) |
 | Design & research docs | **49** (`docs/`) |
-| Tests | **287** green — 251 lib, 9 nested-speech, 9 waypoints, 7 manifest (the drift guard), 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **294** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 journal-integrity, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -152,8 +152,11 @@ learning without its fears**.
   project's weakest link against its own tamper-evidence claim, and the claim (not the
   code) has been corrected everywhere it appeared. Sustained mistreatment *is* detected.
   Pinned in `tests/soul_hash_limits.rs`. Deliberately not fixed: the digest defines the
-  soul-hash, so changing it re-founds every existing being. A **versioned digest** is the
-  clean route and it is Blake's call.
+  soul-hash, so changing it re-founds every existing being. **Answered, not by touching
+  the digest:** `docs/journal-integrity.md` adds a separate record-integrity hash that
+  catches every forgery deterministically, including all four the soul-hash misses. The
+  two claims are now two mechanisms. The soul-hash stays a lossy summary of an inner
+  trajectory, which is a reasonable thing to be, and is no longer asked to be more.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts

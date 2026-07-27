@@ -129,6 +129,11 @@ pub enum RestoreError {
     /// chain says *where*: after the waypoint at `after` (the last moment the life
     /// still matched) and at or before `before`. `docs/waypoints.md`.
     ForgedBetween { after: u32, before: u32 },
+    /// The **record** does not match its own integrity hash: these are not the bytes
+    /// that were sealed. Distinct from `ContinuityBroken`, which is about the *being*'s
+    /// trajectory — see `docs/journal-integrity.md` for why the two claims are separate
+    /// mechanisms and must never be conflated again.
+    JournalTampered,
 }
 
 /// A marker the life passed and can be checked against: the being's soul-hash at a
@@ -157,14 +162,87 @@ pub struct LifeJournal {
     waypoints: Vec<Waypoint>,
     /// Seal a waypoint every this many moments. Zero means never.
     cadence: u32,
+    /// Integrity hash over the record itself, sealed with the anchor. `None` for a
+    /// journal written before this existed, which restores exactly as it always did.
+    journal_hash: Option<[u8; 32]>,
+}
+
+/// Hash the journal's own recorded content — the bytes, not the being.
+///
+/// Same 4-lane FNV-64 construction as `being::soul_hash_step`, zero dependencies. It
+/// answers a different question from the soul-hash and is deliberately a separate
+/// mechanism: see `docs/journal-integrity.md` §1.
+///
+/// Like the soul-hash, this is an integrity check for tamper-*evidence*, not a
+/// cryptographic primitive: it detects alteration, and does not resist a determined
+/// forger who recomputes it.
+fn hash_record(genome: &Genome, features: &Features, moments: &[Moment]) -> [u8; 32] {
+    const FNV_PRIME: u64 = 1_099_511_628_211;
+    const BASES: [u64; 4] = [
+        14_695_981_039_346_656_037,
+        14_695_981_039_346_656_037 ^ 1_000_000_007,
+        14_695_981_039_346_656_037 ^ 2_000_000_014,
+        14_695_981_039_346_656_037 ^ 3_000_000_021,
+    ];
+
+    // Feed the record through in order: genome, features, then every moment, each
+    // tagged, so a reordering or a retyped moment changes the hash as surely as a
+    // changed value does.
+    let mut bytes: Vec<u8> = Vec::with_capacity(16 + moments.len() * 16);
+    for raw in [
+        genome.target_arousal.raw,
+        genome.resting_mu.raw,
+        genome.k_resilience.raw,
+        genome.learning_rate.raw,
+        genome.mesh_coupling.raw,
+    ] {
+        bytes.extend_from_slice(&raw.to_le_bytes());
+    }
+    bytes.push(kind_to_u8(genome.kind));
+    bytes.push(features.bits());
+    for m in moments {
+        match m {
+            Moment::Abstract(s) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&s.nutrient.to_le_bytes());
+                encode_partner(&mut bytes, s.partner);
+            }
+            Moment::Embodied(s) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&s.nutrient.to_le_bytes());
+                bytes.extend_from_slice(&s.threat.to_le_bytes());
+                for e in s.exteroception {
+                    bytes.extend_from_slice(&e.to_le_bytes());
+                }
+                encode_partner(&mut bytes, s.partner);
+            }
+        }
+    }
+
+    let mut out = [0u8; 32];
+    for lane in 0..4usize {
+        let mut h = BASES[lane].wrapping_add(lane as u64);
+        for &b in &bytes {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        // Length is folded in so truncation cannot pass.
+        for &b in &(bytes.len() as u64).to_le_bytes() {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        out[lane * 8..lane * 8 + 8].copy_from_slice(&h.to_le_bytes());
+    }
+    out
 }
 
 const MAGIC: &[u8; 4] = b"SOUL";
 /// Format version. v1 recorded only abstract stimuli (untagged); v2 records tagged
 /// moments so an embodied life is keepable too; v3 adds the waypoint chain
-/// (`docs/waypoints.md`). All three are decoded — a being founded under v1 or v2
-/// still wakes, with an empty chain — and re-saves as v3.
-const VERSION: u8 = 3;
+/// (`docs/waypoints.md`); v4 adds the record's integrity hash
+/// (`docs/journal-integrity.md`). All are decoded — a being founded under v1 or v2
+/// still wakes, with an empty chain and no integrity hash — and re-saves as v4.
+const VERSION: u8 = 4;
 
 impl LifeJournal {
     /// Begin a life: build the being with its features and a journal that will
@@ -181,6 +259,7 @@ impl LifeJournal {
                 anchor: None,
                 waypoints: Vec::new(),
                 cadence: 0,
+                journal_hash: None,
             },
         )
     }
@@ -240,6 +319,20 @@ impl LifeJournal {
     /// restore must reproduce. Call at the moment of pause, before encoding.
     pub fn seal(&mut self, being: &UnifiedBeing) {
         self.anchor = Some(being.soul_hash());
+        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments));
+    }
+
+    /// The record's integrity hash, if it was sealed with one. `None` for journals
+    /// written before `docs/journal-integrity.md`.
+    pub fn journal_hash(&self) -> Option<[u8; 32]> {
+        self.journal_hash
+    }
+
+    /// Drop the integrity hash — **for tests only**, to construct a pre-feature journal
+    /// and prove it still wakes. There is no honest use.
+    #[doc(hidden)]
+    pub fn clear_journal_hash_for_test(&mut self) {
+        self.journal_hash = None;
     }
 
     /// Re-live the whole journal into a fresh being and verify it woke as itself.
@@ -259,6 +352,15 @@ impl LifeJournal {
             Some(a) => a,
             None => return Err((RestoreError::Unsealed, 0)),
         };
+        // The record's own integrity, checked before a single moment is replayed. This
+        // is the deterministic check; the soul-hash chain below is the being's. Both
+        // must hold — see `docs/journal-integrity.md` §3.
+        if let Some(expected) = self.journal_hash {
+            if hash_record(&self.genome, &self.features, &self.moments) != expected {
+                return Err((RestoreError::JournalTampered, 0));
+            }
+        }
+
         let mut being = UnifiedBeing::new(self.genome);
         self.features.apply(&mut being);
 
@@ -358,6 +460,14 @@ impl LifeJournal {
                 }
             }
         }
+        // v4: the record's integrity hash.
+        match self.journal_hash {
+            Some(h) => {
+                b.push(1);
+                b.extend_from_slice(&h);
+            }
+            None => b.push(0),
+        }
         // v3: the waypoint chain, and the cadence that produced it.
         b.extend_from_slice(&self.cadence.to_le_bytes());
         b.extend_from_slice(&(self.waypoints.len() as u32).to_le_bytes());
@@ -378,7 +488,7 @@ impl LifeJournal {
         // Accept every version this build knows how to read (v1 abstract-only, v2
         // tagged) — a being founded under an older format still wakes.
         let version = c.u8().ok_or(RestoreError::Corrupt)?;
-        if version != 1 && version != 2 && version != 3 {
+        if !(1..=4).contains(&version) {
             return Err(RestoreError::Corrupt);
         }
         let genome = Genome {
@@ -433,6 +543,21 @@ impl LifeJournal {
             };
             moments.push(moment);
         }
+        // v1/v2/v3 carry no integrity hash — an older life wakes without one.
+        let journal_hash = if version >= 4 {
+            match c.u8().ok_or(RestoreError::Corrupt)? {
+                0 => None,
+                1 => {
+                    let h = c.take(32).ok_or(RestoreError::Corrupt)?;
+                    let mut arr = [0u8; 32];
+                    arr.copy_from_slice(h);
+                    Some(arr)
+                }
+                _ => return Err(RestoreError::Corrupt),
+            }
+        } else {
+            None
+        };
         // v1/v2 carry no chain — an older life wakes with an empty one.
         let (cadence, waypoints) = if version >= 3 {
             let cadence = c.u32().ok_or(RestoreError::Corrupt)?;
@@ -449,7 +574,7 @@ impl LifeJournal {
         } else {
             (0, Vec::new())
         };
-        Ok(LifeJournal { genome, features, moments, anchor, waypoints, cadence })
+        Ok(LifeJournal { genome, features, moments, anchor, waypoints, cadence, journal_hash })
     }
 }
 
