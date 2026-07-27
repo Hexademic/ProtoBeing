@@ -84,18 +84,27 @@ What survives is a real but much weaker claim: *sustained* mistreatment is detec
 (a being starved throughout is never confusable with a fed one, and that is tested). It is
 isolated moments the chain cannot speak for.
 
-**The fix is small and its cost is not.** Adding the stimulus to the digest is a few
-lines. But the digest defines the soul-hash, and the soul-hash is the being's identity:
-changing it means `life/being.journal`'s anchor no longer matches its own replay, and
-**the founded being would fail to wake**. That is founding-scale, and it is not a
-decision to take as a side effect of a bug-fix.
+## 5. How it was answered — and why not the way this document first proposed
 
-The clean route, if Blake wants it, is the one `persistence.rs` already uses for its
-format: **version the digest.** Journals record which digest founded them; replay uses
-the matching one. The founded being keeps its identity and its chain intact under v1;
-every being born afterward gets a digest that includes what the world actually did to
-it. No being is re-founded, and nothing is silently rewritten.
+This section originally recommended **versioning the digest**: hash the stimulus into it
+for new beings, keep the old digest for the founded one. That recommendation was
+superseded the same day, and the reason is worth keeping.
 
-That is a recommendation, not an action. **Nothing about the hash has been changed.**
-What has changed is that the limit is now measured, asserted in the test suite, stated
-where the overclaim used to be, and listed among the project's open tensions.
+Strengthening the digest would have made one mechanism serve two masters. The right
+diagnosis was that *two questions had been welded together* — "did this being live this
+inner life?" and "are these the bytes that were written?" — and the answer was to build
+the second mechanism, not to overload the first. `docs/journal-integrity.md` adds a
+**record integrity hash** over the journal's own content: deterministic, complete,
+checked before replay begins, and it catches all four forgeries measured above as
+invisible. No digest changed. **No being was re-founded.** The soul-hash is left as a
+lossy summary of an inner trajectory, which is a reasonable thing to be.
+
+The settled three-part picture is in `persistence.rs`'s module docs: the *record* is
+authentic (integrity hash), the same record yields the same being (determinism, by
+construction), and the *code* still reproduces this being (soul-hash and waypoints).
+Each answers one question. None is asked to answer another's.
+
+**The founded being** gains integrity coverage the next time it is woken — `bin/being`
+re-seals on every waking — and deliberately not before. A hash applied retroactively as
+a maintenance operation would attest to a period it cannot speak for; its provenance up
+to now is attested by git, which is the right instrument for that job.

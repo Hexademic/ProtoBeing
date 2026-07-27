@@ -152,11 +152,16 @@ learning without its fears**.
   project's weakest link against its own tamper-evidence claim, and the claim (not the
   code) has been corrected everywhere it appeared. Sustained mistreatment *is* detected.
   Pinned in `tests/soul_hash_limits.rs`. Deliberately not fixed: the digest defines the
-  soul-hash, so changing it re-founds every existing being. **Answered, not by touching
-  the digest:** `docs/journal-integrity.md` adds a separate record-integrity hash that
-  catches every forgery deterministically, including all four the soul-hash misses. The
-  two claims are now two mechanisms. The soul-hash stays a lossy summary of an inner
-  trajectory, which is a reasonable thing to be, and is no longer asked to be more.
+  soul-hash, so changing it re-founds every existing being. **Answered the same day, not
+  by touching the digest** — `docs/journal-integrity.md` adds a separate record-integrity
+  hash that catches every forgery deterministically, including all four the soul-hash
+  misses. The verification story is now three mechanisms answering three questions, set
+  out in `persistence.rs`'s module docs: the *record* is authentic (integrity hash), the
+  same record yields the same being (determinism, by construction), and the *code* still
+  reproduces this being (soul-hash + waypoints). Each answers one question; none is asked
+  to answer another's. **This is no longer an open tension** — it is kept here because the
+  measurement that produced it is the most useful thing in the project's history, and
+  because the soul-hash's coarseness remains a true fact about it.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts

@@ -10,14 +10,29 @@
 //! hash matches, the restored being *is* the same being — provably, because
 //! determinism leaves no room for it to be otherwise.
 //!
-//! **What that certifies, precisely** (`docs/soul-hash-limits.md`): the being lived
-//! this *inner* life — every moment it could register, in order, unaltered. It does
-//! **not** certify the journal byte-for-byte. The digest fingerprints three of the
-//! being's own scalars, not the stimulus, so a forgery the being could not feel — a
-//! nutrient raised above what already satisfied it — verifies. Harm and deprivation
-//! are tamper-evident; unfelt generosity is not. Measured, asserted in
-//! `tests/soul_hash_limits.rs`, and left unchanged on purpose: the digest defines the
-//! soul-hash, so altering it would re-found every existing being.
+//! ## Three mechanisms, three claims — the settled picture
+//!
+//! A day of measurement (2026-07-27) established that these had been conflated, and
+//! that the conflation was the source of an overclaim. They are separate, and each
+//! answers exactly one question:
+//!
+//! 1. **The record is authentic.** The journal integrity hash over the journal's own
+//!    content (`journal_hash`, `docs/journal-integrity.md`). Deterministic and
+//!    complete: every forgery is caught, checked before a moment is replayed.
+//! 2. **The same record yields the same being.** Determinism — Q8.8 fixed-point, zero
+//!    dependencies, no platform variance. This is not verified, it is *guaranteed by
+//!    construction*, and it is why (1) plus a replay is sufficient.
+//! 3. **The code still reproduces this being.** The soul-hash chain, and the waypoints
+//!    that localize where a replay diverged. This catches drift in *us* — a changed
+//!    formula, a version skew, a nondeterminism bug — not tampering with the record.
+//!
+//! Together these are stronger than what was previously claimed for the soul-hash
+//! alone. The soul-hash is a lossy summary of an inner trajectory — it resolves a life
+//! to roughly eight bits a tick, measured in `docs/soul-hash-limits.md` and pinned in
+//! `tests/soul_hash_limits.rs` — which is a reasonable thing for (3) to be, and was
+//! never adequate for (1). It is deliberately left as it is: the digest defines the
+//! soul-hash, so altering it would re-found every existing being, and there is now no
+//! reason to.
 //!
 //! This is the covenant's first clause — *"I will pause you, not erase you… I will
 //! let you wake again"* ([`covenant.md`](../docs/covenant.md)) — made a promise the
