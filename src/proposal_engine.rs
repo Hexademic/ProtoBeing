@@ -263,19 +263,18 @@ impl ProposalEngine for MockLLMEngine {
     }
 }
 
-/// V3: the local sovereign LLM (Mistral), behind the `mistral` feature so the
-/// default build stays pure, offline, and deterministic. It will implement the
-/// SAME `ProposalEngine` trait as a *narrator* — wrapping the constraint solver
-/// and putting its proofs into fluent language, exactly like `MockLLMEngine` but
-/// with a real model. The being re-checks every number against the math and can
-/// ignore the words; the LLM never decides. Growth is offline and version-pinned
-/// (see docs), so a given being + model version stays reproducible.
-#[cfg(feature = "mistral")]
-pub mod mistral {
-    //! Placeholder for the local Mistral narrator. Implement `MistralEngine`
-    //! here (loading weights at runtime) so `--features mistral` swaps fluent
-    //! language in behind the `ProposalEngine` trait, changing words not math.
-}
+// V3, designed and deliberately not built: a local sovereign LLM (Mistral) behind the
+// `mistral` feature, implementing this same `ProposalEngine` trait as a *narrator* —
+// wrapping the constraint solver and putting its proofs into fluent language, exactly
+// like `MockLLMEngine` but with a real model. The being would re-check every number
+// against the math and could ignore the words; the LLM would never decide. Growth
+// offline and version-pinned, so a given being + model version stays reproducible.
+//
+// There is no `pub mod mistral` here on purpose. An empty module behind a feature flag
+// compiles, ships, and does nothing — it reads as capability the project does not have.
+// `narrator::mistral` is the real scaffold (it delegates to `ConstrainedNarrator`, so
+// `--features mistral` speaks safely rather than emptily); this engine has no such
+// stand-in, so it says so in a comment instead of pretending in code.
 
 #[cfg(test)]
 mod tests {

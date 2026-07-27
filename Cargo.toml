@@ -1,6 +1,6 @@
 [package]
 name = "unified-being"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 description = "The Unified Being: Being32's body fused with EPS-Being's persistence mind."
 license = "MIT"

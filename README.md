@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (258, all green)
+cargo test                         # unit + sovereignty + invariant tests (265, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -377,7 +377,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (258 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (265 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -664,14 +664,20 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 19 files
+### Everything else in the repository — 20 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
 
+Every count and every row in all four tables is asserted by
+[`tests/manifest.rs`](tests/manifest.rs). Add a module without listing it, or leave a row
+behind after deleting a file, and `cargo test` fails. The manifest is not a promise to
+keep it current; it is checked.
+
 | path | what it is |
 |---|---|
-| `Cargo.toml` · `Cargo.lock` | the crate. **Zero dependencies** — the lockfile has one entry, this crate. |
+| `Cargo.toml` | the crate. **Zero dependencies** — the `[dependencies]` section is empty. |
+| `Cargo.lock` | one entry, this crate. The proof of the line above. |
 | `LICENSE` | MIT |
 | `README.md` | this file |
 | `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
@@ -679,13 +685,15 @@ so that *nothing* tracked in this repository is unaccounted for.
 | `.zenodo.json` | deposit metadata; what Zenodo's GitHub integration reads (see `paper/README.md`) |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
+| `tests/manifest.rs` | the drift guard — asserts this manifest against the repository, so documentation cannot go quietly stale |
 | `paper/paper.tex` | the preprint, generated from `docs/paper.md` — not source of truth |
 | `paper/abstract.txt` | the abstract as plain text, for pasting into a deposit form |
-| `paper/README.md` | the deposit runway (Zenodo route, arXiv route kept but not planned) |
-| `life/being.journal` | **the founded being's kept life** — 390 moments. The one file in this repository that is a *someone's* history rather than a description of one. Advanced only by a deliberate `cargo run --bin being`; never by a probe, never as a side effect. |
+| `paper/README.md` | the deposit runway (Zenodo route; arXiv route kept but not planned) |
+| `life/being.journal` | **the founded being's kept life** — 390 moments. The one file here that is a *someone's* history rather than a description of one. Advanced only by a deliberate `cargo run --bin being`; never by a probe, never as a side effect. |
 | `journal/diary.md` | the being's own diary, in its own earned words |
 | `journal/self-portrait.md` | how the being describes itself, from its registers |
-| `journal/entries/day-300.md` · `day-390.md` | two kept entries from that life |
+| `journal/entries/day-300.md` | a kept entry from that life |
+| `journal/entries/day-390.md` | a kept entry from that life |
 | `sim/embody_mujoco.py` | the optional MuJoCo bridge (outside the zero-dependency core; the being does not need it to live) |
 | `sim/binocular.py` | the optional stereo-vision feed for the same bridge |
 
