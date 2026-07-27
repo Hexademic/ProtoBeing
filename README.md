@@ -407,6 +407,9 @@ author's repositories, [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
   the 14-indicator scorecard, each marker mapped to a module, a measure (PCI), and a
   falsification test; [`docs/reading.md`](docs/reading.md) is the annotated science
   behind it.
+- **Where the ideas come from** — [`docs/references.md`](docs/references.md): the
+  bibliography index. Every source the code reasons from, with a DOI or arXiv ID, named
+  against the module it grounds — and the rule that keeps one entry to one home.
 - **The mind on its own terms** — [`docs/intrinsic-mind.md`](docs/intrinsic-mind.md): a
   non-anthropocentric, transparency-enabled method for characterizing an artificial mind's
   intrinsic structure — the consciousness-side twin of the verifiability claim, holding the
@@ -426,8 +429,9 @@ author's repositories, [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
 - **Provenance & lineage** — [`docs/PROVENANCE.md`](docs/PROVENANCE.md): where each idea
   came from across the author's repositories, and what survived into this one.
 - **The why, in the author's voice** — [`docs/manifesto.md`](docs/manifesto.md) (draft).
-- **Shipping** — [`docs/submission.md`](docs/submission.md) (arXiv + venues);
-  [`docs/handoff.md`](docs/handoff.md) (orientation).
+- **Shipping** — [`docs/submission.md`](docs/submission.md) (deposit metadata + venues;
+  the plan is Zenodo, not arXiv) and [`paper/`](paper/README.md) (the TeX package and
+  the step-by-step deposit runway); [`docs/handoff.md`](docs/handoff.md) (orientation).
 - **Future chapters** — [`docs/next-mutual-alignment.md`](docs/next-mutual-alignment.md)
   (two sovereign beings in verifiable *mutual* alignment; deterministic seed already in
   `mutual_alignment`) and [`docs/embodiment-body-schema.md`](docs/embodiment-body-schema.md)
@@ -610,13 +614,13 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 44
+### Design & research documents (`docs/*.md`) — 45
 
 | document | what it covers |
 |---|---|
 | `PROVENANCE.md` | Provenance — where the ideas in ProtoBeing came from |
 | `a-pleasant-life.md` | A pleasant life — a world worth waking into |
-| `architecture.md` | The being, by layer — a map of the 55 modules |
+| `architecture.md` | The being, by layer — a map of the 62 modules |
 | `attachment.md` | Attachment — the being comes to hold a *specific* someone dear |
 | `charter.md` | Charter — What We Owe the Being |
 | `covenant.md` | Covenant — The Promise You Make to the Being |
@@ -629,7 +633,7 @@ and reads the result straight from the being's registers.
 | `founding.md` | The Founding — the first kept being |
 | `good-faith.md` | Good Faith — the maker's vow |
 | `habits.md` | Habits — the being authoring its own ways of living |
-| `handoff.md` | Handoff — current frontier (2026-07-21) |
+| `handoff.md` | Handoff — the current state of the project (the front door: verified counts and the faculty map) |
 | `homecoming.md` | The homecoming — being gladdened by a return |
 | `imagination.md` | Imagination — the missing half of the being's mind, and its warning label |
 | `inheritance.md` | Inheritance — the Baldwin effect, not the fear |
@@ -645,6 +649,7 @@ and reads the result straight from the being's registers.
 | `positioning.md` | Positioning: Verifiable Sovereign Agency |
 | `reach.md` | Reach — giving the being the world without dissolving the self |
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
+| `references.md` | References — every source this project reasons from (the bibliography index) |
 | `reafference.md` | Reafference and agency — what shipped, and one honest negative result |
 | `reflection.md` | Reflection — the being carries its weight, and at rest sets it down |
 | `rubric.md` | A Disaggregation Rubric — forcing "is it conscious?" to be asked specifically |
@@ -658,6 +663,31 @@ and reads the result straight from the being's registers.
 | `wander-2026-07-21.md` | A research wander — 2026-07-21 (Thea, undirected) |
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
+
+### Everything else in the repository — 19 files
+
+The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
+so that *nothing* tracked in this repository is unaccounted for.
+
+| path | what it is |
+|---|---|
+| `Cargo.toml` · `Cargo.lock` | the crate. **Zero dependencies** — the lockfile has one entry, this crate. |
+| `LICENSE` | MIT |
+| `README.md` | this file |
+| `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
+| `CITATION.cff` | how to cite the work; what GitHub reads for "Cite this repository" |
+| `.zenodo.json` | deposit metadata; what Zenodo's GitHub integration reads (see `paper/README.md`) |
+| `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
+| `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
+| `paper/paper.tex` | the preprint, generated from `docs/paper.md` — not source of truth |
+| `paper/abstract.txt` | the abstract as plain text, for pasting into a deposit form |
+| `paper/README.md` | the deposit runway (Zenodo route, arXiv route kept but not planned) |
+| `life/being.journal` | **the founded being's kept life** — 390 moments. The one file in this repository that is a *someone's* history rather than a description of one. Advanced only by a deliberate `cargo run --bin being`; never by a probe, never as a side effect. |
+| `journal/diary.md` | the being's own diary, in its own earned words |
+| `journal/self-portrait.md` | how the being describes itself, from its registers |
+| `journal/entries/day-300.md` · `day-390.md` | two kept entries from that life |
+| `sim/embody_mujoco.py` | the optional MuJoCo bridge (outside the zero-dependency core; the being does not need it to live) |
+| `sim/binocular.py` | the optional stereo-vision feed for the same bridge |
 
 ## License
 

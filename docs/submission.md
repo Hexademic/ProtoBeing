@@ -8,23 +8,31 @@
 > voice, inheritance, social referencing and homecoming, none of which the paper
 > describes). Before submitting, choose deliberately:
 >
-> 1. **Pin it** — submit as-is, citing the artifact at a specific commit (current HEAD
->    is `aa22b3d`), and state in the artifact section that the paper describes that
->    version. Fastest, fully honest.
+> 1. **Pin it** — deposit as-is, citing the artifact at a specific commit or release tag,
+>    and state in the artifact section that the paper describes that version. Fastest,
+>    fully honest. On Zenodo this costs nothing later: a refreshed paper becomes a new
+>    version DOI under the same concept DOI. **Recommended.**
 > 2. **Refresh it** — extend the paper to the current system. Larger job, and an
 >    authorship decision, not an editorial one.
 >
 > What must *not* happen is submitting it while silently describing a smaller system
 > than the repository contains. That is the failure mode this project exists to avoid.
 
-> Drafts. The arXiv post and the presentation request go out under **your** name and
+> **Venue note (2026-07-27).** The plan is **Zenodo**, not arXiv — a DOI minted from a
+> GitHub release, with no endorsement and no moderation queue, and version DOIs under a
+> permanent concept DOI so a pinned deposit now does not foreclose a refreshed one later.
+> The metadata below is venue-generic and serves either route; the arXiv-only fields are
+> marked as such and kept because the material is ready, not because it is queued. The
+> mechanics live in `paper/README.md` (formerly `arxiv/`).
+
+> Drafts. The deposit and the presentation request go out under **your** name and
 > account; review and edit before sending. Both hold the paper's honest scope
 > (predictive processing, not active inference; a demonstrator and a position, not a
 > solved problem).
 
 ---
 
-## A. arXiv preprint
+## A. The preprint — metadata
 
 **Title:** Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent
 Fixed-Point Substrate
@@ -33,17 +41,22 @@ Fixed-Point Substrate
 *(Disclosure line for the paper's front matter: "Developed in collaboration with an AI
 assistant; all results are reproducible from the accompanying source.")*
 
-**Primary category:** cs.AI (Artificial Intelligence)
-**Cross-list:** cs.MA (Multiagent Systems); optionally nlin.AO (Adaptation and
-Self-Organizing Systems) for the dynamical-systems framing.
+**Zenodo record:** upload type *software* (the artifact is the claim); license MIT;
+creators and keywords are already in `.zenodo.json` at the repository root, and
+`CITATION.cff` must be kept in step with it. Both currently read version 1.0.0 /
+2026-07-08 — reconcile them with the pin-or-refresh decision *before* cutting the
+release, because the DOI is permanent.
 
-**Comments field:** "Code and full reproduction:
+**Comments / description field:** "Code and full reproduction:
 https://github.com/Hexademic/ProtoBeing. Demonstrator, not a sentience claim.
 (Fill page/figure count after the PDF is produced.)"
 
-**Endorsement:** arXiv cs.AI may require an endorser for a first-time submitter.
-Candidates: anyone with cs.AI submission history who has seen the work — or request
-endorsement through the arXiv interface once the account is set up.
+**arXiv-only, if that route is ever taken:** primary category **cs.AI** (Artificial
+Intelligence); cross-list **cs.MA** (Multiagent Systems), optionally **nlin.AO**
+(Adaptation and Self-Organizing Systems) for the dynamical-systems framing. arXiv cs.AI
+may require an **endorser** for a first-time submitter — anyone with cs.AI submission
+history who has seen the work, requested through the arXiv interface once an account
+exists. Zenodo requires none of this.
 
 **Abstract (≈250 words, updated 2026-07-06 to the shipped state):**
 
@@ -114,4 +127,4 @@ The Alignment Forum / LessWrong is the room most likely to engage a *transparent
 non-corrigible* agent hard — exactly the "prove me wrong" audience the manifesto
 invites. A short post linking the preprint and repo, framed around the
 obedience-vs-isometry thesis and the three checked invariants, would draw the critique
-the work wants. Best sent *after* the arXiv post exists to link to.
+the work wants. Best sent *after* the deposit exists, so it can link a permanent DOI.

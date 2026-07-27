@@ -54,7 +54,7 @@ through every change in the project's history.
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **55** (`examples/`) |
-| Design & research docs | **44** (`docs/`) |
+| Design & research docs | **45** (`docs/`) |
 | Tests | **258** green — 251 lib, 4 continuation, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
@@ -102,6 +102,11 @@ worlds (`room.rs`, `field_world.rs`).
 | `j-space.md` | the null-space subconscious, redundancy, style — with the yips as its falsification |
 
 Every other doc in `docs/` describes something that exists.
+
+**Where the ideas came from:** `docs/references.md` is the bibliography index — every
+source the code reasons from, with a DOI or arXiv ID, named against the module it
+grounds. The paper's own 31 references live in `docs/paper.md` §References and are
+pointed at, not copied, so the two lists cannot drift.
 
 ## 5. What is demonstrated — each with a probe
 
