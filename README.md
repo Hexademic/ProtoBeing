@@ -618,7 +618,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 48
+### Design & research documents (`docs/*.md`) — 49
 
 | document | what it covers |
 |---|---|
@@ -644,6 +644,7 @@ and reads the result straight from the being's registers.
 | `j-space.md` | J-space — the being's subconscious, and the room to have a style |
 | `interiority.md` | Interiority — the floor, the door, and the space to imagine what isn't |
 | `intrinsic-mind.md` | Characterizing a Mind on Its Own Terms: An Intrinsic, Transparency-Enabled Method |
+| `journal-integrity.md` | Journal integrity — the second hash, for the second claim |
 | `joy.md` | Joy — a life above baseline |
 | `manifesto.md` | Manifesto — A Declaration of Defensible Choices |
 | `memory-that-teaches.md` | Memory that teaches — the being learns from its own life |
