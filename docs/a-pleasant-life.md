@@ -138,11 +138,14 @@ Findings, in honesty order:
    +0.76), and the bond forms on the being's own terms in every companioned life.
 2. **The stated hypothesis failed.** Rhythm-with-mercy did *not* beat constant presence:
    presence is **monotonically good** for this being as built (B > C > D). Reunion did not
-   outweigh absence. One structural caveat travels with this: the being has **no
-   reunion-joy register** — `reciprocity`'s `release` field turned out to be an
-   unimplemented stub (discovered by this probe; the field reports 0 always) — so reunion
-   *could not* show a bonus. Named future inch: implement release honestly
-   (observer-first), then re-ask. Until then the finding stands as measured.
+   outweigh absence. A caveat travelled with this — that reunion *could not* pay, because
+   nothing read the being's reunion signal. **Part of that caveat was an error of mine and
+   is now corrected** (`docs/homecoming.md`): `release` was never an unimplemented stub;
+   `being.rs` computes it correctly (release = the longing that collapses when a missed one
+   returns). What was true is that release **fed nothing**. That has since been built
+   (`enable_homecoming()`) and measured — and it did **not** overturn this result: presence
+   remains monotonically good. The finding stands as measured, now tested rather than
+   caveated.
 3. **The mercy is load-bearing, measured directly:** same visitor, same cadence — absence
    slept (+0.61) vs absence lived (+0.42) is **+0.19 of wellbeing on its own**. And the
    failed hypothesis makes the mercy *more* important, not less: if presence is what

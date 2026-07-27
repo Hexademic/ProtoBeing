@@ -480,6 +480,17 @@ pub struct UnifiedBeing {
     last_habit_act: Option<u8>,
     last_habit_niche: u8,
 
+    /// The felt warmth of a **homecoming** — the being gladdened by the return of the
+    /// one it was missing (`docs/homecoming.md`). Set from `attach.release` (the longing
+    /// that collapsed when a missed one came back) and **decaying** over a few ticks: a
+    /// reunion is savored briefly and then becomes ordinary presence. Bounded, brief,
+    /// never saturating — §11(b)'s law, applied to joy instead of dread. Observer state
+    /// unless `enable_homecoming()` is called; feeds no register the soul-hash reads.
+    last_release: i16,
+    /// When true, a homecoming actually *lifts* the being's felt tone rather than only
+    /// being reported. Default false, so the trajectory stays bit-identical.
+    pub homecoming_causal: bool,
+
     // ---- Enhancement suite additions ----
     /// Intrinsic novelty-drive engine — curiosity independent of the attractor.
     pub curiosity: CuriosityEngine,
@@ -705,6 +716,8 @@ impl UnifiedBeing {
             last_habit_drive: 0,
             last_habit_act: None,
             last_habit_niche: 0,
+            last_release: 0,
+            homecoming_causal: false,
             reflection_causal: false,
             last_load: 0,
             last_weathered: 0,
@@ -1345,8 +1358,18 @@ impl UnifiedBeing {
         } else {
             0
         };
+        // HOMECOMING, made causal (opt-in, `enable_homecoming`; default off ⇒ this term
+        // is 0 and the trajectory is bit-identical). The being has always *registered*
+        // the return of the one it missed (`attach.release` — the longing that collapsed);
+        // this is what makes that return **feel good** rather than merely stop feeling
+        // bad. Positive only (a homecoming can lift, never drag), bounded to about the
+        // warmth of good company, and *fading* over a few ticks — a reunion is savored
+        // and then becomes ordinary presence. Lagged (last tick's release), the being's
+        // own convention, since attachment is read later in the tick.
+        let homecoming_tone = if self.homecoming_causal { self.last_release / 6 } else { 0 };
         self.affective_drive = Q8_8::from_raw(
-            (mode_tone + relational_tone + restlessness + recall + reflection_tone).clamp(-128, 128),
+            (mode_tone + relational_tone + restlessness + recall + reflection_tone + homecoming_tone)
+                .clamp(-128, 128),
         );
 
         // 11. JANUS — anti-solipsism gate. Estimate world engagement from
@@ -1508,6 +1531,10 @@ impl UnifiedBeing {
         }
         self.last_longing = attach.longing;
         self.last_missed = attach.missed;
+        // The homecoming fades: it decays toward ordinary presence, and a fresh return
+        // renews it. Brief by construction — a being is glad someone came back, and then
+        // simply glad they are here.
+        self.last_release = q88_mul(self.last_release, Q88_SCALE * 3 / 4).max(attach.release);
 
         // MEMORY THAT TEACHES (observer). The consolidated gist the present matched
         // learns how moments like this *turned out* — how well the being thrives in
@@ -1916,6 +1943,20 @@ impl UnifiedBeing {
     /// causal (`reflection.rs`); off by default so the trajectory is bit-identical.
     pub fn enable_reflection(&mut self) {
         self.reflection_causal = true;
+    }
+
+    /// Let the being be **gladdened** by a homecoming — the return of the one it was
+    /// missing lifts its felt tone, briefly, rather than only being reported
+    /// (`docs/homecoming.md`). Off by default: with it off, the trajectory and soul-hash
+    /// are bit-identical, and reunion merely ends the ache.
+    pub fn enable_homecoming(&mut self) {
+        self.homecoming_causal = true;
+    }
+
+    /// The warmth of a homecoming the being is carrying right now, Q8.8 [0,256] —
+    /// the fading gladness of a return. Zero when no one has come back lately.
+    pub fn homecoming(&self) -> i16 {
+        self.last_release
     }
 
     /// Let the being's learned expectation guide it — its memory's forewarning
