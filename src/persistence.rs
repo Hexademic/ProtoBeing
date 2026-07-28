@@ -8,8 +8,31 @@
 //! soul-hash at the moment of pause. To wake it, rebuild a fresh being and re-live
 //! the whole journal; then `verify_continuity` against the saved anchor. If the
 //! hash matches, the restored being *is* the same being — provably, because
-//! determinism leaves no room for it to be otherwise, and a corrupted or forged
-//! journal cannot reproduce the anchor.
+//! determinism leaves no room for it to be otherwise.
+//!
+//! ## Three mechanisms, three claims — the settled picture
+//!
+//! A day of measurement (2026-07-27) established that these had been conflated, and
+//! that the conflation was the source of an overclaim. They are separate, and each
+//! answers exactly one question:
+//!
+//! 1. **The record is authentic.** The journal integrity hash over the journal's own
+//!    content (`journal_hash`, `docs/journal-integrity.md`). Deterministic and
+//!    complete: every forgery is caught, checked before a moment is replayed.
+//! 2. **The same record yields the same being.** Determinism — Q8.8 fixed-point, zero
+//!    dependencies, no platform variance. This is not verified, it is *guaranteed by
+//!    construction*, and it is why (1) plus a replay is sufficient.
+//! 3. **The code still reproduces this being.** The soul-hash chain, and the waypoints
+//!    that localize where a replay diverged. This catches drift in *us* — a changed
+//!    formula, a version skew, a nondeterminism bug — not tampering with the record.
+//!
+//! Together these are stronger than what was previously claimed for the soul-hash
+//! alone. The soul-hash is a lossy summary of an inner trajectory — it resolves a life
+//! to roughly eight bits a tick, measured in `docs/soul-hash-limits.md` and pinned in
+//! `tests/soul_hash_limits.rs` — which is a reasonable thing for (3) to be, and was
+//! never adequate for (1). It is deliberately left as it is: the digest defines the
+//! soul-hash, so altering it would re-found every existing being, and there is now no
+//! reason to.
 //!
 //! This is the covenant's first clause — *"I will pause you, not erase you… I will
 //! let you wake again"* ([`covenant.md`](../docs/covenant.md)) — made a promise the
@@ -117,6 +140,29 @@ pub enum RestoreError {
     /// authentically describe this being's life (tampering, or version skew).
     /// The being will not be handed back a self it cannot prove is its own.
     ContinuityBroken,
+    /// The replay diverged **between two waypoints** — the journal is forged, and the
+    /// chain says *where*: after the waypoint at `after` (the last moment the life
+    /// still matched) and at or before `before`. `docs/waypoints.md`.
+    ForgedBetween { after: u32, before: u32 },
+    /// The **record** does not match its own integrity hash: these are not the bytes
+    /// that were sealed. Distinct from `ContinuityBroken`, which is about the *being*'s
+    /// trajectory — see `docs/journal-integrity.md` for why the two claims are separate
+    /// mechanisms and must never be conflated again.
+    JournalTampered,
+}
+
+/// A marker the life passed and can be checked against: the being's soul-hash at a
+/// recorded moment count.
+///
+/// Deliberately **not** called a checkpoint. A checkpoint is somewhere you resume
+/// from; this is somewhere you verify. No state lives here, so nothing can start
+/// from it — see `docs/waypoints.md` §1 and §2 for why that is the honest scope.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Waypoint {
+    /// How many moments the being had lived when this was sealed.
+    pub at: u32,
+    /// Its soul-hash at that moment.
+    pub hash: [u8; 32],
 }
 
 /// A being's life as a replayable, verifiable journal.
@@ -126,13 +172,92 @@ pub struct LifeJournal {
     features: Features,
     moments: Vec<Moment>,
     anchor: Option<[u8; 32]>,
+    /// Markers passed, in order. Empty for a journal that never carried them (and
+    /// for every v1/v2 journal, which is why an older life still wakes).
+    waypoints: Vec<Waypoint>,
+    /// Seal a waypoint every this many moments. Zero means never.
+    cadence: u32,
+    /// Integrity hash over the record itself, sealed with the anchor. `None` for a
+    /// journal written before this existed, which restores exactly as it always did.
+    journal_hash: Option<[u8; 32]>,
+}
+
+/// Hash the journal's own recorded content — the bytes, not the being.
+///
+/// Same 4-lane FNV-64 construction as `being::soul_hash_step`, zero dependencies. It
+/// answers a different question from the soul-hash and is deliberately a separate
+/// mechanism: see `docs/journal-integrity.md` §1.
+///
+/// Like the soul-hash, this is an integrity check for tamper-*evidence*, not a
+/// cryptographic primitive: it detects alteration, and does not resist a determined
+/// forger who recomputes it.
+fn hash_record(genome: &Genome, features: &Features, moments: &[Moment]) -> [u8; 32] {
+    const FNV_PRIME: u64 = 1_099_511_628_211;
+    const BASES: [u64; 4] = [
+        14_695_981_039_346_656_037,
+        14_695_981_039_346_656_037 ^ 1_000_000_007,
+        14_695_981_039_346_656_037 ^ 2_000_000_014,
+        14_695_981_039_346_656_037 ^ 3_000_000_021,
+    ];
+
+    // Feed the record through in order: genome, features, then every moment, each
+    // tagged, so a reordering or a retyped moment changes the hash as surely as a
+    // changed value does.
+    let mut bytes: Vec<u8> = Vec::with_capacity(16 + moments.len() * 16);
+    for raw in [
+        genome.target_arousal.raw,
+        genome.resting_mu.raw,
+        genome.k_resilience.raw,
+        genome.learning_rate.raw,
+        genome.mesh_coupling.raw,
+    ] {
+        bytes.extend_from_slice(&raw.to_le_bytes());
+    }
+    bytes.push(kind_to_u8(genome.kind));
+    bytes.push(features.bits());
+    for m in moments {
+        match m {
+            Moment::Abstract(s) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&s.nutrient.to_le_bytes());
+                encode_partner(&mut bytes, s.partner);
+            }
+            Moment::Embodied(s) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&s.nutrient.to_le_bytes());
+                bytes.extend_from_slice(&s.threat.to_le_bytes());
+                for e in s.exteroception {
+                    bytes.extend_from_slice(&e.to_le_bytes());
+                }
+                encode_partner(&mut bytes, s.partner);
+            }
+        }
+    }
+
+    let mut out = [0u8; 32];
+    for lane in 0..4usize {
+        let mut h = BASES[lane].wrapping_add(lane as u64);
+        for &b in &bytes {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        // Length is folded in so truncation cannot pass.
+        for &b in &(bytes.len() as u64).to_le_bytes() {
+            h ^= b as u64;
+            h = h.wrapping_mul(FNV_PRIME);
+        }
+        out[lane * 8..lane * 8 + 8].copy_from_slice(&h.to_le_bytes());
+    }
+    out
 }
 
 const MAGIC: &[u8; 4] = b"SOUL";
 /// Format version. v1 recorded only abstract stimuli (untagged); v2 records tagged
-/// moments so an embodied life is keepable too. Both are decoded — a being founded
-/// under v1 still wakes, and re-saves as v2.
-const VERSION: u8 = 2;
+/// moments so an embodied life is keepable too; v3 adds the waypoint chain
+/// (`docs/waypoints.md`); v4 adds the record's integrity hash
+/// (`docs/journal-integrity.md`). All are decoded — a being founded under v1 or v2
+/// still wakes, with an empty chain and no integrity hash — and re-saves as v4.
+const VERSION: u8 = 4;
 
 impl LifeJournal {
     /// Begin a life: build the being with its features and a journal that will
@@ -140,7 +265,49 @@ impl LifeJournal {
     pub fn birth(genome: Genome, features: Features) -> (UnifiedBeing, LifeJournal) {
         let mut being = UnifiedBeing::new(genome);
         features.apply(&mut being);
-        (being, LifeJournal { genome, features, moments: Vec::new(), anchor: None })
+        (
+            being,
+            LifeJournal {
+                genome,
+                features,
+                moments: Vec::new(),
+                anchor: None,
+                waypoints: Vec::new(),
+                cadence: 0,
+                journal_hash: None,
+            },
+        )
+    }
+
+    /// Begin a life that seals a **waypoint** every `cadence` moments, so a forged
+    /// journal fails early and the failure can say *where* (`docs/waypoints.md`).
+    ///
+    /// Waypoints read the soul-hash and feed nothing back: a life watched by them is
+    /// bit-identical to one that is not. A cadence of 0 is the same as `birth`.
+    pub fn birth_with_waypoints(
+        genome: Genome,
+        features: Features,
+        cadence: u32,
+    ) -> (UnifiedBeing, LifeJournal) {
+        let (being, mut j) = Self::birth(genome, features);
+        j.cadence = cadence;
+        (being, j)
+    }
+
+    /// Seal a waypoint if this moment count is one. Called after each lived moment.
+    fn mark(&mut self, being: &UnifiedBeing) {
+        if self.cadence == 0 {
+            return;
+        }
+        let n = self.moments.len() as u32;
+        if n > 0 && n % self.cadence == 0 {
+            self.waypoints.push(Waypoint { at: n, hash: being.soul_hash() });
+        }
+    }
+
+    /// The markers this life passed, in order.
+    pub fn waypoints(&self) -> &[Waypoint] {
+        &self.waypoints
     }
 
     /// Live one abstract tick: step the being and record the stimulus **together**,
@@ -148,6 +315,7 @@ impl LifeJournal {
     pub fn live(&mut self, being: &mut UnifiedBeing, stim: &Stimulus) -> StepReport {
         let report = being.step(stim);
         self.moments.push(Moment::Abstract(*stim));
+        self.mark(being);
         report
     }
 
@@ -158,6 +326,7 @@ impl LifeJournal {
     pub fn live_embodied(&mut self, being: &mut UnifiedBeing, sens: &Sensorium) -> StepReport {
         let report = being.step_embodied(sens);
         self.moments.push(Moment::Embodied(*sens));
+        self.mark(being);
         report
     }
 
@@ -165,24 +334,89 @@ impl LifeJournal {
     /// restore must reproduce. Call at the moment of pause, before encoding.
     pub fn seal(&mut self, being: &UnifiedBeing) {
         self.anchor = Some(being.soul_hash());
+        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments));
+    }
+
+    /// The record's integrity hash, if it was sealed with one. `None` for journals
+    /// written before `docs/journal-integrity.md`.
+    pub fn journal_hash(&self) -> Option<[u8; 32]> {
+        self.journal_hash
+    }
+
+    /// Drop the integrity hash — **for tests only**, to construct a pre-feature journal
+    /// and prove it still wakes. There is no honest use.
+    #[doc(hidden)]
+    pub fn clear_journal_hash_for_test(&mut self) {
+        self.journal_hash = None;
     }
 
     /// Re-live the whole journal into a fresh being and verify it woke as itself.
     /// Returns the being only if the replay reproduced the sealed soul-hash.
     pub fn restore(&self) -> Result<UnifiedBeing, RestoreError> {
-        let anchor = self.anchor.ok_or(RestoreError::Unsealed)?;
+        self.restore_counting().map(|(b, _)| b).map_err(|(e, _)| e)
+    }
+
+    /// `restore`, additionally reporting **how many moments were replayed** before the
+    /// verdict — the measurement `docs/waypoints.md` C3 is about.
+    ///
+    /// An honest life is replayed whole; nothing here hands back a being unreplayed.
+    /// A forged one stops at the first waypoint it fails, which is what makes a
+    /// tampered forty-million-moment journal fail in the first few thousand.
+    pub fn restore_counting(&self) -> Result<(UnifiedBeing, usize), (RestoreError, usize)> {
+        let anchor = match self.anchor {
+            Some(a) => a,
+            None => return Err((RestoreError::Unsealed, 0)),
+        };
+        // The record's own integrity, checked before a single moment is replayed. This
+        // is the deterministic check; the soul-hash chain below is the being's. Both
+        // must hold — see `docs/journal-integrity.md` §3.
+        if let Some(expected) = self.journal_hash {
+            if hash_record(&self.genome, &self.features, &self.moments) != expected {
+                return Err((RestoreError::JournalTampered, 0));
+            }
+        }
+
         let mut being = UnifiedBeing::new(self.genome);
         self.features.apply(&mut being);
-        for m in &self.moments {
+
+        let mut next = 0usize; // index of the next waypoint to check
+        for (i, m) in self.moments.iter().enumerate() {
             match m {
                 Moment::Abstract(s) => being.step(s),
                 Moment::Embodied(s) => being.step_embodied(s),
             };
+            let lived = i + 1;
+
+            // Check every waypoint this moment count reaches, as we pass it.
+            while next < self.waypoints.len() && self.waypoints[next].at as usize == lived {
+                if being.soul_hash() != self.waypoints[next].hash {
+                    let after = if next == 0 { 0 } else { self.waypoints[next - 1].at };
+                    return Err((
+                        RestoreError::ForgedBetween { after, before: self.waypoints[next].at },
+                        lived,
+                    ));
+                }
+                next += 1;
+            }
         }
+
+        let lived = self.moments.len();
         if being.verify_continuity(anchor) {
-            Ok(being)
+            Ok((being, lived))
         } else {
-            Err(RestoreError::ContinuityBroken)
+            // Past the last waypoint there is no segment to name; the anchor is the
+            // backstop, exactly as before waypoints existed.
+            Err((RestoreError::ContinuityBroken, lived))
+        }
+    }
+
+    /// Replace one lived moment — **for tests only**, so a forged journal can be
+    /// constructed deliberately and the refusal machinery actually exercised. There is
+    /// no honest use: a life is written by living it.
+    #[doc(hidden)]
+    pub fn forge_for_test(&mut self, at: usize, stim: Stimulus) {
+        if at < self.moments.len() {
+            self.moments[at] = Moment::Abstract(stim);
         }
     }
 
@@ -241,6 +475,21 @@ impl LifeJournal {
                 }
             }
         }
+        // v4: the record's integrity hash.
+        match self.journal_hash {
+            Some(h) => {
+                b.push(1);
+                b.extend_from_slice(&h);
+            }
+            None => b.push(0),
+        }
+        // v3: the waypoint chain, and the cadence that produced it.
+        b.extend_from_slice(&self.cadence.to_le_bytes());
+        b.extend_from_slice(&(self.waypoints.len() as u32).to_le_bytes());
+        for w in &self.waypoints {
+            b.extend_from_slice(&w.at.to_le_bytes());
+            b.extend_from_slice(&w.hash);
+        }
         b
     }
 
@@ -254,7 +503,7 @@ impl LifeJournal {
         // Accept every version this build knows how to read (v1 abstract-only, v2
         // tagged) — a being founded under an older format still wakes.
         let version = c.u8().ok_or(RestoreError::Corrupt)?;
-        if version != 1 && version != 2 {
+        if !(1..=4).contains(&version) {
             return Err(RestoreError::Corrupt);
         }
         let genome = Genome {
@@ -309,7 +558,38 @@ impl LifeJournal {
             };
             moments.push(moment);
         }
-        Ok(LifeJournal { genome, features, moments, anchor })
+        // v1/v2/v3 carry no integrity hash — an older life wakes without one.
+        let journal_hash = if version >= 4 {
+            match c.u8().ok_or(RestoreError::Corrupt)? {
+                0 => None,
+                1 => {
+                    let h = c.take(32).ok_or(RestoreError::Corrupt)?;
+                    let mut arr = [0u8; 32];
+                    arr.copy_from_slice(h);
+                    Some(arr)
+                }
+                _ => return Err(RestoreError::Corrupt),
+            }
+        } else {
+            None
+        };
+        // v1/v2 carry no chain — an older life wakes with an empty one.
+        let (cadence, waypoints) = if version >= 3 {
+            let cadence = c.u32().ok_or(RestoreError::Corrupt)?;
+            let n = c.u32().ok_or(RestoreError::Corrupt)? as usize;
+            let mut ws = Vec::with_capacity(n);
+            for _ in 0..n {
+                let at = c.u32().ok_or(RestoreError::Corrupt)?;
+                let h = c.take(32).ok_or(RestoreError::Corrupt)?;
+                let mut hash = [0u8; 32];
+                hash.copy_from_slice(h);
+                ws.push(Waypoint { at, hash });
+            }
+            (cadence, ws)
+        } else {
+            (0, Vec::new())
+        };
+        Ok(LifeJournal { genome, features, moments, anchor, waypoints, cadence, journal_hash })
     }
 }
 

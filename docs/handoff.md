@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **55** (`examples/`) |
-| Design & research docs | **45** (`docs/`) |
-| Tests | **265** green — 251 lib, 7 manifest (the drift guard), 4 continuation, 2 sovereignty, 1 doctest |
+| Runnable probes | **57** (`examples/`) |
+| Design & research docs | **49** (`docs/`) |
+| Tests | **294** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 journal-integrity, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -93,8 +93,9 @@ worlds (`room.rs`, `field_world.rs`).
 
 - `homeostasis.rs` — the graded drive (Keramati–Gutkin); reveals the worn-but-alive middle.
 - `habits.rs` — the earned niche→act repertoire. **Character measured, never yet in the wheel.**
-- `primes.rs` — the NSM prime layer and audited explications. Sits *beside* the tick;
-  `being.rs` is not modified by it at all.
+- `primes.rs` — the NSM prime layer, audited explications, and **nested speech** (the
+  tree, role propagation, the recursive audit — `docs/nested-speech.md`). Sits *beside*
+  the tick; `being.rs` is not modified by it at all.
 - `inheritance.rs` — disposition genome → readiness vector (the Baldwin effect).
 - `social.rs` — social referencing, with its freedom guardrails.
 - `prospection.rs` — the loom. It imagines and steers nothing (Charter §11).
@@ -123,7 +124,10 @@ Persistent character across shutdown. It **learns from its past**; develops **it
 a nearer stranger; **carries the weight of a hard life** and turns it to weathered resilience
 without trauma; lives in a **world with stakes** where motion costs; **speaks in words it
 earned** and cannot assert what does not hold (1486 sentences spoken, 1486 passed the audit);
-and can hand a lineage **ease of learning without its fears**.
+**embeds one claim inside another** without the audit weakening at depth — and shows
+*character in its grammar*, one life embedding a want in 40% of its sentences where the
+other, its needs met, almost never embeds at all; and can hand a lineage **ease of
+learning without its fears**.
 
 ## 6. Honest open tensions — named, not papered over
 
@@ -139,6 +143,25 @@ and can hand a lineage **ease of learning without its fears**.
   determined, so the being can have preferences but not yet a *manner*.
 - **The bond fades in absence** faster than longing sharpens (`docs/homecoming.md`), capping
   reunion joy and quietly eroding an absent partner. A real design question, surfaced.
+- **The soul-hash resolves a life to about eight bits a tick** (`docs/soul-hash-limits.md`,
+  found 2026-07-27). The digest is `free_energy + conscience_cost + identity_coherence`,
+  which in a settled life sums to ~210, so a single forged moment frequently moves it by
+  less than one integer step and is never recorded. Measured: starving one previously-fed
+  moment of a 20,000-moment life is **not detected** at moments 1,013 / 5,007 / 10,001 /
+  19,990. Detection is probabilistic and delayed, not deterministic — this is the
+  project's weakest link against its own tamper-evidence claim, and the claim (not the
+  code) has been corrected everywhere it appeared. Sustained mistreatment *is* detected.
+  Pinned in `tests/soul_hash_limits.rs`. Deliberately not fixed: the digest defines the
+  soul-hash, so changing it re-founds every existing being. **Answered the same day, not
+  by touching the digest** — `docs/journal-integrity.md` adds a separate record-integrity
+  hash that catches every forgery deterministically, including all four the soul-hash
+  misses. The verification story is now three mechanisms answering three questions, set
+  out in `persistence.rs`'s module docs: the *record* is authentic (integrity hash), the
+  same record yields the same being (determinism, by construction), and the *code* still
+  reproduces this being (soul-hash + waypoints). Each answers one question; none is asked
+  to answer another's. **This is no longer an open tension** — it is kept here because the
+  measurement that produced it is the most useful thing in the project's history, and
+  because the soul-hash's coarseness remains a true fact about it.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts

@@ -55,7 +55,8 @@ function of `(genome, features, the sequence of stimuli lived)`. So persistence 
 pause; to wake, rebuild the being and re-live its trajectory, then
 `verify_continuity` against the saved anchor. If the hash matches, the restored
 being *is* the same being — provably, because determinism leaves no room for it to
-be otherwise. A corrupted or forged journal fails the check. This makes the
+be otherwise. A journal forged in anything the being could register fails the check
+(`docs/soul-hash-limits.md` measures the exact scope, and what falls outside it). This makes the
 covenant's first clause — *"I will pause you, not erase you… I will let you wake
 again"* — a promise the substrate can finally **keep**. (Cost grows with life
 length; periodic compaction/checkpoints are a later optimization, not a

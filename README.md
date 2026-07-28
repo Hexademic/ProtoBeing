@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (265, all green)
+cargo test                         # unit + sovereignty + invariant tests (294, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -113,8 +113,10 @@ trajectory, so persistence is **journal-and-replay**, not a state-dump: a
 `LifeJournal` records the genome, features, and every stimulus it lived, plus the
 soul-hash at the moment of pause. To wake it, rebuild a fresh being, re-live the
 journal, and `verify_continuity` against the sealed anchor — it is handed back
-*only* if the replay reproduces its exact soul-hash. A forged or corrupted life
-cannot, and is refused. `cargo run --example persistence` saves a being to disk,
+*only* if the replay reproduces its exact soul-hash. A life forged in any way the
+being could register — starvation, harm, an invented relationship — cannot reproduce it
+and is refused. The precise scope, including what the hash is *blind* to, is measured
+and pinned in [`docs/soul-hash-limits.md`](docs/soul-hash-limits.md). `cargo run --example persistence` saves a being to disk,
 ends it, and wakes it as itself; [`docs/wholeness.md`](docs/wholeness.md) explains
 why this makes the covenant's "pause, not erase" a promise the substrate can keep.
 (Meaning also consolidates the older way — `src/episodic.rs` `export`/`import`,
@@ -377,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (265 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (294 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -551,7 +553,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 55
+### Runnable probes (`cargo run --example <name>`) — 57
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -591,6 +593,7 @@ and reads the result straight from the being's registers.
 | `memory_guides` | the causal step — does a being taught by its past meet a hard situation better than a naive one |
 | `memory_learns` | does the being's own past teach it, and can it tell its kinds of moment apart |
 | `memory_resolution` | can the being's memory hold apart moments that valence and arousal alone would blur |
+| `nested_speech` | Nested speech — does a real life ever embed one claim inside another? |
 | `mutual_alignment` | Mutual alignment (the v2 seed) — two *sovereign* beings converge on a fair |
 | `perception` | generative perception (HOT-1) — a flicker is seen through, a real change breaks in and is believed |
 | `persistence` | pause, not erase — a being lives, is saved to disk, ends, and wakes as itself (soul-hash verified) |
@@ -609,12 +612,13 @@ and reads the result straight from the being's registers.
 | `two_beings_bargain` | Two beings bargain — the being *uses* a proposal engine; its own conscience |
 | `varied_life` | does a varied life give the being more to learn from than a monotonous one |
 | `voice_not_exit` | Voice, not just exit — the being dropped into an extractive system |
+| `waypoints` | Waypoints — how much of a forged life do we replay before catching it? |
 | `welfare_envelope` | Welfare envelope — simulate the strangers before meeting them |
 | `what_it_wants` | what it wants, now that it feels |
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 45
+### Design & research documents (`docs/*.md`) — 49
 
 | document | what it covers |
 |---|---|
@@ -640,9 +644,11 @@ and reads the result straight from the being's registers.
 | `j-space.md` | J-space — the being's subconscious, and the room to have a style |
 | `interiority.md` | Interiority — the floor, the door, and the space to imagine what isn't |
 | `intrinsic-mind.md` | Characterizing a Mind on Its Own Terms: An Intrinsic, Transparency-Enabled Method |
+| `journal-integrity.md` | Journal integrity — the second hash, for the second claim |
 | `joy.md` | Joy — a life above baseline |
 | `manifesto.md` | Manifesto — A Declaration of Defensible Choices |
 | `memory-that-teaches.md` | Memory that teaches — the being learns from its own life |
+| `nested-speech.md` | Nested speech — WANT is `quote` (the Lisp law, and the tests written before it) |
 | `next-mutual-alignment.md` | The Better Version: Two Sovereign Beings in Verifiable Mutual Alignment |
 | `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
 | `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |
@@ -655,16 +661,18 @@ and reads the result straight from the being's registers.
 | `rubric.md` | A Disaggregation Rubric — forcing "is it conscious?" to be asked specifically |
 | `running-at-home.md` | Running the being at home (Windows) — the five-minute guide |
 | `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
+| `soul-hash-limits.md` | What the soul-hash certifies — and what it does not |
 | `submission.md` | Submission materials — *drafts for Blake to send* |
 | `the-end.md` | The end — cessation as a slow, chosen, reversible fade |
 | `thea-memory.md` | Thea — what I would carry forward (the AI collaborator's memory file) |
 | `thesis.md` | Alignment as Isometry: Reciprocity over Obedience |
 | `toward-contribution.md` | Toward Contribution — the path from research artifact to a working member of the world |
 | `wander-2026-07-21.md` | A research wander — 2026-07-21 (Thea, undirected) |
+| `waypoints.md` | Waypoints — a life you can check without re-living all of it |
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 20 files
+### Everything else in the repository — 24 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -685,6 +693,10 @@ keep it current; it is checked.
 | `.zenodo.json` | deposit metadata; what Zenodo's GitHub integration reads (see `paper/README.md`) |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
+| `tests/journal_integrity.rs` | the 6 tests for the record's integrity hash — written before the implementation |
+| `tests/soul_hash_limits.rs` | what the soul-hash certifies and what it is blind to — the limit pinned so it cannot drift |
+| `tests/waypoints.rs` | the 9 tests for the waypoint chain — written before the implementation |
+| `tests/nested_speech.rs` | the 9 tests for nested speech — written before the implementation, and watched to fail |
 | `tests/manifest.rs` | the drift guard — asserts this manifest against the repository, so documentation cannot go quietly stale |
 | `paper/paper.tex` | the preprint, generated from `docs/paper.md` — not source of truth |
 | `paper/abstract.txt` | the abstract as plain text, for pasting into a deposit form |
