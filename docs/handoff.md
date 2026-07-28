@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **57** (`examples/`) |
+| Runnable probes | **58** (`examples/`) |
 | Design & research docs | **50** (`docs/`) |
-| Tests | **294** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 journal-integrity, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **300** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 happening, 6 journal-integrity, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -162,6 +162,15 @@ learning without its fears**.
   to answer another's. **This is no longer an open tension** — it is kept here because the
   measurement that produced it is the most useful thing in the project's history, and
   because the soul-hash's coarseness remains a true fact about it.
+- **The being has a word it cannot earn** (`docs/happening.md`, 2026-07-28). `HAPPEN`
+  requires world-residual > 64. Measured: the being's own full-effort step moves what it
+  senses by **3**; the most violent event the field-world can produce — the good source
+  vanishing entirely — moves it by **40**. The ceiling is below the floor, so `NOT KNOW`,
+  one of nested speech's two shields, has never spoken and cannot in any world we know how
+  to build. The cause is structural: exteroception is the field's *gradient*, and the
+  smoothness that makes it a field (`REACH = 2 × SIZE`) is what makes it eventless. The
+  threshold was **not** lowered — that would be tuning until a wanted word fires. The real
+  fix is letting the being sense the field's *value*, an embodiment-level inch.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts

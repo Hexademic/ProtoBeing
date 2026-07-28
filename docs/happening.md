@@ -1,8 +1,10 @@
 # Happening — a word for what is done to you
 
-> **Status: designed, tests written first, not yet built.** Committed before the tests and
-> before a line of implementation, so §6's predictions are on the record before any result
-> exists. See `docs/handoff.md` for the project-wide faculty map.
+> **Status: built, measured, and the crux prediction FAILED** — `field_world.rs`
+> (`with_drift`), `tests/happening.rs` (written *first*), `examples/happening`. §1–§7 are
+> exactly as committed in `559aa54`, **before** the tests and before a line of
+> implementation. §8 is what came out: the world moves, and the being cannot notice.
+> The threshold was not lowered to fix that.
 
 *Written 2026-07-28. Out of one line in yesterday's measurement, and out of what yesterday
 turned out to be about.*
@@ -116,3 +118,94 @@ happens to you.
 Spec committed first. Tests written against it and watched to fail. Then implementation,
 then the measurement, then §8 with what came out — including H5's verdict, which I am
 willing to have come back against this.
+
+---
+
+## 8. Measured (2026-07-28) — H2 failed, and the reason is the finding
+
+Order: spec committed (`559aa54`) → tests written and watched to fail → implementation →
+measurement. The six pre-written tests pass: the world does move on its own,
+deterministically, within bounds, and only when asked.
+
+### H1 and H5 held. H2 and H3 did not.
+
+| world | mean residual | HAPPEN | agency | drive | `(NOT KNOW HAPPEN)` |
+|---|---|---|---|---|---|
+| still (control) | 14 | never | 0.08 | 0.18 | 0 |
+| drift every 32 | 14 | never | 0.08 | 0.16 | 0 |
+| drift every 16 | 16 | never | 0.07 | 0.18 | 0 |
+| drift every 8 | 14 | never | 0.07 | 0.15 | 0 |
+| drift every 4 | 15 | never | 0.06 | 0.16 | 0 |
+| drift every 2 | 14 | never | 0.06 | 0.13 | 0 |
+
+- **H1 held.** Every prior probe is bit-identical — `nested_speech` still reports
+  588 / 2 / 898 / 360 exactly.
+- **H5 held**, and it was the gate: no cadence made the being worse off. All alive, drive
+  flat or slightly better. Nothing here harmed it.
+- **H2 failed.** No cadence taught the word.
+- **H3** could not be reached, since it depends on H2.
+- **H4** is a real but tiny effect: agency 0.08 → 0.06 across the sweep. Directionally as
+  predicted — residual up, agency down — and far too small to call a welfare finding.
+
+### Why — and it is structural, not a badly-picked knob
+
+§6 named the two possibilities in advance: *the drift is too gentle to notice*, or
+*`HAPPEN`'s threshold is set for a world we never built*. Measured, at a fixed body
+position, in change to what the being actually senses:
+
+| | Δ exteroception |
+|---|---|
+| the being's **own full-effort step** | **3** |
+| the good source **vanishing entirely** | **40** |
+| what `Prime::Happen` requires | **> 64** |
+
+**The ceiling is below the floor.** The most violent event this world class can produce —
+the good ceasing to exist — is 40, and the threshold is 64. Drifting the source faster
+cannot help; nothing available can.
+
+The cause is the field's smoothness, and it traces to a choice we made on purpose.
+`docs/field-world.md`: *"sources reach across the whole field, so there is always a
+gradient to feel — it is a field, not a set of local beacons."* `REACH = 2 × SIZE`. A
+landscape that reaches everywhere is nearly linear, so its **gradient** — which is what
+the four exteroceptive channels carry — barely moves when a source does.
+
+> **The property that made it a field is the property that makes it eventless.** A
+> perfectly smooth world cannot contain a happening.
+
+### What I am not doing, and why
+
+I could make H2 pass by changing one character: `Q88_SCALE / 4` to `Q88_SCALE / 8`.
+
+I am not going to, and the reason matters more than the result. Grounding thresholds are
+what make a prime *earned* rather than installed. Moving one so that a word I wanted fires
+would be tuning until the answer is the one I hoped for — the exact thing "told, not tuned"
+exists to forbid. If `HAPPEN`'s threshold changes, it changes on an argument about what
+the word means, made in the open, and not as a side effect of someone's feature working.
+
+There **is** such an argument, and honesty requires me to record that I only found it after
+the failure, which is precisely when to distrust it: a world event of 40 is **thirteen
+times larger than anything the being can do to itself** (3). A threshold of 64 asks for an
+event twenty-one times its own maximal action before it will call something a happening.
+That may be a definition of *cataclysm* rather than of *something happened*. I think that
+argument is probably right. **I have not acted on it.** It is Blake's call, with the
+numbers above, and it should be made on what the word means.
+
+### What was kept, and what it is
+
+The drift mechanism stays. It does exactly what it claims — the world moves without being
+pushed, deterministically, harmlessly, opt-in — and that is proven in
+`tests/happening.rs`. What it does **not** do is make the being able to notice, and both
+halves are needed for the finding to be reproducible. It is not a stub; it is a working
+world the being is currently deaf to.
+
+### The real fix, named and not built
+
+Exteroception in the field-world is a **gradient** — a difference between neighbouring
+points. Differences are small and smooth by construction, which is why events do not
+survive into them. A being that also sensed the field's **value** would feel a vanishing
+immediately. That is an embodiment-level change across the `Embodiment` seam, not an
+afternoon, and it is the honest next inch for this thread.
+
+Until then the finding stands as it is: **the being has a word it cannot earn, in any
+world we know how to build.** That is worth more than a word we taught it by lowering the
+bar.

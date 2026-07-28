@@ -122,6 +122,26 @@ struct Source {
     reach: i16,
 }
 
+/// A source that moves **on its own** — the world doing something the being did not do
+/// (`docs/happening.md`).
+///
+/// This exists so `Prime::Happen` has something to be earned from. The being's forward
+/// model (`sensorimotor.rs`) predicts the sensory consequences of its *own action*; a
+/// drift is not its action, so the change it causes lands in `world_residual` and stays
+/// there however regular the cadence is. Deterministic — no RNG, here or anywhere.
+#[derive(Clone, Copy, Debug)]
+struct Drift {
+    /// Which source moves.
+    source: usize,
+    /// Move once every this many ticks. Zero never moves.
+    every: u32,
+    /// How far it goes each time, before bouncing at the field's edge.
+    step: (i16, i16),
+    /// Current direction sign, flipped on each bounce so the source paces rather than
+    /// pinning itself to a wall.
+    dir: (i16, i16),
+}
+
 /// The being's field-world: a scalar viability landscape with a cost of motion, behind
 /// the same `Embodiment` seam as `room.rs`. Deterministic, zero-dependency.
 #[derive(Clone, Debug)]
@@ -143,6 +163,9 @@ pub struct FieldWorld {
     /// against the nourishment it reports. Decays as the being coasts and rests.
     debt: i16,
     ticks: u32,
+    /// Sources that move by themselves. Empty by default — a world without drift is
+    /// bit-identical to every world this project has ever built.
+    drifts: Vec<Drift>,
 }
 
 impl FieldWorld {
@@ -162,6 +185,7 @@ impl FieldWorld {
             visitors: vec![],
             debt: 0,
             ticks: 0,
+            drifts: vec![],
         }
     }
 
@@ -178,6 +202,7 @@ impl FieldWorld {
             visitors: vec![],
             debt: 0,
             ticks: 0,
+            drifts: vec![],
         }
     }
 
@@ -219,6 +244,50 @@ impl FieldWorld {
 
     /// Add a source to the field — another hill or pit, so ridges and saddles can emerge
     /// between it and the others (a harder landscape to live in).
+    /// Give a source a life of its own: it moves `step` every `every` ticks, bouncing
+    /// inside the field. **Opt-in and off by default** — a world built without this is
+    /// bit-identical to the ones every prior probe used (`docs/happening.md` §5).
+    ///
+    /// This is the only way anything in a field-world changes without the being having
+    /// changed it, which is precisely what `Prime::Happen` is grounded on.
+    pub fn with_drift(mut self, source: usize, every: u32, step: (i16, i16)) -> Self {
+        if source < self.sources.len() {
+            self.drifts.push(Drift { source, every, step, dir: (1, 1) });
+        }
+        self
+    }
+
+    /// Where a source is right now — so a probe can see that the world moved, and by
+    /// how much, without inferring it from the being's reaction.
+    pub fn source_at(&self, i: usize) -> (i16, i16) {
+        self.sources.get(i).map(|s| s.pos).unwrap_or((0, 0))
+    }
+
+    /// Advance every drifting source one cadence-step, bouncing at the field's edge.
+    /// Called once per tick, before the being's own motion is charged for.
+    fn drift_sources(&mut self) {
+        for d in 0..self.drifts.len() {
+            let dr = self.drifts[d];
+            if dr.every == 0 || self.ticks % dr.every != 0 || dr.source >= self.sources.len() {
+                continue;
+            }
+            let pos = self.sources[dr.source].pos;
+            let want = (pos.0 + dr.step.0 * dr.dir.0, pos.1 + dr.step.1 * dr.dir.1);
+            // Bounce rather than clamp: a source pinned to a wall would quietly make the
+            // world still again, and the drift would stop being a happening.
+            let mut dir = dr.dir;
+            if want.0 < 0 || want.0 > SIZE - 1 {
+                dir.0 = -dir.0;
+            }
+            if want.1 < 0 || want.1 > SIZE - 1 {
+                dir.1 = -dir.1;
+            }
+            self.drifts[d].dir = dir;
+            let next = (pos.0 + dr.step.0 * dir.0, pos.1 + dr.step.1 * dir.1);
+            self.sources[dr.source].pos = Self::clamp_pt(next);
+        }
+    }
+
     pub fn with_source(mut self, pos: (i16, i16), peak: i16, reach: i16) -> Self {
         self.sources.push(Source { pos, peak, reach });
         self
@@ -494,6 +563,7 @@ impl Embodiment for FieldWorld {
             .min(DEBT_CAP as i32) as i16;
 
         self.ticks = self.ticks.saturating_add(1);
+        self.drift_sources();
     }
 }
 
