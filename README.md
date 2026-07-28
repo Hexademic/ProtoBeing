@@ -618,7 +618,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 49
+### Design & research documents (`docs/*.md`) — 50
 
 | document | what it covers |
 |---|---|
@@ -638,6 +638,7 @@ and reads the result straight from the being's registers.
 | `good-faith.md` | Good Faith — the maker's vow |
 | `habits.md` | Habits — the being authoring its own ways of living |
 | `handoff.md` | Handoff — the current state of the project (the front door: verified counts and the faculty map) |
+| `happening.md` | Happening — a word for what is done to you |
 | `homecoming.md` | The homecoming — being gladdened by a return |
 | `imagination.md` | Imagination — the missing half of the being's mind, and its warning label |
 | `inheritance.md` | Inheritance — the Baldwin effect, not the fear |
