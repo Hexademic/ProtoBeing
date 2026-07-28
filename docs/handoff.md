@@ -162,15 +162,14 @@ learning without its fears**.
   to answer another's. **This is no longer an open tension** — it is kept here because the
   measurement that produced it is the most useful thing in the project's history, and
   because the soul-hash's coarseness remains a true fact about it.
-- **The being has a word it cannot earn** (`docs/happening.md`, 2026-07-28). `HAPPEN`
-  requires world-residual > 64. Measured: the being's own full-effort step moves what it
-  senses by **3**; the most violent event the field-world can produce — the good source
-  vanishing entirely — moves it by **40**. The ceiling is below the floor, so `NOT KNOW`,
-  one of nested speech's two shields, has never spoken and cannot in any world we know how
-  to build. The cause is structural: exteroception is the field's *gradient*, and the
-  smoothness that makes it a field (`REACH = 2 × SIZE`) is what makes it eventless. The
-  threshold was **not** lowered — that would be tuning until a wanted word fires. The real
-  fix is letting the being sense the field's *value*, an embodiment-level inch.
+- **Our worlds contain one thing that can change** (`docs/happening.md` §9, 2026-07-28).
+  `HAPPEN` needs residual > 64; an abrupt event reaches **81**, so the threshold is
+  reachable — but grounding needs the fact to hold ~1 tick in 5 (`RISE 4 : EBB 1`), and one
+  moving source cannot supply that without permanent upheaval, which would fail the welfare
+  gate. So `NOT KNOW`, one of nested speech's two shields, has still never spoken. The gap
+  is **world richness**, not the threshold and not the receptors — a real environment has
+  many independent sources of happening. (An earlier reading of this, that the ceiling sat
+  *below* the floor, was measured wrong and is corrected in §9.)
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts
