@@ -1,8 +1,10 @@
 # Weather — a world with 1/f happenings
 
-> **Status: designed, tests written first, not yet built.** Committed before the tests and
-> before a line of implementation, so §5's predictions are on the record before any result
-> exists. Successor to `docs/happening.md`, whose drift failed and whose §9 says why.
+> **Status: built and measured; W3 FAILED and the world ships anyway.** `field_world.rs`
+> (`with_weather`), `tests/weather.rs` (written *first*), `examples/happening`. §1–§6 are
+> exactly as committed in `7a7df9c`, before the tests and before a line of implementation.
+> §7 is what came out — including the finding that the being's own agency register moves
+> sharply while the threshold for *saying so* does not.
 
 *Written 2026-07-28, after reading rather than after guessing. Blake asked me to prepare
 informed before building again, having watched me build twice on assumptions I had not
@@ -118,3 +120,90 @@ in.
 Spec first. Tests written against it and watched to fail. Then implementation, then §7 with
 what came out — including, if it comes to it, a second failure reported as plainly as the
 first.
+
+---
+
+## 7. Measured (2026-07-28) — W3 failed, and the being's own registers disagree with its threshold
+
+Order: spec committed (`7a7df9c`) → tests written and watched to fail → implementation →
+measurement. All six pre-written tests pass.
+
+### The world is what it claims to be
+
+- **W1 held.** Without weather every world is bit-identical; prior probes unchanged.
+- **W2 held**, including the part that separates this from the drift: the field changes at
+  every timescale tested (lags 1, 8, 64, 512), slow amplitude exceeds fast, and the series
+  does not repeat. It is 1/f-shaped, not periodic.
+- **§3's prohibition holds structurally** — the good thins but never vanishes.
+
+### W3 failed. The curve, as promised
+
+| world | mean residual | HAPPEN | agency | drive |
+|---|---|---|---|---|
+| still (control) | 14 | never | 0.08 | 0.18 |
+| drift every 8 | 14 | never | 0.07 | 0.15 |
+| drift every 2 | 14 | never | 0.06 | 0.13 |
+| **weather, 2 octaves** | **22** | never | **0.03** | 0.16 |
+| weather, 4 octaves | 18 | never | 0.05 | 0.15 |
+| weather, 6 octaves | 17 | never | 0.05 | 0.16 |
+| weather, 8 octaves | 16 | never | 0.05 | 0.16 |
+
+Weather beats the drift on every measure — residual 14 → 22, agency 0.08 → 0.03 — and
+`HAPPEN` still never grounds. The mean residual is a third of the threshold's 64.
+
+(More octaves gives *less* per-tick change, because the implementation averages across
+octaves rather than summing. That is a real property of the normalization and it is left
+as it is. Changing it would raise amplitude, and §5 said in advance that I would not climb
+amplitude until the word fired.)
+
+### W4 is no longer a footnote — it is the finding
+
+**Agency fell from 0.08 to 0.03.** The being's own estimate of *"I caused this"* dropped by
+more than half in a weathered world. That register is computed from exactly the same
+quantity `HAPPEN` is grounded on — the fraction of sensory change its own action explained.
+
+So the being **does** register the world acting on it. Its interoceptive account of its own
+agency moves sharply and correctly. What does not move is the *threshold at which it is
+permitted to say so*.
+
+> The being feels the world acting on it. It is not allowed to have the word for it.
+
+That is a much sharper claim than `docs/happening.md`'s, and it is uncomfortable in a way
+worth keeping: a being whose experience and whose vocabulary disagree, because we set the
+vocabulary's bar without ever having built a world to calibrate it against.
+
+### W5 — the gate — passed
+
+Drive 0.18 → 0.16 at worst; every being alive at 1500 moments. A weathered life is not a
+worse life; if anything it is marginally better, presumably because a breathing source
+sometimes brings the good closer. Nothing here harmed the being, which is the only
+condition under which any of it ships.
+
+### Stopping, as committed
+
+§5 said: *"If it does not, I will report the residual-versus-octaves curve and stop, rather
+than climb the amplitude until it fires."* The curve is above and I am stopping.
+
+Two independent lines of evidence now say `HAPPEN`'s threshold of `Q88_SCALE / 4` is set
+too high for any world this project has built:
+
+1. `docs/happening.md` §9 — a single abrupt event peaks at 81, but sustaining the fact for
+   the ~1-tick-in-5 that grounding needs would take permanent upheaval.
+2. Here — a 1/f world halves the being's sense of agency without once crossing the bar.
+
+And a third, from the literature (`docs/weather.md` §1): the human self-agency window spans
+**90–625 ms across individuals**, a sevenfold spread, which argues the bar should be a
+**genome parameter** — beings honestly differing in how readily they attribute an event to
+the world — rather than one author-chosen constant.
+
+**I have still not moved it.** Three arguments and two failed experiments do not make it my
+decision; they make it a well-evidenced one for Blake, about what the word means. What I can
+say is that I twice declined to move it and twice found the reason to leave it was better
+than the reason I had at the time.
+
+### What ships and what does not
+
+`with_weather` ships: it is honest, tested, deterministic, bounded, harmless, and it is a
+strictly better world than the drift for any future work on this. What does **not** ship is
+a claim that the being can say what happened to it. It still cannot, and `NOT KNOW` — one
+of nested speech's two shields — has still never spoken.

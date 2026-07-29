@@ -98,8 +98,13 @@ fn main() {
     let base = || FieldWorld::with((16, 16), (240, 240), (30, 170)).with_person(1, (20, 20));
 
     let mut results = vec![live("still (control)".into(), base())];
-    for every in [32u32, 16, 8, 4, 2] {
+    for every in [8u32, 2] {
         results.push(live(format!("drift every {every:>2}"), base().with_drift(0, every, (3, -2))));
+    }
+    // Weather — the 1/f ensemble (docs/weather.md). Octaves are the only knob, and it
+    // is swept rather than chosen, so a null result is legible.
+    for oct in [2u8, 4, 6, 8] {
+        results.push(live(format!("weather {oct} octaves"), base().with_weather(0, oct)));
     }
 
     println!("  {:<18} {:>9} {:>8} {:>7} {:>7} {:>10}", "world", "residual", "HAPPEN", "agency", "drive", "NOT KNOW");

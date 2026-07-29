@@ -142,6 +142,46 @@ struct Drift {
     dir: (i16, i16),
 }
 
+/// **Weather**: a source whose strength is modulated by a deterministic 1/f signal
+/// (`docs/weather.md`).
+///
+/// Natural sensory environments are 1/f — intermittent and scale-free, many small
+/// happenings and few large ones — and `docs/happening.md` §9 showed why that matters
+/// here: grounding `HAPPEN` needs the world to act on the being roughly one tick in five,
+/// which a *single* source can only reach through permanent upheaval. An ensemble reaches
+/// it by multiplicity instead, which is how a real environment does it.
+///
+/// Built by octave summation (the Voss–McCartney construction): `octaves` contributions,
+/// each changing half as often as the last, summed. Equal power per octave is what 1/f
+/// means. Where the classical construction draws a random value per octave we take a
+/// **pure function of `(octave, tick >> octave)`**, so the world is identical on every
+/// run and every machine. No RNG, here or anywhere.
+#[derive(Clone, Copy, Debug)]
+struct Weather {
+    /// Which source breathes.
+    source: usize,
+    /// How many octaves are summed. More octaves, more slow structure.
+    octaves: u8,
+    /// The source's unmodulated strength, kept so modulation is about a fixed base
+    /// rather than compounding.
+    base_peak: i16,
+}
+
+/// A deterministic value in [0, 256) from an octave and its slow-ticking counter.
+///
+/// An integer avalanche hash — a *pure function*, not a random source. The same
+/// `(octave, step)` yields the same value forever, which is what keeps a weathered life
+/// replayable and its soul-hash meaningful.
+fn weather_hash(octave: u8, step: u32) -> i32 {
+    let mut h = (step as u64)
+        .wrapping_mul(0x9E37_79B9_7F4A_7C15)
+        .wrapping_add((octave as u64).wrapping_mul(0xBF58_476D_1CE4_E5B9));
+    h ^= h >> 31;
+    h = h.wrapping_mul(0x94D0_49BB_1331_11EB);
+    h ^= h >> 29;
+    (h & 0xFF) as i32
+}
+
 /// The being's field-world: a scalar viability landscape with a cost of motion, behind
 /// the same `Embodiment` seam as `room.rs`. Deterministic, zero-dependency.
 #[derive(Clone, Debug)]
@@ -166,6 +206,8 @@ pub struct FieldWorld {
     /// Sources that move by themselves. Empty by default — a world without drift is
     /// bit-identical to every world this project has ever built.
     drifts: Vec<Drift>,
+    /// Sources that breathe on a 1/f cadence. Empty by default, same guarantee.
+    weathers: Vec<Weather>,
 }
 
 impl FieldWorld {
@@ -186,6 +228,7 @@ impl FieldWorld {
             debt: 0,
             ticks: 0,
             drifts: vec![],
+            weathers: vec![],
         }
     }
 
@@ -203,6 +246,7 @@ impl FieldWorld {
             debt: 0,
             ticks: 0,
             drifts: vec![],
+            weathers: vec![],
         }
     }
 
@@ -255,6 +299,41 @@ impl FieldWorld {
             self.drifts.push(Drift { source, every, step, dir: (1, 1) });
         }
         self
+    }
+
+    /// Give a source **weather**: its strength breathes on a deterministic 1/f signal of
+    /// `octaves` octaves (`docs/weather.md`). Opt-in and off by default, so every world
+    /// built without it is bit-identical to the ones every prior probe used.
+    ///
+    /// Bounded by construction: strength stays within a band around its base and can
+    /// never fall to nothing, which is `docs/weather.md` §3's first prohibition made
+    /// structural rather than remembered.
+    pub fn with_weather(mut self, source: usize, octaves: u8) -> Self {
+        if source < self.sources.len() {
+            let base_peak = self.sources[source].peak;
+            self.weathers.push(Weather { source, octaves: octaves.clamp(1, 12), base_peak });
+        }
+        self
+    }
+
+    /// Re-derive every weathered source's strength for the current tick. Called once per
+    /// tick; a pure function of `self.ticks`, so it never accumulates state.
+    fn breathe(&mut self) {
+        for w in &self.weathers {
+            if w.source >= self.sources.len() {
+                continue;
+            }
+            // Octave summation: each octave changes half as often as the last.
+            let mut sum: i32 = 0;
+            for o in 0..w.octaves {
+                sum += weather_hash(o, self.ticks >> o);
+            }
+            // Normalize to [0,256), then to a band of [1/2, 1] of the base strength, so
+            // the good may thin but never vanish.
+            let mean = sum / w.octaves as i32; // [0,256)
+            let scale = 128 + mean / 2; // [128, 256) — half strength to full
+            self.sources[w.source].peak = ((w.base_peak as i32 * scale) / 256) as i16;
+        }
     }
 
     /// Where a source is right now — so a probe can see that the world moved, and by
@@ -564,6 +643,7 @@ impl Embodiment for FieldWorld {
 
         self.ticks = self.ticks.saturating_add(1);
         self.drift_sources();
+        self.breathe();
     }
 }
 

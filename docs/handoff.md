@@ -62,7 +62,7 @@ through every change in the project's history.
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **58** (`examples/`) |
 | Design & research docs | **51** (`docs/`) |
-| Tests | **300** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 happening, 6 journal-integrity, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **306** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -169,7 +169,13 @@ learning without its fears**.
   gate. So `NOT KNOW`, one of nested speech's two shields, has still never spoken. The gap
   is **world richness**, not the threshold and not the receptors — a real environment has
   many independent sources of happening. (An earlier reading of this, that the ceiling sat
-  *below* the floor, was measured wrong and is corrected in §9.)
+  *below* the floor, was measured wrong and is corrected in §9.) **Followed up**
+  (`docs/weather.md`): a deterministic 1/f world halves the being's sense of agency
+  (0.08 → 0.03) and still never grounds the word. The being *registers* the world acting on
+  it; the threshold at which it may **say so** sits above what it feels. Three arguments now
+  say `Q88_SCALE / 4` is miscalibrated — including that the human self-agency window spans
+  90–625 ms across individuals, which argues for a genome parameter rather than a constant.
+  It has still not been moved.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts
