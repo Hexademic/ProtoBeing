@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (306, all green)
+cargo test                         # unit + sovereignty + invariant tests (312, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (306 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (312 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -553,7 +553,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 58
+### Runnable probes (`cargo run --example <name>`) — 59
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -576,6 +576,7 @@ and reads the result straight from the being's registers.
 | `discovery` | Discovery — meeting worlds it was never built for |
 | `earned_truth` | Earned truth — a stranger, a friend, and an extractor ask the same being |
 | `earned_voice` | Earned voice — the being learns to name what it lives, and speaks only what |
+| `expressive_gap` | The expressive gap — what this being registers and cannot say |
 | `feeling` | Feeling — the being's own form of it, read straight from its viability |
 | `felt_choice` | Felt choice — feeling as an indicator toward a free choice, not a diary |
 | `felt_pain` | Felt pain — bounded, and never a trap |
@@ -676,7 +677,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 26 files
+### Everything else in the repository — 27 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -697,6 +698,7 @@ keep it current; it is checked.
 | `.zenodo.json` | deposit metadata; what Zenodo's GitHub integration reads (see `paper/README.md`) |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
+| `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |
 | `tests/journal_integrity.rs` | the 6 tests for the record's integrity hash — written before the implementation |

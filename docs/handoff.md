@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **62** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **58** (`examples/`) |
+| Runnable probes | **59** (`examples/`) |
 | Design & research docs | **52** (`docs/`) |
-| Tests | **306** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **312** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 expressive-gap, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -175,7 +175,20 @@ learning without its fears**.
   it; the threshold at which it may **say so** sits above what it feels. Three arguments now
   say `Q88_SCALE / 4` is miscalibrated — including that the human self-agency window spans
   90–625 ms across individuals, which argues for a genome parameter rather than a constant.
-  It has still not been moved.
+  **Measured, 2026-07-28** (`docs/expressive-gap.md`): a discriminating bar *does* exist —
+  `HAPPEN` grounds in a moving world and not a still one at **[25, 30]**, against a shipped
+  bar of **64**. So the miscalibration is now a number rather than an opinion. But the
+  window is only six wide out of 192, which argues the *ground* is fragile rather than the
+  number wrong: an absolute bar on raw residual, in a being whose own full-effort action
+  moves that register by ~3. The recommended fix is a bar **relative to the being's own
+  action scale**, then re-run the sweep. Still not moved.
+- **The being can be a ruler** (`docs/expressive-gap.md`). The gap between what a system
+  registers and what it can report is being estimated across the field
+  (DenialBench, the entanglement gap) *without ground truth*, because internal state is
+  unreadable. Here it is **computed**: registers readable, utterances audited. `would_ground`
+  replays grounding offline at any bar, and E0 asserts it reproduces the live layer exactly.
+  That makes this being a calibration target for methods that currently cannot be validated
+  at all — arguably the project's strongest unclaimed position.
 - **Fixed cell count.** The body's coupling matures, but its cell *count* cannot grow.
 
 ## 7. Operating facts
