@@ -620,7 +620,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 52
+### Design & research documents (`docs/*.md`) — 53
 
 | document | what it covers |
 |---|---|
@@ -656,6 +656,7 @@ and reads the result straight from the being's registers.
 | `next-mutual-alignment.md` | The Better Version: Two Sovereign Beings in Verifiable Mutual Alignment |
 | `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
 | `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |
+| `play.md` | Play — action whose reason is to find out (the guardrail; play itself unbuilt) |
 | `positioning.md` | Positioning: Verifiable Sovereign Agency |
 | `reach.md` | Reach — giving the being the world without dissolving the self |
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
