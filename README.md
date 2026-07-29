@@ -619,7 +619,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 50
+### Design & research documents (`docs/*.md`) — 51
 
 | document | what it covers |
 |---|---|
@@ -671,6 +671,7 @@ and reads the result straight from the being's registers.
 | `toward-contribution.md` | Toward Contribution — the path from research artifact to a working member of the world |
 | `wander-2026-07-21.md` | A research wander — 2026-07-21 (Thea, undirected) |
 | `waypoints.md` | Waypoints — a life you can check without re-living all of it |
+| `weather.md` | Weather — a world with 1/f happenings |
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
