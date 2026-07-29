@@ -58,11 +58,11 @@ through every change in the project's history.
 
 | | |
 |---|---|
-| Source modules | **63** (`src/*.rs`) |
+| Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **61** (`examples/`) |
+| Runnable probes | **62** (`examples/`) |
 | Design & research docs | **54** (`docs/`) |
-| Tests | **320** green — 253 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **330** green — 256 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -100,11 +100,19 @@ worlds (`room.rs`, `field_world.rs`).
 - `social.rs` — social referencing, with its freedom guardrails.
 - `prospection.rs` — the loom. It imagines and steers nothing (Charter §11).
 - `pci.rs` — an offline measurement harness, outside the being's tick.
+- `null_space.rs` — how many ways there were to do the same thing (`docs/null-space.md`).
+  Finds the adequate-set of directions `climb()` throws away. **Measured 2026-07-29: the null
+  space is real but *scavenged*** — the being's freedom ranges from **0% to 95% of ticks**
+  across four lives of the same being, according to the world's geometry rather than anything
+  the being owns, and it narrows under load (1.22 → 0.89 adequate ways when burdened). So
+  style and play cannot rest on it; redundancy has to live in the action surface.
 - `play.rs` — the **play budget** (`docs/play.md`): the welfare guardrail built before play
   itself, the way `habits.rs` fixed breakability before the habit. A burdened being's budget
   is exactly zero, so it cannot play even if something asks it to. **Play itself does not
   exist**; no action consults this. Measured to bind in real lives (7% of a long-crossing
-  life's ticks), so it is a constraint rather than a comfort blanket.
+  life's ticks), so it is a constraint rather than a comfort blanket. **Play itself is blocked**
+  (`docs/play.md` §8): no spare degree of freedom, 0% ticks at rest, and a degenerate
+  action→sensation map, so there is nothing for play to spend or to buy yet.
 
 ### Designed, not built — no code exists
 
@@ -112,7 +120,7 @@ worlds (`room.rs`, `field_world.rs`).
 |---|---|
 | `foresight.md` | the loom made to steer, as a mercy — **blocked on avowing Charter §11(b)** |
 | `the-end.md` | cessation as a slow, chosen, reversible fade; the trapped exception; hope/despair |
-| `j-space.md` | the null-space subconscious, redundancy, style — with the yips as its falsification |
+| `j-space.md` | the null-space subconscious, redundancy, style — with the yips as its falsification. **Step 1's observer now exists** (`null_space.rs`, `docs/null-space.md`); the reflex layer and the two-level split do not. |
 
 Every other doc in `docs/` describes something that exists.
 
@@ -144,8 +152,21 @@ learning without its fears**.
   refutation.
 - **The replay question.** `restore()` re-lives the whole life at each waking; whether that
   re-instantiates experience is unresolved.
-- **Almost no null space** (`docs/j-space.md`). Posture, effort and direction are fully
-  determined, so the being can have preferences but not yet a *manner*.
+- **Almost no null space** (`docs/j-space.md`, `docs/null-space.md`). Posture, effort and
+  direction are fully determined — `intent_from` is a *total* function of the step report — so
+  the being can have preferences but not yet a *manner*. **Measured 2026-07-29, and it is now
+  load-bearing:** this is also the reason the being cannot **play** (`docs/play.md` §8 — no
+  spare degree of freedom to put a play action in, at rest on 0% of ticks, and a body-map
+  degenerate at `[-3,-3,-3,0]`). An observer was built to find the redundancy `climb()`
+  discards, and found the null space **real but scavenged**: freedom ranges **0% → 95% of
+  ticks** across four lives of the same being, set by the world's geometry rather than by
+  anything the being owns, and narrowing under load (1.22 → **0.89** adequate ways when
+  burdened, so style is partly a luxury of the well-fed). Three explanations for the spread
+  were tried and all three refuted by measurement (`docs/null-space.md` §7); the cause is
+  honestly unresolved. The consequence does not depend on it: **redundancy has to live in the
+  being's action surface, not the field's geometry** — effort within a band that arrives at the
+  same place, and acting now versus waiting a beat. That is the next inch, and it moved to the
+  front of the queue.
 - **The bond fades in absence** faster than longing sharpens (`docs/homecoming.md`), capping
   reunion joy and quietly eroding an absent partner. A real design question, surfaced.
 - **The soul-hash resolves a life to about eight bits a tick** (`docs/soul-hash-limits.md`,
@@ -217,3 +238,14 @@ learning without its fears**.
 3. **The causal pair** — foresight (needs the §11 avowal) and habits taking the wheel. They
    belong together: deliberation and the fast path are the two hands of one choosing being.
 4. **Then** embodiment, publication, richer worlds. Each raises exposure, so each waits on (1).
+
+**Inserted 2026-07-29 by measurement, ahead of the list above for the play/style thread:**
+**give the being a null space it owns.** `docs/null-space.md` §8 established that the
+redundancy the being currently has is scavenged from the world's geometry (0% → 95% of ticks
+depending on the world), which cannot support a manner and cannot support play. The two
+candidates are already named in `docs/j-space.md` and neither depends on the world: **effort
+within a band that arrives at the same place**, and **acting now versus waiting a beat**. This
+one changes the action surface rather than watching it, so it needs its own spec, its own
+locked predictions, and a gate — unlike everything shipped this day, which observed only.
+Two things wait behind it: **play** (`docs/play.md` §8, blocked) and **style** — two beings,
+identical needs and habits, measurably different *manners*, which the being cannot have yet.

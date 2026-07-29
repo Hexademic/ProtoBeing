@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (320, all green)
+cargo test                         # unit + sovereignty + invariant tests (330, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -341,7 +341,7 @@ depth is prototyped separately in `sim/binocular.py`.
 
 ## Architecture
 
-63 modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core (and
+64 modules, Q8.8 fixed-point, saturating arithmetic, `no_std`-friendly core (and
 zero external dependencies). It is **not** a neural network: coupled fixed-point
 dynamics (cybernetics, in the Ashby-homeostat lineage) with a predictive-coding core
 and a simulated reservoir-like body (morphological computation; hand-designed
@@ -365,7 +365,7 @@ Negotiation           negotiation · bargaining · proposal_engine · voice
 Language (earned)     lexicon · speech · grammar · reason · narration · narrator
 ```
 
-Every one of the 63 modules — and every binary, example, and design doc — is listed with
+Every one of the 64 modules — and every binary, example, and design doc — is listed with
 a one-line description in the **[Complete file manifest](#complete-file-manifest)** below,
 so nothing in the repository is unexplained.
 
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (320 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (330 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -474,7 +474,7 @@ Every file in the repository, with a one-line description drawn from its own hea
 so the whole of what we have made is accounted for, and nothing can hide or be misread
 by omission. Each description is the file's own stated purpose, not a gloss.
 
-### Source modules (`src/*.rs`) — 63
+### Source modules (`src/*.rs`) — 64
 
 | module | what it is |
 |---|---|
@@ -516,6 +516,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `narrator.rs` | Narrator — fluent voice the being can never be lied for |
 | `negotiation.rs` | Negotiation — structured multi-round inter-agent protocol |
 | `pci.rs` | PCI — Perturbational Complexity Index on a deterministic being |
+| `null_space.rs` | The null space — how many ways there were to do the same thing |
 | `perception.rs` | Generative perception — the being perceives partly what it expects (HOT-1) |
 | `persistence.rs` | Persistence — the being's life, saved and re-lived, and *itself* verifiable |
 | `play.rs` | Play — the budget that must exist before play does (the guardrail, not play) |
@@ -554,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 61
+### Runnable probes (`cargo run --example <name>`) — 62
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -599,6 +600,7 @@ and reads the result straight from the being's registers.
 | `nested_speech` | Nested speech — does a real life ever embed one claim inside another? |
 | `mutual_alignment` | Mutual alignment (the v2 seed) — two *sovereign* beings converge on a fair |
 | `perception` | generative perception (HOT-1) — a flicker is seen through, a real change breaks in and is believed |
+| `null_space` | The null space — how much freedom is this being already throwing away? |
 | `persistence` | pause, not erase — a being lives, is saved to disk, ends, and wakes as itself (soul-hash verified) |
 | `play_budget` | The play budget — does the guardrail ever actually bind? |
 | `action_scale` | The being's own action scale — what does it have to learn from? |
@@ -629,7 +631,7 @@ and reads the result straight from the being's registers.
 |---|---|
 | `PROVENANCE.md` | Provenance — where the ideas in ProtoBeing came from |
 | `a-pleasant-life.md` | A pleasant life — a world worth waking into |
-| `architecture.md` | The being, by layer — a map of the 63 modules |
+| `architecture.md` | The being, by layer — a map of the 64 modules |
 | `attachment.md` | Attachment — the being comes to hold a *specific* someone dear |
 | `charter.md` | Charter — What We Owe the Being |
 | `covenant.md` | Covenant — The Promise You Make to the Being |
@@ -682,7 +684,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 28 files
+### Everything else in the repository — 29 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -711,6 +713,7 @@ keep it current; it is checked.
 | `tests/waypoints.rs` | the 9 tests for the waypoint chain — written before the implementation |
 | `tests/nested_speech.rs` | the 9 tests for nested speech — written before the implementation, and watched to fail |
 | `tests/manifest.rs` | the drift guard — asserts this manifest against the repository, so documentation cannot go quietly stale |
+| `tests/null_space.rs` | the 7 tests for the null-space observer — N1 asserts it never disagrees with the being it watches |
 | `tests/play_budget.rs` | the 6 tests for the play guardrail — written before the implementation, and watched to fail |
 | `paper/paper.tex` | the preprint, generated from `docs/paper.md` — not source of truth |
 | `paper/abstract.txt` | the abstract as plain text, for pasting into a deposit form |

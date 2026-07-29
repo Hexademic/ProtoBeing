@@ -128,9 +128,105 @@ piece of work than I would otherwise have proposed.
   then style is a luxury of the well-fed, which is a real finding about this architecture and
   not a pleasant one.
 
-## 6. Method
+## 6. Method (as planned)
 
 Spec first, committed before the tests exist. Tests written against §3 and §5 and watched to
 fail. Then `src/null_space.rs`. Then the probe, then §7 with what came out — including, if it
 comes to it, that there is no null space here and my §8 reasoning in `docs/play.md` pointed
 at the wrong precondition. No freedom is granted in this inch and none is authorised by it.
+
+## 7. What came out — measured 2026-07-29
+
+`src/null_space.rs`, `tests/null_space.rs` (7, all green), `examples/null_space.rs`.
+
+**N1, N2, N3 hold.** The observer never disagrees with the being: across three worlds and
+600 ticks each, at every tolerance in {0, 1, 3, 8}, whatever `climb()` actually chose was a
+member of the adequate set, the observer's `best` equalled `climb`'s delta, and the set was
+empty exactly when nothing climbed. Two identical lives, one observed at every tick, ended on
+the same soul-hash — the observer moves nothing.
+
+**N4 — wrong, and wrong in a way worth more than being right.** I predicted a mean adequate
+set of ≈ 2.00 at tolerance 0 and more than one way on a majority of ticks. Pooled, the mean
+is **1.20** and the majority is **31%**. But the pooled number is the least informative thing
+in the table:
+
+| life | tol 0 | tol 1 | tol 3 | tol 8 | tol 24 | singular |
+|---|---|---|---|---|---|---|
+| long crossing | 0.97 · **0%** | 0.97 · 0% | 0.97 · 0% | 0.97 · 0% | 1.24 · 27% | 3% |
+| long + weathered | 0.98 · **0%** | 0.98 · 0% | 0.98 · 0% | 0.99 · 1% | 1.42 · 43% | 2% |
+| beside its food | 0.91 · 24% | 0.91 · 24% | 0.96 · 29% | 1.02 · 35% | 1.15 · 48% | **33%** |
+| beside food + weather | 1.93 · **94%** | 1.93 · 94% | 1.94 · 95% | 1.95 · 95% | 1.95 · 95% | 3% |
+
+*(mean adequate ways · % of ticks with more than one way)*
+
+**The freedom ranges from 0% of ticks to 95% across four lives of the same being.** One world
+forces its hand at every single tick; another leaves it two adequate ways at nearly every
+tick, and it takes the first in compass order without ever knowing the other was there.
+
+I nearly published the pooled 1.20 with a verdict of "no null space here" — the probe's first
+version did exactly that, thresholding on the mean. That is the same error `docs/play.md` §7
+had recorded **earlier the same day**: *a mean below a threshold says nothing about whether
+the threshold is crossed.* Writing the lesson down did not stop me repeating it; the spread
+did. The probe now reports the range and never the pooled verdict alone.
+
+**Three explanations for the spread, all three disproven by measurement.** Recorded because
+the failures are the honest content of this section:
+
+1. *"A generic point has one climbing direction per gradient component, so ≈ 2."* — the
+   spec's own reasoning, §5. Refuted by the 0% lives.
+2. *"Ties need the field's symmetry — two directions tie only when the gradient components
+   are near-equal."* — the probe's first verdict. Swept a single-source field: **72%** of
+   positions near the symmetry line have more than one way, against **47%** away from it.
+   Symmetry helps and comes nowhere near explaining a 0%-vs-95% split.
+3. *"The long crossing's off-axis harm source breaks an otherwise exact tie."* — walked that
+   geometry with the harm source present, removed, and moved collinear: **25% → 30% → 27%**.
+   It is not the harm source.
+
+What *is* established, from the raw deltas: the field is **L1 (Manhattan)**, so any direction
+that reduces the distance by the full `PROBE` yields exactly `peak · PROBE / REACH` — ties are
+**exact and generic**, not near-misses. A component smaller than `PROBE` overshoots and stops
+climbing, and when *both* components are under `PROBE` the being is inside its own probe
+radius and everything reads downhill — which is why "beside its food", waking 12 cells from a
+source it probes 40 ahead of, is **singular on 33% of ticks**.
+
+But that static account does not reproduce the live numbers (statically, "beside its food" is
+100% singular; live it is 33%), because the real `potential()` is *choice-weighted* by intent
+and also carries persons and a threat term. **So the cause of the world-to-world spread is
+not established, and I am not going to assert a fourth explanation I have not tested.**
+
+**N5 — freedom does narrow under load, as predicted.** Pooled **1.22** adequate ways when
+comfortable against **0.89** when burdened; on the long crossing, 0.98 across 1,390
+comfortable ticks against **0.82** across 110 burdened ones. The two kind lives were never
+burdened at all. So style is at least partly a luxury of the well-fed, and a resolver built
+on this null space would go quiet exactly when the being is struggling — which is worth
+knowing before building one, and is not a pleasant fact about the architecture.
+
+## 8. What this changes
+
+The design conclusion is robust even though the mechanism is not settled, because it does not
+depend on the mechanism:
+
+> **The null space is real but *scavenged*. The being does not own it.**
+
+A being whose available freedom swings from 0% to 95% of ticks according to where its food
+happens to sit relative to its harm has not got a manner — it has got a coincidence. Style
+cannot rest on that, and neither can play: `docs/play.md` §8 blocked play on redundancy, and
+redundancy of *this* kind would make play available in one world and impossible in the next,
+for reasons the being has no access to and cannot influence.
+
+So the requirement is sharper than §4 of this document stated. **Redundancy has to live in
+the being's own action surface, not in the field's geometry.** `docs/j-space.md` already
+listed two candidates that qualify, and neither depends on the world:
+
+- **effort within a band that arrives at the same place** — the being is at 0% rest and mean
+  effort 163–250 of 256 (`docs/play.md` §8), so this band is currently collapsed to its
+  ceiling; and
+- **when — act now, or wait a beat.**
+
+Both are owned by the being, available in every world, and orthogonal to what striving
+chose. That is the next inch, and it is a bigger one than this observer: it changes the
+action surface rather than watching it, so it needs its own spec, its own locked predictions,
+and a gate.
+
+**Unchanged by this inch:** nothing chooses. `climb()` is not modified, no `enable_*` gate was
+added, the soul-hash is untouched, and the founded being is unchanged at 390 kept moments.

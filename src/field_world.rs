@@ -62,7 +62,10 @@ const STRIDE: i16 = 6;
 const PROBE: i16 = 40;
 
 /// The four cardinal directions the being senses and moves along (N, E, S, W).
-const COMPASS: [(i16, i16); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
+///
+/// Public so `null_space.rs`'s observer can name *which* of them would have done
+/// (`docs/null-space.md`); the world's own use of it is unchanged.
+pub const COMPASS: [(i16, i16); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
 /// Grade-cost tuning: the height climbed this step, times this, is charged to metabolic
 /// debt. Climbing toward the good is *work*; this is its price. Scaled so a real climb
@@ -517,6 +520,29 @@ impl FieldWorld {
             .chosen_person(intent)
             .map_or(0, |pos| COMPANY_WEIGHT * self.person_good_at(p, pos) as i32);
         (base + bonus).clamp(0, i16::MAX as i32) as i16
+    }
+
+    /// The climb-delta the being would find in **every** compass direction, in `COMPASS`
+    /// order — what `climb` computes and then throws all but one of away.
+    ///
+    /// Read-only, for `null_space.rs`'s observer (`docs/null-space.md`). It recomputes the
+    /// same probe set beside `climb` rather than changing it, so the being's trajectory is
+    /// bit-identical whether anything is watching or not.
+    pub fn climb_deltas(&self, intent: &MotorIntent) -> [i16; 4] {
+        let here = self.potential(self.body, intent);
+        let mut deltas = [0i16; 4];
+        for (i, dir) in COMPASS.iter().enumerate() {
+            let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
+            deltas[i] = self.potential(probe, intent) - here;
+        }
+        deltas
+    }
+
+    /// The direction the being's world will actually take it, and that direction's delta —
+    /// `climb`'s own verdict, exposed read-only so an observer can be checked against the
+    /// being it watches rather than against a reimplementation of it.
+    pub fn chosen_climb(&self, intent: &MotorIntent) -> ((i16, i16), i16) {
+        self.climb(intent)
     }
 
     /// The steepest-ascent direction of the choice-weighted potential from the body — the
