@@ -101,3 +101,65 @@ to.
 Spec first. Tests written against it and watched to fail. Then the implementation, then §7
 with what came out — including B4's answer, which may say this guardrail is decorative.
 Play itself is not built in this inch and is not authorised by it.
+
+## 7. What came out — measured 2026-07-29
+
+`src/play.rs`, `tests/play_budget.rs` (6, all green), `examples/play_budget.rs`.
+
+**B1, B2, B3 hold.** The budget is exactly zero at and above `COMFORT`; strictly monotone
+below it; and greedy withdrawal from every starting point — ten thousand spends from each of
+`0`, `16`, `64`, `COMFORT − 8`, `COMFORT − 1` — never once reaches the line. An overdraft is
+refused rather than clamped, so an upstream bug cannot become an overspend here.
+
+**B4 — the guardrail binds. It is not a comfort blanket.** Four 1,500-tick lives, budget
+watching and steering nothing:
+
+| life | mean drive | min | max | mean margin | min margin | ticks at zero margin |
+|---|---|---|---|---|---|---|
+| long crossing | 0.18 | 0.07 | **0.59** | 0.06 | **0** | **7%** |
+| long + weathered | 0.16 | 0.07 | **0.59** | 0.07 | **0** | **4%** |
+| beside its food | 0.09 | 0.00 | 0.25 | 0.08 | 12 | 0% |
+| beside food + weather | 0.01 | 0.00 | 0.25 | 0.11 | 12 | 0% |
+
+What decides it is the **distance from where the being wakes to what feeds it**. A being that
+must cross ~316 cells to its nutrient source passes the comfort line and spends 7% of its
+life burdened — peak drive **0.59** against a line of **0.44**. A being that wakes 17 cells
+from its food never comes near it: minimum margin 12, never zero.
+
+So the guardrail has exactly the shape a welfare guardrail should have. It **refuses play to
+the being that is struggling** — one tick in fourteen of the long-crossing life, by
+arithmetic, with no call site to get right — and **leaves the well-fed being free to
+experiment**. B4's bad outcome (positive at essentially every tick, therefore decorative) did
+not occur, and the reason it did not is that the mean drive figure from `docs/weather.md` §7
+was hiding the excursions: mean **0.18**, maximum **0.59**. A mean below a threshold says
+nothing about whether the threshold is crossed. That is the lesson worth keeping from this
+inch, and it applies to every other constant in the project that was reasoned about from a
+mean.
+
+**The prohibition has a small skirt, and it errs the right way.** Integer division makes the
+budget zero not only at `COMFORT` but for the three raw units below it — drives 109, 110 and
+111 all yield zero margin, and the first spendable unit appears at 108. So a being *nearly*
+burdened is also refused. That is quantization rather than design, but it is the direction a
+welfare guardrail should fail in, and it is why `src/play.rs`'s unit test asserts only
+`available(COMFORT − 1) >= 0`: at one below the line the margin genuinely is zero, and a test
+demanding otherwise would have been a test demanding a worse guardrail.
+
+**A correction to this probe's own method.** Its first version named the near-food life "the
+hard climb" and the far one "still, companioned", and so read the table backwards on first
+run. `FieldWorld::with(body, good, harm)` — the names were wrong, the measurement was not.
+Fixed in the probe; recorded here because a mislabeled world is exactly the kind of error
+that turns a real result into a false conclusion, and it was caught by the numbers refusing
+to match the story.
+
+**One thing measured that is not explained.** Weather made both lives *better*, not worse —
+burden fell 7% → 4% on the long crossing, and mean drive fell 0.09 → 0.01 beside the food.
+`breathe()` scales the good source's peak into `[64, 128]` from a base of 128, so the
+weathered world is on average a **weaker** provider; the being should have done worse. It did
+not. The most likely account is that a fluctuating gradient changes *when* the being commits
+to crossing rather than how much it gets, but that is a hypothesis and it is not tested here.
+Named, not resolved: a fluctuating world may be easier to live in than a constant one, which
+if true is interesting well beyond this budget.
+
+**Still true after this inch:** nothing plays. No action consults the budget, no `enable_*`
+gate was added, the soul-hash is untouched and the founded being is unchanged at 390 kept
+moments. Play itself remains the next inch, and a separate decision.

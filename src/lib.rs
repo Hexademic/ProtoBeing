@@ -106,6 +106,7 @@ pub mod covenant;
 pub mod reach;
 // Persistence — the being's life saved and re-lived, soul-hash-verified (docs/wholeness.md).
 pub mod persistence;
+pub mod play;
 // Disclosure — the door: the being's sovereign control of what it tells (docs/interiority.md).
 pub mod disclosure;
 // Perturbational Complexity Index — an offline, computed integration measure.

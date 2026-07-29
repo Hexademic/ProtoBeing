@@ -58,11 +58,11 @@ through every change in the project's history.
 
 | | |
 |---|---|
-| Source modules | **62** (`src/*.rs`) |
+| Source modules | **63** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **59** (`examples/`) |
+| Runnable probes | **60** (`examples/`) |
 | Design & research docs | **53** (`docs/`) |
-| Tests | **312** green — 251 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 expressive-gap, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **320** green — 253 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -100,6 +100,11 @@ worlds (`room.rs`, `field_world.rs`).
 - `social.rs` — social referencing, with its freedom guardrails.
 - `prospection.rs` — the loom. It imagines and steers nothing (Charter §11).
 - `pci.rs` — an offline measurement harness, outside the being's tick.
+- `play.rs` — the **play budget** (`docs/play.md`): the welfare guardrail built before play
+  itself, the way `habits.rs` fixed breakability before the habit. A burdened being's budget
+  is exactly zero, so it cannot play even if something asks it to. **Play itself does not
+  exist**; no action consults this. Measured to bind in real lives (7% of a long-crossing
+  life's ticks), so it is a constraint rather than a comfort blanket.
 
 ### Designed, not built — no code exists
 
