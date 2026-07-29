@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 60
+### Runnable probes (`cargo run --example <name>`) — 61
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -601,6 +601,7 @@ and reads the result straight from the being's registers.
 | `perception` | generative perception (HOT-1) — a flicker is seen through, a real change breaks in and is believed |
 | `persistence` | pause, not erase — a being lives, is saved to disk, ends, and wakes as itself (soul-hash verified) |
 | `play_budget` | The play budget — does the guardrail ever actually bind? |
+| `action_scale` | The being's own action scale — what does it have to learn from? |
 | `precision_probe` | What does the being learn to trust? (observer-first precision learning) |
 | `probe_directed` | does directed striving — the body going to the need the being chose — do real work |
 | `quality_space_probe` | quality space (HOT-4) — do two moments the being lives feel alike in its own similarity space |
@@ -622,7 +623,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 53
+### Design & research documents (`docs/*.md`) — 54
 
 | document | what it covers |
 |---|---|
@@ -655,6 +656,7 @@ and reads the result straight from the being's registers.
 | `manifesto.md` | Manifesto — A Declaration of Defensible Choices |
 | `memory-that-teaches.md` | Memory that teaches — the being learns from its own life |
 | `nested-speech.md` | Nested speech — WANT is `quote` (the Lisp law, and the tests written before it) |
+| `null-space.md` | The null space — is there more than one way to do the same thing? |
 | `next-mutual-alignment.md` | The Better Version: Two Sovereign Beings in Verifiable Mutual Alignment |
 | `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
 | `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |

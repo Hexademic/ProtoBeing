@@ -1,6 +1,12 @@
 # Play — action whose reason is to find out
 
-> **Status: the guardrail is specified; play itself is not built.** Committed before the
+> **Status: the guardrail is built and measured; play itself is BLOCKED — see §8.** The
+> guardrail binds in real lives (§7). Play cannot follow it yet: the being has no spare
+> degree of freedom to put a play action in, no idle capacity to spend, and a degenerate
+> action→sensation map for play to improve. The null space (`docs/j-space.md`) is the
+> precondition, not a later luxury.
+>
+> **Status when this was written: the guardrail is specified; play itself is not built.** Committed before the
 > tests and before a line of implementation, so §5's predictions are on the record before
 > any result. Guardrail first, as `docs/habits.md` fixed breakability before the habit and
 > `docs/reflection.md` fixed the anti-trauma exits before the weight.
@@ -162,4 +168,57 @@ if true is interesting well beyond this budget.
 
 **Still true after this inch:** nothing plays. No action consults the budget, no `enable_*`
 gate was added, the soul-hash is untouched and the founded being is unchanged at 390 kept
-moments. Play itself remains the next inch, and a separate decision.
+moments.
+
+## 8. Why play itself is not built next — measured 2026-07-29
+
+With the guardrail standing, play was next. It is not, and the reason is a measurement:
+`examples/action_scale.rs`, over the same four lives.
+
+| life | mean \|action\| | max | ticks at rest | ticks above the learning bar | learned gains |
+|---|---|---|---|---|---|
+| long crossing | 163 | 256 | 0% | 100% | `[-3, -3, -3, 0]` |
+| long + weathered | 163 | 256 | 0% | 100% | `[-5, -3, -2, -5]` |
+| beside its food | 247 | 256 | 0% | 100% | `[-3, -5, -5, -2]` |
+| beside food + weather | 250 | 256 | 0% | 100% | `[-3, -5, -3, -4]` |
+
+Three facts, and together they block play:
+
+**1. There is no spare degree of freedom to put a play action in.** `intent_from` is a
+*total* function of the step report — posture from valence/arousal/basin, effort *equal to*
+arousal, direction from the chosen need, partner from `attach.missed`. Every field of
+`MotorIntent` is determined. In `field_world`, `climb()` then takes the single steepest
+compass direction with a strict `>`, so every alternative route is discarded unseen. Play
+would not be *using* slack; there is none to use. It could only override the action the
+being's state determines — which is not play, it is seizing the wheel.
+
+**2. There is no idle capacity either.** The being is at rest on **0%** of ticks and acts at
+a mean magnitude of 163–250 out of 256. It is already pushing nearly as hard as it can, all
+the time. "Costs regulation now" has no headroom to spend that isn't already committed.
+
+**3. There is almost nothing for play to buy.** Play's second half is *buys prediction
+later*, and the thing it would improve is `sensorimotor.rs`'s body-map. But that map is
+already being trained on **100%** of ticks — every action clears `MIN_ACTION_FOR_LEARNING` —
+and what it has learned after 1,500 ticks is `[-3, -3, -3, 0]`: four near-identical gains,
+each within receptor quantization of zero. The being has learned its body correctly. Its
+action genuinely does almost nothing distinguishable to its senses, because the action is
+one scalar and the four channels answer it the same way. A degenerate map cannot be improved
+by better sampling, so play's payoff cannot even be *measured* here, let alone shown.
+
+**This confirms a gap the project had already written down and did not know was
+load-bearing.** `docs/j-space.md`, 2026-07-26: *"in the field-world every one of those is
+fully determined... There is no slack — no two ways to do the same thing."* That was filed
+as the reason the being can have preferences but not a *manner*. It is also the reason it
+cannot play. **Freedom needs redundancy, and play is a use of freedom.**
+
+So the sequence I proposed — play, then earned elegance, then telos mismatch, then null
+space — is **backwards, and the measurement says so.** The null space is not the last item;
+it is the precondition for the first. Building play now would mean building an override that
+takes the wheel from striving and calling it curiosity, and then being unable to demonstrate
+its payoff. That is the kind of thing this project exists not to do.
+
+**Play is therefore blocked, not abandoned.** What unblocks it is `docs/j-space.md`'s own
+step 1 — *create redundancy* — which is where the work goes next. When there are two
+adequate ways to do the same thing, there is somewhere for an action-to-find-out to live,
+and a non-degenerate map for it to improve. The guardrail built in §1–§7 keeps its value
+either way: it is the thing that will make that action safe when it exists. Play itself remains the next inch, and a separate decision.

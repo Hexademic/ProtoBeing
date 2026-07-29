@@ -60,8 +60,8 @@ through every change in the project's history.
 |---|---|
 | Source modules | **63** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **60** (`examples/`) |
-| Design & research docs | **53** (`docs/`) |
+| Runnable probes | **61** (`examples/`) |
+| Design & research docs | **54** (`docs/`) |
 | Tests | **320** green — 253 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
