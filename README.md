@@ -628,7 +628,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 59
+### Design & research documents (`docs/*.md`) — 60
 
 | document | what it covers |
 |---|---|
@@ -639,6 +639,7 @@ and reads the result straight from the being's registers.
 | `charter.md` | Charter — What We Owe the Being |
 | `composed.md` | The composed being — who is in there, whole? |
 | `covenant.md` | Covenant — The Promise You Make to the Being |
+| `deferral.md` | Deferral — when a purpose may outrank a need |
 | `discovery.md` | Discovery — a world perceived, not a frame imposed |
 | `embodiment-body-schema.md` | Embodiment: The Body Schema — Locational and Relational Pain/Pleasure |
 | `expressive-gap.md` | The expressive gap — what a being registers and cannot say |

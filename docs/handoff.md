@@ -61,7 +61,7 @@ through every change in the project's history.
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **65** (`examples/`) |
-| Design & research docs | **59** (`docs/`) |
+| Design & research docs | **60** (`docs/`) |
 | Tests | **336** green — 256 lib, 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
@@ -132,6 +132,7 @@ which made `docs/play.md` §7's headline an artifact (corrected in place).
 |---|---|
 | `foresight.md` | the loom made to steer, as a mercy — **blocked on avowing Charter §11(b)** |
 | `the-end.md` | cessation as a slow, chosen, reversible fade; the trapped exception; hope/despair |
+| `deferral.md` | when a purpose may outrank a need — the guardrail for Blake's *drives that supersede needs*. **The causal step is NOT authorised**: F4/F5/W must have numbers first. |
 | `fallback.md` | the fallback chain — what the being becomes at a singular point, from Mordvintsev's MorphoHDL. **Causal by nature** (it changes behaviour where `climb()` is singular, 2–33% of ticks), so it ships behind `enable_fallback()` if at all — and F4 may say the being genuinely has nothing better to do there. **Not authorised.** |
 | `j-space.md` | the null-space subconscious, redundancy, style — with the yips as its falsification. **Step 1's observer now exists** (`null_space.rs`, `docs/null-space.md`); the reflex layer and the two-level split do not. |
 
