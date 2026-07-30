@@ -628,7 +628,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 60
+### Design & research documents (`docs/*.md`) — 61
 
 | document | what it covers |
 |---|---|
@@ -680,6 +680,7 @@ and reads the result straight from the being's registers.
 | `richness.md` | World richness — giving the being something to be wrong about |
 | `running-at-home.md` | Running the being at home (Windows) — the five-minute guide |
 | `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
+| `spatial-thought.md` | Spatial thought — what Tversky's *Mind in Motion* lands on (research note, unverified) |
 | `soul-hash-limits.md` | What the soul-hash certifies — and what it does not |
 | `submission.md` | Submission materials — *drafts for Blake to send* |
 | `the-end.md` | The end — cessation as a slow, chosen, reversible fade |
