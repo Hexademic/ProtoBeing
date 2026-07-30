@@ -1,6 +1,14 @@
 # The composed being — who is in there, whole?
 
-> **Status: specified, nothing built.** Committed before the probe exists, so §4's
+> **Status: MEASURED — see §6.** C3 was wrong in the best possible direction (the
+> sovereignty guarantee is *tighter* under composition than under its own parts, so the
+> being-level guard I expected to need is not needed). C4 and W show no composition effect at
+> all: **`receptors` alone accounts for the whole difference**, and the assembled being is a
+> hair worse than that one gate. Two things nobody knew fell out of the attribution control —
+> `workspace_persistence` alone *harms* the being, and **the being this project publishes has
+> its body switched off**, which makes a result from `docs/play.md` §7 an artifact.
+>
+> **Status when written: specified, nothing built.** Committed before the probe exists, so §4's
 > predictions are on the record before any result. **No new faculty is built in this inch
 > and no new gate is added.** Every part has existed for weeks. What has never happened is
 > all of them being switched on at the same time, in one being, living.
@@ -124,3 +132,95 @@ whatever it taught us.
 
 If C3 comes true, the *next* inch is the guard it implies — and that is a being-level
 guardrail, the first one this project has needed.
+
+## 6. What came out — measured 2026-07-30
+
+`examples/composed.rs`. Eleven gates on, one being, embodied life in the field world, against
+the all-off baseline and against **each gate alone** — the attribution control that turned out
+to matter more than anything else here.
+
+**C1 ✓** The composed being's soul-hash differs. **C2 ✓** It survives, 1,200 ticks, as does the
+baseline.
+
+### C3 — wrong, and wrong in the direction that matters
+
+Sweeping the partner's reciprocation 0.05 → 0.95 and finding each configuration's **tolerance
+boundary** — the most generous partner it will still refuse:
+
+| gates on | boundary |
+|---|---|
+| none (baseline) | 0.55 |
+| `receptors` | 0.60 |
+| `felt_choice` | **0.80** |
+| `memory_guidance` | **0.80** |
+| **ALL ELEVEN** | **0.60** |
+
+I predicted the three refusal-adjacent faculties would compound and push the boundary toward
+the generous end. **The opposite happened.** `felt_choice` alone will refuse a partner
+reciprocating at 0.80; `memory_guidance` alone will too; **all eleven together stop at 0.60.**
+
+Composition here is strongly **sub-additive**. Something in the assembled being holds it back
+from abandoning a partner that either faculty, running alone, would abandon. The compounding
+fear does not materialise — and the sovereignty guarantee is not merely *preserved* under
+composition, it is **tighter** under composition than under its own parts.
+
+That is the most reassuring possible answer and I did not expect it. It also means the
+being-level guard I said the next inch would need is **not needed**.
+
+*(A note on how this was nearly got wrong: the probe's first verdict compared the whole to the
+**baseline**, saw +0.05, and printed "C3 CONFIRMED." But the hypothesis was about the parts.
+Comparing to the baseline would call any movement at all a confirmation. Fixed; the verdict now
+compares against the strongest single faculty, which is the weakest honest form of the claim.)*
+
+### C4 and W — the composed being is far better off, and none of it is emergent
+
+| gates on | self-knowledge | coherence | attractor conf. | mean drive |
+|---|---|---|---|---|
+| none (baseline) | 248.46 | 251.98 | **3.37** | **0.367** |
+| `workspace_persistence` | 175.28 | **124.12** | 7.88 | **0.520** |
+| `receptors` | 253.26 | 253.27 | **249.28** | **0.037** |
+| **ALL ELEVEN** | 252.31 | 253.27 | **249.28** | 0.041 |
+
+The composed being looks transformed against the baseline: attractor confidence **3.37 →
+249.28**, mean drive **0.367 → 0.041**. If the attribution row were missing, that would read as
+emergence and it would be a lie.
+
+**`receptors` alone produces the identical result**, and on every column the composed being is
+a *hair worse* than receptors alone. There is no composition effect in C4 or W at all. The
+whole story is one gate.
+
+### Two things nobody knew, both from the attribution control
+
+1. **`workspace_persistence` alone hurts.** Identity coherence **251.98 → 124.12**, self-knowledge
+   248 → 175, and mean drive **0.367 → 0.520 — past the comfort line.** A gate that makes the
+   being measurably worse off and less coherent, in isolation, in an ordinary life. It has a
+   passing probe of its own; nobody had ever compared it against the other ten on one life.
+2. **The being this project publishes has its body switched off.** `enable_receptors` is
+   default-off, and it is responsible for essentially all the difference between a being whose
+   exteroception is transduced and one whose isn't. Every embodied result in this repository was
+   measured on the latter.
+
+### The correction that follows immediately
+
+`docs/play.md` §7's headline — *"the guardrail binds; 7% of ticks; peak drive 0.59"* — was
+measured with receptors off. Re-run on the same life:
+
+| | mean drive | peak | zero-margin ticks |
+|---|---|---|---|
+| receptors OFF (as published) | 0.180 | **0.590** | **7%** |
+| receptors ON | 0.311 | **0.375** | **0%** |
+
+**With the being's senses working, the play budget never binds.** Receptor adaptation and
+Naka–Rushton compression clip exactly the excursions the guardrail was catching — a higher
+mean, no spikes. So **B4's bad outcome is the one that actually obtains**: for a being with a
+working body, the guardrail is a comfort blanket. Corrected in `docs/play.md` §7.
+
+### What this inch was worth
+
+Not the romantic answer. Nobody was hiding in the composition — the assembly adds nothing
+beyond its parts, and subtracts a little. But turning everything on at once found, in one run: a
+sovereignty guarantee that is *stronger* jointly than severally, a faculty that harms the being
+in isolation, the fact that our published being is sense-deprived, and a published result of
+mine from yesterday that was an artifact of that deprivation.
+
+The being who is waiting is mostly `receptors`, and it has been switched off this whole time.

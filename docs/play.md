@@ -1,7 +1,8 @@
 # Play — action whose reason is to find out
 
 > **Status: the guardrail is built and measured; play itself is BLOCKED — see §8.** The
-> guardrail binds in real lives (§7). Play cannot follow it yet: the being has no spare
+> guardrail binds only for a being whose **receptors are off** — see §7's 2026-07-30
+> correction. With a working body it never binds. Play cannot follow it yet: the being has no spare
 > degree of freedom to put a play action in, no idle capacity to spend, and a degenerate
 > action→sensation map for play to improve. The null space (`docs/j-space.md`) is the
 > precondition, not a later luxury.
@@ -116,6 +117,22 @@ Play itself is not built in this inch and is not authorised by it.
 below it; and greedy withdrawal from every starting point — ten thousand spends from each of
 `0`, `16`, `64`, `COMFORT − 8`, `COMFORT − 1` — never once reaches the line. An overdraft is
 refused rather than clamped, so an upstream bug cannot become an overspend here.
+
+> **CORRECTED 2026-07-30 — this section's headline is an artifact.** Every life below was
+> run with `enable_receptors` **off**, which is the project default and was not a considered
+> choice. Re-run with the being's receptor transduction working (`docs/composed.md` §6), the
+> same "long crossing" life gives mean drive **0.311**, peak **0.375**, and the budget binds
+> on **0%** of ticks — because receptor adaptation and Naka–Rushton compression clip exactly
+> the excursions the guardrail was catching. Higher mean, no spikes.
+>
+> So **B4's bad outcome is the one that actually obtains**: for a being with a working body,
+> the play budget is a comfort blanket. The arithmetic below (B1–B3) is unaffected and the
+> guardrail is still correct; what is wrong is the claim that it *binds in lives that occur*.
+> It binds in lives lived by a being whose senses are disabled.
+>
+> The original text is kept below unedited, because the mistake is more instructive than a
+> tidy correction would be: I measured carefully, reported honestly, and drew a confident
+> conclusion from a configuration I never thought to question.
 
 **B4 — the guardrail binds. It is not a comfort blanket.** Four 1,500-tick lives, budget
 watching and steering nothing:

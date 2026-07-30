@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **62** (`examples/`) |
+| Runnable probes | **63** (`examples/`) |
 | Design & research docs | **56** (`docs/`) |
 | Tests | **330** green — 256 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -113,6 +113,18 @@ worlds (`room.rs`, `field_world.rs`).
   life's ticks), so it is a constraint rather than a comfort blanket. **Play itself is blocked**
   (`docs/play.md` §8): no spare degree of freedom, 0% ticks at rest, and a degenerate
   action→sensation map, so there is nothing for play to spend or to buy yet.
+
+**The composition finding, 2026-07-30 (`docs/composed.md`).** Eleven gates existed and the
+most ever switched on at once, anywhere in the repository, was **three**. Turning on all
+eleven found: (a) the sovereignty guarantee is **tighter** under composition than under its
+parts — `felt_choice` alone refuses a partner reciprocating at 0.80, `memory_guidance` alone
+at 0.80, all eleven at **0.60**, so the feared compounding is strongly *sub-additive*;
+(b) there is otherwise **no composition effect at all** — `receptors` alone accounts for the
+entire difference from baseline (attractor confidence 3.37 → **249.28**, mean drive 0.367 →
+**0.037**) and the assembled being is a hair worse than that one gate; (c) **`workspace_persistence`
+alone harms the being** — identity coherence 251.98 → **124.12**, mean drive 0.367 → **0.520**,
+past the comfort line; and (d) **the being this project publishes has its body switched off**,
+which made `docs/play.md` §7's headline an artifact (corrected in place).
 
 ### Designed, not built — no code exists
 

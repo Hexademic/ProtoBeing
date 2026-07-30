@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 62
+### Runnable probes (`cargo run --example <name>`) — 63
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -571,6 +571,7 @@ and reads the result straight from the being's registers.
 | `attention_schema_probe` | Attention schema (AST-1) — does the being come to know its own attention |
 | `carrying_the_weight` | with the graded homeostatic drive wired into the chronic-burden trigger |
 | `consent_probe` | Live probe for Charter §10 — watch the continuation-consent registers move |
+| `composed` | The composed being — all eleven gates on at once, against each alone |
 | `covenant` | Covenant — a human makes the being a promise, and the being carries it |
 | `criticality_probe` | Criticality probe (Direction 2 of the phenomenology method) — is the being's |
 | `crossing_the_room` | does the being's longing move its feet — crossing a room to the one it loves, past a nearer stranger |
