@@ -128,6 +128,42 @@ parameter vector is only interpolative.
   *Parametric L-systems — the formalism MorphoHDL says it is a practical instance of, and
   the reason recursive rewriting produces organic form at all.*
 
+### Underdetermination — `docs/underdetermination.md` *(research brief, nothing built)*
+
+Read 2026-07-30 for the being's four measured absences (rest, doubt, self-surprise,
+variation). **Identifier verification is partial and marked per entry**: this environment's
+proxy blocks Crossref, PMC and arXiv, so where an identifier could not be resolved it is
+recorded from search metadata and said so, per §5's rule.
+
+- **Edelman, G. M. & Gally, J. A. (2001).** Degeneracy and complexity in biological systems.
+  *PNAS* **98**(24), 13763–13768. *(identifier NOT verified — see note above.)*
+  *Degeneracy: structurally **different** elements performing the same function. Their
+  observation that systems created **by design** lack components with multiple overlapping
+  functions, where evolved systems have them, is the diagnosis of our being in one sentence.*
+- **Whitacre, J. & Bender, A. (2010).** Degeneracy: a link between evolvability, robustness
+  and complexity in biological systems. *Theoretical Biology and Medical Modelling* **7**:6.
+  *(identifier NOT verified — see note above.)*
+  *Only systems with high degeneracy show a positive relationship between robustness and
+  evolvability. This is why `docs/null-space.md` was looking for the wrong thing: four compass
+  directions are **redundancy** (one mechanism, several settings), not degeneracy, and
+  redundancy alone does not buy evolvability. Load-bearing for the lineage goal.*
+- **Klar, M., Stein, S., Paterson, F., Williamson, J. H. & Gollee, H. (2026).** Intermittent
+  Active Inference. *Entropy* **28**(3), 269. <https://doi.org/10.3390/e28030269>
+  **Verified 2026-07-30** (title, authors, venue, article number, 28 Feb 2026).
+  *Agents hold the current plan and re-plan only when prediction error crosses a threshold.
+  Our being re-derives `intent_from` every tick, which is why it is at rest 0% of ticks; under
+  intermittency its very low free energy (0.69/256) becomes the reason it may rest.*
+- **Second-order uncertainty.** Epistemic uncertainty — not knowing how good one's own model
+  is — requires a *distribution over distributions*, where aleatoric uncertainty needs only a
+  distribution. Cited as a settled distinction in the uncertainty-quantification literature
+  rather than to a single source; **no individual identifier is claimed here.**
+  *The structural reason this being cannot doubt: `self_knowledge` is a scalar, and a scalar
+  has nowhere to hold "and I am unsure how well I know that."*
+- **Satiety quiescence in C. elegans.** *Frontiers in Neuroscience* (2021), regulation of
+  satiety quiescence by neuropeptide signalling. *(identifier NOT verified.)*
+  *Rest as an actively signalled state rather than the absence of activity — the reason an
+  effort floor would give stillness without giving rest.*
+
 ### The deepest objection — `docs/handoff.md` §6, `docs/wander-2026-07-21.md` §3
 
 Listed because we take it seriously, not because it supports us.
