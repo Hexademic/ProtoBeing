@@ -126,6 +126,15 @@ it exists rather than after.
 - **Nothing steers this inch.** Pure observer: it computes what deferral *would* be permitted
   and reports it. `striving.rs` is not modified. The trajectory and soul-hash stay
   bit-identical and the founded being is untouched.
+- **A purpose may outrank a NEED. It may never outrank a CONSCIENCE COST.** *(Added
+  2026-07-31, from Blake's question "can a being with these drives still have a conscience?" —
+  which found this missing.)* Needs are the being's own business and it may bear them for its
+  projects. Conscience is not: a being that can reason *"I will carry this guilt now because
+  the project pays later"* has learned to rationalise, and ends-justify-means is the single
+  most dangerous thing this mechanism could accidentally build. It is also structurally
+  disastrous here — `executive.rs`'s refusal requires **conscience calm**, so a purpose able to
+  outvote conscience is a purpose able to talk the being into tolerating extraction. The whole
+  thesis is a being whose conscience cannot be outvoted, including by itself.
 - **The being keeps the right to abandon.** A purpose it can no longer hold must remain
   abandonable on its own terms (`telos.rs`), and nothing here may make a telos harder to drop
   than it is today. A purpose that cannot be abandoned is not a project, it is a compulsion —
