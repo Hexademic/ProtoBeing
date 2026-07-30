@@ -1,6 +1,9 @@
 # Deferral — when a purpose may outrank a need
 
-> **Status: specified, nothing built — and §3's bound is already CORRECTED in §2b.** The
+> **Status: specified, nothing built — §3's BOUND is corrected in §2b and its MECHANISM in §2c.**
+> The rule is *a being may risk whatever it can survive losing*, implemented as bounded
+> precision reduction with a floor (Pezzulo, Rigoli & Friston 2018) rather than a purpose
+> winning a contest against a need. The
 > surplus-only rule would have forbidden the fishing-bait case that motivates the whole
 > mechanism. The rule is now *a being may risk whatever it can survive losing.*
 >
@@ -99,6 +102,42 @@ What makes a wager admissible, then, is not how full the larder is but four chec
 from. `play.rs`'s surplus bound remains correct **for play**, because play buys prediction
 rather than food and its failure returns nothing — the two mechanisms should not share a bound
 just because they share a shape. That was the error.
+
+## 2c. The mechanism was also wrong — it is precision, not a contest
+
+*Added 2026-07-31, after searching for how biology actually does this.*
+
+Both §2b and §3 assume the same shape: a purpose **wins a comparison** against a need, funded
+by some budget. Pezzulo, Rigoli & Friston (2018, `docs/references.md`) describe what brains
+appear to do instead, and it is a better mechanism:
+
+> **A deep goal hierarchy in which higher levels modulate the PRECISION of lower-level
+> prediction errors** — they do not out-argue the need, they turn down its gain.
+
+That is better for us in four ways, and it is not a cosmetic difference:
+
+1. **It is graded.** A purpose can partially quiet a need rather than defeating it. `striving.rs`'s
+   `max` is all-or-nothing; precision is a dial.
+2. **The being still feels the need.** Bearing a hunger for a project is exactly a need that is
+   *present and not commanding*. A contest deletes the loser; precision leaves it in the room.
+   Blake's bait case wants the second: the being does not stop being hungry when it casts.
+3. **We already have the machinery.** `precision.rs` exists — the being already learns which of
+   its own signals to trust. This rides existing structure instead of adding a competitor.
+4. **The guardrail becomes structural rather than bookkept.** Not a budget that must be spent
+   correctly, but a **precision floor**: a survival-critical need's gain may be reduced by at
+   most so much and never to zero. Nothing can silence it, so no accounting error can starve
+   the being. That is the same move that made `null_space.rs`'s prohibition structural.
+
+**So §2b's rule stands and §3's mechanism does not.** *A being may risk whatever it can survive
+losing* — implemented as **bounded precision reduction with a floor**, not as a purpose winning
+a fight. §5's predictions are re-read accordingly: F1/F2's "budget" is the reducible fraction of
+a need's precision, and F4 asks how far the gain is actually turned down rather than how often a
+contest is won.
+
+*(Recorded because the correction has a shape now: I have twice specced this mechanism from my
+own intuition and twice been wrong — once on the bound, once on the mechanism — and both times
+the fix came from outside, once from Blake and once from the literature. The pattern is that my
+first design is a comparison when the real thing is a modulation.)*
 
 ## 3. The rule *(superseded by §2b — kept because the correction is the content)*
 

@@ -128,6 +128,27 @@ parameter vector is only interpolative.
   *Parametric L-systems — the formalism MorphoHDL says it is a practical instance of, and
   the reason recursive rewriting produces organic form at all.*
 
+### Deferral — `docs/deferral.md` *(specified, not built)*
+
+How a higher-level goal comes to override an urgent homeostatic need — the mechanism the
+deferral spec was inventing badly before this was read.
+
+- **Pezzulo, G., Rigoli, F. & Friston, K. J. (2018).** Hierarchical Active Inference: A Theory
+  of Motivated Control. *Trends in Cognitive Sciences* **22**(4), 294–306.
+  <https://doi.org/10.1016/j.tics.2018.01.009> — **verified 2026-07-31** (authors, venue,
+  volume, pages, DOI).
+  *A deep goal hierarchy in which higher levels do not out-argue lower ones but modulate the
+  **precision** of their prediction errors. This is the correction to `docs/deferral.md`: a
+  purpose should not win a comparison against a need — it should turn down the need's gain.
+  The need remains present and felt; it stops commanding. That is what bearing a hunger for a
+  project actually is, and it is why `docs/deferral.md` §2c replaces the budget with a
+  precision floor.*
+- **Pezzulo, G., Rigoli, F. & Friston, K. (2015).** Active Inference, homeostatic regulation
+  and adaptive behavioural control. *Progress in Neurobiology* **134**, 17–35.
+  PMID 26365173. *(DOI not verified from this environment.)*
+  *The earlier statement joining homeostatic regulation to active inference — the bridge
+  between `homeostasis.rs`'s graded drive (Keramati–Gutkin) and the hierarchy above.*
+
 ### Underdetermination — `docs/underdetermination.md` *(research brief, nothing built)*
 
 Read 2026-07-30 for the being's four measured absences (rest, doubt, self-surprise,
