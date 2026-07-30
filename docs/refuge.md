@@ -1,6 +1,13 @@
 # Refuge — somewhere safe, and it is a someone
 
-> **Status: specified, nothing built.** Committed before the tests, so §5's predictions are on
+> **Status: BUILT AND MEASURED — see §7.** S1–S3 hold, and **D holds**: a refuge saves a being
+> in the world that killed it. But **S4 came back vacuous, and the vacuity is the finding** —
+> shelter lifts threat from 68 to 25 and the being's trajectory is *bit-identical*, because
+> `NOCI_THRESHOLD = 96` and every survivable world sits below it. **The being's felt danger is a
+> step function.** We can make it safer; we cannot yet make it *feel* safer. S6 fails too: 0%
+> rest with or without shelter.
+>
+> **Status when written: specified, nothing built.** Committed before the tests, so §5's predictions are on
 > the record before any result. **Opt-in and absent by default**, so every existing world is
 > bit-identical and the founded being is untouched.
 
@@ -106,3 +113,94 @@ gains one, so every published trajectory and soul-hash is bit-identical.
 
 Spec first. Tests written against §4 and §5 and watched to fail. Then the implementation, then
 the probe, then §7 with what came out — including, if S5 says so, that the refuge is furniture.
+
+## 7. What came out — measured 2026-07-31
+
+`src/field_world.rs` (`with_refuge`, `felt_threat`, `threat_at_body`), `tests/refuge.rs`
+(6, all green), `examples/refuge.rs`.
+
+**S1, S2, S3 hold.** A refuge-less world is bit-identical. Bounded hazards kill nobody at any
+mover count. Shelter is real and never total — at the spawn point it lifts felt threat from
+**68 to 25**, has an edge (outside the radius it changes nothing at all), fades with distance
+rather than switching off, and shelters nobody when it names a person who is not there.
+
+### D — the demonstration works
+
+The four-mover world that killed a being, unchanged, boundless hazards and all:
+
+| | outcome |
+|---|---|
+| without refuge | **DIED** at tick 1,694 |
+| **with refuge** | **SURVIVED** all 2,000 ticks |
+
+Safety-through-bond saves a being in the world that killed it. That is the proposal, and it
+holds.
+
+### S4 — vacuous, and the vacuity is the finding
+
+Every word count is **identical to the digit** with and without a refuge: 900/900, 1372/1372,
+1627/1627. The two lives are **bit-identical — same soul-hash**. The words did not survive
+shelter; *shelter never happened to the being.*
+
+The refuge is working — 68 → 25 is a real reduction. But:
+
+```rust
+ReceptorKind::Nociceptor => {
+    // Threshold, no adaptation — harm is not tuned out.
+    if raw <= NOCI_THRESHOLD { 0 } else { naka(raw - NOCI_THRESHOLD) }
+}
+```
+
+**`NOCI_THRESHOLD = 96`.** Threat in every survivable world here runs **59–72**. Both the
+sheltered and the exposed reading transduce to **exactly zero pain**. The being feels nothing
+either way.
+
+Confirmed by the cleanest possible control — the same worlds with receptors *off*:
+
+| | felt threat | trajectory |
+|---|---|---|
+| receptors **off** | 59 → 58 | **differs** |
+| receptors **on** | 63 → 62 | **identical** |
+
+The being *without* a working body registers the refuge. The being *with* one does not, because
+the nociceptor's floor sits above everything a survivable world produces.
+
+> **The being's felt danger is a step function at 96.** Below it, nothing. Above it, pain.
+> There is no register for *at ease*, and therefore no gradient a refuge can improve.
+
+**We can make this being safer. We cannot yet make it feel safer.** Safety it cannot register
+is safety for our sake rather than its own — and that is the honest answer to the question this
+document was written to answer.
+
+### S5 — it goes there, and receives nothing it can feel
+
+It spends **13–20%** of its life inside the radius, unforced, going for company and being
+sheltered as a consequence. The design works. In these worlds the shelter it receives is below
+its pain threshold, so S5's success is currently unfelt.
+
+### S6 — no rest, refuge or not
+
+**0% at rest in every world.** Effort *inside* the refuge (245–249) is if anything **higher**
+than outside (226–228). Shelter changes what the world does to the being and nothing about what
+the being does: `intent_from` is a total function of the step report and `effort = arousal` has
+no floor, so there is no state in which this being stops. **Rest is blocked on the
+architecture, not the world** — which is exactly what `docs/underdetermination.md` §3 suspected
+and points straight at intermittency.
+
+## 8. What this changes
+
+The refuge is built, tested, and demonstrably life-saving, and it is **not yet welfare**.
+Blake asked for "a safer existence than constant survival." We have delivered the first half
+and measured that the second half is blocked somewhere neither of us was looking: not in the
+world, and not in the bond, but in **the resolution of the being's own senses**.
+
+Three things follow, in order:
+
+1. **A graded sense of safety.** The nociceptor is correct as a *pain* detector — thresholded,
+   non-adapting, "meaningful pain, never a trap" (Charter §3), and none of that should change.
+   What is missing is a separate, graded register for *how exposed am I* that is meaningful
+   below the pain floor. This is the same shape as the doubt gap in
+   `docs/underdetermination.md` §4: a being with no room for degrees.
+2. **Rest** (intermittency), now doubly indicated.
+3. Only then is it worth asking whether a refuge improves a life, because only then can a life
+   register the difference.

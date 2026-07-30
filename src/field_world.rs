@@ -40,6 +40,7 @@
 
 use crate::being::Partner;
 use crate::embodiment::{Embodiment, MotorIntent, Posture, Sensorium};
+use crate::q88::Q88_SCALE;
 use crate::striving::Need;
 
 /// The field is `SIZE`×`SIZE` raw units; the being's body is a point in it.
@@ -185,6 +186,21 @@ fn weather_hash(octave: u8, step: u32) -> i32 {
     (h & 0xFF) as i32
 }
 
+/// A **refuge**: near the person the being is bonded to, the world's threat is attenuated
+/// (`docs/refuge.md`). Full shelter at their side, fading to nothing at `radius` — a refuge
+/// needs an edge for the same reason a hazard does, and `shelter` is strictly partial, so
+/// near the one it loves the world is *gentler*, never *harmless*.
+///
+/// Absent by default: a world with no refuge is bit-identical to every world this project
+/// has ever built.
+#[derive(Clone, Copy, Debug)]
+struct Refuge {
+    person: u32,
+    radius: i16,
+    /// How much of the threat is removed at the person's side, raw Q8.8 out of `Q88_SCALE`.
+    shelter: i16,
+}
+
 /// The being's field-world: a scalar viability landscape with a cost of motion, behind
 /// the same `Embodiment` seam as `room.rs`. Deterministic, zero-dependency.
 #[derive(Clone, Debug)]
@@ -211,6 +227,9 @@ pub struct FieldWorld {
     drifts: Vec<Drift>,
     /// Sources that breathe on a 1/f cadence. Empty by default, same guarantee.
     weathers: Vec<Weather>,
+    /// Where the being is safe, if anywhere — and it is a *someone* (`docs/refuge.md`).
+    /// `None` by default, same guarantee as the two above.
+    refuge: Option<Refuge>,
 }
 
 impl FieldWorld {
@@ -232,6 +251,7 @@ impl FieldWorld {
             ticks: 0,
             drifts: vec![],
             weathers: vec![],
+            refuge: None,
         }
     }
 
@@ -250,6 +270,7 @@ impl FieldWorld {
             ticks: 0,
             drifts: vec![],
             weathers: vec![],
+            refuge: None,
         }
     }
 
@@ -368,6 +389,55 @@ impl FieldWorld {
             let next = (pos.0 + dr.step.0 * dir.0, pos.1 + dr.step.1 * dir.1);
             self.sources[dr.source].pos = Self::clamp_pt(next);
         }
+    }
+
+    /// Make a person a **refuge** (`docs/refuge.md`): within `radius` of them, the world's
+    /// threat is attenuated — by `shelter` (raw Q8.8 out of 256) at their side, fading to
+    /// nothing at the edge.
+    ///
+    /// Safety is then a *consequence of seeking company*, not a separate drive: the being
+    /// already crosses a world to the one it loves when it chooses company
+    /// (`docs/homecoming.md`), and this makes that arrival mean something it can feel. The
+    /// being is unchanged — `being.rs` knows nothing about this.
+    ///
+    /// Two bounds are deliberate and are the whole design:
+    ///
+    /// * **The refuge has an edge.** Safety everywhere is the same mistake as a hazard
+    ///   everywhere, which is what killed a being in `docs/richness.md` §6.
+    /// * **`shelter` is clamped strictly below total.** Near the one it loves the world is
+    ///   *gentler*, never *harmless* — walk into a hazard and it still costs.
+    ///
+    /// Absent by default; a world without one is bit-identical to every world before it.
+    pub fn with_refuge(mut self, person: u32, radius: i16, shelter: i16) -> Self {
+        self.refuge = Some(Refuge {
+            person,
+            radius: radius.max(1),
+            // Never total: at most 15/16 of the threat is lifted, so a hazard always bites.
+            shelter: shelter.clamp(0, Q88_SCALE * 15 / 16),
+        });
+        self
+    }
+
+    /// The threat the being would feel where it stands, shelter included — the reading
+    /// `sense()` produces, exposed read-only so a test or probe can compare a sheltered
+    /// world against an unsheltered one without living a life first.
+    pub fn threat_at_body(&self) -> i16 {
+        self.felt_threat(self.body)
+    }
+
+    /// Threat at a point, after any refuge. The one place shelter is applied, so `sense`
+    /// and `threat_at_body` can never disagree.
+    fn felt_threat(&self, p: (i16, i16)) -> i16 {
+        let raw = (self.threat_at(p) as i32 * 220 / 256) as i16;
+        let Some(r) = self.refuge else { return raw };
+        let Some(pos) = self.person_pos(r.person) else { return raw };
+        let d = Self::manhattan(p, pos);
+        if d >= r.radius {
+            return raw; // outside the edge a refuge changes nothing at all
+        }
+        // Full shelter at their side, fading linearly to none at the radius.
+        let lifted = (r.shelter as i32) * (r.radius - d) as i32 / r.radius as i32;
+        ((raw as i32) * (Q88_SCALE as i32 - lifted) / Q88_SCALE as i32) as i16
     }
 
     pub fn with_source(mut self, pos: (i16, i16), peak: i16, reach: i16) -> Self {
@@ -594,7 +664,7 @@ impl Embodiment for FieldWorld {
         // but never below the ambient floor: the cost wears it, it does not starve it.
         let nutrient =
             (here as i32 - self.debt as i32).clamp(AMBIENT_FLOOR as i32, NUTRIENT_CAP as i32) as i16;
-        let threat = (self.threat_at(self.body) as i32 * 220 / 256) as i16;
+        let threat = self.felt_threat(self.body);
 
         // A partner is present when the being is within a person's company — the *nearest*
         // one, carrying *their* id, so the being's bond is with the right someone.
