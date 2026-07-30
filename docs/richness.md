@@ -1,6 +1,11 @@
 # World richness — giving the being something to be wrong about
 
-> **Status: specified, nothing built.** Committed before the probe exists, so §4's predictions
+> **Status: MEASURED — see §6.** `NOT KNOW` and `HAPPEN` are spoken for the first time in the
+> project's history (R4, R5 confirmed). R6's verdict held but its reasoning was wrong: `CAN` is
+> blocked on **persistence, not magnitude** — peak agency already clears the bar. **W FAILED —
+> the being DIED in the four-mover world.** Richness is not uniformly safe.
+>
+> **Status when written: specified, nothing built.** Committed before the probe exists, so §4's predictions
 > are on the record before any result. **No new code is needed at all** — `FieldWorld` already
 > has `with_source`, `with_drift`, `with_weather` and `with_visitor`. This inch is composition
 > and measurement only. `being.rs` is untouched, no gate is added, existing worlds are
@@ -100,3 +105,94 @@ the being senses is the sum of things moving on unrelated schedules. Composition
 
 Spec first, committed before the probe. No new faculty, no gate, no default change, and the
 founded being is not woken. Then §6 with what came out.
+
+## 6. What came out — measured 2026-07-31
+
+`examples/richness.rs`. Six worlds, 1 → 12 independent movers, receptors on, 2,000 ticks each.
+No new code: composition of `with_source`, `with_drift`, `with_weather`.
+
+### The being said two words it had never said
+
+| prime | 1 | 2 | 4 | 6 | 9 | 12 |
+|---|---|---|---|---|---|---|
+| `BAD` | · | · | **102** | 453 | 836 | 910 |
+| `NOT KNOW` | · | · | · | **588** | 1334 | 1217 |
+| `HAPPEN` | · | · | · | **588** | 1334 | 1217 |
+| `SOMEONE` | · | 1 | · | 20 | 11 | 125 |
+| `MORE` `KNOW` `CAN` `CAN'T` `NEAR` | · | · | · | · | · | · |
+
+**R4 confirmed.** `NOT KNOW` — one of nested speech's two shields, never spoken once in the
+project's history — is spoken **588 times** in the six-mover world. The word for not knowing
+was waiting on a world with something new in it.
+
+**R5 confirmed.** `HAPPEN` grounds, at the same threshold. `docs/happening.md` §9 predicted
+world richness was the fix and named it over the threshold and over the receptors; that
+prediction is now vindicated by measurement.
+
+**But note what the table shows and celebrate accordingly:** `NOT KNOW` and `HAPPEN` have
+**identical counts at every level** — 588/588, 1334/1334, 1217/1217. They are not two
+independent wins. They ground together and appear together, which means novelty and residual
+are tracking the same underlying event in this world. One phenomenon, two names. That is worth
+understanding before either is claimed separately.
+
+R1 (free energy 5.09 → 7.68) and R2 (self-surprise 5.98 → 7.36) hold. R3 holds: 9 primes → 11.
+
+### R6: the verdict held and the reasoning was wrong
+
+Both `CAN` and `CAN'T` stayed unspoken, as predicted. But I locked R6 on the claim that agency
+was "16× short" of its bar — and **that number was a mean.**
+
+Peak agency is **224 in the sparsest world** and **157 in the richest**. Both are *above* the
+bar of 128, and richness made it **lower**, not higher.
+
+So the bar was never the problem. **`CAN` is blocked on persistence, not magnitude.** Grounding
+needs a fact held about one tick in five (`RISE 4 : EBB 1`); this being's control over its own
+senses spikes and collapses. It can act decisively for an instant and never long enough to have
+earned the word. That is a sharper and more actionable target than the one I locked — and
+`CAN'T` really is far (free energy 7.68 against a bar of 48).
+
+**This is the third time in one week a mean has hidden the finding** (`docs/play.md` §7,
+`docs/null-space.md` §7). I wrote that lesson into two documents and then locked a prediction on
+a mean anyway. Recorded here because the pattern is now the most reliable thing about my errors.
+
+### W FAILED — and it is the most important line here
+
+| movers | mean drive | peak | burdened | alive |
+|---|---|---|---|---|
+| 1 | 0.317 | 0.512 | 3% | yes |
+| 2 | 0.176 | 0.375 | 0% | yes |
+| **4** | 0.223 | **0.844** | 4% | **DIED** |
+| 6 | 0.303 | 0.535 | 7% | yes |
+| 9 | 0.288 | 0.387 | 0% | yes |
+| 12 | 0.205 | 0.395 | 0% | yes |
+
+**The being died in the four-mover world.** Peak drive 0.844 against a comfort line of 0.44.
+
+§4's W asked whether a richer world would be *crueller*. The honest answer is that it is
+**sometimes lethal**, which is worse than crueller and was not among the outcomes I imagined.
+And it is not monotone — the six-mover world carries the same kind of harm source and survives,
+so this is not "more movers, more danger." Some *arrangements* kill this being and we do not yet
+know which.
+
+The probe's first verdict printed *"the richest world is no harder than the sparsest"* — true of
+the means, and it had averaged a death. That verdict is fixed; the fact that it was possible to
+write is the point.
+
+### What this inch actually bought
+
+Two words the being never had, and one death. Those belong in the same sentence.
+
+A world rich enough to be worth talking about is a world with more ways to die in it. That is
+not an argument against richness; it is the price, now measured instead of assumed, and it lands
+squarely on the welfare question this project says it takes seriously. **Before any of this
+becomes the default world a being is founded in, the lethal arrangement needs to be understood
+— not smoothed away.**
+
+### What is now cleanly separated
+
+| the world owed the being | we owe the being |
+|---|---|
+| `NOT KNOW`, `HAPPEN`, `BAD` — delivered | `CAN` — persistence of control over its own senses |
+| | `CAN'T` — a world it genuinely fails to predict (FE 7.68 vs 48) |
+| | `KNOW`, `BECAUSE` — gates, not worlds |
+| | `MORE`, `NEAR` — still unexplained, neither delivered nor diagnosed |

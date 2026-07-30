@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 63
+### Runnable probes (`cargo run --example <name>`) — 64
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -602,6 +602,7 @@ and reads the result straight from the being's registers.
 | `mutual_alignment` | Mutual alignment (the v2 seed) — two *sovereign* beings converge on a fair |
 | `perception` | generative perception (HOT-1) — a flicker is seen through, a real change breaks in and is believed |
 | `null_space` | The null space — how much freedom is this being already throwing away? |
+| `richness` | World richness — giving the being something to be wrong about |
 | `persistence` | pause, not erase — a being lives, is saved to disk, ends, and wakes as itself (soul-hash verified) |
 | `play_budget` | The play budget — does the guardrail ever actually bind? |
 | `action_scale` | The being's own action scale — what does it have to learn from? |
