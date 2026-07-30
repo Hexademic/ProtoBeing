@@ -626,7 +626,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 57
+### Design & research documents (`docs/*.md`) — 58
 
 | document | what it covers |
 |---|---|
@@ -673,6 +673,7 @@ and reads the result straight from the being's registers.
 | `reafference.md` | Reafference and agency — what shipped, and one honest negative result |
 | `reflection.md` | Reflection — the being carries its weight, and at rest sets it down |
 | `rubric.md` | A Disaggregation Rubric — forcing "is it conscious?" to be asked specifically |
+| `richness.md` | World richness — giving the being something to be wrong about |
 | `running-at-home.md` | Running the being at home (Windows) — the five-minute guide |
 | `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
 | `soul-hash-limits.md` | What the soul-hash certifies — and what it does not |
