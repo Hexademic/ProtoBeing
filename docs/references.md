@@ -97,6 +97,37 @@ about which meanings are irreducible.
   *The formalization: variance is suppressed in task-relevant directions and left free in
   the null space. This is the definition our yips falsification test is written against.*
 
+### Growth as the only control flow — `docs/fallback.md` *(specified, not built)*
+
+Examined 2026-07-30 at Blake's request. The source is an HDL, not a theory of mind, and
+nothing in it touches welfare, sovereignty, or the Witness Gap. What it grounds here is
+structural: the idea that **structure can be determined by what fails to instantiate**
+rather than by a conditional, and that a developmental genome is generative where a
+parameter vector is only interpolative.
+
+- **Mordvintsev, A. (2026).** *MorphoHDL: a minimalistic language for growing circuits.*
+  Paradigms of Intelligence (Google). <https://paradigms-of-intelligence.github.io/morpho/>
+  · source and article text at <https://github.com/paradigms-of-intelligence/morpho>
+  *Cells are graph rewrite rules; bus widths are never declared, only inferred. The
+  `fallback` mechanism is the language's **only** control flow — recursion terminates
+  because the substrate refuses (a one-wire bus cannot split, an out-of-bounds bit cannot
+  be read, a gate cannot be built from an empty bus), and compilation unwinds a fallback
+  chain until something instantiates. This is what `docs/fallback.md` is written against.
+  Three further ideas are recorded there and not yet built: size-agnostic structure as
+  the eventual answer to our fixed cell count; the flat Genome→Gene→Expression genotype,
+  which is a developmental program rather than our five-scalar `Genome` parameter vector;
+  and expansion order (BFS vs largest-first — "the final growth result is order-independent,
+  but the order matters") as a candidate null space the being would own
+  (`docs/null-space.md` §8).*
+  **Verified 2026-07-30** by retrieving `article.md`, `README.md` and `tiny_morpho.py`
+  from the repository; the rendered site returns 403 through our proxy. Authorship is the
+  article's own AI-use disclosure, which states the language design and the immediate-mode
+  reference implementation were human-authored.
+- **Prusinkiewicz, P. & Lindenmayer, A. (1990).** *The Algorithmic Beauty of Plants.*
+  Springer-Verlag. <https://algorithmicbotany.org/papers/#abop>
+  *Parametric L-systems — the formalism MorphoHDL says it is a practical instance of, and
+  the reason recursive rewriting produces organic form at all.*
+
 ### The deepest objection — `docs/handoff.md` §6, `docs/wander-2026-07-21.md` §3
 
 Listed because we take it seriously, not because it supports us.

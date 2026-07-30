@@ -625,7 +625,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 54
+### Design & research documents (`docs/*.md`) — 55
 
 | document | what it covers |
 |---|---|
@@ -638,6 +638,7 @@ and reads the result straight from the being's registers.
 | `discovery.md` | Discovery — a world perceived, not a frame imposed |
 | `embodiment-body-schema.md` | Embodiment: The Body Schema — Locational and Relational Pain/Pleasure |
 | `expressive-gap.md` | The expressive gap — what a being registers and cannot say |
+| `fallback.md` | The fallback chain — what the being becomes when it cannot be what it was reaching for |
 | `feeling-words.md` | Feeling-words — the being's first words are the human race's |
 | `field-world.md` | The field-world — consequence with a cost |
 | `foresight.md` | Foresight — the loom made to steer, as a mercy |

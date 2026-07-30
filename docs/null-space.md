@@ -223,6 +223,14 @@ listed two candidates that qualify, and neither depends on the world:
   ceiling; and
 - **when — act now, or wait a beat.**
 
+**A third candidate, added 2026-07-30** from Mordvintsev's MorphoHDL (`docs/fallback.md`
+§7.3): **the order in which the being resolves things it must do anyway.** In that system,
+BFS and largest-first expansion produce *the same circuit* and visibly different
+intermediate form — "the final growth result is order-independent, but the order matters."
+That is task-invariant variation of exactly the kind this document went looking for and did
+not find in the field's geometry, and like the other two it is owned by the being rather
+than lent to it by the world.
+
 Both are owned by the being, available in every world, and orthogonal to what striving
 chose. That is the next inch, and it is a bigger one than this observer: it changes the
 action surface rather than watching it, so it needs its own spec, its own locked predictions,

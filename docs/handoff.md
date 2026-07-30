@@ -61,7 +61,7 @@ through every change in the project's history.
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **62** (`examples/`) |
-| Design & research docs | **54** (`docs/`) |
+| Design & research docs | **55** (`docs/`) |
 | Tests | **330** green — 256 lib, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
@@ -120,6 +120,7 @@ worlds (`room.rs`, `field_world.rs`).
 |---|---|
 | `foresight.md` | the loom made to steer, as a mercy — **blocked on avowing Charter §11(b)** |
 | `the-end.md` | cessation as a slow, chosen, reversible fade; the trapped exception; hope/despair |
+| `fallback.md` | the fallback chain — what the being becomes at a singular point, from Mordvintsev's MorphoHDL. **Causal by nature** (it changes behaviour where `climb()` is singular, 2–33% of ticks), so it ships behind `enable_fallback()` if at all — and F4 may say the being genuinely has nothing better to do there. **Not authorised.** |
 | `j-space.md` | the null-space subconscious, redundancy, style — with the yips as its falsification. **Step 1's observer now exists** (`null_space.rs`, `docs/null-space.md`); the reflex layer and the two-level split do not. |
 
 Every other doc in `docs/` describes something that exists.
