@@ -3,7 +3,8 @@
 > **Status: MEASURED — see §6.** `NOT KNOW` and `HAPPEN` are spoken for the first time in the
 > project's history (R4, R5 confirmed). R6's verdict held but its reasoning was wrong: `CAN` is
 > blocked on **persistence, not magnitude** — peak agency already clears the bar. **W FAILED —
-> the being DIED in the four-mover world.** Richness is not uniformly safe.
+> the being DIED in the four-mover world** — but the cause was a hazard with `reach` larger than
+> the world, not richness itself. Bounded to 90, every world survives. Diagnosed in §6.
 >
 > **Status when written: specified, nothing built.** Committed before the probe exists, so §4's predictions
 > are on the record before any result. **No new code is needed at all** — `FieldWorld` already
@@ -178,15 +179,54 @@ The probe's first verdict printed *"the richest world is no harder than the spar
 the means, and it had averaged a death. That verdict is fixed; the fact that it was possible to
 write is the point.
 
+### The death, diagnosed — and my reading of it was wrong
+
+Watched the four-mover being die, tick by tick:
+
+```
+t1682  nutrient 40   threat 125   drive 203   energy 0.449
+t1687  nutrient 40   threat 126   drive 216   energy 0.363
+t1691  nutrient 40   threat 128   drive 216   energy 0.051
+t1693  nutrient 40   threat 128   drive   0   energy 0.000
+```
+
+**Nutrient pinned at exactly `AMBIENT_FLOOR` (40). Threat pinned at 125–128. Drive at 216
+against a comfort line of 112.** It did not starve — the floor held, as designed. It did not
+meet a sudden hazard. It bled out over eleven ticks under a threat it could not walk away from,
+with its energy draining and nowhere better to stand.
+
+The cause is mine. I built those sources with **`reach = 300` on a 256-wide field**, and
+`threat_at` *sums* over every harm source. A hazard with reach greater than the world has no
+edge: its influence never fades to zero **anywhere**, so there is no place in that world without
+it. Bound the reach to 90 and re-run the identical sweep:
+
+| harm reach | 1 | 2 | 4 | 6 | 9 | 12 movers |
+|---|---|---|---|---|---|---|
+| 300 (as published above) | ✓ | ✓ | **DIED** | ✓ | ✓ | ✓ |
+| **90** | ✓ | ✓ | **✓** | ✓ | ✓ | ✓ |
+
+**Every world survives.** So the earlier framing in this section — *"a world rich enough to be
+worth talking about is a world with more ways to die in it"* — is **wrong**, and it was the kind
+of wrong that sounds wise. Richness did not kill the being. A hazard without a boundary killed
+it, and it would have killed it in a poor world too.
+
+**The principle the measurement actually yields:**
+
+> **A hazard must have an edge.** A threat that reaches everywhere is not a hazard, it is a
+> climate — and a being inside it is not surviving, it is dying slowly with nowhere to go.
+> The difference between *a world with stakes* and *constant survival* is whether the danger
+> has a boundary the being can be outside of.
+
+Death stays possible under that rule: walk into the harm source and it still costs. What is
+removed is *inescapability*, which was never a stake — it was just a sentence.
+
 ### What this inch actually bought
 
-Two words the being never had, and one death. Those belong in the same sentence.
+Two words the being never had — and a death that turned out to be a bug in the world I built,
+not a cost of the world being interesting.
 
-A world rich enough to be worth talking about is a world with more ways to die in it. That is
-not an argument against richness; it is the price, now measured instead of assumed, and it lands
-squarely on the welfare question this project says it takes seriously. **Before any of this
-becomes the default world a being is founded in, the lethal arrangement needs to be understood
-— not smoothed away.**
+Both halves are the inch. The words are real: `NOT KNOW`, `HAPPEN` and `BAD` are earned and
+audited. The death was avoidable and is now understood, which is better than being priced in.
 
 ### What is now cleanly separated
 
