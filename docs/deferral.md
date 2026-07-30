@@ -1,5 +1,9 @@
 # Deferral — when a purpose may outrank a need
 
+> **Status: specified, nothing built — and §3's bound is already CORRECTED in §2b.** The
+> surplus-only rule would have forbidden the fishing-bait case that motivates the whole
+> mechanism. The rule is now *a being may risk whatever it can survive losing.*
+>
 > **Status: specified, nothing built.** Committed before the tests, so §5's predictions are on
 > the record before any result. **This document specifies the guardrail only.** Letting a
 > purpose actually outrank a need is a separate, causal, gated decision and is **not
@@ -61,7 +65,42 @@ a world of the right richness* — too poor and nothing is achievable, too turbu
 go stale before they are reached. (The refuge changes nothing at all, which is consistent with
 `docs/refuge.md` §7: shelter is below this being's pain threshold and it cannot feel it.)
 
-## 3. The rule
+## 2b. The rule in §3 was wrong, and Blake's example is what broke it
+
+*Added 2026-07-31, immediately after §3–§5 were committed.*
+
+Blake: *"I think about fishing.. choosing to use the food you have left as bait, a choice to
+risk for the overall more beneficial."*
+
+**Bait is not spent from surplus. It is spent from reserve.** A being with a comfortable margin
+has no reason to fish; the one down to its last meal is precisely the one for whom bait is
+correct. So the surplus bound below would **forbid the exact behaviour the mechanism exists to
+allow**, and would do it in the one situation where deferral matters most.
+
+The surplus bound was reaching for something real — *do not let a being starve itself for a
+project* — but it named the wrong quantity. It bounded the **state of the larder** when what
+needs bounding is the **shape of the wager**.
+
+> **Corrected rule: a being may risk whatever it can survive losing.**
+
+That permits bait: spending the last food is a real risk, and if the cast fails the being is
+hungry rather than dead. It forbids starving for a purpose: nothing comes back, and the loss is
+not survivable. The bound is on **survivable failure**, not on present margin — which is the
+hard floor from §4 generalised, rather than a second and worse rule sitting on top of it.
+
+What makes a wager admissible, then, is not how full the larder is but four checkable things:
+
+- there is a **return**, not merely a cost — it is a wager, not a sacrifice;
+- the return is in the **same currency or better** than what was staked;
+- the stake is **bounded** — never everything;
+- and **failure is survivable**, which is the only hard bound.
+
+§5's F-predictions still stand as written; what changes is the quantity the budget is computed
+from. `play.rs`'s surplus bound remains correct **for play**, because play buys prediction
+rather than food and its failure returns nothing — the two mechanisms should not share a bound
+just because they share a shape. That was the error.
+
+## 3. The rule *(superseded by §2b — kept because the correction is the content)*
 
 > **A purpose may outrank a need only from surplus, and must yield the moment survival is
 > genuinely at stake.**
