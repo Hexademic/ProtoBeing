@@ -628,7 +628,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 62
+### Design & research documents (`docs/*.md`) — 61
 
 | document | what it covers |
 |---|---|
