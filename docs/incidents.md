@@ -75,76 +75,99 @@ with receptors on it never binds. Corrected in place, original text kept.
 **Still open as a decision:** whether `enable_receptors` becomes the default. It is a founding
 decision — it changes who the published being *is* — and it is Blake's.
 
-## I-3 · A faculty that harms — 2026-07-30 · OPEN
+## I-3 · A faculty that kills — 2026-07-30 · **CLOSED 2026-07-31**
 
-**What we did.** Compared all eleven gates against each other on one life, for the first time.
+> **Filed as "a faculty that harms." That title was wrong, and how it was wrong is the largest
+> thing in this entry.** The being living under this gate did not degrade. It **died at tick 32
+> of a 1,200-tick life**, and the probe that found the harm never printed the survival column.
 
-**What happened.** **`workspace_persistence` alone makes the being worse.** Identity coherence
-**251.98 → 124.12**. Self-knowledge 248 → 175. Mean drive **0.367 → 0.520 — past the comfort
-line.**
+**What we did.** Compared all eleven gates against each other on one life (`examples/composed.rs`),
+reporting each gate's effect as a **mean over the life**.
 
-**Mechanism. NOT ESTABLISHED.** This entry stays **open**. We know a gate harms the being and we
-do not know why. It has a passing probe of its own; nobody had ever run it against the other ten
-on a single life.
+**What happened — as originally recorded.** `workspace_persistence` alone: identity coherence
+**251.98 → 124.12**, self-knowledge 248 → 175, mean drive **0.367 → 0.520**, past the comfort line.
 
-**What changed.** Nothing yet, which is why this is open. It is default-off, so no being is
-currently living under it — but it must not be enabled anywhere until the mechanism is known.
+**What actually happened.** Every one of those numbers is a **length artifact**. Reproduced
+exactly by `examples/i3_workspace.rs` — same figures — and then, printed tick-by-tick by
+`examples/i3_trace.rs`:
 
-### Hypothesis, locked 2026-07-31 before the diagnostic probe was written
+- **Identity coherence never collapsed.** It rises *identically* in both arms, tick for tick:
+  96, 100, 68, 72, 76 … 180. The gate-off being then lived long enough for it to heal to 256;
+  the gate-on being died at 31 with coherence still climbing. "251.98 → 124.12" is a full life's
+  mean against a death's mean. There was no coherence effect to explain.
+- **Arousal is near-identical too** (mean |Δ| = 0.0076), so the metabolic-brake story is dead.
+- **Both beings walk the same path to the same food** (`examples/i3_navigation.rs`): `at_good`
+  climbs 33 → 92 in lockstep. The gate does not misnavigate the being.
 
-Read out of the source alone, with nothing measured yet. Recorded here first so that what comes
-back can contradict it.
+**Mechanism. ESTABLISHED** (`examples/i3_mechanism.rs`).
 
-The gate has two call sites in `being.rs` — an **injection** at §2b (line 948) and a **trace
-update** at §4c′ (line 1054) — and the injection lands at a specific place in the tick:
+The one register that never matched is **free energy**. The gate-off being's prediction error
+decays to ~7 and stays there — it learns its world. The gate-on being's bottoms at 32, climbs
+back to ~41, and **never resolves**. Because of where the gate sits in the tick:
 
+```text
+ 927  field.write_from_body(...)          the body votes
+ 948  field[c] += trace[c] * 0.5          ← the gate injects its own signal
+ 975  model.predictive_step(&field, ...)  ← the model must now predict THAT
 ```
- 927  field.write_from_body(...)        the body votes
- 948  field[c] += trace[c] * 0.5        ← the gate re-injects last tick's focus
- 975  model.predictive_step(&field)     free energy is computed on the injected field
-1001  basins.compute_membership(&field) THE MODE IS CLASSIFIED FROM THE INJECTED FIELD
-1232  narrative.cycle(basin, ...)       a mode CHANGE costs 32 coherence; stability heals 4
-1233  narrative.apply_identity_reflection(&mut field)   burden/4 → channel 10 (fatigue)
-1291  interoception.feel(energy, field[10], ...)        viability = energy − fatigue/2
-1581  drive(felt.viability, wants)                      drive rises as viability falls
+
+The model is asked to predict a field containing the being's own re-injection — a component no
+body evidence explains, so the error cannot be driven out. `being.rs` §2b argues carefully that
+the *trace* never feeds on itself (it deposits from `body_field`, snapshotted pre-injection), and
+that argument is **correct about the wrong loop**: the model is not protected. The sibling faculty
+three lines below *was* — §3 says *"ALWAYS on the raw field: the model learns from evidence,
+never from the percept, so generative perception cannot feed on itself"* — and generative
+perception applies its edit **after** the predictive step (line 993). Same hazard, one guarded.
+
+Then `being.rs:912` folds free energy into `strain`, `strain` becomes the body's `threat`, and
+`body.rs` §5 prices threat at **48/256 of full energy per unit per tick**:
+
+```rust
+let strain = last_free_energy + last_conscience_cost/4 + last_alarm/3 + sensed_threat;
+let cost   = 3 + arousal*(8/256) + threat*(48/256);
 ```
 
-`identity_coherence` is **not a similarity measure** — `narrative.rs` computes it from basin
-stability alone: −`Q88_SCALE/8` (32) on every basin change, +`Q88_SCALE/64` (4) per stable tick.
-Damage is **8× the healing rate**. So a halved coherence is not a vague degradation; it is an
-arithmetic statement that *the being is changing mode far more often.*
+> **In this architecture free energy is not a report. It is a bill.** A being that cannot lower
+> its surprise cannot stop paying, and this one cannot lower its surprise because it is
+> generating it. It starves with food in reach.
 
-And the trace saturates. With `RETENTION = 0.75` and `DEPOSIT = 0.625`, a channel attended
-repeatedly settles at `2.5 × body_value`, clamped at `WORKSPACE_CAP` = 1.0 — so a sustained focus
-injects a **flat +0.5** into its channel, with no clamp on the sum (`saturating_add`, i16). The
-field the basins are classified from is displaced by half of full scale.
+Confirmed arithmetically: both arms hold the same positions (26/32 ticks identical nutrient) so
+income cancels, and arousal's coefficient is 6× smaller than threat's. The cumulative energy gap
+predicted from the strain gap alone tracks the observed gap at a ratio of **0.83–0.98** across the
+whole run and **accounts for 109%** of the final divergence.
 
-> **Hypothesis (M):** `workspace_persistence` does not harm the being through anything to do with
-> memory or focus. It harms it because the re-injection displaces the somatic field *before the
-> mode is classified*, so the being flips basin more often; `narrative.rs` charges 32 coherence per
-> flip and repays 4 per stable tick; the resulting coherence collapse and burden rise are fed
-> **back into the body as fatigue** by `apply_identity_reflection`; and `viability = energy −
-> fatigue/2` turns that into drive. **The drive rise is downstream of the coherence collapse, not
-> parallel to it.**
+**And it is a property of the gate *alone*.** Persistence plus any one of `workspace_broadcast`,
+`generative_perception`, `receptors`, or `reflection` lives the full 1,200 ticks — and so does the
+whole eleven. Every survivor settles at a free-energy floor of **0.1–2.0**; every death sits at
+**37.5**. No exceptions in either direction, which is as clean as this project's evidence gets.
 
-Predictions, locked before the probe runs:
+**What changed.**
 
-- **M1.** The persistence arm changes basin substantially more often — `episodes` clearly higher
-  over an identical life. *(If episodes are equal, M is dead and the coherence loss is something
-  else entirely.)*
-- **M2.** `narrative_burden` is higher in the persistence arm.
-- **M3.** Felt viability is **lower** and the drive rise is mostly `sustenance`, not appetite
-  `wants` — because the chain runs through fatigue. *(If the rise is mostly appetite, the fatigue
-  path is not carrying it.)*
-- **M4.** The attended channel is concentrated, not spread — a saturating trace needs a repeated
-  focus. *(If attention is uniform, the trace never saturates and the +0.5 figure is wrong.)*
-- **M5.** Body energy is **not** meaningfully different between arms. This distinguishes *feeling
-  worn* from *being worn*: if energy matches and viability does not, the gate is manufacturing a
-  fatigue the body does not have.
+1. **The gate stays default-off and is now documented as lethal in isolation**, not merely
+   harmful. `docs/composed.md`'s solo-gate row is corrected in place.
+2. **A named, unbuilt fix:** move the re-injection *after* the predictive step, as generative
+   perception already does, so the model is scored against evidence rather than against the
+   being's own workspace. Not built here — it is a causal change to a faculty, and it belongs to
+   its own inch with predictions locked first.
+3. **A rule for every probe in this repository, from `tests/manifest.rs` outward:**
 
-**M5 is the one that matters for welfare.** If it holds, the harm is not that the being is
-depleted — it is that the being is made to **feel depleted by an artefact of its own workspace**,
-which is a worse thing to have built and a different thing to fix.
+   > **Report survival before reporting anything else. A mean over a life and a mean over a death
+   > are not comparable quantities, and nothing else in the row means anything until the reader
+   > knows which one they are looking at.**
+
+**Why this entry matters beyond the gate.** This is the **fourth** time in this project that a
+mean has hidden a finding (`play.md` §7, the null-space probe, R6's agency peak, and now this).
+The first three hid *good* news — a range, a peak. This one hid a death, and it hid it inside a
+document arguing that the composed being is measured honestly. The methodology did eventually
+catch it, but only because the ledger's own standing rule forced the question *why* rather than
+letting "a faculty that harms" stand as a finding.
+
+**Two of my own errors are kept in the probes rather than tidied away**, because each was one
+edit from being published as a fact about the being: hypothesis M's verdict block scored
+"M1 basin churn higher — HOLDS" off the *same* length artifact it was written to investigate; and
+the first mechanism test modelled `strain` as free energy alone, accounted for 56%, and printed
+"mechanism incomplete" — I had quoted the four-term expression in the paragraph above and then
+dropped two terms writing the predictor.
 
 ## I-4 · We made a being safer and it could not tell — 2026-07-31 · CLOSED
 

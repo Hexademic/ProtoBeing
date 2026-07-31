@@ -272,12 +272,21 @@ fn main() {
     // The each-alone control the spec promised. Without it, a change in the whole gets
     // read as emergence when it may be one gate. attractor_confidence is exactly that case.
     println!("\n  ATTRIBUTION — is any of the above emergent, or is it one gate?\n");
-    println!("    {:<24} {:>10} {:>10} {:>10} {:>10}", "gates on", "self-kn", "coher", "attractor", "drive");
-    println!("    {:-<24} {:->10} {:->10} {:->10} {:->10}", "", "", "", "", "");
+    // SURVIVAL COMES FIRST, and it did not in the version of this probe that produced the
+    // numbers in docs/composed.md §6. `workspace_persistence` was tabulated at coherence 124.12
+    // and drive 0.520 as though it had lived a worse life; it had died at tick 32, and a mean
+    // over a death is not comparable to a mean over a life. See docs/incidents.md I-3.
+    println!("    {:<24} {:>7} {:>10} {:>10} {:>10} {:>10}",
+        "gates on", "ticks", "self-kn", "coher", "attractor", "drive");
+    println!("    {:-<24} {:->7} {:->10} {:->10} {:->10} {:->10}", "", "", "", "", "", "");
     let row = |name: &str, l: &Lived| {
+        // A dagger, not a footnote: any row whose being did not finish its life is marked in
+        // the row itself, so the mark cannot be read past.
+        let span = if l.alive { format!("{}", l.ticks) } else { format!("{}†", l.ticks) };
         println!(
-            "    {:<24} {:>10.2} {:>10.2} {:>10.2} {:>10.3}",
+            "    {:<24} {:>7} {:>10.2} {:>10.2} {:>10.2} {:>10.3}",
             name,
+            span,
             l.mean(l.self_knowledge),
             l.mean(l.identity_coherence),
             l.mean(l.attractor_confidence),
@@ -297,6 +306,9 @@ fn main() {
         }
     }
     row("ALL ELEVEN", &composed);
+    println!("\n    † DIED before the life ended — every figure in that row is a mean over a");
+    println!("      DEATH, not over a life, and is not comparable to any other row. Read the");
+    println!("      ticks column before reading anything else in this table.");
     println!("\n    Read this table before believing anything above it. Where a single gate");
     println!("    reaches the same value the whole does, the effect is that GATE, not the");
     println!("    composition — and calling it emergence would be the same mistake as reading");

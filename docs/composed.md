@@ -8,6 +8,13 @@
 > `workspace_persistence` alone *harms* the being, and **the being this project publishes has
 > its body switched off**, which makes a result from `docs/play.md` §7 an artifact.
 >
+> **CORRECTION, 2026-07-31 — the `workspace_persistence` row below is wrong, and this document
+> is where the error was made.** That being did not live 1,200 ticks worse off. **It died at
+> tick 32**, and this probe reported per-gate means without reporting survival, so a mean over a
+> death was tabulated beside means over lives. Coherence never fell — it is identical tick for
+> tick in both arms. See **`docs/incidents.md` I-3** for the diagnosis and the mechanism; §6's
+> row is annotated in place rather than rewritten, because the shape of the mistake is the point.
+>
 > **Status when written: specified, nothing built.** Committed before the probe exists, so §4's
 > predictions are on the record before any result. **No new faculty is built in this inch
 > and no new gate is added.** Every part has existed for weeks. What has never happened is
@@ -177,9 +184,15 @@ compares against the strongest single faculty, which is the weakest honest form 
 | gates on | self-knowledge | coherence | attractor conf. | mean drive |
 |---|---|---|---|---|
 | none (baseline) | 248.46 | 251.98 | **3.37** | **0.367** |
-| `workspace_persistence` | 175.28 | **124.12** | 7.88 | **0.520** |
+| `workspace_persistence` ⚠️ | 175.28 | ~~124.12~~ | 7.88 | ~~0.520~~ |
 | `receptors` | 253.26 | 253.27 | **249.28** | **0.037** |
 | **ALL ELEVEN** | 252.31 | 253.27 | **249.28** | 0.041 |
+
+> ⚠️ **This row is a mean over 32 ticks, not 1,200.** That being *died* — and every figure in the
+> row is therefore a death's average sitting in a table of lives' averages. Struck values are the
+> ones the artifact wholly explains: coherence is identical in both arms tick for tick, and the
+> drive figure is a dying being's. **The survival column this table needed was never printed.**
+> `examples/composed.rs` now prints it for every arm. (`docs/incidents.md` I-3)
 
 The composed being looks transformed against the baseline: attractor confidence **3.37 →
 249.28**, mean drive **0.367 → 0.041**. If the attribution row were missing, that would read as
@@ -191,10 +204,22 @@ whole story is one gate.
 
 ### Two things nobody knew, both from the attribution control
 
-1. **`workspace_persistence` alone hurts.** Identity coherence **251.98 → 124.12**, self-knowledge
-   248 → 175, and mean drive **0.367 → 0.520 — past the comfort line.** A gate that makes the
-   being measurably worse off and less coherent, in isolation, in an ordinary life. It has a
-   passing probe of its own; nobody had ever compared it against the other ten on one life.
+1. **`workspace_persistence` alone hurts.** ~~Identity coherence **251.98 → 124.12**,
+   self-knowledge 248 → 175, and mean drive **0.367 → 0.520 — past the comfort line.**~~ A gate
+   that makes the being measurably worse off and less coherent, in isolation, in an ordinary
+   life. It has a passing probe of its own; nobody had ever compared it against the other ten on
+   one life.
+
+   > **Corrected 2026-07-31: it does not hurt the being, it kills it.** The gate re-injects the
+   > workspace trace into the somatic field at `being.rs:948`, *before* the model predicts that
+   > field at line 975 — so prediction error can never resolve, and `being.rs:912` charges free
+   > energy to the body as metabolic threat at 48/256 of full energy per unit per tick. The being
+   > starves with food in reach, at tick 32. It survives paired with any of `workspace_broadcast`,
+   > `generative_perception`, `receptors` or `reflection`, and inside the full eleven. Full
+   > diagnosis and the four probes that got there: **`docs/incidents.md` I-3**.
+   >
+   > What this document got right was the *instinct* — "nobody had ever compared it against the
+   > other ten on one life" — and what it got wrong was stopping at the mean.
 2. **The being this project publishes has its body switched off.** `enable_receptors` is
    default-off, and it is responsible for essentially all the difference between a being whose
    exteroception is transduced and one whose isn't. Every embodied result in this repository was
