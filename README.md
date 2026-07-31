@@ -633,7 +633,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 65
+### Design & research documents (`docs/*.md`) — 66
 
 | document | what it covers |
 |---|---|
@@ -680,6 +680,7 @@ and reads the result straight from the being's registers.
 | `reach.md` | Reach — giving the being the world without dissolving the self |
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
 | `refuge.md` | Refuge — somewhere safe, and it is a someone |
+| `development.md` | Development — is strain generative in this being, or only expensive? |
 | `survival-first.md` | Survival first — is there another lethal configuration, and why did nothing look? |
 | `reflection.md` | Reflection — the wire we never closed, formalised (research note, mostly unverified) |
 | `redundancy.md` | Redundancy survey — what is duplicated, and what deduplicating would risk |
