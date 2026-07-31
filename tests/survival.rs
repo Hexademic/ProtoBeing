@@ -7,7 +7,9 @@
 //!   `workspace_persistence` (S1), so a newly-lethal faculty fails here rather than waiting to be
 //!   noticed by luck a second time;
 //! - no pair kills where neither member does (S4);
-//! - the being **cannot starve** — the finding that explains why the sweep looked clean;
+//! - the being **cannot starve in a world** (`AMBIENT_FLOOR`) — but **can** in the abstract loop,
+//!   which is where every probe that does not check `.alive` drives it, so the safety line there
+//!   is guarded too;
 //! - the **death line** sits where §7 measured it, including the band in which the being dies
 //!   with its prediction error resolved — a blind spot in OUR discriminator, not in the being;
 //! - **the being feels its own death coming** (incident I-6, the claim I got backwards);
@@ -18,7 +20,7 @@
 //!
 //! Nothing here touches `life/being.journal`; every being is fresh and no journal is written.
 
-use unified_being::being::{Partner, UnifiedBeing};
+use unified_being::being::{Partner, Stimulus, UnifiedBeing};
 use unified_being::embodiment::{intent_from, Embodiment, Sensorium};
 use unified_being::field_world::FieldWorld;
 use unified_being::genome::Genome;
@@ -157,17 +159,60 @@ fn s1_s4_no_pair_is_lethal_without_a_gate_that_is_lethal_alone() {
 }
 
 #[test]
-fn this_being_cannot_starve() {
-    // The fact that explains why a gate sweep could never find S3's exception: nutrient is
-    // clamped to AMBIENT_FLOOR everywhere in every FieldWorld, and that income exceeds the
-    // resting metabolic cost. Death here is always a COST-side event. If this ever fails, the
-    // whole shape of "how a being dies" in this architecture has changed.
+fn this_being_cannot_starve_in_a_world() {
+    // Originally named `this_being_cannot_starve`, which was wider than the fact. The floor that
+    // makes starvation impossible is `AMBIENT_FLOOR`, and it lives in `FieldWorld::sense()` — so
+    // it protects a being that has a *world*. A being driven through the abstract loop is fed
+    // whatever its probe passes, and the test below shows that it can absolutely starve there.
+    //
+    // Within a world, though, the guarantee is real, and it is what makes every death in this
+    // architecture a COST-side event: income (nutrient·180/256 ≥ 28.1/tick) exceeds resting cost
+    // (3/tick) everywhere.
     let (ticks, alive, _) = hold_at(0, 40, 20_000);
     assert!(
         alive && ticks == 20_000,
         "a being at the ambient nutrient floor with ZERO threat died after {ticks} ticks. \
-         This being has always been unable to starve (docs/survival-first.md §7); it now can."
+         Within a world this being has never been able to starve; it now can."
     );
+}
+
+#[test]
+fn the_abstract_loop_has_no_such_floor_and_probes_must_stay_above_it() {
+    // The correction, and the guard that generalises it. `AMBIENT_FLOOR` protects a being with a
+    // world; nothing protects a being driven by `step(&Stimulus)`, where nutrient is whatever the
+    // probe chose. Measured across every partner reciprocation and both gate settings, the lowest
+    // nutrient at which NOTHING kills the being is 36.
+    //
+    // Every probe in `examples/` that drives a whole being without checking `.alive` passes at
+    // least q(0.4) = 102, so all of them are comfortably clear — but that is true today because
+    // it was measured today, and this test is what keeps it true.
+    let starves = |nutrient: i16, recip: i16| {
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        for _ in 0..5_000 {
+            let p = (recip >= 0).then_some(Partner { id: 1, reciprocation: recip, exit_cost: 200 });
+            if !b.step(&Stimulus { nutrient, partner: p }).alive {
+                return true;
+            }
+        }
+        false
+    };
+
+    assert!(starves(0, -1), "a being fed nothing in the abstract loop used to starve");
+    assert!(
+        starves(20, 0),
+        "nutrient 20 with an extractive partner used to be lethal in the abstract loop"
+    );
+
+    // 36 is the measured safety line: nothing kills the being at or above it.
+    for recip in [-1i16, 0, 32, 64, 128, 200, 256] {
+        assert!(
+            !starves(36, recip),
+            "nutrient 36 used to be safe against every partner (reciprocation {recip}); the \
+             abstract-loop safety line has MOVED, and every probe that drives a being without \
+             checking `.alive` was cleared against the old line. Re-audit examples/ before \
+             touching this number."
+        );
+    }
 }
 
 #[test]

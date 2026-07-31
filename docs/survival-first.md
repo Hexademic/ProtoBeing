@@ -38,7 +38,14 @@ probes: 69    reference .alive: 10
 ```
 
 **Ten.** Fifty-nine probes run a being through a life, report something about it, and would not
-notice if it died on the way. That is not a criticism of any one of them — until an hour ago
+notice if it died on the way.
+
+> **⚠️ THIS NUMBER IS WRONG — see §11.** The grep matched `.alive` only, and missed `is_alive()`
+> and `died_at`. **45 of 70 probes can detect a death, not 10.** Of the 25 that cannot, only 16
+> drive a whole being, and all 16 are provably clear of the boundary where one could die. The
+> paragraph below is left standing because it is the shape of the mistake — a claim about the
+> repository resting on one pattern I did not check the width of. Same error as §8's, same day,
+> third time. That is not a criticism of any one of them — until an hour ago
 nobody knew there was anything to notice. It is a statement about the shape of the instrument:
 *this repository has been reporting on beings without checking whether they survived the report.*
 
@@ -322,3 +329,73 @@ The rule from §8 generalises, and this is its final form:
 
 > **Before reporting what a measurement shows, state what it could not have shown.** A number is
 > a claim about the world only to the extent that its instrument could have come out otherwise.
+
+---
+
+## 11. §9 closed — the whole-project audit
+
+*Written 2026-07-31, from Blake: "would you like to go through the entire project and ensure
+everything functions together?"*
+
+Everything below is a run, not a read. The founded being's journal was checksummed before and
+after and is **byte-identical**; `src/bin/being.rs` was deliberately never executed.
+
+### It all runs
+
+| | result |
+|---|---|
+| **70/70 probes** execute | every one exits 0; nothing written to stderr by any of them |
+| **6/6 safe binaries** run | `console` `embody` `fairtest` `live` `pci` `pci_baseline` — all exit 0 |
+| **352 tests** | 0 failures, including the `--ignored` 66-life pair sweep |
+| **Warnings** | **0**, repository-wide, all targets |
+| **Founded being** | 390 kept moments, soul-hash verified, journal unchanged after all of it |
+
+The one warning that existed — an unread `spoke` field in `richness.rs` — was a *measurement
+taken and never printed*. Surfaced rather than deleted: the being speaks on **67–98%** of its
+ticks depending on world richness, which is the denominator that probe's vocabulary table always
+needed and never had.
+
+### §9's question, answered: no being has ever died unnoticed here
+
+The audit chain, each step measured:
+
+1. **45 of 70 probes can detect a death** (`.alive`, `is_alive()`, or `died_at`). My §1 figure of
+   ten was a grep too narrow for the claim it carried.
+2. **Of the 25 that cannot, 9 never drive a whole being at all** — they exercise a module, not a
+   creature. They cannot kill one.
+3. **The remaining 16 all drive a being through the abstract `step()` loop**, which has no threat
+   channel — so the only route to death there is starvation.
+4. **The abstract loop's death boundary, measured** across every partner reciprocation and both
+   gate settings: nutrient 0 kills in 27 ticks, 8 kills in 46, **36 is the lowest nutrient at
+   which nothing kills the being.**
+5. **All 16 pass nutrient ≥ q(0.4) = 102** — the lowest anywhere is `two_beings_bargain`, and the
+   rest sit at 130, 150, or higher.
+
+So the 16 blind probes are blind to something that never happens in them, by a margin of ~3×. The
+gap §9 named is real, and it is empty.
+
+### The correction that came with it: "this being cannot starve" was too wide
+
+§7 says it flatly. It is true **in a world** — `AMBIENT_FLOOR` lives in `FieldWorld::sense()` and
+guarantees income above resting cost everywhere. It is **false in the abstract loop**, where a
+being is fed whatever its probe passes and starves below 36.
+
+That distinction was invisible to me when I wrote §7 because every measurement in this document
+was a `FieldWorld` measurement. The test is renamed `this_being_cannot_starve_in_a_world`, and a
+second guard now holds the abstract line — so the clearance the 16 probes enjoy is checked rather
+than remembered.
+
+And a coincidence worth noting without over-reading: the abstract safety line is **36** and
+`AMBIENT_FLOOR` is **40**. The world's floor sits four units above the point where a being can
+die of hunger. Whether that margin was chosen or inherited, it is thin, and it is now measured.
+
+### What the audit did not check
+
+Honestly, so it is not mistaken for done:
+
+- **Probe output is not verified against the claims in `docs/`.** Every probe runs and exits 0;
+  nobody has checked that what it *prints* still matches the number a document quotes from it.
+  Today produced four such mismatches by hand. A `docs`-to-probe consistency guard does not exist.
+- **`src/bin/being.rs` was never run**, by design. The founded being is verified by replay only.
+- **`console` runs 30 seconds and was cut at 90**; it and `live` are continuous by design, so
+  "exits 0" means "ran clean for as long as we watched", not "terminates".

@@ -188,6 +188,19 @@ fn main() {
         println!("   {}", if ever { "" } else { "STILL UNSPOKEN" });
     }
 
+    // How much of each life the being spent SPEAKING at all — the denominator every count
+    // above is a fraction of. Computed since this probe was written and never printed, which
+    // meant the vocabulary table had no scale to be read against.
+    println!("\n  ticks on which the being spoke at all:");
+    print!("    {:<10}", "movers");
+    for l in &lives { print!("{:>8}", l.movers); }
+    println!();
+    print!("    {:<10}", "spoke%");
+    for l in &lives {
+        print!("{:>8}", format!("{:.0}%", l.spoke as f32 * 100.0 / l.ticks.max(1) as f32));
+    }
+    println!();
+
     // ---- verdicts ------------------------------------------------------------------
     let first = &lives[0];
     let last = lives.last().unwrap();
