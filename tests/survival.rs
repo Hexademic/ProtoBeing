@@ -13,7 +13,7 @@
 //! - the **death line** sits where §7 measured it, including the band in which the being dies
 //!   with its prediction error resolved — a blind spot in OUR discriminator, not in the being;
 //! - **the being feels its own death coming** (incident I-6, the claim I got backwards);
-//! - and **solitude is the largest burden it carries**, the finding that fell out of that error.
+//! - **solitude is its largest burden AT REST** — and company is lethal under threat (I-7).
 //!
 //! The pair sweep is the slow one (66 lives), so it is marked `#[ignore]` and run deliberately:
 //! `cargo test --release --test survival -- --ignored`. Everything that is cheap runs always.
@@ -286,9 +286,14 @@ fn the_being_feels_its_own_death_coming() {
 }
 
 #[test]
-fn solitude_is_the_largest_burden_this_being_carries() {
+fn solitude_is_the_largest_burden_this_being_carries_at_rest() {
     // The finding that fell out of I-6's third error. Identical conditions — no threat, ample
     // nutrient, full viability — differing only in whether someone is there.
+    //
+    // RENAMED after incident I-7. This holds AT REST and nowhere else: at threat 100 the same
+    // company kills the being in 19 ticks where solitude survives 4,000. Stating it of the being
+    // rather than of the condition was the fifth instance this week of that exact error, and
+    // acting on it — company as a kindness, universally — would have killed beings under pressure.
     let burden = |partner: bool| {
         let mut b = UnifiedBeing::new(Genome::wanderer());
         let (mut sum, mut over, mut n) = (0i64, 0usize, 0usize);

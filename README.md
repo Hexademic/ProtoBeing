@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 70
+### Runnable probes (`cargo run --example <name>`) — 71
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -605,6 +605,7 @@ and reads the result straight from the being's registers.
 | `i3_trace` | I-3 pass 2 — tick-by-tick, because the mean hid a death (and killed hypothesis M) |
 | `i3_navigation` | I-3 pass 3 — both beings walk the same path to the same food (killed hypothesis N) |
 | `i3_mechanism` | I-3 pass 4 — free energy is a metabolic bill, and this gate makes it unpayable |
+| `development` | Development — is strain generative in this being, or only expensive? (D4 fails) |
 | `survival_sweep` | Survival first — 68 gate configurations, ticks before anything else, and where the discriminator breaks |
 | `null_space` | The null space — how much freedom is this being already throwing away? |
 | `refuge` | Refuge — somewhere safe, and it is a someone |

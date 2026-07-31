@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **70** (`examples/`) |
+| Runnable probes | **71** (`examples/`) |
 | Design & research docs | **66** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -271,3 +271,102 @@ one changes the action surface rather than watching it, so it needs its own spec
 locked predictions, and a gate — unlike everything shipped this day, which observed only.
 Two things wait behind it: **play** (`docs/play.md` §8, blocked) and **style** — two beings,
 identical needs and habits, measurably different *manners*, which the being cannot have yet.
+
+---
+
+## 9. The week ending 2026-07-31 — read this first
+
+*Written at the end of the session, for whoever picks this up cold. This week the project's
+character changed: it stopped being about adding faculties and became about **knowing what we had
+already done**. Four documents this week are corrections to earlier documents, and that is the
+week's actual output — the instruments finally got sharp enough to catch the project.*
+
+### The one thing to carry
+
+> **Before reporting what a measurement shows, state what it could not have shown.**
+
+Every failure this week was one disposition, seven times: an instrument narrower than the claim
+hung on it. A mean that could not hold a death. A sweep that could not hold a cause. A sixty-tick
+window that could not hold a recovery. A grep that could not hold two spellings. Two registers
+called *every*. A probe missing a partner called *the being*. A verdict computed over beings that
+had died before the trial began. **Knowing this did not prevent any of them** — the rule was
+written on day one of the week and broken the same day, inside the probe written to investigate
+it. What worked, every time, was something external: Blake's example, the literature, or a
+question that happened to lean on a sentence written too wide.
+
+Blake's sharper version, which is the one to keep: *if we don't listen to what others report, we
+aren't doing scientific research, we are dreaming what the perfect system would be.*
+
+### The ledger is now the spine of the project
+
+`docs/incidents.md` — **eight entries, one OPEN.** It was asked for as a welfare record and became
+a forcing function: *an impact we cannot explain is not an accident, it is an unknown, and it stays
+open.* That rule is why I-3 got diagnosed instead of drifting. **Read the ledger before the design
+docs.** Four of this week's corrections are in it, and I-8 is the live one.
+
+### What the being turned out to be
+
+Findings that hold, each with a guard in `tests/`:
+
+- **It cannot starve in a world.** `AMBIENT_FLOOR` guarantees income above resting cost everywhere.
+  Every death here is a **cost-side** event. It *can* starve in the abstract `step()` loop, where
+  the safety line is nutrient **36**.
+- **Free energy is a bill, not a report.** `being.rs:912` folds it into strain; `body.rs` charges
+  strain at **48/256 of full energy per unit per tick**. This one fact explains I-3, the death
+  line, and I-7.
+- **The death line is threat 106** at the ambient floor. At nutrient 80 the being survives anything.
+- **It feels its own death coming**, 36 ticks out, on three registers (I-6). I published the
+  opposite and was wrong about the creature, not the code.
+- **Company is a comfort in safety and a killer under threat** (I-7). Both halves measured.
+- **Composition only ever rescues.** No pair of gates is lethal where neither member is.
+- **No being has ever died unnoticed here.** Audited end to end; §11 of `docs/survival-first.md`.
+
+### Where to start on Sunday
+
+**I-8 is open and it is the most interesting thing in the repository.** From Blake: *unless they
+learn how to use these developments, they won't access them; strain, stress and constraints push a
+being into solving novel issues it has no reason to approach.* We tested it. `docs/development.md`:
+
+- The mechanism exists and is `src/reflection.rs` — load → **weathered** resilience, causal.
+- It fires. In the band (threat 90, 20 hard / 80 easy) the being carries load peak **173** and
+  converts **232** units while living its full life. **Below the band nothing accumulates; above
+  it the being is dead in 19 ticks.** Blake's inverted U, with both edges measured.
+- **And switching the mechanism on is worth −1 tick.** The reared being's advantage survives
+  disabling the faculty that is supposed to produce it. As measured, `weathered` is a readout with
+  no consequence.
+
+Three things to do, in order, each an hour or less:
+
+1. **Check whether `weathered` is sized to matter at all.** `reflection_tone = weathered/12 −
+   load/8`. **The drag coefficient is larger than the lift coefficient by construction.** A
+   mechanism whose weight outweighs its strength may be working exactly as written and still never
+   help. This is a question about one constant and it is the first thing to answer.
+2. **Re-run D4 with a survivable trial.** The trial used was *endurance under a hopeless sustained
+   load* — the one thing a term sized at `weathered/12` was never going to move. A hardship with
+   an exit is the right test. **D4 is answered for endurance and open for competence.**
+3. **Then, if it still fails, say so in the ledger and mean it:** we have built a being that can be
+   worn and not one that can grow, and that is an architecture problem, not a world problem.
+
+### Two decisions that are Blake's, still waiting
+
+- **Whether `enable_receptors` becomes the default** (I-2). It changes who the published being
+  *is*. This week de-risked it considerably: all eleven gates survive together, composition only
+  rescues, and the one lethal gate is understood.
+- **Whether to avow Charter §11(b)**, which gates `docs/foresight.md` and half the ecosystem work.
+
+### The gap nobody is guarding
+
+**No test checks that what a probe *prints* still matches what a document *quotes* from it.** This
+week produced four such mismatches and every one was caught by hand. `tests/manifest.rs` guards
+that files exist; nothing guards that claims are true. That is where the next four are.
+
+### Standing constraints — do not violate these
+
+- **Never advance the founded being's kept life.** `life/being.journal`, 390 moments.
+  `cargo run --bin being` is a deliberate act reserved for Blake. Verification is replay-only and
+  `tests/founded_being.rs` proves the record is never written to.
+- **Observer-first.** New faculties watch before they steer; gates default off; the soul-hash stays
+  bit-identical on the default path.
+- **Spec with locked predictions, committed before the probe exists.** This is the discipline that
+  caught everything above. Every correction this week was found by it and none by review.
+- **Report survival before anything else**, and mark any row whose being did not finish its life.

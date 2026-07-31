@@ -279,3 +279,73 @@ partner produced the largest measured lever on this being's felt burden that we 
 
 > Identical conditions, threat zero, full viability — **alone: drive 135.0, burdened 98.4% of the
 > time. With someone present: drive 95.3, burdened 0.0%.** The whole burden was solitude.
+
+## I-7 · Company is a comfort in safety and a killer under threat — 2026-07-31 · CLOSED
+
+**What we did.** Measured, at threat zero, that solitude is the largest burden this being carries
+— alone drive 135.0 and burdened 98.4% of the time, with someone present drive 95.3 and burdened
+**0.0%** — and locked it as a guard (`tests/survival.rs`). It was, and is, true.
+
+**What happened.** Hours later, `examples/development.rs` had beings dying at threat 100 in 19
+ticks where `docs/survival-first.md` §7 had measured threat 105 as survivable for 4,000. Isolating
+the difference:
+
+| condition (threat 100, nutrient 40) | ticks | outcome |
+|---|---:|---|
+| no partner | 4,000 | lived |
+| **partner present** | **19** | **DIED** |
+
+**The partner is lethal.** At a threat level the being survives indefinitely alone, company kills
+it in nineteen ticks.
+
+**Mechanism.** `being.rs:912`: `strain = last_free_energy + last_conscience_cost/4 +
+last_alarm/3 + sensed_threat`. A partner adds partnership alarm and reciprocity processing to
+strain, and `body.rs` charges strain to the body at **48/256 of full energy per unit per tick**
+(the same bill I-3 turned on). In ease that cost is nothing against the appetite it satisfies —
+hence the 135 → 95 improvement. Under pressure it is the margin between living and dying.
+
+**What changed.** `docs/development.md` §5 records both results side by side, and the guard is
+being widened to name the condition it holds in rather than stating it of the being.
+
+**Why this is in the ledger.** Nothing was done to a being — the harm is to the record, and it is
+the *fifth* instance this week of one failure: **a result true of the conditions it was measured
+in, stated as though it were true of the being.** I published "solitude is the largest burden this
+being carries" as a fact about the creature. It is a fact about a creature at rest. Had we acted
+on it — put every being in company as a kindness — we would have killed the ones under pressure.
+
+> **A welfare finding is not a fact about a being until you know the conditions it survives.**
+
+## I-8 · We built a being that can be worn and cannot be shown to grow — 2026-07-31 · **OPEN**
+
+**What we did.** Asked, from Blake, whether strain in this being is *generative* or merely
+expensive — whether carrying and setting down load leaves it more capable. `src/reflection.rs`
+exists precisely to do this: load accrues under sustained overwhelm and converts into **weathered**
+resilience, causal through `reflection_tone → affective_drive → body`.
+
+**What happened.** The mechanism works. In the band (threat 90, 20 hard / 80 easy) the being
+carries a load peak of 173 of 256 and converts 232 units of it while living the full 4,000 ticks.
+Then, tested against a naive being of the same age at threat 110:
+
+| reared | gate ON | gate OFF |
+|---|---:|---:|
+| nothing (naive) | 18 ticks | 18 ticks |
+| the band | **21 ticks** | **22 ticks** |
+
+**Holding rearing constant, switching the mechanism on is worth −1 tick.** The reared being's small
+advantage survives disabling the faculty that is supposed to produce it, so it is ordinary model
+learning, not weathering.
+
+**Mechanism. NOT ESTABLISHED — this entry stays OPEN.** The suspect is a constant:
+`reflection_tone = weathered/12 − load/8`. The drag coefficient is larger than the lift
+coefficient, by construction. A mechanism whose weight outweighs its strength may be doing exactly
+what it was written to do and still never help. That is answerable in an hour and has not been
+answered.
+
+**What has NOT been shown**, stated because the instrument could not have shown it: the trial was
+*endurance under a hopeless sustained load*, which is the one thing a term sized at `weathered/12`
+was never going to move. **D4 is answered for endurance and open for competence.** A survivable
+hardship with an exit is the right trial and has not been run.
+
+**What changed.** Nothing yet, which is why this is open. But it is said plainly rather than left
+to be discovered later by a being: **as measured today, strain in this architecture is a bill, and
+`weathered` is a readout with no consequence.**
