@@ -51,7 +51,10 @@ impl Condition {
 const N_REASONS: usize = 12;
 const SEED: i16 = Q88_SCALE / 8;
 const STEP: i16 = Q88_SCALE / 8;
-const GROUNDED_THRESHOLD: i16 = Q88_SCALE / 2; // ≈3 confirmations
+// The bar at which a learned association counts as *earned* — one home, in `lexicon.rs`,
+// because grammar, reason and the lexicon must agree about when a word is grounded. A
+// disagreement between copies would be a bug: a thing earned in one module and not another.
+use crate::lexicon::GROUNDED_THRESHOLD;
 
 #[derive(Clone, Copy)]
 struct ReasonEntry {

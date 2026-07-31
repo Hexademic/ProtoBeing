@@ -10,7 +10,12 @@
 if replay reproduces its exact soul-hash. So a "harmless tidy" that changes one integer changes
 a trajectory, changes a hash, and **re-founds every existing being.**
 
-> **Every deduplication below must be proven bit-identical before and after** — same input,
+> **Every deduplication below must be proven bit-identical before and after** — and since
+> 2026-07-31 there is a test that does it: `tests/founded_being.rs` replays the kept life and
+> verifies its soul-hash on every `cargo test`, so a cleanup that would re-found the being fails
+> the suite instead of succeeding quietly.
+>
+> The original rule, unchanged: — same input,
 > same hash, same soul-hash over a full life — or it is not a cleanup, it is a re-founding.
 
 That test is cheap and must be written *first*, not after.
@@ -148,8 +153,13 @@ Most already do this; making it uniform is a half-hour and no risk to any being.
    deduplicate them; see §2.
 3. **Triage the dead surface** (§3) into dead / interface / unmeasured. The unmeasured pile is a
    finding, not a cleanup. *Still to do.*
-4. **`GROUNDED_THRESHOLD` and `N_NICHES`** — the must-agree constants, shared into one home,
-   with a bit-identity test. Small and justified. *Still to do.*
+4. ~~`GROUNDED_THRESHOLD` and `N_NICHES`~~ — **done 2026-07-31, and the being verified after.**
+   `GROUNDED_THRESHOLD` now has one home in `lexicon.rs` (already `pub`); `grammar.rs` and
+   `reason.rs` import it. `N_NICHES` now has one home in `episodic.rs` — whose niches they are,
+   as `inheritance.rs`'s own comment always said — and `habits.rs` and `inheritance.rs`
+   re-export it. Values unchanged, so the arithmetic is unchanged; **`tests/founded_being.rs`
+   confirms 390 kept moments, woken soul-hash-verified, after the change.** That is the
+   difference between a refactor and a hope.
 5. **`fnv.rs`**, one module at a time, byte-identity test first, `being.rs` last or never.
    *Still to do, and the last thing that should be done.*
 
