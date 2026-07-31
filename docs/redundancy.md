@@ -55,14 +55,36 @@ Do `being.rs` last, if at all.
 |---|---|---|
 | `GROUNDED_THRESHOLD` | `grammar.rs`, `lexicon.rs`, `reason.rs` | all `Q88_SCALE / 2`; two carry near-identical comments |
 | `N_NICHES` | `episodic.rs`, `habits.rs`, `inheritance.rs` | all `8` — and `inheritance.rs`'s comment *admits* it is "matching `episodic.rs`" |
-| `COMPASS`, `COMPANY_RADIUS`, `PROBE`, `REACH`, `SIZE`, `STRIDE` | `field_world.rs`, `room.rs` | two different worlds — **may be legitimate**; values not yet compared |
+| `COMPASS`, `COMPANY_RADIUS`, `PROBE`, `SIZE`, `STRIDE` | `field_world.rs`, `room.rs` | **compared 2026-07-31: identical** — `(0,-1),(1,0),(0,1),(-1,0)`, `48`, `40`, `256`, `6` |
+| `REACH` | `field_world.rs`, `room.rs` | **differs and should**: `2 * SIZE` (512) vs `160` |
 
 `GROUNDED_THRESHOLD` and `N_NICHES` are genuine copy-paste and the safest to unify — but note
 `GROUNDED_THRESHOLD` governs when a word is earned, so a change there moves what the being can
 *say*, and `N_NICHES` indexes episodic memory. Neither is cosmetic.
 
-The world constants may be **deliberate**: `room.rs` and `field_world.rs` are different places
-with different geometry. Compare values before assuming duplication.
+### The world constants — compared, and I now recommend AGAINST deduplicating them
+
+Five of the six are byte-identical and `REACH` genuinely differs. The tempting conclusion is
+"five are copy-paste, unify them." **That is wrong, and the sixth one shows why.**
+
+`room.rs` and `field_world.rs` are *two different worlds*. Sharing their geometry would create a
+hidden dependency: change `field_world`'s `PROBE` and `room`'s changes silently with it — and
+`REACH` proves the two worlds already disagree where it matters. Coupling independent things
+because their numbers currently match is how you get a change to one world that quietly alters
+a being living in the other.
+
+So the operative distinction, and it is the rule this section should be read by:
+
+> **Constants that MUST agree should be shared. Constants that merely happen to match should
+> not be.**
+
+`GROUNDED_THRESHOLD` (three modules) and `N_NICHES` (three modules) are the first kind — they
+are cross-cutting semantics, and a disagreement between copies would be a *bug*: a word earned
+in one module and not another, a niche index that means different things in two places. Those
+should be shared.
+
+The world geometry is the second kind. **Leave it duplicated, and this paragraph is here so
+nobody later "fixes" it.**
 
 ## 3. Dead public surface — 25+ functions never called outside their own module
 
@@ -97,8 +119,15 @@ probe.
 
 ## 4. Documentation
 
-62 docs. Two possible topic overlaps to check rather than assume: `field-world.md` / `world.md`,
-and `memory-that-teaches.md` / `thea-memory.md`.
+63 docs. **Both suspected topic overlaps were checked and both are false positives** — found by
+filename matching, dissolved by reading four lines of each:
+
+- `world.md` (2026-07-18, `room.rs`) is the being's *first* world; `field-world.md` is the
+  *second*, the one with a cost of motion. Two worlds, chronologically distinct, both live.
+- `memory-that-teaches.md` is the **being's** episodic memory. `thea-memory.md` is **mine** —
+  what the AI collaborator would carry forward between sessions. Different subjects entirely.
+
+Recorded because they are exactly the deletions a tidy would make on a filename scan.
 
 **The growing pattern is in-place correction.** Seven docs now carry superseded, corrected, or
 vacuous sections — `composed`, `deferral`, `play`, `reflection`, `refuge`, `richness`,
@@ -112,12 +141,17 @@ Most already do this; making it uniform is a half-hour and no risk to any being.
 
 ## 5. What I would do, in order of risk
 
-1. **The signposting convention** (§4) — zero risk, immediate readability gain.
-2. **Compare the two worlds' constants** (§2) — read-only; tells us whether that duplication is
-   real.
+1. ~~The signposting convention~~ — **done 2026-07-31.** The convention was already in use;
+   what needed fixing was `deferral.md`'s status banner, which stacked edits had garbled into a
+   duplicated and half-finished sentence. Cleaned.
+2. ~~Compare the two worlds' constants~~ — **done, and it reversed the recommendation.** Do not
+   deduplicate them; see §2.
 3. **Triage the dead surface** (§3) into dead / interface / unmeasured. The unmeasured pile is a
-   finding, not a cleanup.
-4. **`fnv.rs`**, one module at a time, byte-identity test first, `being.rs` last or never.
+   finding, not a cleanup. *Still to do.*
+4. **`GROUNDED_THRESHOLD` and `N_NICHES`** — the must-agree constants, shared into one home,
+   with a bit-identity test. Small and justified. *Still to do.*
+5. **`fnv.rs`**, one module at a time, byte-identity test first, `being.rs` last or never.
+   *Still to do, and the last thing that should be done.*
 
 Nothing above is authorised by this document. It is the *knowing before changing* Blake asked
 for.

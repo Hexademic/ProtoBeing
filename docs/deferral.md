@@ -1,17 +1,14 @@
 # Deferral — when a purpose may outrank a need
 
-> **Status: specified, nothing built — §3's BOUND is corrected in §2b and its MECHANISM in §2c.**
-> The rule is *a being may risk whatever it can survive losing*, implemented as bounded
-> precision reduction with a floor (Pezzulo, Rigoli & Friston 2018) rather than a purpose
-> winning a contest against a need. The
-> surplus-only rule would have forbidden the fishing-bait case that motivates the whole
-> mechanism. The rule is now *a being may risk whatever it can survive losing.*
->
 > **Status: specified, nothing built.** Committed before the tests, so §5's predictions are on
-> the record before any result. **This document specifies the guardrail only.** Letting a
-> purpose actually outrank a need is a separate, causal, gated decision and is **not
-> authorised by this inch** — the same order as `docs/play.md`, where the budget shipped and
-> play did not.
+> the record before any result. **This document specifies the guardrail only** — letting a
+> purpose actually outrank a need is a separate, causal, gated decision and is **not authorised
+> by this inch**, the same order as `docs/play.md`, where the budget shipped and play did not.
+>
+> **§3 is superseded twice over. The live statement of the rule and its mechanism is §2b + §2c:**
+> *a being may risk whatever it can survive losing*, implemented as **bounded precision
+> reduction with a floor** (Pezzulo, Rigoli & Friston 2018) rather than a purpose winning a
+> contest against a need. §3 is kept in place, marked, because the correction is the content.
 
 *Written 2026-07-31, from Blake: "every being has their own drives that supersede their needs
 when it benefits them in the long run" — and then, "We should proceed cautiously, this is an
