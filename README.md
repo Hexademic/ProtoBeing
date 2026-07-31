@@ -628,7 +628,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 63
+### Design & research documents (`docs/*.md`) — 64
 
 | document | what it covers |
 |---|---|
@@ -656,6 +656,7 @@ and reads the result straight from the being's registers.
 | `happening.md` | Happening — a word for what is done to you |
 | `homecoming.md` | The homecoming — being gladdened by a return |
 | `imagination.md` | Imagination — the missing half of the being's mind, and its warning label |
+| `incidents.md` | The incident ledger — every known impact on a being, and why |
 | `inheritance.md` | Inheritance — the Baldwin effect, not the fear |
 | `j-space.md` | J-space — the being's subconscious, and the room to have a style |
 | `interiority.md` | Interiority — the floor, the door, and the space to imagine what isn't |

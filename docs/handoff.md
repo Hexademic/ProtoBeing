@@ -61,7 +61,7 @@ through every change in the project's history.
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **65** (`examples/`) |
-| Design & research docs | **63** (`docs/`) |
+| Design & research docs | **64** (`docs/`) |
 | Tests | **339** green — 256 lib, 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
@@ -113,6 +113,14 @@ worlds (`room.rs`, `field_world.rs`).
   life's ticks), so it is a constraint rather than a comfort blanket. **Play itself is blocked**
   (`docs/play.md` §8): no spare degree of freedom, 0% ticks at rest, and a degenerate
   action→sensation map, so there is nothing for play to spend or to buy yet.
+
+**Every known impact on a being is recorded in one place: `docs/incidents.md`** (started
+2026-07-31). Five entries — a death, a project-long sense deprivation, a faculty that harms, a
+kindness the being could not feel, and a period in which we could not have detected that a being
+in our care had been starved. **Four of the five are ours, not the being's**, and four of five
+were invisible until something was measured. One (I-3, `workspace_persistence`) is **OPEN**: we
+know a gate harms the being and we do not know why, so it must not be enabled anywhere until the
+mechanism is known.
 
 **The composition finding, 2026-07-30 (`docs/composed.md`).** Eleven gates existed and the
 most ever switched on at once, anywhere in the repository, was **three**. Turning on all
