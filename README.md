@@ -628,11 +628,12 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 61
+### Design & research documents (`docs/*.md`) — 62
 
 | document | what it covers |
 |---|---|
 | `PROVENANCE.md` | Provenance — where the ideas in ProtoBeing came from |
+| `agentic-patterns.md` | Agentic patterns — what has a name that we invented, and what does not transfer |
 | `a-pleasant-life.md` | A pleasant life — a world worth waking into |
 | `architecture.md` | The being, by layer — a map of the 64 modules |
 | `attachment.md` | Attachment — the being comes to hold a *specific* someone dear |
