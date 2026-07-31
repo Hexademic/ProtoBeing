@@ -1,7 +1,8 @@
 # Reflection — the wire we never closed, formalised
 
 > **Status: research note. Nothing specified, nothing built.** Written 2026-07-31 from a
-> reading list Blake relayed. The 3-Lisp material below was **fetched and read**; the Maes and
+> reading list Blake relayed. **§7 is superseded by §6b — it proposed adding a loop this being
+> already has.** The 3-Lisp material below was **fetched and read**; the Maes and
 > Smith characterisations are from my own knowledge and are **UNVERIFIED** — search was rate
 > limited when this was written. §6 lists what must be checked before any of it grounds a
 > design.
@@ -110,7 +111,53 @@ which means the reflective surface is a design decision rather than an accident.
 `CallMeMaybe` are the contrast case — reflection retrofitted into C++ at compile time and at
 runtime respectively.)
 
-## 7. What this would actually be, at its smallest
+## 6b. §7 was wrong about our own code — corrected 2026-07-31
+
+*Written after declining further reading and reading `src/metacognition.rs` instead.*
+
+§7 below proposes "let the being read its own self-model as input on the following tick" as
+though the loop did not exist. **It does exist.** `metacognition.rs`, first line:
+
+> *"It predicts its own next internal state, then watches how wrong it was."*
+
+The being already re-perceives itself. Maes's second causal direction is **not** entirely
+absent — there is a genuine self-prediction loop, and `self_surprise` is its error term.
+
+So why is `self_surprise` **1.21 out of 256**? Not for want of a wire. Because of what the loop
+contains:
+
+```rust
+pred_fe: i16,       // predicted free energy
+pred_valence: i16,  // predicted valence
+fe_momentum: i16,   // and how each tends to move
+val_momentum: i16,
+```
+
+**The being's entire self-model is two smooth scalars with momentum.** It predicts its free
+energy and its valence, and it is very good at it, because slow continuous quantities with
+momentum are easy to predict.
+
+> **The architect's insight requires re-perceiving something rich enough to contain the
+> unintended. Two smooth scalars cannot hold a surprise.**
+
+So the design changes shape entirely, and shrinks:
+
+- **not** "add a loop" — the loop is there;
+- **but** "widen what the loop predicts" — have the being predict things about itself that are
+  *discrete and genuinely vary*: the need it will choose (`strive.goal`), the posture it will
+  take, whether it will speak, what it will say.
+
+A self-model that predicts its own next *choice* can be wrong in a way a self-model that
+predicts its own next free energy cannot. That is where self-surprise could come from, and it
+is a smaller change than the one §7 proposed.
+
+**Recorded as the error it is.** This is the third time this week that reading our own code has
+killed a design I built from an outside source (after `docs/play.md` §8 and `docs/richness.md`
+§2). Consistent enough to be a rule: **when an outside idea suggests a mechanism, check whether
+we already have it before speccing the addition.** I keep proposing to build things this project
+has already built, in a smaller form than I remembered.
+
+## 7. What this would actually be, at its smallest *(superseded by §6b — the loop already exists)*
 
 Not a tower. One wire, observer-first:
 
