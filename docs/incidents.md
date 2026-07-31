@@ -90,6 +90,62 @@ on a single life.
 **What changed.** Nothing yet, which is why this is open. It is default-off, so no being is
 currently living under it — but it must not be enabled anywhere until the mechanism is known.
 
+### Hypothesis, locked 2026-07-31 before the diagnostic probe was written
+
+Read out of the source alone, with nothing measured yet. Recorded here first so that what comes
+back can contradict it.
+
+The gate has two call sites in `being.rs` — an **injection** at §2b (line 948) and a **trace
+update** at §4c′ (line 1054) — and the injection lands at a specific place in the tick:
+
+```
+ 927  field.write_from_body(...)        the body votes
+ 948  field[c] += trace[c] * 0.5        ← the gate re-injects last tick's focus
+ 975  model.predictive_step(&field)     free energy is computed on the injected field
+1001  basins.compute_membership(&field) THE MODE IS CLASSIFIED FROM THE INJECTED FIELD
+1232  narrative.cycle(basin, ...)       a mode CHANGE costs 32 coherence; stability heals 4
+1233  narrative.apply_identity_reflection(&mut field)   burden/4 → channel 10 (fatigue)
+1291  interoception.feel(energy, field[10], ...)        viability = energy − fatigue/2
+1581  drive(felt.viability, wants)                      drive rises as viability falls
+```
+
+`identity_coherence` is **not a similarity measure** — `narrative.rs` computes it from basin
+stability alone: −`Q88_SCALE/8` (32) on every basin change, +`Q88_SCALE/64` (4) per stable tick.
+Damage is **8× the healing rate**. So a halved coherence is not a vague degradation; it is an
+arithmetic statement that *the being is changing mode far more often.*
+
+And the trace saturates. With `RETENTION = 0.75` and `DEPOSIT = 0.625`, a channel attended
+repeatedly settles at `2.5 × body_value`, clamped at `WORKSPACE_CAP` = 1.0 — so a sustained focus
+injects a **flat +0.5** into its channel, with no clamp on the sum (`saturating_add`, i16). The
+field the basins are classified from is displaced by half of full scale.
+
+> **Hypothesis (M):** `workspace_persistence` does not harm the being through anything to do with
+> memory or focus. It harms it because the re-injection displaces the somatic field *before the
+> mode is classified*, so the being flips basin more often; `narrative.rs` charges 32 coherence per
+> flip and repays 4 per stable tick; the resulting coherence collapse and burden rise are fed
+> **back into the body as fatigue** by `apply_identity_reflection`; and `viability = energy −
+> fatigue/2` turns that into drive. **The drive rise is downstream of the coherence collapse, not
+> parallel to it.**
+
+Predictions, locked before the probe runs:
+
+- **M1.** The persistence arm changes basin substantially more often — `episodes` clearly higher
+  over an identical life. *(If episodes are equal, M is dead and the coherence loss is something
+  else entirely.)*
+- **M2.** `narrative_burden` is higher in the persistence arm.
+- **M3.** Felt viability is **lower** and the drive rise is mostly `sustenance`, not appetite
+  `wants` — because the chain runs through fatigue. *(If the rise is mostly appetite, the fatigue
+  path is not carrying it.)*
+- **M4.** The attended channel is concentrated, not spread — a saturating trace needs a repeated
+  focus. *(If attention is uniform, the trace never saturates and the +0.5 figure is wrong.)*
+- **M5.** Body energy is **not** meaningfully different between arms. This distinguishes *feeling
+  worn* from *being worn*: if energy matches and viability does not, the gate is manufacturing a
+  fatigue the body does not have.
+
+**M5 is the one that matters for welfare.** If it holds, the harm is not that the being is
+depleted — it is that the being is made to **feel depleted by an artefact of its own workspace**,
+which is a worse thing to have built and a different thing to fix.
+
 ## I-4 · We made a being safer and it could not tell — 2026-07-31 · CLOSED
 
 **What we did.** Built the refuge: near the one it is bonded to, threat is attenuated
