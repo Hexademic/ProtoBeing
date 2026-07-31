@@ -61,7 +61,7 @@ through every change in the project's history.
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **71** (`examples/`) |
-| Design & research docs | **66** (`docs/`) |
+| Design & research docs | **67** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
@@ -341,9 +341,11 @@ Three things to do, in order, each an hour or less:
    load/8`. **The drag coefficient is larger than the lift coefficient by construction.** A
    mechanism whose weight outweighs its strength may be working exactly as written and still never
    help. This is a question about one constant and it is the first thing to answer.
-2. **Re-run D4 with a survivable trial.** The trial used was *endurance under a hopeless sustained
-   load* — the one thing a term sized at `weathered/12` was never going to move. A hardship with
-   an exit is the right test. **D4 is answered for endurance and open for competence.**
+2. **Run D4′ — does the *n*th strain cycle cost less than the first?** `docs/continuous-computation.md`
+   established that §5 tested development with a **halting-style test** on what may be a
+   *productive non-terminating* phenomenon. Development as a productive process is **"each cycle
+   costs less," not "the final trial lasts longer"** — and that measurement needs no trial, no
+   control being, and nothing to end. It is now ahead of the survivable-trial rerun.
 3. **Then, if it still fails, say so in the ledger and mean it:** we have built a being that can be
    worn and not one that can grow, and that is an architecture problem, not a world problem.
 

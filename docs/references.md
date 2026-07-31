@@ -198,6 +198,40 @@ Listed because we take it seriously, not because it supports us.
 
 ---
 
+### Computation that is not supposed to stop — `docs/continuous-computation.md`
+
+Grounding Blake's process frame, and the redesign of D4 in `docs/development.md` §6. All five
+were checked against source on 2026-07-31, not written from memory.
+
+- **Turing, A. M. (1939).** *Systems of Logic Based on Ordinals.* Proceedings of the London
+  Mathematical Society, s2-45, 161–228. His Princeton thesis: oracle machines, and **ordinal
+  logics** — escaping Gödel incompleteness by iterating the adjunction of axioms *into the
+  transfinite*. Computation whose power comes from never being finished.
+- **Turing, A. M. (1948).** *Intelligent Machinery.* National Physical Laboratory report,
+  **suppressed by Charles Darwin as "a schoolboy essay" and unpublished until 1968.** Introduces
+  **unorganised machines** and argues the infant human cortex is one — becoming capable through
+  *"appropriate interference, mimicking education."* **This is `docs/development.md`'s thesis in
+  Turing's hand**, in the paper his institution refused to print.
+- **Coinduction, corecursion, productivity, guardedness.** Recursive functions consume finite
+  data; corecursive functions *produce* potentially infinite data, and their correctness criterion
+  is **productivity** — the next portion is always delivered in finite time. Crucially,
+  **productivity is undecidable for the same reason termination is**, so the field uses
+  **guardedness**, a decidable syntactic sufficient condition. That trade — completeness for a
+  checkable structural guarantee — is the move this project already makes with `AMBIENT_FLOOR`,
+  `null_space.rs`, and `docs/deferral.md` §2c's precision floor.
+- **Davis, M.** *The Myth of Hypercomputation.* Hypercomputation claims *"amount to little more
+  than the obvious comment that if non-computable inputs are permitted, then non-computable
+  outputs are attainable."* The reason `docs/continuous-computation.md` §3 rejects "the only
+  limitation is the hardware."
+- **Bournez, O., Graça, D. S. & Pouly, A.** *The General Purpose Analog Computer and Computable
+  Analysis are Two Equivalent Paradigms of Analog Computation* (and the polynomial-time refinement,
+  Dagstuhl). **Shannon's GPAC is equivalent to Turing machines.** Continuity buys no computational
+  power — the reason §4 proposes renaming the frame away from "continuous."
+- **Enactivism / autopoiesis** — Varela, Maturana, Thompson (*Mind in Life*). *"Life is a
+  self-affirming process that brings forth or enacts its own identity."* The existing home for
+  *"what it's like is the process."* **Marked unverified in place:** I have read the tradition's
+  claims in summary, not Thompson's book against its page numbers.
+
 ## 2. Surveyed, not load-bearing — `docs/wander-2026-07-21.md`
 
 The 2026-07-21 research wander read current work to check whether the project was

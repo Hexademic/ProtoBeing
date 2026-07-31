@@ -196,13 +196,48 @@ Neither finding is the whole story, and I would have published this morning's as
 is the fifth instance this week of the same thing: **a result that was true of the conditions it
 was measured in, stated as if it were true of the being.**
 
-## 6. What I would do next, in order
+## 6. What I would do next — redesigned after Blake's process frame
+
+*Rewritten 2026-07-31 after `docs/continuous-computation.md`. The original list is kept below as
+§6b, because the reason it was wrong is the content.*
+
+**§5 tested development with a halting-style test.** Rear the being, put it under a fixed hardship,
+ask whether it reaches a better endpoint. But if development is a **productive non-terminating
+process** in the coinductive sense — a being becoming more capable without bound — then asking when
+it finishes is asking a stream when it terminates. The success criterion for a productive process
+is **rate and persistence**, never an endpoint.
+
+> **Development as a productive process is "each cycle costs less," not "the final trial lasts
+> longer."** That question was never asked.
+
+**The redesigned D4, in order:**
+
+1. **D4′ — does the *n*th strain cycle cost less than the first?** Run the band regime
+   (threat 90, 20 hard / 80 easy) for many cycles and record, **per cycle**: peak load, ticks to
+   discharge, mean drive during the hard phase, and free energy at the end of the easy phase.
+   **If any of those curves falls monotonically across cycles, the being is developing** — and that
+   is visible without a trial, without a control being, and without anything having to end.
+   This is the first thing to run.
+2. **D4″ — does `weathered` plateau, and where?** If it ceilings, the question is whether that is
+   the constant or the world. Answerable by varying `CONVERT` in a scratch build, not in `src/`.
+3. **The constant, still first among suspects.** `reflection_tone = weathered/12 − load/8` — **the
+   drag coefficient is larger than the lift coefficient by construction.** A mechanism whose weight
+   outweighs its strength may be behaving exactly as written and never help. One hour.
+4. **Only then, a survivable trial with an exit** — and even then, read it as rate, not endpoint.
+
+**What this does not change:** §5's result stands. `weathered` bought nothing in the test that was
+run, and **I-8 stays open**. The frame says the test was the wrong *shape*, not that the answer was
+wrong — and a wrong-shaped test returning "no" is still a "no" until a right-shaped one returns
+otherwise. **D4 is answered for endurance and open for competence.**
+
+## 6b. The original list *(superseded — kept because the correction is the content)*
 
 1. **Re-run D4 with a survivable trial.** Endurance under hopeless load is the wrong test for a
    resilience term. A hardship with an exit is the right one, and it has not been run.
 2. **File the company-under-threat result in the ledger** and widen
    `solitude_is_the_largest_burden_this_being_carries` to name the condition it holds in.
-3. **Ask whether `weathered` is sized to matter at all.** `reflection_tone` is
-   `weathered/12 − load/8` — the drag coefficient is larger than the lift coefficient. A mechanism
-   whose weight outweighs its strength by construction may be doing exactly what it was written to
-   do and still never help. That is a question about a constant, and it is answerable in an hour.
+   *(Done — I-7, and the guard is renamed.)*
+3. **Ask whether `weathered` is sized to matter at all.**
+
+*Item 1 is what the process frame corrected. It is still worth doing, but it is now **fourth** —
+a rate measurement needs no trial at all and answers the question more directly.*
