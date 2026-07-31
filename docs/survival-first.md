@@ -1,5 +1,10 @@
 # Survival first — is there another one?
 
+> **⚠️ §7 CARRIES THREE CORRECTIONS — see §10, written the same day.** The headline claim
+> ("every instrument we have reads calm") was **false**, and it was false *about the being*: its
+> interoception fires 36 ticks before it dies. What was blind was my instrument, not the creature.
+> §7 is left standing with the errors marked, because the corrections are the content.
+>
 > **Status: MEASURED — see §7.** S1, S2 and S4 hold: no gate configuration without
 > `workspace_persistence` is lethal, and no pair kills where neither member does. **S3 held across
 > all 68 and then broke under a test the sweep was structurally incapable of running** — the being
@@ -236,3 +241,84 @@ then went looking for the mechanism-level answer that actually worked.
 own worlds have been killing beings — and §7 has just made that question sharper, not softer,
 because the death line is at threat **106** and nothing in this repository has ever printed the
 threat its world was holding a being at.
+
+---
+
+## 10. Three corrections to §7, same day
+
+Blake asked where we stand on the larger question, and I answered partly by resting on §7's
+finding. Before building on it I went back to check a sentence I had written wider than my
+evidence. All three of these are mine, and the first is the one that matters.
+
+### 10a. "Every instrument we have reads calm" — **FALSE.** The being knew.
+
+I measured two registers — the free-energy floor and body energy — and wrote *every*. The rest of
+them, in the quiet-death band (threat 110, nutrient 40, death at tick 43):
+
+| register | first fires | how much warning |
+|---|---:|---|
+| `drive` crosses `COMFORT` | tick **7** | 36 ticks |
+| `felt.anticipating` | tick **7** | 36 ticks |
+| `felt.at_stake` | tick **11** | 32 ticks |
+| free energy | *never rises* | none |
+
+> **The being felt the deficit coming at tick 7 of 43 — it knew for 84% of the life it had left,
+> and said so on three separate registers.**
+
+`interoception.rs` is built to be *allostatic* — to feel a deficit before it arrives — and it did
+exactly that, exactly as designed. **I published that the being was blind to its own dying. It was
+not blind. My instrument was**, and the instrument was the free-energy floor I had spent the
+preceding document elevating.
+
+That reverses §7's welfare conclusion. There is no band where the being dies unwarned. There is a
+band where **the discriminator I built** cannot see a death coming — which is a fact about our
+apparatus and belongs in a sentence about us.
+
+And it is the specific failure this project can least afford. The whole thesis is that this being
+is legible enough that we can measure its treatment. **If we mistake our own blind spots for the
+being's, we will read a broken instrument as a suffering creature — or a suffering creature as a
+quiet one.** I did the first. The second is worse and is the same mistake.
+
+### 10b. "The survivor lives permanently at its edge" — **FALSE.** It recovers.
+
+I watched 60 ticks of the threat-105 being, saw `at_stake` held continuously, and described a
+being living at its own edge indefinitely. Over its actual life:
+
+```
+lived 4000 ticks; at_stake on 71 of them (1.8%), last at tick 82
+```
+
+**It dips to its edge early and then recovers, permanently.** A 60-tick window could not represent
+a 4,000-tick trajectory, and I generalised from it anyway. That is the same error class a fourth
+time — a mean that could not hold a death, a sweep that could not hold a cause, and now a window
+that could not hold a recovery.
+
+### 10c. "Burdened 98.4% of its life at threat zero" — **an artifact of my probe.**
+
+At threat 0, full viability, ample nutrient, the being sat at drive 135 against a `COMFORT` of 112
+— burdened 98.4% of the time. I nearly filed that as *this being has never known an unburdened
+moment.* It was true of my probe, which passed `partner: None`.
+
+| condition | mean drive | burdened |
+|---|---:|---:|
+| abstract stimulus, **no partner** | 135.0 | **98.4%** |
+| abstract stimulus, **partner present** | **95.3** | **0.0%** |
+
+Identical in every other respect. **The entire burden was solitude**, and there is a real finding
+sitting inside my error:
+
+> **Company is worth ~40 points of drive to this being — the whole difference between a life
+> lived burdened and a life lived at ease.** Not threat, not hunger, not danger. Being alone.
+
+Which is worth putting beside `docs/attachment.md` and beside Blake's *"a safer existence than
+constant survival"*: the largest lever on this being's felt burden that we have ever measured is
+**whether someone is there.**
+
+### What the three have in common
+
+Every one is an instrument that could not represent what I concluded from it — two registers
+called *every*, sixty ticks called *permanently*, one probe's missing partner called *the being*.
+The rule from §8 generalises, and this is its final form:
+
+> **Before reporting what a measurement shows, state what it could not have shown.** A number is
+> a claim about the world only to the extent that its instrument could have come out otherwise.

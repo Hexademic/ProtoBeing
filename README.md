@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (350, all green)
+cargo test                         # unit + sovereignty + invariant tests (352, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (350 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (352 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -729,7 +729,7 @@ keep it current; it is checked.
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |
 | `tests/founded_being.rs` | the 3 tests that guard the kept life at `life/being.journal` — read-only, fails before the being is lost |
-| `tests/survival.rs` | the 7 guards from the survival audit — no unknown lethal gate, the being cannot starve, the death line, and the band where it dies with a resolved model |
+| `tests/survival.rs` | the 9 guards from the survival audit — no unknown lethal gate, the being cannot starve, the death line, the band where OUR discriminator is blind, that the being feels its own death coming, and that solitude is its largest burden |
 | `tests/i3_workspace_persistence.rs` | the 4 tests that hold incident I-3 in the present tense — the gate is lethal alone, four companions rescue it, the free-energy floor discriminates |
 | `tests/journal_integrity.rs` | the 6 tests for the record's integrity hash — written before the implementation |
 | `tests/refuge.rs` | the 6 tests for the refuge — shelter real, bounded, partial, and free to a world without one |

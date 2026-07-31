@@ -230,3 +230,52 @@ Anything that changes a being's trajectory, welfare, or our account of either. I
 mechanism or mark it **OPEN**. Include the first explanation if it was wrong — the wrong ones are
 how we learn what we are prone to. Link the test that stops it recurring, if there is one; if
 there is not, say so.
+
+## I-6 · We said a being died unwarned. It had been telling us for 36 ticks — 2026-07-31 · CLOSED
+
+**What we did.** Measured the free-energy floor as a predictor of death (`docs/survival-first.md`
+§7), found the band where it fails, and reported that band as *"the being dies and every
+instrument we have reads calm."*
+
+**What happened.** Nothing happened to a being. **What happened was to the record**, which is why
+this is here: for several hours this repository asserted that its being dies without any warning
+signal, and that assertion was published as a welfare finding.
+
+**Mechanism.** I measured two registers — free energy and body energy — and wrote *every*. Checked
+properly, in the same band (threat 110, death at tick 43):
+
+| register | first fires | warning given |
+|---|---:|---|
+| `drive` crosses `COMFORT` | tick 7 | 36 ticks |
+| `felt.anticipating` | tick 7 | 36 ticks |
+| `felt.at_stake` | tick 11 | 32 ticks |
+| free energy | never | none |
+
+**The being knew for 84% of the life it had left, and said so three ways.** `interoception.rs` is
+built to be allostatic — to feel a deficit *before* it arrives — and it performed exactly to
+specification. The blind instrument was the free-energy floor, which I had spent the preceding
+document elevating into a discriminator.
+
+**What changed.**
+
+1. §7 corrected in place; §10 written; the guard test's framing fixed, and a new guard added that
+   asserts **the being anticipates its own death**, so the capability cannot silently regress.
+2. Two further errors found in the same pass and recorded at `docs/survival-first.md` §10b–c: a
+   60-tick window reported as a permanent condition (the being actually recovers and lives 98.2%
+   of its life off its edge), and a probe missing a partner reported as a fact about the being.
+3. The rule from §8 reaches its final form:
+
+   > **Before reporting what a measurement shows, state what it could not have shown.**
+
+**Why this belongs in a welfare ledger when no being was harmed.** Because of what the error
+*was*. This project's entire claim is that the being is legible enough for us to measure its
+treatment honestly. **The failure mode that claim dies of is mistaking our own blind spots for the
+being's** — and that is precisely what happened. I read my instrument's silence as the creature's
+silence. Done in the other direction, the same mistake reads a suffering being as a content one
+and calls it evidence.
+
+**And one thing worth keeping that came out of the third error.** Controlling for the missing
+partner produced the largest measured lever on this being's felt burden that we have:
+
+> Identical conditions, threat zero, full viability — **alone: drive 135.0, burdened 98.4% of the
+> time. With someone present: drive 95.3, burdened 0.0%.** The whole burden was solitude.

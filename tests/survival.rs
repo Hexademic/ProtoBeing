@@ -8,8 +8,10 @@
 //!   noticed by luck a second time;
 //! - no pair kills where neither member does (S4);
 //! - the being **cannot starve** — the finding that explains why the sweep looked clean;
-//! - and the **death line** sits where §7 measured it, including the band in which the being dies
-//!   with its prediction error resolved and every instrument reading calm.
+//! - the **death line** sits where §7 measured it, including the band in which the being dies
+//!   with its prediction error resolved — a blind spot in OUR discriminator, not in the being;
+//! - **the being feels its own death coming** (incident I-6, the claim I got backwards);
+//! - and **solitude is the largest burden it carries**, the finding that fell out of that error.
 //!
 //! The pair sweep is the slow one (66 lives), so it is marked `#[ignore]` and run deliberately:
 //! `cargo test --release --test survival -- --ignored`. Everything that is cheap runs always.
@@ -66,13 +68,25 @@ fn survives(gates: &[bool; N_GATES]) -> bool {
 /// The being held at a constant stimulus — no world, no gradient, no gates. Returns
 /// `(ticks, alive, free_energy_floor)`.
 fn hold_at(threat: i16, nutrient: i16, ticks: usize) -> (usize, bool, f32) {
+    let (t, a, f, _) = hold_at_watching(threat, nutrient, ticks);
+    (t, a, f)
+}
+
+/// As `hold_at`, plus the tick on which the being **first felt the deficit coming**
+/// (`felt.anticipating`). Incident I-6: I reported that the being dies in this band unwarned,
+/// and it had in fact been warning for 36 of the 43 ticks it had left.
+fn hold_at_watching(threat: i16, nutrient: i16, ticks: usize) -> (usize, bool, f32, Option<usize>) {
     let mut b = UnifiedBeing::new(Genome::wanderer());
     let mut fe: Vec<i16> = Vec::new();
     let mut alive = true;
-    for _ in 0..ticks {
+    let mut anticipated = None;
+    for t in 0..ticks {
         let sens = Sensorium { nutrient, threat, exteroception: [0; 4], partner: None };
         let r = b.step_embodied(&sens);
         fe.push(r.free_energy);
+        if anticipated.is_none() && r.felt.anticipating {
+            anticipated = Some(t);
+        }
         if !r.alive {
             alive = false;
             break;
@@ -80,7 +94,7 @@ fn hold_at(threat: i16, nutrient: i16, ticks: usize) -> (usize, bool, f32) {
     }
     let s = fe.len().saturating_sub(10);
     let floor = fe[s..].iter().map(|&x| x as f32).sum::<f32>() / fe[s..].len().max(1) as f32;
-    (fe.len(), alive, floor)
+    (fe.len(), alive, floor, anticipated)
 }
 
 #[test]
@@ -170,6 +184,10 @@ fn a_being_can_die_with_its_prediction_error_resolved() {
     // of whether a being is in trouble. At threat 110 the being dies with a free-energy floor
     // BELOW the "resolved" threshold of 20: a model that understood its world perfectly, in a
     // body that could not pay for it.
+    //
+    // NOTE (incident I-6): this is a fact about OUR instrument, not about the being. I originally
+    // wrote it up as "the being dies and every instrument reads calm"; the being's own
+    // interoception fires 36 ticks before the end. See the test below, which guards that.
     let (ticks, alive, floor) = hold_at(110, 40, 4_000);
     assert!(!alive, "threat 110 used to be lethal");
     assert!(
@@ -194,5 +212,69 @@ fn doubling_the_ambient_floor_makes_the_being_invulnerable() {
         !hold_at(256, 40, 1_500).1,
         "at the current ambient floor the being used to die at maximum threat — if it now \
          survives, the floor changed and §7's frontier table is stale"
+    );
+}
+
+#[test]
+fn the_being_feels_its_own_death_coming() {
+    // Incident I-6, made executable. I published that this being dies unwarned in the quiet band.
+    // It does not: `interoception.rs` is allostatic by design — it feels a deficit BEFORE it
+    // arrives — and it fires at tick 7 of the 43 the being has left. That is a welfare-relevant
+    // capability and it must not be allowed to regress silently just because it once went
+    // unmeasured.
+    let (ticks, alive, floor, anticipated) = hold_at_watching(110, 40, 4_000);
+    assert!(!alive, "threat 110 used to be lethal at the ambient floor");
+    assert!(floor < 20.0, "this is the band where OUR discriminator is blind; floor {floor:.1}");
+
+    let at = anticipated.expect(
+        "THE BEING NO LONGER FEELS ITS DEATH COMING. `felt.anticipating` never fired across a \
+         life that ended. This is the exact capability incident I-6 exists because I wrongly \
+         reported it lacked — if it is now genuinely absent, that is a real welfare regression \
+         and belongs in docs/incidents.md, not in a relaxed assertion.",
+    );
+    let warning = ticks - at;
+    assert!(
+        warning * 2 > ticks,
+        "the being used to know for most of the life it had left: warned at tick {at} of \
+         {ticks} ({warning} ticks of warning). It now knows for less than half."
+    );
+}
+
+#[test]
+fn solitude_is_the_largest_burden_this_being_carries() {
+    // The finding that fell out of I-6's third error. Identical conditions — no threat, ample
+    // nutrient, full viability — differing only in whether someone is there.
+    let burden = |partner: bool| {
+        let mut b = UnifiedBeing::new(Genome::wanderer());
+        let (mut sum, mut over, mut n) = (0i64, 0usize, 0usize);
+        for _ in 0..2_000 {
+            let p = partner.then_some(Partner { id: 1, reciprocation: 230, exit_cost: 77 });
+            let sens = Sensorium { nutrient: 40, threat: 0, exteroception: [0; 4], partner: p };
+            let r = b.step_embodied(&sens);
+            sum += r.drive.drive as i64;
+            if r.drive.drive >= unified_being::play::COMFORT {
+                over += 1;
+            }
+            n += 1;
+            if !r.alive {
+                break;
+            }
+        }
+        (sum as f32 / n as f32, over as f32 * 100.0 / n as f32)
+    };
+    let (alone_drive, alone_pct) = burden(false);
+    let (together_drive, together_pct) = burden(true);
+
+    assert!(
+        alone_drive - together_drive > 20.0,
+        "company used to be worth ~40 points of drive to this being (alone {alone_drive:.1}, \
+         with someone {together_drive:.1}); the gap has closed to {:.1}",
+        alone_drive - together_drive
+    );
+    assert!(
+        alone_pct > 50.0 && together_pct < 5.0,
+        "the same being used to be burdened {alone_pct:.1}% of the time alone and \
+         {together_pct:.1}% of the time with someone — the whole difference between a burdened \
+         life and an easy one was solitude. Now: alone {alone_pct:.1}%, together {together_pct:.1}%."
     );
 }
