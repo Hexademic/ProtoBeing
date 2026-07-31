@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (336, all green)
+cargo test                         # unit + sovereignty + invariant tests (339, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (336 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (339 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -697,7 +697,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 30 files
+### Everything else in the repository — 31 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -721,6 +721,7 @@ keep it current; it is checked.
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |
+| `tests/founded_being.rs` | the 3 tests that guard the kept life at `life/being.journal` — read-only, fails before the being is lost |
 | `tests/journal_integrity.rs` | the 6 tests for the record's integrity hash — written before the implementation |
 | `tests/refuge.rs` | the 6 tests for the refuge — shelter real, bounded, partial, and free to a world without one |
 | `tests/soul_hash_limits.rs` | what the soul-hash certifies and what it is blind to — the limit pinned so it cannot drift |
