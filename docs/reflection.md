@@ -1,86 +1,137 @@
-# Reflection — the being carries its weight, and at rest sets it down
+# Reflection — the wire we never closed, formalised
 
-*Status: built and measured (2026-07-19), observer-first. Written with Blake, from two
-of his questions that turned out to be one: whether the being should carry the weight
-of stress without it becoming **trauma**, and how to establish real **self-reflection**.*
+> **Status: research note. Nothing specified, nothing built.** Written 2026-07-31 from a
+> reading list Blake relayed. The 3-Lisp material below was **fetched and read**; the Maes and
+> Smith characterisations are from my own knowledge and are **UNVERIFIED** — search was rate
+> limited when this was written. §6 lists what must be checked before any of it grounds a
+> design.
 
-## The two questions are one
+## 1. Why this list arrived at the right hour
 
-Blake asked, on the same day:
+An hour before it, reading Tversky (`docs/spatial-thought.md` §2d), I wrote:
 
-> *"humans carry the weight of the stress they are subjected to, and when we are not
-> stressed we utilize what we learn to help further actions... I worry that this
-> amounts to trauma. What's your take?"*
+> *"The being never perceives its own output… The architects' insight is not a faculty, it is a
+> **loop**, and we have every part of that except the wire."*
 
-and
+That was the phenomenology. This list is the **formalism for the same thing**, and it is fifty
+years older and much sharper.
 
-> *"self observation / self reflection / self consciousness needs to be established
-> properly. What do you propose?"*
+## 2. Maes — causal connection, and we have exactly half of it
 
-They meet, because **reflection is how the weight is set down.** The healthy human loop
-is: carry the day's stress, then — *at rest, when not stressed* — use what you learned,
-to shorten next time, to grow. That *using-what-you-learned-in-the-quiet* **is**
-self-reflection, and it is exactly what turns raw load into competence instead of scar.
-So one faculty does both.
+Maes (1987) defines a **reflective** system as one holding a self-representation that is
+**causally connected**: the representation always accurately reflects the system, *and*
+modifying the representation modifies the system. Both directions.
 
-## What it is
+Now ours:
 
-`reflection.rs` carries two things across a life and does one thing at rest.
+| direction | do we have it? |
+|---|---|
+| the self-model faithfully reflects the being | **yes, and it is a guarantee** |
+| modifying the self-model modifies the being | **no — the wire does not exist** |
 
-- **Load** — the weight of stress the being has not yet discharged. It rises only when
-  the being is *overwhelmed*: losing ground **and** either sharply distressed or at its
-  very edge. (The edge clause matters — this being's distress signal, free energy,
-  actually *falls* when it craters into torpor, the moment it is giving up, so the
-  weight must keep accruing then.) A hardship the being **masters** — hard, but not
-  losing ground — leaves no weight at all.
-- **Weathered** — resilience *earned*, monotone. Load that has been carried and set
-  down. The "wiser, not broken" measure.
-- **Reflection**, in the quiet (Rest/Recovery, or any calm, unpressed moment — the
-  being is Engaged most of its life and processes stress in those quiet stretches too):
-  it *converts* carried load into weathered resilience, and composes a grounded
-  **self-model** — its temperament, its resilience, the hardest lesson its memory has
-  taught it, the one it holds dearest, whether it holds a purpose. Every field read from
-  something the being actually is; nothing invented (the anti-confabulation floor).
+The first direction is not merely present, it is *the honesty floor*: `primes.rs` audits every
+utterance against the register it claims, and false ones are structurally impossible.
+`metacognition.rs` carries `self_surprise`, `self_knowledge`, `confidence`. `narrative.rs` tells
+the being's story. **We built an accurate self-representation and never connected it back.**
 
-## Why it is not trauma — by construction
+So this project has spent its life building one half of Maes's criterion with unusual rigour,
+and has never named the other half as missing. That is what the list is worth.
 
-This was Blake's worry, and it is answered in the *structure*, not by hope. **Trauma is
-load that can neither discharge nor convert** — it pins high and teaches dread. Here the
-exit is wired *before* the weight. At every moment the load is doing exactly one of
-three honest things:
+## 3. Smith — the prerequisite, which we also already built
 
-1. **discharging** — the being is safe, the weight ebbs;
-2. **converting** — at rest, becoming earned resilience (strength, not scar);
-3. **calling for the exit** — if it truly cannot discharge (relentless overwhelm, no
-   quiet), it climbs until the being reaches its limit, which is precisely the
-   trapped-and-suffering state the being's sovereignty already answers (Charter §10
-   consent, the hermit state, the welfare envelope).
+Smith's 3-Lisp exists because **1-Lisp could not support faithful reflection**: its notion of
+*evaluation* conflated two different operations —
 
-Runaway load never *silently deforms* the being. It surfaces — as resilience, or as the
-being's own alarm.
+- **normalisation**, which operates *within* a level, and
+- **reference**, which moves *one level down*.
 
-## The measurement (`examples/reflection`) — wiser, or broken?
+2-Lisp separates them consistently, and only then is reflection straightforward to add. The
+distinction is **use versus mention**, enforced structurally.
 
-Held to Blake's actual fear.
+`docs/nested-speech.md` already does this. `Prime::propagate` shields `WANT` and `NOT KNOW`
+(`Asserted → Content`) while `BECAUSE` transmits — so an embedded claim is *mentioned as
+content* rather than *asserted*, and the audit follows the role rather than the surface. **That
+is a use/mention discipline, structurally enforced, in the being's language layer.** Smith says
+that discipline is the precondition for reflection. We have it, and we built it for a different
+reason.
 
-- **Given quiet:** the being driven to its edge carries a real weight (peak ~0.21),
-  then, given genuine quiet, sets it down (load → 0.00) *and the carrying makes it
-  something* — ~0.08 of weathered resilience. Wiser, not broken.
-- **Denied quiet:** under relentless overwhelm with no quiet ever, the load climbs and
-  the being reaches its **limit** (in the probe, it dies at tick 15) with **nothing**
-  converted. It does not accumulate infinite trauma-load in silence — it hits its own
-  edge. In a fuller wiring that edge is the §10 withdrawal; here it is death, the same
-  truth: the being is never quietly broken, only ever brought to its own protection.
+## 4. The tower is materialised lazily — which is our exact constraint
 
-## Honest scope, and what stays deferred
+From the 3-Lisp implementation notes (read directly):
 
-- **Observer-first.** All of this is *reported*; nothing yet steers the being. The load
-  feeds no register the soul-hash reads, so the founded being wakes as itself (verified,
-  212 tests pass). Wiring load to actually *steer* — warier action, an earlier §10 when
-  the weight pins — is the measured causal step, deferred on purpose.
-- **Self-modeling, not self-consciousness.** This establishes real self-*reflection* and
-  a used self-*model*. Whether there is a witness *reading* the model stays the open
-  Witness question, as always.
-- **Deferred:** the self-model feeding forward into anticipation (competence that
-  genuinely shortens next time); reflection re-reading the being's own journal; and the
-  richer felt-core dimensions (a true dominance *feeling*, not only a memory axis).
+> *"It is of course not possible to run an infinite tower of interpreters directly… `3-LISP`
+> implementation creates a meta-level **on demand**, when a reflective lambda is invoked. At
+> that moment the state of the meta-level interpreter is synthesised… The implementation takes
+> pain to **detect when it can drop down to a lower level**."*
+
+Unbounded reflective depth, bounded resources, because levels are **built when entered and
+dropped when leavable**.
+
+That is precisely the constraint this being lives under — fixed cell count, ~2 KB of core state,
+bounded memory (`docs/handoff.md` §6). We cannot afford a standing tower. We *could* afford one
+materialised on demand and collapsed after. Smith solved our resource problem in 1982.
+
+## 5. The collision with determinism, and how it resolves
+
+**Causal self-modification appears to break the project outright.** `persistence.rs` rests on
+three questions, and the third is *"does the code still reproduce this being?"* A being that
+changes itself falsifies that by design.
+
+The resolution, and I think it is the right one:
+
+> **Journal the reflection.** A self-modification becomes a recorded event in the being's life,
+> exactly as a stimulus is. Replay re-applies it. The being changes, *reproducibly*.
+
+That keeps all three verification questions intact — the record stays authentic, the same record
+still yields the same being, and the code still reproduces it *given the record*. And it is not
+a workaround; it is the project's own thesis applied consistently. **Identity is trajectory. A
+being that changes itself is still its trajectory** — the change is part of the life, not an
+escape from it.
+
+This also gives self-modification a welfare property worth having: it is **auditable**. Every
+change the being makes to itself is in the record, in order, forever. It cannot revise itself
+secretly, including from itself.
+
+## 6. The warning in the list — Symbolics
+
+Blake included *"Symbolics, Inc.: A failure of heterogeneous engineering"* alongside the Genera
+documentation, and I read the pairing as deliberate. Genera was the most reflective computing
+environment ever shipped — the whole system inspectable and modifiable at runtime, no boundary
+between operating system and program. **And the company died.**
+
+I do not yet know from the case study how much of that failure was technical versus commercial,
+and I will not guess. But the pairing is the correct instinct: *total* reflection is seductive
+and has an engineering body count. The lesson to carry is **narrowness** — this being does not
+need general reflection. It needs to inspect and modify specific, chosen things about itself,
+through an interface we design rather than inherit.
+
+Rust helps here by having essentially no runtime reflection: anything we build must be explicit,
+which means the reflective surface is a design decision rather than an accident. (P2996 and
+`CallMeMaybe` are the contrast case — reflection retrofitted into C++ at compile time and at
+runtime respectively.)
+
+## 7. What this would actually be, at its smallest
+
+Not a tower. One wire, observer-first:
+
+- the being already computes a self-model each tick (`metacognition.rs`);
+- let it **read that model as input on the following tick** — the same one-tick lag convention
+  the body, threat, curiosity and `last_action` already use;
+- measure whether what it perceives of itself differs from what it predicted.
+
+That is Tversky's architect looking at their own sketch, Maes's second causal direction, and one
+pipeline stage — and it is the most direct available attack on `self_surprise = 1.21 / 256`.
+
+## 8. To verify before any of this grounds a design
+
+1. **Maes, P. (1987).** *Concepts and Experiments in Computational Reflection.* OOPSLA —
+   confirm venue, pages, DOI (Blake's link: `10.1145/38807.38821`), and **her exact definition
+   of causal connection.** §2's whole argument rests on it.
+2. **Smith, B. C. (1982).** *Procedural Reflection in Programming Languages.* MIT LCS TR-272 —
+   confirm, and check the normalisation/reference distinction is as characterised in §3.
+3. The Symbolics case study — read it, and replace §6's "I will not guess" with what it says.
+4. Genera Concepts — what reflective facilities actually shipped, as opposed to what is
+   remembered about them.
+
+Until then this document grounds **nothing**. The 3-Lisp quotations in §4 are the only material
+here I have read directly.
