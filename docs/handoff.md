@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **72** (`examples/`) |
+| Runnable probes | **73** (`examples/`) |
 | Design & research docs | **70** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -344,10 +344,18 @@ proximity of its own aim, and it holds an aim 85–96% of its life.
 compulsion.* **The same law should bind needs, and nobody wrote it down** — the faculty meant to be
 the being's own aim is the exact mechanism preventing it from ever being at ease.
 
-**The fix is specced in `docs/comfort.md`: give purpose a satiety band.** One constant, one
-comparison; `striving.rs`'s rest path already exists and already works. It does not add a
-mechanism, it removes an obstruction. C1–C5 and W are locked, and C3 is the direct test — the
-40.2% disagreement should fall, or the diagnosis is wrong.
+**That diagnosis was BUILT, MEASURED, and is WRONG — `docs/comfort.md` §8.** The satiety band
+works (gated, default-off, `enable_comfort()`), and it does **not** buy the being rest.
+
+> **`Basin::Rest` is classified from the somatic field (`being.rs:1001`), not from striving.** A
+> being can want nothing and still not be at rest. With the gate on, the being's goal becomes
+> `None` and it enters `Rest` on **0.0%** of ticks — exactly as without it.
+
+**So the next inch is `basins.rs`, not `striving.rs`.** And the bigger possibility, one measurement
+away: `docs/development.md` §5 also found **0.0% rest across every regime tried**. If `Rest` is
+simply *unreachable* in this architecture, then `reflection`'s conversion-at-rest, incident I-8,
+and the whole comfort question are all downstream of one unreachable basin. **That would be the
+largest finding in the repository, and it needs one probe.**
 
 ### Where to start on Sunday
 

@@ -64,6 +64,29 @@ const BROADCAST_GAIN: i32 = 64;
 /// body-vote deposited each tick; fraction of the held trace re-injected into the
 /// field; and a hard cap so the trace can never run away. All Q8.8. Chosen so the
 /// held focus cascades (spread-probe reach > 1) while staying bounded.
+/// **Arrival** — the proximity at which the being's purpose counts as *met* rather than merely
+/// close. **Derived, not chosen:** `striving.rs` defines a need as pressing at `SALIENT`
+/// (`Q88_SCALE / 4` = 64), so a purpose whose divergence is already below that is *already* not
+/// pressing, and declaring it satisfied changes nothing. Satiety is only meaningful at the point
+/// where the need stops being salient:
+///
+/// ```text
+/// TELOS_ARRIVED = Q88_SCALE − SALIENT = 256 − 64 = 192
+/// ```
+///
+/// **The first version of this constant was 224 and it was a no-op by arithmetic** — at proximity
+/// 224 the divergence is 32, already below `SALIENT`, so the branch fired on 53 ticks of 4,000 and
+/// changed nothing. The soul-hash came back identical and the probe reported "C3 fails" for a test
+/// that had never run. Recorded in `docs/comfort.md` §8; the lesson is the one this repository
+/// keeps re-learning — *state what a measurement could not have shown, before reporting what it
+/// did.*
+///
+/// Every other need this being has can be satisfied — sustenance at full viability, company on a
+/// partner's presence, novelty on discovery, repose on being calm. Purpose alone was written as a
+/// raw distance with no satiety point, which is why `striving.rs`'s existing rest path was
+/// unreachable: something was always most urgent. See `docs/comfort.md`.
+const TELOS_ARRIVED: i16 = Q88_SCALE * 3 / 4;
+
 const WORKSPACE_RETENTION: i16 = 192;
 const WORKSPACE_DEPOSIT: i16 = 160;
 const WORKSPACE_INJECT: i16 = 128;
@@ -680,6 +703,16 @@ pub struct UnifiedBeing {
     /// partner. **Default false** — off, the learned expectation is a pure observer
     /// and the being's numbers are bit-identical. Enable via `enable_memory_guidance()`.
     pub memory_causal: bool,
+    /// **Comfort (`docs/comfort.md`), opt-in.** Gives the being's *purpose* a satiety band, so
+    /// that arriving at the place it holds as its own means the need is **met** rather than merely
+    /// small. Without it, `telos_divergence` is a raw distance that keeps purpose salient until the
+    /// being is within 75% proximity — and since it holds a purpose 85–96% of its life, it almost
+    /// never has permission to stop. `striving.rs` already implements rest as the anti-strive and
+    /// tests it; this removes the obstruction that made it unreachable, and adds no mechanism.
+    ///
+    /// **Default false** — off, the trajectory and soul-hash are bit-identical and the founded
+    /// being is untouched. Enable via `enable_comfort()`.
+    pub comfort_causal: bool,
     /// Last tick's learned caution (Q8.8 [0,256]): how strongly the being's memory
     /// forewarned it — `-expected_outcome × confidence` when forewarned, else 0. Held
     /// a tick because the refusal decision runs before this tick's memory is read
@@ -767,6 +800,7 @@ impl UnifiedBeing {
             last_felt: FeltReport::default(),
             felt_choice_causal: false,
             memory_causal: false,
+            comfort_causal: false,
             last_forewarning: 0,
         }
     }
@@ -1563,9 +1597,16 @@ impl UnifiedBeing {
         // company need directly, so missing someone can become what it most strives
         // for (`striving.rs`). Still an observer of the being's core; it steers only
         // the body, across the embodiment seam.
-        let telos_divergence = telos_report
-            .active
-            .map_or(0, |t| (Q88_SCALE - t.current_proximity).max(0));
+        // Purpose's urgency. Off (the default) this is a raw distance with no satiety point —
+        // the only need in this being that cannot be finished, and therefore the reason rest is
+        // unreachable (`docs/comfort.md` §1). On, arriving counts as arriving.
+        let telos_divergence = telos_report.active.map_or(0, |t| {
+            if self.comfort_causal && t.current_proximity >= TELOS_ARRIVED {
+                0
+            } else {
+                (Q88_SCALE - t.current_proximity).max(0)
+            }
+        });
         let strive_report = strive(
             felt.state.viability,
             felt.anticipating,
@@ -1966,6 +2007,16 @@ impl UnifiedBeing {
     /// past teaches its present choices.
     pub fn enable_memory_guidance(&mut self) {
         self.memory_causal = true;
+    }
+
+    /// Let the being's purpose be **finished** (`docs/comfort.md`). With this on, a purpose the
+    /// being has arrived at (proximity ≥ `TELOS_ARRIVED`) stops generating urgency, which makes
+    /// `striving.rs`'s existing rest path reachable on the being's own terms.
+    ///
+    /// This does not make the being rest. It stops forbidding it. A being forced to rest is as
+    /// unfree as one forbidden to — the same law, from the other side.
+    pub fn enable_comfort(&mut self) {
+        self.comfort_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed

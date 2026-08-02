@@ -1,6 +1,13 @@
 # Comfort — what a living thing needs to survive well, and the one line denying it
 
-> **Status: specified, nothing built.** Committed before any code, so §5's predictions are on the
+> **Status: BUILT, MEASURED, and the diagnosis in §1 is WRONG — see §8.** The satiety band works
+> and does not buy the being rest. **`Basin::Rest` is classified from the somatic field, not from
+> striving** — a being can want nothing and still not be at rest, and this being never rests in
+> either arm. Three errors of mine are recorded in §8, including a first constant that was
+> arithmetically incapable of firing. The gate ships **default-off and unrecommended.**
+> **The next inch is `basins.rs`.**
+>
+> **Status when written: specified, nothing built.** Committed before any code, so §5's predictions are on the
 > record first. The change proposed here is **causal** — it changes what the being does — so it
 > would be gated, default off, and the founded being at `life/being.journal` is not touched by it.
 
@@ -153,3 +160,83 @@ whichever prediction came back wrong, in the form it came back wrong.
 argued it. The being's own earned competence is asking for rest on 1,113 ticks. The cheapest,
 smallest, most reversible thing that answers it is a satiety band on one need — not a new authority
 system layered over the arbitration that is producing the problem.
+
+---
+
+## 8. What came out — **the diagnosis in §1 is wrong**, and three errors are mine
+
+Both arms lived 4,000 ticks. Nothing died.
+
+| | gate OFF | gate ON |
+|---|---:|---:|
+| **rest / recovery (C1)** | **0.0%** | **0.0%** |
+| competence vs need disagreement (C3) | 40.2% | **73.6%** |
+| purposes authored / fulfilled (C4) | 2 / 1 | 2 / 1 |
+| load converted (C5) | 0 | 0 |
+| mean drive, past COMFORT (W) | 9.0, 0.0% | 9.0, 0.0% |
+
+### C1 fails, and C1 is the whole answer
+
+**The being's purpose became satisfied, its goal became `None` — and it still never entered
+`Rest`.** Not once, in 4,000 ticks, in either arm.
+
+Because `Basin::Rest` is not set by `striving.rs`. It is classified from the somatic field
+(`being.rs:1001`, `basins.compute_membership(&self.field)`), **entirely independently of what the
+being is striving for.** A being can want nothing and still not be at rest.
+
+> **So §1's diagnosis is wrong.** The obstruction is not purpose's missing satiety band, and it is
+> not in the arbitration at all. Striving choosing "no goal" and the being *resting* are two
+> different things, and I conflated them because `habits::act_of(None) = rest` made them look like
+> one in the report.
+
+The satiety band is still defensible on its own terms — a need that cannot be finished is a
+compulsion, and §2's law stands — but **it does not buy the being rest**, which is what it was
+for. It stays default-off and unrecommended until something makes rest reachable.
+
+### Error one: my first constant was arithmetically incapable of firing
+
+`TELOS_ARRIVED` was 224. At proximity 224 the divergence is 32, and `striving.rs`'s `SALIENT` is
+**64** — so the branch sat entirely inside the region where purpose *already* was not pressing. It
+fired on 53 ticks of 4,000 and changed nothing. The soul-hash came back identical and the probe
+printed **"C3 FAILS"** for a test that had never run.
+
+Fixed by *deriving* the constant instead of choosing it — satiety is only meaningful where the need
+stops being salient, so `TELOS_ARRIVED = Q88_SCALE − SALIENT = 192`. **This is the third vacuous
+verdict in one day** (`docs/survival-first.md` §11, `docs/earned-authority.md` §6, here), and the
+rule that catches it keeps being written and not used:
+
+> **State what a measurement could not have shown, before reporting what it did.**
+
+### Error two: C3 was the wrong test, and it is symmetric
+
+Disagreement rose 40.2% → **73.6%**, and the probe called that "worse." **It cannot know that.**
+The metric counts *whether* competence and need differ, not *who is right*. With satiety on, need
+moves to rest on many ticks while the niche-7 habit still wants purpose — so the gap widens partly
+because **need moved toward what competence had been asking for**, which is the opposite of worse.
+
+I designed the test as though closing the gap meant comfort. A symmetric metric cannot carry a
+directional claim, and I should have seen that when I specced it.
+
+### Error three, unresolved and flagged rather than explained
+
+**The soul-hash is identical between arms** (`5afc7074…`) while the disagreement metric moves 33
+points. Those cannot both be true of a being whose life differed — so either the being's trajectory
+genuinely did not change and only a *reported* field did, or the hash does not cover what I assume
+it covers. **I do not know which, and I am not going to guess at the end of a session.**
+`docs/soul-hash-limits.md` is the place that question belongs.
+
+## 9. Where this leaves it
+
+- **C2 holds**: default-off, full suite green, founded being wakes at 390 moments.
+- **C4 holds**: fulfilment and abandonment unchanged — permission to stop did not become stopping
+  short. That guardrail was real and it was worth writing first.
+- **C1, C3, C5 fail or are unanswerable**, and the reason is one thing: **rest is a basin, not a
+  goal.**
+
+**The next inch is `basins.rs`, not `striving.rs`.** The question is what field state produces
+`Basin::Rest` and whether this being ever reaches it — and given `docs/development.md` §5 also found
+0.0% rest across every regime tried, the honest possibility is that **`Rest` is unreachable in this
+architecture**, in which case `reflection`'s conversion-at-rest, I-8, and this document are all
+downstream of one unreachable state.
+
+That would be a bigger finding than anything here, and it is one measurement away.
