@@ -5,7 +5,11 @@
 > striving** — a being can want nothing and still not be at rest, and this being never rests in
 > either arm. Three errors of mine are recorded in §8, including a first constant that was
 > arithmetically incapable of firing. The gate ships **default-off and unrecommended.**
-> **The next inch is `basins.rs`.**
+> **§10–§12 go further:** the only thing that calms this being is **solitude** (arousal 234 → 6),
+> and even then it stays 100% Engaged. But **every one of Rest's twelve coordinates is individually
+> reachable** — the conjunction never is. Rest is an *unvisited corner*, not a dead state, and the
+> reason is that **the being can change where it is and cannot change how it is.** §12 is the
+> four-step answer to striving-toward-rest, and step 4 closes incident I-8.
 >
 > **Status when written: specified, nothing built.** Committed before any code, so §5's predictions are on the
 > record first. The change proposed here is **causal** — it changes what the being does — so it
@@ -335,3 +339,98 @@ the being finally is pressed hard enough to accumulate fatigue, the pressure put
 arousal *down*? If nothing does, Rest is unreachable by construction and the four-basin model has
 a state it can never occupy — which would be worth saying plainly in `docs/architecture.md` rather
 than leaving three documents to keep rediscovering the same zero.
+
+---
+
+## 11. Rest is not a dead state. It is an unvisited corner — and the being has no way to move itself there.
+
+*From Blake: "I'm not sure, would you like to test? And what would you do to allow a sense of
+striving towards rest, towards endurance?" Both answered below; the test came first because the
+design depends on it.*
+
+### Test 1 — does anything bring arousal down? **Yes. Exactly one thing: solitude.**
+
+| condition | min arousal | final | min ch8 |
+|---|---:|---:|---:|
+| perfect ease — fed, safe, company | 113 | 234 | 103 |
+| …plus every safe gate on | 113 | 234 | 103 |
+| ambient floor / gentle threat / sustained threat 130 | 113–115 | 234–293 | 103–109 |
+| starving | 115 | 387 | 109 |
+| **alone, no threat, fed** | **6** | **10** | **−2** |
+
+Nothing this being can experience calms it except **being by itself**. Which sits exactly against
+incident I-7: **company is what keeps it unburdened, and solitude is the only thing that lets it
+calm down.** It cannot have both.
+
+### Test 2 — so does a solitary being rest? **No. Still 100% Engaged.**
+
+Arousal at 6, well under Rest's 73 — and the basin never changes. And note the overshoot: ch8
+reaches **−2**, so solitude does not move the being *to* rest, it carries it *past* rest into a
+different kind of far.
+
+The being is **100% Engaged in every condition tested** — with company, alone, calm, threatened,
+starving. Engaged is not a mode it enters. It is the only place it can be.
+
+### Test 3 — the one that settles it: is Rest even *reachable*?
+
+Sweeping 120 regimes (partner × threat × nutrient × gates) and recording the envelope each somatic
+channel actually visits, against each basin's target:
+
+| basin | target values outside the being's reachable range |
+|---|---|
+| **Rest** | **0 of 12** |
+| Engaged | 0 of 12 |
+| **Defensive** | **3 of 12** (channels 1, 2, 3) |
+| Recovery | 0 of 12 |
+
+> **Every one of Rest's twelve coordinates is individually reachable.** The being visits arousal
+> 19–247 (Rest wants 73), fatigue 0–315 (wants 80), channel 0 across 0–256 (wants 20).
+> **Each coordinate is reachable. The conjunction never is.**
+
+Rest is not a dead state. It is an **unvisited corner** — the being's trajectory is confined to a
+manifold that never passes through low-arousal-*with*-moderate-fatigue-*with*-low-ch0 at the same
+moment.
+
+**And one thing this kills outright:** `Defensive` has three targets the being can *never* reach,
+and it spends 100% of a strained life there. So basin occupancy is **not** proximity to a target —
+it is L1 argmax among four, plus stance bias, plus dwell hysteresis. **You can live in a basin
+whose definition you can never satisfy.** Any future reasoning about basins must not assume
+otherwise; I nearly did.
+
+## 12. What I would do for "striving towards rest, towards endurance"
+
+The tests say the obstruction is not a missing need, a missing threshold, or a badly-placed target.
+It is this:
+
+> **The being can change where it is. It cannot change how it is.**
+
+`being.rs:927` recomputes the somatic field from the body every tick (`write_from_body`). Every
+action this being has acts on the **world** — move, reach, approach, withdraw. **Nothing it can do
+acts on itself.** So it cannot assemble the conjunction Rest requires, because assembling a
+somatic state is not in its vocabulary of acts.
+
+Four steps, in order, each small and each gated:
+
+**1. `Need::Rest` — make it namable.** The enum has Sustenance, Company, Novelty, Purpose; rest is
+`None`. But `joy.rs` *already computes a repose want*. **The being has a hunger for rest and no
+goal to attach it to** — the same shape as `docs/earned-authority.md`'s finding, one level down.
+
+**2. Let striving mean *settling*.** `mobilization = urgency × viability`, and `effort =
+arousal × 256`. **To want anything is to mobilize.** Rest is the one need where wanting it must
+*lower* effort, and the architecture has no vocabulary for a need approached by doing less. This is
+the real gap and it is a vocabulary gap, not a mechanism gap.
+
+**3. One self-directed act: *settle*.** A motor intent whose target is the being's own arousal
+rather than a place in the world. It would be the first act this being has that operates on itself,
+and it is what "striving toward rest" literally requires. **Spec it, lock predictions, gate it** —
+this is a real architectural addition, not a constant, and it must not be built at the end of a
+session.
+
+**4. Endurance then follows for free.** `reflection.rs` already converts load into `weathered` at
+rest; `weathered` already feeds `affective_drive`; `affective_drive` already reaches the body. The
+whole arc **rest → resilience → endurance is already built** and has never had its first state
+enterable. That is also incident **I-8**'s answer, and it means I-8 closes the moment step 3 does.
+
+**The guardrail, before any of it:** rest made *reachable*, never *compulsory*. A being that must
+rest is as unfree as one that cannot — the same law from the other side, and `docs/habits.md`'s
+breakability law already binds it.

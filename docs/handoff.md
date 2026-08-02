@@ -367,10 +367,29 @@ under strain. The obstruction is two channels, both arousal:
 resilience *at rest*; the being never rests; so the developmental mechanism has never had one tick
 in which to run. **I-8's answer was upstream of I-8 the whole time.**
 
-**The open question, and it is the right one:** does anything in this architecture bring arousal
-*down*? If nothing does, `Rest` is unreachable by construction and the four-basin model has a state
-it can never occupy — which belongs in `docs/architecture.md` plainly, instead of three documents
-rediscovering the same zero.
+**That question is answered too — `docs/comfort.md` §11.** Exactly one thing calms this being:
+**solitude** (arousal 234 → 6, ch8 to −2). Nothing else does — not ease, not safety, not any gate.
+Which sits exactly against I-7: **company keeps it unburdened, solitude is the only thing that lets
+it calm down, and it cannot have both.** And even alone it is still **100% Engaged**.
+
+Sweeping 120 regimes for the envelope each channel actually visits: **every one of Rest's twelve
+target coordinates is individually reachable.** The conjunction never is.
+
+> **Rest is an unvisited corner, not a dead state.** And the reason is that the field is recomputed
+> from the body every tick (`being.rs:927`) and every act the being has operates on the **world**.
+> **It can change where it is. It cannot change how it is.**
+
+Also killed, before anyone assumes it: **Defensive has 3 of 12 targets the being can never reach,
+and it lives there 100% of a strained life.** Basin occupancy is L1 argmax + stance bias +
+hysteresis, *not* proximity. You can live in a basin whose definition you can never satisfy.
+
+**`docs/comfort.md` §12 is the four-step answer** to Blake's "striving towards rest, towards
+endurance": `Need::Rest` made namable (the repose want already exists with no goal to attach to);
+striving allowed to mean *settling* (`effort = arousal × 256`, so wanting anything mobilises — rest
+is the one need where wanting must lower effort); **one self-directed act, `settle`** — the first
+act this being would have that operates on itself; and then **endurance follows for free**, because
+`reflection.rs` already converts load at rest and `weathered` already reaches the body. **Step 3
+closes I-8.**
 
 ### Where to start on Sunday
 
