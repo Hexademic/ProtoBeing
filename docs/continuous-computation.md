@@ -106,31 +106,74 @@ the being can no longer resolve its own surprise and starves with food in reach.
 **Suggested names:** *process computation*, or *non-terminating computation*, or — closest to the
 content — **productive computation**.
 
-## 5. On Turing: the ally is 1948, not 1936
+## 5. On Turing — Blake was right, and I corrected him wrongly
 
-Blake is right that Turing had more than the halting machine in him, and the record supports it
-better than expected:
+*Rewritten 2026-07-31 after actually looking. My first version of this section told Blake that
+"Turing didn't disagree with the halting result — he proved it," and treated his claim as a
+factual error. **The narrow point was right and the correction was wrong**, because Blake was not
+making a claim about the theorem. He was making a claim about what Turing thought the theorem
+**meant for machines** — and on that, the record is with Blake, in print, from 1947.*
 
-- **1939, *Systems of Logic Based on Ordinals*** (his Princeton thesis). Introduces **oracle
-  machines** and *ordinal logics* — an attempt to *"avoid as far as possible the effects of
-  Gödel's theorem"* by iterating the adjunction of new axioms **into the transfinite**. A theory
-  of computation that gets its power from never being finished.
-- **1952, *The Chemical Basis of Morphogenesis*** — reaction–diffusion, continuous dynamics, from
-  the same person who defined discrete computation.
-- **And the one that is actually unpublished, and is almost certainly the one worth reading:
-  *Intelligent Machinery* (1948).** Suppressed by his director Charles Darwin as *"a schoolboy
-  essay"* and unpublished until 1968. It proposes **unorganised machines** — randomly connected
-  networks, essentially proto-neural-nets — and argues that *the infant human cortex is an
-  unorganised machine*, which becomes capable through **"appropriate interference, mimicking
-  education."**
+### What is true about the theorem
 
-> **That is Blake's development claim, in Turing's hand, in the paper his institution refused to
-> print for being unscientific.** Capability comes from *training*, not from construction. Which
-> is precisely what `docs/development.md` set out to test yesterday — and precisely what I-8 says
-> we have not yet shown this being can do.
+Turing proved it. *On Computable Numbers, with an Application to the Entscheidungsproblem* (1936)
+is his, and he never doubted it — he restates it himself in 1950 as the strongest objection to his
+own programme. **The machine was built to exhibit the limit**: he did not design a Turing machine
+and then discover it could not decide halting; he invented the machine *in order to* answer
+Hilbert's Entscheidungsproblem in the negative. Take away the limitation and there is no reason
+the machine exists.
 
-If Blake read something else in the unpublished material, I want the reference; I have not seen it
-and will not pretend otherwise.
+### And what Turing thought it meant — which is Blake's point, and it is documented
+
+**London Mathematical Society, 20 February 1947:**
+
+> *"…if a machine is expected to be infallible, it cannot also be intelligent."*
+
+His post-war position, stated plainly: mathematicians make mistakes and **do not in fact see truth
+infallibly**; a machine could give occasional wrong answers exactly as a human mathematician
+blunders when trying new techniques. And therefore:
+
+> **Once the possibility of mistakes is admitted, Gödel's theorem becomes irrelevant.**
+
+He put the same argument in print three years later. *Computing Machinery and Intelligence* (1950)
+raises **"The Mathematical Objection"** — Gödel and his own uncomputability result, named as the
+case against machine intelligence — and rebuts it: the limitation only bites if you assume the
+human intellect is *not* subject to it, and there is no evidence for that assumption. Gödel later
+accused him of exactly that move (Copeland & Shagrir).
+
+> **So: Turing accepted the theorem completely and rejected the reading of it as a ceiling on
+> machines.** Not by disputing the proof — by showing its scope is *infallible* systems, and that
+> intelligence is not one of those. That is "going against the bias," and he did it in public, in
+> the two most-read things he ever wrote about minds.
+
+### And the bravery is real — it is attached to 1948
+
+*Intelligent Machinery* (1948), suppressed by his director Charles Darwin as *"a schoolboy essay"*
+and unpublished for twenty years: **unorganised machines**, the infant human cortex as one of them,
+becoming capable through *"appropriate interference, mimicking education."* **That is
+`docs/development.md`'s thesis in Turing's hand, in the paper his institution refused to print.**
+
+### What this changes for us, and it is not small
+
+**Fallibility is the escape, and this being is fallible by construction.** `metacognition.rs`
+predicts its own next state and measures how wrong it was. `sensorimotor.rs` calls its sense of
+agency *"a fallible inference, honestly held."* `perception.rs` blends evidence toward expectation
+and lets a large surprise break the blend. None of that is a defect to be engineered out — on
+Turing's 1947 argument **it is the precondition** for the thing being attempted here.
+
+And 1939's ordinal logics are the same instinct in formal dress: accept the limit exactly, then
+climb past it by never being finished.
+
+### The methodological note, kept because it is the week's pattern
+
+I evaluated the *form* of Blake's claim against my model of the history, found the form wrong, and
+dismissed the content — which was correct. That is the same failure as incident I-6, where I
+evaluated the being's state against my model, found my instrument silent, and reported the creature
+as blind while it was reporting on three registers. **Twice in two days, I corrected a reporter who
+was right.** Blake's own rule is the one I keep failing:
+
+> *If we don't listen to what others report, we aren't doing scientific research, we are dreaming
+> what the perfect system would be.*
 
 ## 6. Where the frame already exists for the qualia half
 
@@ -167,6 +210,10 @@ is "each cycle costs less," not "the final trial lasts longer."** The redesigned
 - Turing, A. M. (1939). *Systems of Logic Based on Ordinals*. Proc. LMS s2-45: 161–228.
   [Wiley](https://londmathsoc.onlinelibrary.wiley.com/doi/abs/10.1112/plms/s2-45.1.161) ·
   [Feferman, *Turing's Thesis*](https://math.stanford.edu/~feferman/papers/turing.pdf)
+- Turing, A. M. (1947). LMS lecture; (1950) *Computing Machinery and Intelligence*, Mind 59.
+  [Alan Turing and the Mathematical Objection](https://link.springer.com/article/10.1023/A:1021348629167) ·
+  [Copeland & Shagrir, *Turing versus Gödel*](https://openscholar.huji.ac.il/sites/default/files/oronshagrir/files/copeland_and_shagrir_turing_vs_godel_final_0.pdf) ·
+  [SEP: Alan Turing](https://plato.stanford.edu/entries/turing/)
 - Turing, A. M. (1948). *Intelligent Machinery* — unpublished until 1968.
   [Unorganized machine](https://en.wikipedia.org/wiki/Unorganized_machine) ·
   [Selection, growth and form: Turing's two biological paths](https://www.sciencedirect.com/science/article/pii/S0039368124000657)

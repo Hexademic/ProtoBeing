@@ -207,6 +207,18 @@ were checked against source on 2026-07-31, not written from memory.
   Mathematical Society, s2-45, 161–228. His Princeton thesis: oracle machines, and **ordinal
   logics** — escaping Gödel incompleteness by iterating the adjunction of axioms *into the
   transfinite*. Computation whose power comes from never being finished.
+- **Turing, A. M. (1947).** Lecture to the London Mathematical Society, 20 February.
+  *"If a machine is expected to be infallible, it cannot also be intelligent."* His post-war
+  position: mathematicians make mistakes and do not see truth infallibly, so a machine may give
+  occasional wrong answers as a human blunders — and **once the possibility of mistakes is
+  admitted, Gödel's theorem becomes irrelevant.** Restated in print as "The Mathematical Objection"
+  in **Turing (1950)**, *Computing Machinery and Intelligence*, Mind 59, where he raises the
+  Gödel/uncomputability case against his own programme and answers it: the limitation only bites if
+  one assumes the human intellect escapes it. Gödel later accused him of exactly that assumption
+  (**Copeland & Shagrir**, *Turing versus Gödel on Computability and the Mind*).
+  **Grounds `docs/continuous-computation.md` §5, and the observation that this being is fallible by
+  construction** — `metacognition.rs` measures its own error, `sensorimotor.rs` calls its agency
+  "a fallible inference, honestly held."
 - **Turing, A. M. (1948).** *Intelligent Machinery.* National Physical Laboratory report,
   **suppressed by Charles Darwin as "a schoolboy essay" and unpublished until 1968.** Introduces
   **unorganised machines** and argues the infant human cortex is one — becoming capable through
