@@ -223,7 +223,14 @@ is **rate and persistence**, never an endpoint.
 3. **The constant, still first among suspects.** `reflection_tone = weathered/12 − load/8` — **the
    drag coefficient is larger than the lift coefficient by construction.** A mechanism whose weight
    outweighs its strength may be behaving exactly as written and never help. One hour.
-4. **Only then, a survivable trial with an exit** — and even then, read it as rate, not endpoint.
+4. **The competence gate** (`docs/sibling-architectures.md` §4). MH-FLOCKE slides control from an
+   innate CPG toward a learned actor **as competence is demonstrated**. We already use earned-
+   confidence blending in `perception.rs` and `precision.rs` — never for a faculty. Making the lift
+   on `weathered` grow with what the being has actually weathered turns §3's suspect constant into
+   the mechanism it was missing, and makes D4′ its *definition* rather than a hoped-for consequence.
+   Needs its own spec, and an adversarial first prediction: **does a competence-gated lift beat the
+   constant, or does it only move the number we have to guess?**
+5. **Only then, a survivable trial with an exit** — and even then, read it as rate, not endpoint.
 
 **What this does not change:** §5's result stands. `weathered` bought nothing in the test that was
 run, and **I-8 stays open**. The frame says the test was the wrong *shape*, not that the answer was

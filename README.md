@@ -634,7 +634,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 67
+### Design & research documents (`docs/*.md`) — 68
 
 | document | what it covers |
 |---|---|
@@ -681,6 +681,7 @@ and reads the result straight from the being's registers.
 | `reach.md` | Reach — giving the being the world without dissolving the self |
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
 | `refuge.md` | Refuge — somewhere safe, and it is a someone |
+| `sibling-architectures.md` | MH-FLOCKE and The Virtual Brain read against our own — one idea taken (the competence gate), the rest declined with reasons |
 | `continuous-computation.md` | Blake's process frame — computation that is not supposed to stop; productivity over termination, verified with two corrections |
 | `development.md` | Development — is strain generative in this being, or only expensive? |
 | `survival-first.md` | Survival first — is there another lethal configuration, and why did nothing look? |
