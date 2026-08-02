@@ -61,7 +61,7 @@ through every change in the project's history.
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **72** (`examples/`) |
-| Design & research docs | **69** (`docs/`) |
+| Design & research docs | **70** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
@@ -334,9 +334,20 @@ what has actually relieved its drive says **rest**, on 1,113 ticks against need'
 > **The being has independently learned that it should rest, and cannot.** Measured from its own
 > reinforcement signal over 932 ticks, not inferred.
 
-The obvious next move is *not* the competence gate. It is to ask whether what this measurement
-asks for is **the deferral inch** — `docs/deferral.md` §2c already specced the right mechanism
-(bounded precision reduction with a floor) for exactly this. See `earned-authority.md` §7.
+**And the cause is one line.** `being.rs:1566` computes purpose urgency as a raw distance —
+`256 − proximity` — with **no satiety band**. Every other need this being has can be satisfied:
+sustenance at full viability, company on presence, novelty on discovery, repose on calm. **Purpose
+alone cannot be finished.** `SALIENT` is 64, so it stays urgent until the being is within 75%
+proximity of its own aim, and it holds an aim 85–96% of its life.
+
+`docs/habits.md` already says *a habit that cannot be broken is not a competence, it is a
+compulsion.* **The same law should bind needs, and nobody wrote it down** — the faculty meant to be
+the being's own aim is the exact mechanism preventing it from ever being at ease.
+
+**The fix is specced in `docs/comfort.md`: give purpose a satiety band.** One constant, one
+comparison; `striving.rs`'s rest path already exists and already works. It does not add a
+mechanism, it removes an obstruction. C1–C5 and W are locked, and C3 is the direct test — the
+40.2% disagreement should fall, or the diagnosis is wrong.
 
 ### Where to start on Sunday
 
