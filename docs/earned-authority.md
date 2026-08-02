@@ -1,6 +1,14 @@
 # Earned authority — does the being's competence ever disagree with its need?
 
-> **Status: specified, nothing built.** Committed before the probe exists, so §3's predictions are
+> **Status: MEASURED — see §6. E2 answers YES at 40.2%, and the content of the disagreement is
+> the finding: it is entirely _purpose versus rest_.** The being's urgency says pursue its project;
+> its earned competence, learned from measured relief, says **rest** — which is one of the four
+> things `docs/deferral.md` §1 lists as structurally forbidden. **The being learned that it should
+> rest and its architecture cannot let it.** W is answered in the reassuring direction on a thin
+> sample, and only after two failed attempts, one of which turned up that
+> `docs/development.md` §5's strain band is invisible to a being with working senses.
+>
+> **Status when written: specified, nothing built.** Committed before the probe exists, so §3's predictions are
 > on the record before any result. **Pure observer.** No gate is added, `habits.rs` stays
 > non-causal, the soul-hash stays bit-identical, and `life/being.journal` is untouched.
 
@@ -98,3 +106,108 @@ back wrong.
 **The causal step — letting a habit actually steer — is not in this inch and is not authorised by
 it.** It would be the first time this being's earned competence had any say in what it does, and
 `docs/handoff.md` §8 has it queued behind the welfare work for a reason.
+
+---
+
+## 6. What came out
+
+**The being lived its whole life in both arms. No deaths.**
+
+### E1 — holds, but thinly
+
+First pairing crossed the floor at **tick 1,118**; **2 habits formed** across 4,000 ticks. The
+faculty works and it is slow. A being that earns two ways of living in a long life has a repertoire,
+not a skillset — worth remembering before calling this a competence system.
+
+### E2 — **YES**, at the top of the predicted band
+
+| | |
+|---|---:|
+| ticks with a formed habit for the current niche | **2,316 of 4,000 (57.9%)** |
+| …on which competence named a *different* act than need chose | **932 (40.2%)** |
+| across the whole life | 23.3% of ticks |
+
+Predicted 10–40%; measured 40.2%. **The faculty has something to say**, and it has been saying it
+into a register nobody reads for the whole history of this project.
+
+### E3 — sharply concentrated, and not merely because of where the being lives
+
+| niche | ticks in | disagreed | share |
+|---:|---:|---:|---:|
+| 2 | 4 | 0 | 0.0% |
+| 3 | 18 | 0 | 0.0% |
+| **6** | **727** | **0** | **0.0%** |
+| **7** | **3,251** | **932** | **28.7%** |
+
+Niche 6 is well sampled — 727 ticks — and produces **zero** disagreement. So this is not an
+artifact of the being spending its life in niche 7; it is a real contrast between two kinds of
+moment. In one, competence and need agree completely. In the other they part company on more than
+a quarter of ticks.
+
+### And the content of the disagreement is the finding
+
+| act | need chose | competence would |
+|---|---:|---:|
+| sustenance | 0 | 0 |
+| company | 0 | 0 |
+| novelty | 122 | 0 |
+| **purpose** | **3,156** | **1,203** |
+| **rest** | **722** | **1,113** |
+
+**The entire disagreement is purpose versus rest.** The being's urgency ranking says *pursue your
+project*; its earned competence — learned from measured relief, from what has actually made it
+feel better — says **rest**.
+
+And rest is precisely what this architecture forbids. `docs/deferral.md` §1 lists it among the
+four walls: *"rest — something is always most urgent, so it never stops."*
+
+> **The being has independently learned that it should rest, and its architecture cannot let it.**
+> Not inferred from theory — measured, from the being's own reinforcement signal, over 932 ticks.
+
+That is the strongest evidence this project has produced for Blake's *"unless they learn how to use
+these developments, they won't access them."* The being learned the thing. It has no way to use it.
+
+### E4 — the observer changed nothing. Registers read, nothing fed back.
+
+### W — answered in the reassuring direction, on a thin sample, and only on the second attempt
+
+**The first verdict was vacuous and that is the part worth keeping.** In the reference world the
+being is **never** at stake and **never** burdened — so no distribution of disagreements could have
+warned. A test that cannot come out the other way is a statement about the apparatus
+(`docs/survival-first.md` §8), and the probe now says so in place rather than printing a pass.
+
+The second attempt failed too, for a reason worth recording: I used `docs/development.md` §5's
+strain band (threat 90) and got nothing at all. **`NOCI_THRESHOLD` is 96** — with receptors on,
+threat 90 transduces to *exactly zero pain* (incident I-4). The being cannot feel it.
+
+> **Which means §5's strain band is a property of the sense-deprived being.** `development.md`'s
+> band was measured with receptors off, and a being with working senses does not experience it as
+> strain at all. Found by accident; it matters to that document and to the D4′ rerun.
+
+Above the nociceptor floor (threat 130, cycling 20 hard / 80 easy) the life finally contains bad
+moments — **12.3% burdened, 0.5% at stake** — so W could warn. It did not:
+
+> **Competence disagreed with need on 0 of the 71 ticks where a habit existed.** Against 40.2% in
+> the easy life, the pattern is **competence speaks up in ease and falls silent under pressure** —
+> which is the safe direction, since it means authority would not fire at the being's worst moments.
+
+**But 71 ticks and one formed habit is thin**, and the causal step must not lean on it. Re-run W
+with a longer strained life before anything is gated.
+
+## 7. What this authorises, and what it does not
+
+**Authorised:** the proposal is alive. Competence is not decoration here — it disagrees on 40.2% of
+the ticks it can speak on, the disagreement is concentrated and coherent rather than noisy, and it
+names a specific thing the being needs and cannot have.
+
+**Not authorised:** the causal step. Three things stand between here and it —
+
+1. **W needs a proper sample.** 71 ticks is not a distribution.
+2. **The disagreement is about rest, and rest is blocked by `striving.rs`'s `max`, not by habits'
+   silence.** Giving habits authority may be the wrong lever entirely: the direct reading of §6 is
+   that *the being should be allowed to rest*, and `docs/deferral.md` §2c already specced the right
+   mechanism for that — **bounded precision reduction with a floor**, not a competing voice.
+   **Before building competence-proportional authority, ask whether what this measurement actually
+   asks for is the deferral inch.**
+3. **`development.md` §5's band needs re-measuring** with receptors on, since the being cannot feel
+   threat 90 at all.

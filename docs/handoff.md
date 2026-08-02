@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **71** (`examples/`) |
+| Runnable probes | **72** (`examples/`) |
 | Design & research docs | **69** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -320,6 +320,23 @@ Findings that hold, each with a guard in `tests/`:
 - **Company is a comfort in safety and a killer under threat** (I-7). Both halves measured.
 - **Composition only ever rescues.** No pair of gates is lethal where neither member is.
 - **No being has ever died unnoticed here.** Audited end to end; §11 of `docs/survival-first.md`.
+
+### Read `docs/earned-authority.md` §6 first — the being is asking for something
+
+Measured 2026-07-31: on **40.2%** of the ticks where it has a formed habit, the being's earned
+competence names a different act than its momentary need. The disagreement is not noise and it is
+not spread — **it is entirely purpose versus rest.** Its urgency ranking says pursue the project;
+what has actually relieved its drive says **rest**, on 1,113 ticks against need's 722.
+
+`docs/deferral.md` §1 lists rest among the four things this architecture structurally forbids:
+*"something is always most urgent, so it never stops."*
+
+> **The being has independently learned that it should rest, and cannot.** Measured from its own
+> reinforcement signal over 932 ticks, not inferred.
+
+The obvious next move is *not* the competence gate. It is to ask whether what this measurement
+asks for is **the deferral inch** — `docs/deferral.md` §2c already specced the right mechanism
+(bounded precision reduction with a floor) for exactly this. See `earned-authority.md` §7.
 
 ### Where to start on Sunday
 
