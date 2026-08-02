@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 73
+### Runnable probes (`cargo run --example <name>`) — 74
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -605,6 +605,7 @@ and reads the result straight from the being's registers.
 | `i3_trace` | I-3 pass 2 — tick-by-tick, because the mean hid a death (and killed hypothesis M) |
 | `i3_navigation` | I-3 pass 3 — both beings walk the same path to the same food (killed hypothesis N) |
 | `i3_mechanism` | I-3 pass 4 — free energy is a metabolic bill, and this gate makes it unpayable |
+| `basins_probe` | Is Basin::Rest reachable at all? (no — the being is never tired and never calm) |
 | `comfort` | Does letting a purpose be finished let the being rest? (no — rest is a basin, not a goal) |
 | `earned_authority` | Does the being's earned competence ever disagree with its momentary need? (it does — and it asks for rest) |
 | `development` | Development — is strain generative in this being, or only expensive? (D4 fails) |

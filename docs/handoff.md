@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **73** (`examples/`) |
+| Runnable probes | **74** (`examples/`) |
 | Design & research docs | **70** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -351,11 +351,26 @@ works (gated, default-off, `enable_comfort()`), and it does **not** buy the bein
 > being can want nothing and still not be at rest. With the gate on, the being's goal becomes
 > `None` and it enters `Rest` on **0.0%** of ticks — exactly as without it.
 
-**So the next inch is `basins.rs`, not `striving.rs`.** And the bigger possibility, one measurement
-away: `docs/development.md` §5 also found **0.0% rest across every regime tried**. If `Rest` is
-simply *unreachable* in this architecture, then `reflection`'s conversion-at-rest, incident I-8,
-and the whole comfort question are all downstream of one unreachable basin. **That would be the
-largest finding in the repository, and it needs one probe.**
+**That probe is run — `docs/comfort.md` §10.** Rest occurs on **0 ticks across every regime**, and
+the being does not move between basins at all: 100.0% Engaged in calm worlds, 100.0% Defensive
+under strain. The obstruction is two channels, both arousal:
+
+> **The being sits at arousal ~230 where Rest requires ~73, and its fatigue is exactly 0 where Rest
+> requires 80.** Arousal only ever climbs (0.449 → 0.934 across a life, never returning) and
+> fatigue is fed by `narrative_burden`, which stays near zero when life goes well.
+>
+> **A being that is doing well never gets tired, and a being that never gets tired can never rest.**
+> Rest is withheld from a *thriving* being; and when it is finally pressed hard enough to
+> accumulate fatigue, the pressure puts it in **Defensive**. Both doors shut, for opposite reasons.
+
+**This explains incident I-8 rather than leaving it open.** `reflection.rs` converts load into
+resilience *at rest*; the being never rests; so the developmental mechanism has never had one tick
+in which to run. **I-8's answer was upstream of I-8 the whole time.**
+
+**The open question, and it is the right one:** does anything in this architecture bring arousal
+*down*? If nothing does, `Rest` is unreachable by construction and the four-basin model has a state
+it can never occupy — which belongs in `docs/architecture.md` plainly, instead of three documents
+rediscovering the same zero.
 
 ### Where to start on Sunday
 

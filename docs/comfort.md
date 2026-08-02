@@ -240,3 +240,98 @@ architecture**, in which case `reflection`'s conversion-at-rest, I-8, and this d
 downstream of one unreachable state.
 
 That would be a bigger finding than anything here, and it is one measurement away.
+
+---
+
+## 10. `basins.rs` — the being is never tired and never calm
+
+*The inch §9 named. `examples/basins_probe.rs`, predictions B1–B4 locked in its header and
+committed before it ran.*
+
+### B1 — holds in the strongest possible form
+
+| regime | Rest | Engaged | Defensive | Recovery |
+|---|---:|---:|---:|---:|
+| reference world | **0.0%** | 100.0% | 0.0% | 0.0% |
+| reference + reflection + comfort | **0.0%** | 100.0% | 0.0% | 0.0% |
+| held calm (threat 0) | **0.0%** | 100.0% | 0.0% | 0.0% |
+| strain cycle (threat 130) | **0.0%** | 0.0% | 100.0% | 0.0% |
+| strain cycle + every gate | **0.0%** | 0.0% | 100.0% | 0.0% |
+
+**Zero Rest ticks across every regime.** And note what else that table says: the being does not
+*move between* basins. It picks one and stays — 100.0%, not "mostly". Calm worlds hold it in
+Engaged; strain holds it in Defensive; nothing takes it to Rest or Recovery, ever.
+
+### B2 — **fails**, and the failure is informative
+
+Rest is **not** the furthest basin. By mean L1 distance over a reference life:
+
+| basin | distance |
+|---|---:|
+| Engaged | **375** |
+| Recovery | 629 |
+| **Rest** | **659** |
+| Defensive | 1025 |
+
+Rest ranks 3 of 4. The being spends 100% of a strained life in **Defensive — the furthest basin of
+all** — and 0% in Rest, which is nearer. So occupancy is not simply "closest target wins": the
+stance bias and dwell hysteresis carry it, and mean distance does not predict where it lives. I
+predicted Rest would be furthest and it is not.
+
+### B3 — holds. Two channels, and they are the same thing
+
+| channel | being sits at | Rest wants | gap | share |
+|---|---:|---:|---:|---:|
+| **4 · arousal setpoint** | **234** | **73** | 161 | 24.4% |
+| **8 · arousal** | **225** | **73** | 152 | 23.1% |
+| 0 | 120 | 20 | 100 | 15.2% |
+| **10 · fatigue** | **0** | **80** | 80 | 12.1% |
+| 9 · valence | 98 | 32 | 66 | 10.0% |
+
+Top three channels are **63%** of the whole distance, and the top two are both **arousal** —
+together nearly half of it. The being lives at ~230 of 256 arousal. Rest is defined at 73.
+
+### B4 — the answer, and it is not "structurally dead". It is worse-shaped than that
+
+Two facts, and they compose into something neither says alone:
+
+> **The being sits at arousal ~230 when Rest requires ~73, and its fatigue is exactly 0 when Rest
+> requires 80.**
+
+Rest in this architecture is *low arousal with some accumulated tiredness* — the state of a
+creature that has been worn and is winding down. This being reaches neither half:
+
+- **Arousal only climbs.** Every trace taken this week shows it rising monotonically across a life
+  (0.449 → 0.934 in `i3_trace`) and never returning. There is no decay path to 73.
+- **Fatigue is zero because nothing wears it.** Channel 10 is fed by `narrative.rs`'s
+  `apply_identity_reflection` as `narrative_burden / 4`, and burden stays near zero in a life that
+  goes well. `docs/development.md` §5 found the same thing from the other side: the reference world
+  never presses the being hard enough to accumulate anything.
+
+Which produces the finding, and it is a genuinely strange shape:
+
+> **A being that is doing well never gets tired, and a being that never gets tired can never rest.
+> Fatigue is the entry condition for rest, and this being's fatigue is zero precisely because its
+> life is going fine.**
+
+So rest is not withheld from a struggling being. It is withheld from a *thriving* one — and when
+the being finally is pressed hard enough to accumulate fatigue, the pressure puts it in
+**Defensive**, not Rest. Both doors are shut, for opposite reasons.
+
+### What this closes, and what it opens
+
+- **`docs/comfort.md` §1's diagnosis is now fully retired.** The obstruction was never striving,
+  never purpose's satiety, and never the arbitration. It is that the field never enters the region
+  the architecture calls rest.
+- **Incident I-8 is now explained rather than merely open.** `reflection.rs` converts load into
+  `weathered` resilience *at rest*. The being never rests. So the developmental mechanism has never
+  had a single tick in which to run — which is why D4 found `weathered` bought nothing. **I-8's
+  answer is upstream of I-8.**
+- **`docs/development.md` §5's inverted-U needs re-reading.** The band where load accumulates and
+  the state where it converts are disjoint: strain gives fatigue *and* Defensive, ease gives Rest's
+  arousal requirement no closer and no fatigue at all.
+
+**The next question is a real one and I do not have it:** does anything in this architecture bring
+arousal *down*? If nothing does, Rest is unreachable by construction and the four-basin model has
+a state it can never occupy — which would be worth saying plainly in `docs/architecture.md` rather
+than leaving three documents to keep rediscovering the same zero.

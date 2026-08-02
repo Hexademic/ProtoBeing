@@ -37,7 +37,6 @@
 //!
 //! Run: `cargo run --release --example basins_probe`
 
-use unified_being::basins::Basin;
 use unified_being::being::{Partner, UnifiedBeing};
 use unified_being::embodiment::{intent_from, Embodiment, Sensorium};
 use unified_being::field_world::FieldWorld;
@@ -187,7 +186,7 @@ fn main() {
 
     // ---- B4 ----------------------------------------------------------------------------
     println!("\n  B4 — is Rest reachable, or structurally dead?\n");
-    let (worst_c, worst_g) = gaps[0];
+    let (worst_c, _) = gaps[0];
     println!("    The single largest obstruction is **{}**: the being sits at {}, Rest wants {}.",
         CH[worst_c], mean[worst_c], s.targets[0][worst_c]);
     println!("    Rest and Engaged differ on that channel by {}.",
