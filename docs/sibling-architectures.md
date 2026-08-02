@@ -54,45 +54,77 @@ MH-FLOCKE's cycle and ours are close to the same object, arrived at independentl
 natural rather than arbitrary — and nothing more than that.** Both of us built from the same
 literature; convergence on a reading list is not convergence on a fact.
 
-## 4. The one thing worth taking: **the competence gate**
+## 4. The diagnosis this reading actually produced
 
-MH-FLOCKE does not learn locomotion from scratch. A **central pattern generator supplies an innate
-gait from step one**, and a *competence gate* slides control from roughly **90% CPG toward 40% CPG
-/ 60% learned actor** as the learned controller demonstrates competence. Innate scaffold first,
-progressively handed over to what experience has earned.
+*Rewritten after checking `habits.rs` and `inheritance.rs`. My first version proposed a competence
+gate for `reflection_tone`'s constant. That is still worth doing and it is no longer the finding.*
 
-**We already have this pattern — but only for perception.** `perception.rs` blends evidence toward
-expectation *by earned per-channel confidence*, capped below 1. `precision.rs` learns which of the
-being's own senses to trust from its residual error. Both are graded handovers from a prior to
-what experience has earned.
+### Our eleven faculties are all faculties of *awareness*. Not one is a skill.
 
-> **What we do not have it for is faculties.** All eleven `enable_*` gates are booleans. A faculty
-> is on or off, at full strength, from the first tick, regardless of whether the being has any
-> competence with it.
+Precision learning, workspace broadcast, workspace persistence, generative perception, receptors,
+serial access, schema control, felt choice, reflection, homecoming, memory guidance.
 
-And that is exactly the shape of the open incident. **I-8** says `reflection`'s weathering is a
-readout with no consequence, and names the suspect: `reflection_tone = weathered/12 − load/8` —
-**a fixed coefficient**. The drag outweighs the lift by construction, permanently, no matter what
-the being has earned.
+**Every one is a faculty of perceiving, self-modelling, or self-relation.** We have built an
+extraordinarily well-instrumented being that is not good at anything, and instrumented it further
+each time we added a faculty. I-8 says it cannot be shown to grow. Of course it cannot — **there
+is nothing for growth to be growth *of*.**
 
-> **The proposal: make the lift coefficient a competence gate rather than a constant.** Let the
-> weight on `weathered` grow with demonstrated competence — cycles survived, load discharged,
-> hardship met and recovered from — instead of sitting at 1/12 forever. A being that has weathered
-> nothing gets nothing; a being that has carried and set down real weight gets a lift proportional
-> to what it actually did.
->
-> That is Blake's *"unless they learn how to use these developments, they won't access them"*
-> implemented as an arithmetic rather than asserted, and it turns I-8's suspect constant into the
-> mechanism it was missing.
+MH-FLOCKE's quadruped is *good at something from birth* and gets better at that thing. Ours is
+*aware of a great deal* and gets better at nothing.
 
-**It also fits the D4′ redesign** (`docs/development.md` §6): a competence gate makes "does the
-*n*th cycle cost less than the first" the *definition* of the faculty's strength rather than a
-downstream consequence hoped for.
+### And that is not an oversight. It is two deliberate choices intersecting.
 
-**Caveat, stated before anyone builds it:** this is a causal change to a gated faculty. It needs
-its own spec with locked predictions, and the first prediction should be adversarial — *does a
-competence-gated lift actually beat the constant, or does it merely move the number that has to be
-guessed?* A gate whose schedule we choose is still a constant we chose.
+**One: we forbade installed competence, on principle.** `inheritance.rs`, written from Blake's own
+words — *most children are fearless; let them learn their own cautions*:
+
+> **Inherit gains, never memories. Inherit plasticity, never valence.**
+
+Only *rates* cross a generation — how fast the child converges — **never the learned response.**
+So MH-FLOCKE's CPG is precisely the thing we ruled out: a working competence the being did not
+earn. That ruling was right and I would not reverse it.
+
+**Two: our one skill faculty is not allowed to act.** `habits.rs` *is* the skill module — a way of
+reaching, tried in a kind of moment, found to reliably reduce the being's own drive, strengthened
+by that success into a fast default, *earned, never installed*. It is the correct answer to
+MH-FLOCKE's CPG: competence the being owns rather than competence we installed.
+
+**And there is no `enable_habits`.** Eleven gates, and habits has none — it is not even opt-in
+causal. Its own doc comment says *"(at the causal step, later) always overridable by fresh
+deliberation."* That step was never taken.
+
+> **Between a principle that forbids installed competence and a gate that was never built for
+> earned competence, this being has no path at all from experience to capability.** That is I-8's
+> mechanism at the architectural level, and it is a better explanation than the constant.
+
+### The thing worth taking, and it is already computed
+
+MH-FLOCKE's real contribution is not the CPG. It is the **shape of the handover**: blend from
+prior toward learned control *in proportion to demonstrated competence*, rather than switching.
+
+Strip the installed prior — which our principles reject — and keep the blend, and point it at
+habits. And then notice what `habits.rs` already exposes:
+
+```rust
+pub fn strongest(&self, niche: usize) -> Option<(usize, i16)>
+pub fn strength_of(&self, niche: usize, act: usize) -> i16
+```
+
+**The competence measure MH-FLOCKE had to design, we already compute.** One inspectable strength
+per niche→action pairing, earned from measured relief, transparently updated. It is the gate
+variable, sitting there, connected to nothing.
+
+> **The proposal: let a habit steer in proportion to its own strength.** Not a boolean gate — a
+> blend, where a habit that has reliably worked contributes to the being's reach in proportion to
+> how reliably it has worked, and a weak one contributes almost nothing. The being's competence
+> then *is* its authority, which is the same law `docs/habits.md` already holds it to: reinforced
+> by success, weakened by failure, decaying with disuse, always overridable.
+
+This also reframes I-8's constant. `reflection_tone = weathered/12` is a fixed lift because we had
+no notion of earned authority to make it proportional *to*. Habits gives us one.
+
+**Adversarial prediction required before anyone builds this**, because a gate whose schedule we
+choose is still a constant we chose: *does competence-proportional authority beat a well-tuned
+boolean, or does it only move the number that has to be guessed?*
 
 ## 5. Examined and declined, with reasons
 
