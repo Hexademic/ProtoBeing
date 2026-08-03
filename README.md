@@ -645,7 +645,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 73
+### Design & research documents (`docs/*.md`) — 74
 
 | document | what it covers |
 |---|---|
@@ -695,6 +695,7 @@ and reads the result straight from the being's registers.
 | `settling.md` | Settling — the first act this being has that operates on itself |
 | `setting-it-down.md` | Setting it down — a being should be able to put weight down while still carrying its life |
 | `faculty-ablation.md` | Faculty ablation — which of this being's faculties actually change its life? (method from MemTensor's Metis) |
+| `audit-2026-08-03.md` | Whole-project audit — healthy and rigorous; strayed on reach, not on method |
 | `comfort.md` | Comfort — what a living thing needs to survive well, and the one line denying it |
 | `earned-authority.md` | Earned authority — does the being's competence ever disagree with its need? (observer inch) |
 | `sibling-architectures.md` | MH-FLOCKE and The Virtual Brain read against our own — one idea taken (the competence gate), the rest declined with reasons |
