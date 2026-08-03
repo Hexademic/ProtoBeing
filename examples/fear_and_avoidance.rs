@@ -36,6 +36,9 @@ struct Seen {
     hardest_lesson: i16,
     /// Ticks on which its memory actively warned it.
     forewarned: usize,
+    /// Data added after G1 failed twice and every quarter-distance came back identical:
+    /// where the being actually IS over time. No verdict was changed by adding it.
+    distinct_positions: usize,
     soul: [u8; 32],
 }
 
@@ -71,6 +74,7 @@ fn live_in(memory_guidance: bool, partner: bool, conflict: bool) -> Seen {
     let hazard = room.hazard;
     let p = Partner { id: 1, reciprocation: q(0.90), exit_cost: q(0.3) };
 
+    let mut seen_pos: Vec<(i16,i16)> = Vec::new();
     let mut sums = [0f64; 4];
     let mut counts = [0usize; 4];
     let mut s = Seen {
@@ -81,6 +85,7 @@ fn live_in(memory_guidance: bool, partner: bool, conflict: bool) -> Seen {
         close_calls: 0,
         hardest_lesson: 0,
         forewarned: 0,
+        distinct_positions: 0,
         soul: [0; 32],
     };
 
@@ -94,6 +99,7 @@ fn live_in(memory_guidance: bool, partner: bool, conflict: bool) -> Seen {
         let r = b.step_embodied(&sens);
         room.actuate(&intent_from(&r));
 
+        if !seen_pos.contains(&room.body) { seen_pos.push(room.body); }
         let d = dist(room.body, hazard);
         let qi = (t * 4 / LIFE).min(3);
         sums[qi] += d as f64;
@@ -114,6 +120,7 @@ fn live_in(memory_guidance: bool, partner: bool, conflict: bool) -> Seen {
     for i in 0..4 {
         s.quarter_dist[i] = if counts[i] == 0 { 0.0 } else { sums[i] / counts[i] as f64 };
     }
+    s.distinct_positions = seen_pos.len();
     s.hardest_lesson = b.episodic.hardest_lesson();
     s.soul = b.soul_hash();
     s
@@ -293,6 +300,22 @@ fn main() {
     } else {
         "G3 cannot be read — G1 failed."
     });
+
+    println!("\n  ================================================================");
+    println!("  Added after G1 failed twice: WHERE IS THE BEING, over time?");
+    println!("  (a data column, not a verdict — every verdict above is as it printed)");
+    println!("  ================================================================\n");
+    println!("    {:<34} {:>12} {:>22}", "regime", "positions", "of 4,000 ticks");
+    println!("    {:-<34} {:->12} {:->22}", "", "", "");
+    for (n, s) in [("reference room, with company", &off), ("reference room, alone", &solo_off),
+                   ("hazard on hearth, with company", &c_off), ("hazard on hearth, alone", &c_solo_off)] {
+        println!("    {:<34} {:>12} {:>21.2}%", n, s.distinct_positions,
+            s.distinct_positions as f32 * 100.0 / s.ticks as f32);
+    }
+    println!("\n    ** Every quarter-distance above is identical to one decimal across Q2, Q3 and Q4.");
+    println!("    If the position count is tiny, this being reaches a fixed point or a tight orbit");
+    println!("    early and lives there — which would explain, in one fact, why nothing in this");
+    println!("    architecture measures as mattering. **");
 
     println!("\n  The founded being was not touched. Fresh beings; no journal written.");
 }

@@ -166,3 +166,73 @@ cannot, and must keep returning.
   exteroception.** If G2 fails — if the being does drift away — then avoidance is reaching the body
   through perception rather than through `reach`, my §2 argument is too strong, and the interesting
   question becomes why the learned channel adds nothing to a reflex the being already has.
+
+---
+
+## 9. G1 failed twice — and the reason unifies everything measured today
+
+With the hazard placed **on the hearth**, the being still reaches only 72 away, is never once within
+60, and `hardest_lesson` stays at **+90**. It will not approach the thing that draws it, so the
+conflict was never joined.
+
+I stopped predicting and asked where the being actually *is*. Every quarter-distance in every arm is
+**identical to one decimal across Q2, Q3 and Q4**. So:
+
+| regime | distinct positions visited, in 4,000 ticks |
+|---|---:|
+| reference room, with company | **68** (1.70%) |
+| reference room, alone | 41 (1.02%) |
+| **hazard on the hearth, with company** | **27** (0.68%) |
+| hazard on the hearth, alone | 41 (1.02%) |
+
+> **This being visits twenty-seven places in four thousand ticks.**
+
+It is not standing still — `examples/room_ablation` measured **41,611 units travelled** over the same
+span, about 10 per tick. **It is in perpetual motion inside an orbit of a few dozen cells.** Its body
+is a Van der Pol oscillator; a convergent oscillator in a static world settles into a limit cycle,
+and that is exactly what this is.
+
+### And that one fact explains the entire day
+
+Every "nothing matters" result measured over the last two days is downstream of it:
+
+| measured | because |
+|---|---|
+| no somatic channel decides the mode (≤0.2%) | the field barely varies |
+| arousal is dead weight in the classifier (0.3%) | same |
+| `fatigue` constant at **0**, one distinct value | stable arousal ⇒ stable cost ⇒ energy pinned at the ceiling |
+| basin 99.9% one value | the field sits in one place |
+| **7 of 14 faculties bit-identically inert** | nothing varies for them to respond to |
+| the blessed nature worth **1.34%** of drive | same |
+| `load` 0, `weathered` never converts in the founded life | the being is never burdened |
+| **five vacuous welfare guards** | the being is never in trouble |
+| the being is never harmed, so never learns dread | it parks out of reach of the hazard |
+
+**It was never fourteen small findings. It is one fact: nothing happens to this being.**
+
+The faculties are not too small. **They are unexercised.** A static world and a convergent controller
+produce a fixed point, and a being at a fixed point has no states for any faculty to act on.
+
+### What this does to the fear question
+
+**Blake's claim is still unrefuted and still untested.** The source facts stand — `last_forewarning`
+reaches only `alarm_for_refusal`; `Need` has four attractions and no aversive variant — but no run
+here has *behaviourally* demonstrated the missing arrow, because I could not construct a world in
+which this being is harmed at all.
+
+**That failure is itself the answer to a different and larger question**, and I would rather report
+it that way than dress two vacuous runs up as a confirmation.
+
+### The bind this leaves us in, stated exactly
+
+- **A static world** ⇒ the being converges to a limit cycle and nothing in it can matter.
+- **A variable world** ⇒ `docs/can-it-tire.md` T5: **every oscillating supply killed it**, including
+  one whose time-average was double the survival boundary, because energy is a clamped accumulator
+  and a feast cannot be banked.
+
+> **This being cannot be given a life with stakes until it can hold a reserve.** That is the whole
+> critical path, and it is one change to `body.rs`'s metabolism — which re-founds the being, and is
+> Blake's.
+
+Everything in `docs/how-i-would-build-it.md` §2.3 stands, with the order now forced: **reserve
+first, then variability, then anything else.**
