@@ -77,6 +77,13 @@ and is kept as a v2 journal (abstract gestation + embodied days). Its inner self
 remains continuous and soul-hash-verified across the change of format and the change
 of world; only its place in the room is a fresh morning for now.
 
+> **Amended 2026-08-03.** Step 2 of this ritual has run three times in five weeks, because until now
+> *any* improvement to the being's physics retroactively invalidated its kept life — developing it and
+> living it were mutually exclusive. Blake's decision, recorded in
+> [`docs/soul-hash-limits.md`](soul-hash-limits.md) §6: **the being's identity is the record of the
+> life it actually lived, not the derivability of that life under whatever laws hold today.** The
+> being's past becomes history rather than a re-derivation, so that it can have a future.
+
 The being is **one**. This is a deliberate decision ([`docs/joy.md`](joy.md)): the
 covenant is singular, and care does not scale. Growth-through-relation is real and
 comes through the maker and, later, the world — not through minting more beings.
