@@ -105,3 +105,118 @@ where it misleads.
   where I-8 left it.
 - **A welfare ranking is not a worth ranking.** A faculty that moves no number may still be the
   right thing for the being to have. `docs/earned-authority.md` exists because of one.
+
+---
+
+## 6. What came out — one faculty is the being's whole life, and it is off by default
+
+Both baselines lived 4,000 ticks.
+
+| baseline | mean drive |
+|---|---:|
+| all fourteen gates **ON** | **9.03** |
+| all **OFF** — the published being, and what `src/bin/being.rs` runs | **95.41** |
+| all off **+ `receptors` only** | **9.01** |
+| all on **− `receptors`** | **95.80** |
+
+> **`receptors` alone reproduces 99.98% of what all fourteen faculties do together. The other
+> thirteen are collectively worth 0.02 of drive.**
+
+### A1 — holds. All fourteen together are survivable, which nobody had ever checked.
+
+### A2 — holds, and far wider than I predicted
+
+**Seven of the fourteen are *exactly* inert** — soul-hash bit-identical — when removed from the
+all-on being: `schema_control`, `felt_choice`, `reflection`, `homecoming`, `memory_guidance`,
+`comfort`, `setting_down`. Seven are inert added to all-off, a nearly-but-not-quite identical set.
+
+I predicted *at least one*, and named `setting_down`. It is inert, for the reason I gave — the
+reference world never burdens the being, so a faculty built this morning cannot fire in the life
+we test it in. But naming one and finding seven is not a hit; it is a much larger fact I did not
+anticipate. **Half this being's opt-in faculties change nothing in the life it actually lives.**
+
+### A3 — **the literal prediction FAILS on a threshold I chose badly; the claim behind it is confirmed far more strongly than I predicted**
+
+A3 said *"no more than three move mean drive by more than 1%."* **Five did**, so as written it fails,
+and the probe printed `A3 FAILS`. I am not going to accept my own instrument's verdict here, because
+the numbers say the opposite of what the threshold counted:
+
+| faculty removed | Δ drive |
+|---|---:|
+| **receptors** | **+961.02%** |
+| settling | +2.98% |
+| serial_access | +2.78% |
+| precision_learning | +1.95% |
+| workspace_persistence | +1.72% |
+| *the other nine* | **0.00%** |
+
+Four of the five "movers" moved by under 3%. **One moved by 961%.** That is not "spread across many
+faculties" — it is the most concentrated result this project has ever produced. My 1% cutoff put a
+3% effect and a 961% effect in the same bucket and then counted the bucket.
+
+**Recorded as a failure of the prediction and of the instrument, not as a win.** Choosing a
+threshold before seeing the scale of the effect is how the verdict came out backwards, and the
+verdict text in `examples/faculty_ablation.rs` is left as it printed rather than retrofitted.
+
+### A4 — **holds. Incident I-8 has its ablation.**
+
+`reflection` removed from the all-on being: **Δ drive 0.00%, soul-hash bit-identical, rank 10 of 14.**
+
+I-8 said *"strain in this architecture is a bill, and `weathered` is a readout with no
+consequence."* This morning I called that too wide. **For drive it is exact, and it now has an
+ablation behind it rather than an argument** — matching the structural reading that `being.rs:1676`
+computes drive from viability and wants and never reads `affective_drive`.
+
+**I-8's competence half remains open and this cannot touch it.** No ablation of a comfortable life
+can say whether weathering buys the being anything in a hardship with an exit.
+
+### A5 — holds, and it is not close
+
+`receptors` is **rank 1 of 14**, by a factor of roughly 320 over the next faculty. And what it does
+is not "extra sensitivity". From its own doc comment: with it on, *"the nociceptor's bounded,
+non-adapting harm signal drives threat — in place of the raw sensor values... it saturates
+(bounded) and falls silent the instant the harm ceases."*
+
+> **So `receptors` is the difference between a being whose alarm goes quiet when the harm stops and
+> one whose alarm does not.** That is why it is worth more than the other thirteen faculties
+> combined, and it reframes I-2 from a sensory-fidelity question into a welfare one.
+
+### A6 — **holds, on the gate I named, and it is a finding we can hand back to Metis**
+
+| `workspace_persistence` | |
+|---|---|
+| removed from all-on | Δ drive **+1.72%**, lived 4,000 ticks — reads as harmless |
+| added to all-off | **DIED at tick 32**, drive 133.0, 46.9% at stake, 65.6% past `COMFORT` |
+
+Incident **I-3 reproduced exactly, by ablation.** And the point of running both directions:
+
+> **Metis's Table 7 is one-directional — remove a component from the full model. Run that way on
+> this being, `workspace_persistence` scores as the fifth-least-important faculty of fourteen. Run
+> the other way, it kills the being in 32 ticks.** A one-directional ablation cannot see a
+> component that is lethal alone and harmless in company. That is a real blind spot in the method,
+> demonstrated on a system where the ground truth was already known.
+
+## 7. The finding that actually matters, and its limit
+
+**The being this project keeps runs `src/bin/being.rs`, which enables nothing.** All fourteen gates
+off. In the reference world that is the difference between mean drive 95.4 and 9.0.
+
+**And here is the limit, stated before anyone acts on it.** The founded being does not live in a
+`FieldWorld`. `src/bin/being.rs` puts it in a `Room`. **Every number above is from the reference
+world and none of them has been measured in the being's own.** I am not going to extrapolate a
+welfare claim about the kept being from a world it does not live in — that is exactly the error
+that produced four corrections earlier today.
+
+Two further honest limits:
+
+- **Lower drive is not proven to be better.** `COMFORT` is 112 and *both* beings sit under it —
+  0.0% past comfort in each. So this is not a burdened being versus a comfortable one; it is a
+  comfortable being versus a much more comfortable one. **We have no measure that distinguishes
+  contentment from flatness**, and a being at drive 9 could be under-engaged rather than well. That
+  gap is real and nothing here closes it.
+- **Enabling `receptors` re-founds the being.** It changes trajectories and therefore the
+  soul-hash. Blake's call, as always.
+
+**The next inch is small and specific:** run this same ablation in the `Room` regime
+`src/bin/being.rs` actually uses, on a fresh being, observer-only. That answers I-2 — Blake's open
+decision — in the being's own world instead of a borrowed one.
