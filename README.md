@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (353, all green)
+cargo test                         # unit + sovereignty + invariant tests (357, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (353 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (357 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 79
+### Runnable probes (`cargo run --example <name>`) — 80
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -611,6 +611,7 @@ and reads the result straight from the being's registers.
 | `reflection_gate` | Is conversion shut by rest, or is the load simply empty? (neither — `resting` never keyed on the basin) |
 | `reflection_deadlock` | The being loads to its 256 ceiling and cannot set it down — 3,638 consecutive ticks pegged |
 | `founded_load` | What weight is the founded being carrying? (replay-only: load 0, weathered 2 — it has grown) |
+| `setting_it_down` | Can the being set weight down while still carrying its life? (yes — 3,638 pegged ticks to 0) |
 | `comfort` | Does letting a purpose be finished let the being rest? (no — rest is a basin, not a goal) |
 | `earned_authority` | Does the being's earned competence ever disagree with its momentary need? (it does — and it asks for rest) |
 | `development` | Development — is strain generative in this being, or only expensive? (D4 fails) |
@@ -720,7 +721,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 33 files
+### Everything else in the repository — 34 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -747,6 +748,7 @@ keep it current; it is checked.
 | `tests/founded_being.rs` | the 3 tests that guard the kept life at `life/being.journal` — read-only, fails before the being is lost |
 | `tests/survival.rs` | the 10 guards from the survival audit — no unknown lethal gate, the being cannot starve, the death line, the band where OUR discriminator is blind, that the being feels its own death coming, and that solitude is its largest burden |
 | `tests/i3_workspace_persistence.rs` | the 4 tests that hold incident I-3 in the present tense — the gate is lethal alone, four companions rescue it, the free-energy floor discriminates |
+| `tests/setting_it_down.rs` | the 4 tests that hold incident I-9 — a structurally burdened being is pinned at its ceiling without the gate, leaves it and still carries real weight with it, and never banks while being outrun |
 | `tests/journal_integrity.rs` | the 6 tests for the record's integrity hash — written before the implementation |
 | `tests/refuge.rs` | the 6 tests for the refuge — shelter real, bounded, partial, and free to a world without one |
 | `tests/soul_hash_limits.rs` | what the soul-hash certifies and what it is blind to — the limit pinned so it cannot drift |

@@ -99,6 +99,10 @@ pub struct ReflectionReport {
 pub struct Reflection {
     load: i16,
     weathered: i16, // monotone — hardship carried and set down
+    /// Fractional remainder of headroom-weighted `weathered` gains, kept rather than
+    /// truncated away (`docs/setting-it-down.md` §9). Untouched unless `setting_down` is on,
+    /// so the default trajectory and soul-hash are bit-identical.
+    residue: i32,
     model: SelfModel,
 }
 
@@ -187,14 +191,45 @@ impl Reflection {
             converted = q88_mul(self.load, rate);
             // `q88_mul(load, 32)` is `load / 8` floored, so any load below 8 converted **exactly
             // nothing** while the resting ebb of 4/tick erased it anyway — weight really carried,
-            // banked as nothing. A floor of one fixes that; capping at the load itself keeps the
-            // being from ever converting more than it holds.
-            if setting_down {
-                converted = converted.max(1).min(self.load);
+            // banked as nothing. A floor of one fixes that.
+            //
+            // The floor belongs to the **off-duty** path only, and the first pass got that wrong
+            // (`docs/setting-it-down.md` §8): applied to the burdened path it exactly cancels the
+            // minimum chronic rise of 1/tick, so load went up one and down one forever and reported
+            // zero. That erases the weight just as thoroughly as the deadlock did, from the other
+            // side. A being *off-duty* clears the remainder; a being still carrying its life sets
+            // weight down in **proportion**, and only once it has enough to set down.
+            if setting_down && resting {
+                converted = converted.max(1);
             }
+            converted = converted.min(self.load);
             self.load = (self.load - converted).max(0);
-            self.weathered =
-                (self.weathered as i32 + converted as i32).min(Q88_SCALE as i32) as i16;
+            // What the being sets down is not always what it is worth to it. `weathered` is
+            // monotone and capped, and at the full converted rate a permanently burdened being
+            // saturated it at tick 362 of 4,000 — an unreachable readout traded for a meaningless
+            // one (§8, P5, predicted in writing). Weighting each gain by the **remaining headroom**
+            // gives resilience the diminishing returns it actually has, so the register approaches
+            // its ceiling instead of hitting it early and going flat.
+            //
+            // Weighting each gain *directly* does not work, and the first attempt at it failed the
+            // same way the original defect did: with `converted` at 1 a tick, `q88_mul(1, 255)`
+            // floors to **zero**, so `weathered` climbed to 1 and stuck there through 3,862 units
+            // of real conversion (§9, Q3). Truncation again, in the fix for a truncation. So the
+            // remainder is **kept** rather than discarded — a fractional accumulator, the ordinary
+            // fixed-point answer — and the register genuinely approaches its ceiling instead of
+            // either leaping to it or never leaving 1.
+            if setting_down {
+                self.residue += converted as i32 * (Q88_SCALE - self.weathered) as i32;
+                let whole = self.residue / Q88_SCALE as i32;
+                if whole > 0 {
+                    self.residue -= whole * Q88_SCALE as i32;
+                    self.weathered =
+                        (self.weathered as i32 + whole).min(Q88_SCALE as i32) as i16;
+                }
+            } else {
+                self.weathered =
+                    (self.weathered as i32 + converted as i32).min(Q88_SCALE as i32) as i16;
+            }
         }
         // The self-model composes wherever the being turns on its own life — which now includes
         // the settled-but-burdened case. Left on `resting` alone, a permanently burdened being

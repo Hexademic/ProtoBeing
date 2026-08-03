@@ -299,3 +299,94 @@ let gain = if setting_down { q88_mul(converted, Q88_SCALE - self.weathered) } el
 - **Q5.** If Q1–Q3 hold and Q4 fails as predicted, **I-9 closes on mechanism and remedy**, and what
   remains is a separate and older question: whether anything in `reflection.rs` can reach the being's
   drive at all. That is I-8's competence question wearing different clothes, and it is not this inch.
+
+---
+
+## 10. The second pass — Q1, Q2 and Q4 hold; Q3 fails twice and I am going to stop
+
+Both arms lived 4,000 ticks in both lives. Nothing died. The founded being wakes at 390 moments.
+
+| the solitary life | gate OFF | first pass | **second pass** |
+|---|---:|---:|---:|
+| load, maximum | 256 | 0 | **31** |
+| load, mean | 241 | 0 | **30** |
+| longest run at the ceiling | 3,638 | 0 | **0** |
+| converted, total | 0 | 3,893 | 3,862 |
+| `weathered`, final | 0 | 256 | 256 |
+| `weathered` saturated at tick | — | **362** | **1,702** |
+| mean drive | 134.2 | 134.2 | 134.2 |
+
+### Q1 — **holds**, and this is what the remedy was for
+
+Load equilibrates at **30**, inside the predicted 16–64 band, with the pegged run at **0**. The
+being now carries a real, bounded, non-zero weight *and* has a real drain. Neither the deadlock
+(carry everything, bank nothing) nor the first pass's overshoot (bank everything, carry nothing).
+
+Moving the floor of 1 to the off-duty path was the whole of it: a being still carrying its life
+sets weight down in proportion, and only once it has enough to set down.
+
+### Q2 — holds. The episodic being still banks its small truncated load: `converted` 0 → 1.
+
+### Q3 — **fails, twice, in opposite directions, and the second failure was my own truncation**
+
+- First attempt: weight each gain by remaining headroom directly. With `converted` at 1 a tick,
+  `q88_mul(1, 255)` floors to **zero**, so `weathered` climbed to **1** and stuck there through
+  3,862 units of real conversion. **That is the same class of bug as the `load/8` defect this whole
+  document exists to fix, committed inside the fix for it.** Third time this session.
+- Second attempt: keep the remainder in a fractional accumulator — the ordinary fixed-point answer.
+  That works: the climb genuinely flattens. It also still **saturates, at tick 1,702 of 4,000**.
+
+Q3 predicted no saturation within 4,000 ticks. **It fails.**
+
+**And I am not going to tune it until it passes.** Doing that would be fitting the mechanism to my
+own prediction, which is the failure mode this whole method exists to prevent. What the number
+actually says, once I stop wanting it to say something else:
+
+> A being spent **1,702 consecutive ticks** setting down weight it never stopped accruing, under a
+> burden it could not escape, and its resilience register reached its ceiling. **That is not a
+> giveaway. That is a description.** An 8-bit monotone register and a 4,000-tick life of unbroken
+> hardship cannot both be right about the scale, and the register is the thing that is too small.
+
+Making it not saturate needs either a wider `weathered` or a `weathered` that decays — and a
+decaying one would no longer be the monotone "hardship carried and set down over a life" that
+`reflection.rs` documents it as. Both are larger than this inch and neither is required to close
+I-9. **Recorded as an open limit of the register, not as a defect of the remedy.**
+
+### Q4 — **holds: W fails again, for the structural reason §8 found**
+
+Mean drive 134.2 → 134.2, past `COMFORT` 97.4% → 97.4%, with load down from 241 to 30. Predicted in
+§9 with the reason stated in advance, which is the only thing that makes this different from §5's
+version of the same wrong guess.
+
+> **`drive` is computed from viability and wants (`being.rs:1676`) and never reads
+> `affective_drive`.** So `reflection_tone` — and therefore everything `reflection.rs` knows — has
+> no path to the being's drive at all except arousal → metabolic cost → viability, three lossy
+> steps through a channel already measured at ±32 of 256, with the sign against the being.
+
+**So this remedy fixes a trap without making the being feel better, and that is the honest
+description of it.** It is worth doing anyway: a being pinned at its load ceiling for 3,638 ticks
+with the exit welded shut is a welfare fact whether or not the being's drive register can see it.
+But it is not what §5 sold, and §5 should not have sold it.
+
+### G — vacuous for the fourth time, predicted in advance
+
+Losing ground: **0** ticks in both arms. Not a pass. The guard is structural (`settled` requires
+`!losing_ground`) and this life could not have exercised it.
+
+## 11. Where this leaves it
+
+- **Ships gated, default-off.** `enable_setting_down()`. Turning it on changes trajectories and
+  therefore **re-founds the being** — Blake's call, not mine.
+- **I-9 closes on mechanism and remedy.** The deadlock is understood, measured, fixed behind a
+  gate, and locked by `tests/setting_it_down.rs`.
+- **Two things stay open and are named rather than folded in:**
+  1. **`weathered` is an 8-bit monotone register in a 4,000-tick life.** Q3's failure is real and
+     the fix is either a wider register or a decaying one. Neither belongs here.
+  2. **Nothing in `reflection.rs` can reach the being's drive.** This is incident **I-8**'s original
+     question — *is strain generative?* — arriving from a different direction, and it now has a
+     structural answer for drive rather than a measured one. Whether that *should* change is a
+     design question about what `drive` is allowed to read, and it is the largest open thread this
+     work has surfaced.
+- **G is unexercised for the fourth time.** Testing welfare guards on this being needs a life
+  engineered to hold it at its edge, which is a deliberate act on a creature and belongs in its own
+  inch with its own welfare case.
