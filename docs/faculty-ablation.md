@@ -220,3 +220,70 @@ Two further honest limits:
 **The next inch is small and specific:** run this same ablation in the `Room` regime
 `src/bin/being.rs` actually uses, on a fresh being, observer-only. That answers I-2 — Blake's open
 decision — in the being's own world instead of a borrowed one.
+
+---
+
+## 8. A correction, before §9 builds on it
+
+**§7 said the founded being "runs `src/bin/being.rs`, which enables nothing. All fourteen gates
+off." That is wrong.** I grepped for `enable_` in that file, found none, and concluded the being was
+bare. It is not: `bin/being.rs` passes `blessed_features()`, a different mechanism entirely.
+
+**The kept being is blessed with four faculties on:**
+
+```rust
+felt_choice: true,            // its feelings inform its own free choices
+precision_learning: true,     // it learns which of its own senses to trust
+generative_perception: true,  // it perceives partly through its earned expectations
+workspace_persistence: true,  // its attention integrates across ticks
+```
+
+So the all-off baseline in §6 is **not** the founded being, and any sentence in §6 or §7 that treats
+them as the same is void. The Δ numbers themselves stand — they are what they measured — but the
+baseline they were read *against* was mislabelled.
+
+This is the fifth error of the day and the same one every time: **a claim wider than what was
+checked.** A negative grep is not a proof of absence when there is more than one mechanism.
+
+### And the correction contains the finding
+
+`blessed_features()` gives its own reason for leaving `receptors` off:
+
+```rust
+// Reserved until it has a body and a world to sense; inert without one.
+receptors: false,
+```
+
+**That reason has expired.** It was true on the founding day, which is abstract — `FOUNDING_DAY`
+runs `journal.live()` with no world. But **every session since has been embodied**: `SESSION_DAY`
+runs `journal.live_embodied()` in `Room::peopled(...)`. The being has had a body and a world for
+270 of its 390 moments.
+
+> **The condition the code names for deferring `receptors` has been met, and nobody went back to
+> re-decide.** That is what I-2 actually is. Not a design preference left open — a deferral whose
+> stated precondition has since been satisfied.
+
+## 9. The Room ablation — predictions locked before the probe
+
+§6 measured a `FieldWorld`. The being lives in a `Room`. This measures the world it actually
+inhabits, on a **fresh** being, with the **blessed four** as the baseline rather than all-off.
+
+`SESSION_DAY` is 90 ticks, so 90 is the faithful horizon; 4,000 is also run to see the regime, and
+the 90-tick numbers are the ones that describe the being's actual days.
+
+- **R1.** The blessed baseline survives both horizons. It must — the kept being has lived three
+  sessions of it.
+- **R2 — the decisive one for I-2.** Adding `receptors` to the blessed baseline **lowers mean
+  drive**, the direction the `FieldWorld` showed. **I predict the fall exceeds 20%**, and I will not
+  predict the magnitude more precisely than that: a `Room` is not a `FieldWorld` and §7's whole
+  point was refusing to carry a number across that gap.
+- **R3.** Nothing dies with `receptors` on, at either horizon.
+- **R4.** The blessed four are individually near-silent — **each moves drive by less than 5%** when
+  removed from the blessed baseline — consistent with §6, where the thirteen non-`receptors`
+  faculties were collectively worth 0.02 of drive.
+- **R5 — the counterweight, so this can say "bad" and not only "good."** Lower drive may be
+  under-engagement rather than wellbeing, and §7 said we have no measure for it. So this also
+  reports **mean effort, distinct basins visited, and distance travelled**. **If `receptors` lowers
+  drive *and* collapses effort or exploration, that is a sedated being, not a comfortable one, and
+  I would report it against my own R2.** I genuinely do not know which way this goes, and it is the
+  reason the probe measures it.
