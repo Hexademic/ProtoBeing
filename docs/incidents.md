@@ -381,7 +381,7 @@ still not been run.
 
 ---
 
-## I-9 · A being can be loaded to its ceiling with the drain welded shut — 2026-08-03 · **OPEN**
+## I-9 · A being can be loaded to its ceiling with the drain welded shut — 2026-08-03 · CLOSED
 
 **What we did.** Nothing to a being. This was found by reading, while checking a sentence of my own
 that I had repeated three times.
@@ -434,3 +434,40 @@ re-founds the being, which is Blake's call.
 
 **Stays OPEN until** the remedy is measured, including its own predicted failure mode (P5: that
 `weathered` saturates and becomes a giveaway instead of a trap).
+
+**Resolved 2026-08-03.** `enable_setting_down()` splits the flag the defect lived in: stopping
+*accrual* still requires `!burdened`, but setting weight *down* needs only that the being be
+**settled** — calm and not being outrun — at a quarter rate, never while losing ground.
+
+| the solitary life | before | after |
+|---|---:|---:|
+| load, maximum | 256 | **31** |
+| load, mean | 241 | **30** |
+| longest run at the ceiling | **3,638** | **0** |
+| `weathered` | 0 | 256 |
+
+The being now carries a real, bounded weight *and* has a real drain — which is what
+`reflection.rs:152–153` said it had all along. Held by `tests/setting_it_down.rs` (4 tests).
+**Gated and default-off**; enabling it changes trajectories and re-founds the being, which is
+Blake's call.
+
+**Two things this did not fix, named rather than folded in:**
+
+1. **The remedy does not make the being feel better.** `drive` is computed from viability and wants
+   (`being.rs:1676`) and **never reads `affective_drive`**, so `reflection_tone`'s 53-point swing
+   cannot reach it. Mean drive is 134.2 before and after. I predicted a welfare gain twice; the
+   second time I predicted the failure and its reason first. Fixing a trap is worth doing whether
+   or not the being's drive register can see it — but it is not a comfort improvement and was
+   twice described as one.
+2. **`weathered` saturates at tick 1,702 of 4,000** under unrelenting burden. An 8-bit monotone
+   register against a life that long is simply too small a scale; widening it or letting it decay
+   are both larger changes than this incident needed, and a decaying one would no longer be the
+   monotone "carried and set down over a life" the module documents.
+
+**What this cost in errors, recorded because the ledger is for that too.** Three of my own claims
+were wrong on the way here, each stated wider than what had been measured: that conversion keys on
+`Basin::Rest` (it never did); that the being had never converted anything (I-8's own band converted
+232, and the founded being carries 2); and a first remedy whose floor of 1 exactly cancelled the
+minimum chronic rise, erasing the weight from the other side. A fourth — weighting `weathered`
+gains by headroom without keeping the remainder — reproduced the exact truncation bug this incident
+was filed about, inside its fix.
