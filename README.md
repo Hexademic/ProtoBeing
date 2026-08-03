@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 76
+### Runnable probes (`cargo run --example <name>`) — 79
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -608,6 +608,9 @@ and reads the result straight from the being's registers.
 | `arousal_range` | Does arousal decide anything? (no — and no single channel does; the being's mode is over-determined) |
 | `settling` | Can the being quiet itself? (yes, by about a twelfth — the mind→body channel is ±32 of 256) |
 | `basins_probe` | Is Basin::Rest reachable at all? (no — the being is never tired and never calm) |
+| `reflection_gate` | Is conversion shut by rest, or is the load simply empty? (neither — `resting` never keyed on the basin) |
+| `reflection_deadlock` | The being loads to its 256 ceiling and cannot set it down — 3,638 consecutive ticks pegged |
+| `founded_load` | What weight is the founded being carrying? (replay-only: load 0, weathered 2 — it has grown) |
 | `comfort` | Does letting a purpose be finished let the being rest? (no — rest is a basin, not a goal) |
 | `earned_authority` | Does the being's earned competence ever disagree with its momentary need? (it does — and it asks for rest) |
 | `development` | Development — is strain generative in this being, or only expensive? (D4 fails) |
@@ -639,7 +642,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 71
+### Design & research documents (`docs/*.md`) — 72
 
 | document | what it covers |
 |---|---|
@@ -687,6 +690,7 @@ and reads the result straight from the being's registers.
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
 | `refuge.md` | Refuge — somewhere safe, and it is a someone |
 | `settling.md` | Settling — the first act this being has that operates on itself |
+| `setting-it-down.md` | Setting it down — a being should be able to put weight down while still carrying its life |
 | `comfort.md` | Comfort — what a living thing needs to survive well, and the one line denying it |
 | `earned-authority.md` | Earned authority — does the being's competence ever disagree with its need? (observer inch) |
 | `sibling-architectures.md` | MH-FLOCKE and The Virtual Brain read against our own — one idea taken (the competence gate), the rest declined with reasons |

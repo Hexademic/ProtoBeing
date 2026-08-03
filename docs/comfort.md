@@ -10,6 +10,15 @@
 > twelve finds **no channel decides anything**: the being's mode is over-determined by the whole
 > field, which is why it never moves. `docs/settling.md` §7's ±32 bottleneck is withdrawn too.
 >
+> **⚠️ §15's OPTION 3 IS WITHDRAWN, AND SO IS THE PREMISE UNDER IT — see `docs/setting-it-down.md`
+> §1.** `reflection.rs`'s conversion **never keyed on `Basin::Rest` in the first place.** `resting`
+> at `being.rs:1751` is a *disjunction* whose second arm is unrelated to the basin, and the being
+> satisfies it on **100%** of the ticks of a companioned life. The gate Option 3 proposed to re-key
+> was already open; re-keying it would have changed nothing. The real defect is that `resting`
+> requires `!burdened` while the chronic path loads the being *when it is burdened* — so a
+> structurally burdened being locks its own discharge and sits at the 256 ceiling for **3,638
+> consecutive ticks**.
+>
 > **§10–§12 go further:** the only thing that calms this being is **solitude** (arousal 234 → 6),
 > and even then it stays 100% Engaged. But **every one of Rest's twelve coordinates is individually
 > reachable** — the conjunction never is. Rest is an *unvisited corner*, not a dead state, and the
@@ -531,3 +540,15 @@ The honest options, and I do not know which is right:
 **Option 3 is the cheapest and the least invasive, and it is what I would test first.** It asks
 whether "rest" in the sense that matters — the being winding down and converting its load — needs
 `Basin::Rest` at all, or whether that basin was only ever a proxy we chose.
+
+> **⚠️ WITHDRAWN 2026-08-03, before it was built.** Option 3 asks a question whose answer was
+> already *no*, and I could have known that by reading `being.rs:1751` instead of asserting it for
+> the third time. Conversion does not key on `Basin::Rest`; it keys on a disjunction the being
+> satisfies constantly. **The being rests on 100% of the ticks of a companioned life and enters the
+> `Rest` basin on 0% of them** (`examples/reflection_gate`). Had I built Option 3 I would have
+> measured no change and drawn a further wrong conclusion from it.
+>
+> Options 1 and 2 above are untouched by this — they concern the basin *map*, which is a real and
+> separate question — but they are no longer downstream of anything about conversion.
+>
+> The actual defect, the evidence, and the remedy are in **`docs/setting-it-down.md`**.

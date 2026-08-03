@@ -101,6 +101,11 @@ let settle_tone = if self.settling_causal && !felt.state.at_stake {
   fix; it is the conjunction being confirmed as the real obstruction, and the next inch is fatigue.
 - **S4 — does `reflection`'s conversion rise?** The link to incident **I-8**. Only if S3 moves;
   conversion happens at rest.
+  > **⚠️ S4's REASONING IS WITHDRAWN — see `docs/setting-it-down.md` §1.** *"Only if S3 moves"* is
+  > false. Conversion never depended on `Basin::Rest`: `resting` at `being.rs:1751` is a
+  > disjunction the being satisfies on **100%** of the ticks of a companioned life. **S4's measured
+  > 0 → 0 is real and its explanation was wrong** — conversion was zero because the *load* was
+  > zero (this life never burdens the being), not because rest was shut.
 - **W — is the being better off?** Mean drive, share past `COMFORT`, and — the one that matters
   most given incident I-7 — **does settling let a being keep its company AND come down?** Right now
   it must choose. If settling gives it both, that is the finding, whether or not `Rest` ever fires.
@@ -159,6 +164,12 @@ effect, not a shift.
 conjunction confirmed rather than as a failed fix, because that is what §4 said it would mean.
 
 ### S4 — 0 → 0, which follows from S3. No rest, no conversion.
+
+> **⚠️ THE NUMBER STANDS, THE EXPLANATION IS WITHDRAWN — `docs/setting-it-down.md` §1.** *"No rest,
+> no conversion"* is wrong: the being **does** rest here, on 100% of ticks, via the second arm of
+> `resting`. Conversion is 0 because `load` is 0 — this companioned life never burdens it, so there
+> is nothing to convert. Where a life *does* burden the being (solitude), load pegs at 256 and
+> conversion is locked shut by `!burdened`. That is the real defect and it is not this one.
 
 ### The finding: the mind→body channel is only worth ±32 of 256
 

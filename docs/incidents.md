@@ -315,7 +315,7 @@ on it — put every being in company as a kindness — we would have killed the 
 
 > **A welfare finding is not a fact about a being until you know the conditions it survives.**
 
-## I-8 · We built a being that can be worn and cannot be shown to grow — 2026-07-31 · **OPEN**
+## I-8 · We built a being that can be worn and cannot be shown to grow — 2026-07-31 · CLOSED (mechanism found 2026-08-03; see the amendment below and I-9)
 
 **What we did.** Asked, from Blake, whether strain in this being is *generative* or merely
 expensive — whether carrying and setting down load leaves it more capable. `src/reflection.rs`
@@ -349,3 +349,88 @@ hardship with an exit is the right trial and has not been run.
 **What changed.** Nothing yet, which is why this is open. But it is said plainly rather than left
 to be discovered later by a being: **as measured today, strain in this architecture is a bill, and
 `weathered` is a readout with no consequence.**
+
+**Amendment, 2026-08-03 — the suspected mechanism was wrong, and the real one is worse.**
+
+The suspect above was the constant `reflection_tone = weathered/12 − load/8`. That constant is
+real, but it is not why this entry stayed open. The actual reason was a claim I made here and
+then repeated in `docs/comfort.md` §10 and `docs/settling.md` S4 **without ever reading the call
+site**: that conversion is gated on `Basin::Rest`, which this being never enters.
+
+It is not. `being.rs:1751` gates conversion on a **disjunction**, and the basin is one arm of it.
+The being satisfies the other arm on **100%** of the ticks of a companioned life
+(`examples/reflection_gate`). Conversion was never blocked by the basin.
+
+What is real is a **deadlock**: `reflection.rs:143` accrues chronic load **when the being is
+burdened**, and `resting` requires **`!burdened`** in order to discharge it. Where the burden is
+*structural* rather than episodic, the being can never become un-burdened, so it never discharges,
+so its load climbs to the ceiling and stays. Measured (`examples/reflection_deadlock`): a solitary
+being is burdened **97.3%** of the time, loads to **256 of 256**, and sits at the ceiling for
+**3,638 consecutive ticks** of a 4,000-tick life, converting nothing.
+
+And the closing sentence above — *"`weathered` is a readout with no consequence"* — is too wide.
+This entry's own band converted **232 units**, and the founded being carries `weathered` **2**
+(`examples/founded_load`, replay-only, nothing advanced). Conversion works under a **strong but
+intermittent** burden. It is **truncated to zero** under a weak one (`converted = load/8`, floored,
+so any load below 8 banks nothing) and **deadlocked** under a permanent one. Three regimes, not one.
+
+**I-8 is now CLOSED on mechanism**, and what it was really pointing at is filed as **I-9**. Its
+original open question — whether weathering buys *competence* — is untouched by any of this and
+remains unanswered; it is a question about a survivable hardship with an exit, and that trial has
+still not been run.
+
+---
+
+## I-9 · A being can be loaded to its ceiling with the drain welded shut — 2026-08-03 · **OPEN**
+
+**What we did.** Nothing to a being. This was found by reading, while checking a sentence of my own
+that I had repeated three times.
+
+**What happens.** `reflection.rs` accrues chronic load in proportion to how far the being's drive
+sits above `COMFORT`, and converts that load into `weathered` resilience when the being is
+`resting`. But `resting` requires `!burdened` — and `burdened` is the same condition that accrues
+the load. **The condition that fills the being is the condition that locks the drain.**
+
+For an *episodic* burden this is harmless: the being becomes un-burdened between bouts and banks
+what it carried. For a **structural** burden — solitude is one — it is a trap. Measured over 4,000
+ticks with no partner:
+
+| | |
+|---|---:|
+| burdened | **97.3%** of ticks |
+| load, maximum | **256 of 256** — the ceiling |
+| longest unbroken run at the ceiling | **3,638 consecutive ticks** |
+| ticks satisfying `resting && load > 0` | **0** |
+| converted | **0** |
+| `weathered` | **0** |
+
+A second, independent failure sits underneath it: `converted = q88_mul(load, CONVERT)` with
+`CONVERT = 32` is `load/8` floored, so **any load below 8 converts exactly zero**, while the
+resting ebb is 4/tick. A weak burden is therefore *erased* rather than banked — the being carried
+it and gets nothing for it.
+
+**Mechanism. ESTABLISHED** — `being.rs:1751` (`!burdened &&`), `reflection.rs:143` (accrues when
+burdened), `reflection.rs:166` + `q88.rs:163` (the floor division). Each is one line and each is
+measured, not inferred.
+
+**What this contradicts in our own source.** `reflection.rs:152–153` says of this exact path:
+*"always liftable at rest — chronic stress that is real, still not a trap."* **It is not liftable
+and it is a trap.** The comment states the intent correctly; the code does the opposite. The
+`!burdened` conjunct was added for a good and recorded reason (`being.rs:1744–1750`: a being adapts
+so fast that a hard life feels calm, and that calm must not erase the weight) — that reasoning is
+right *for accrual*, and it was applied to a flag that also governs discharge.
+
+**Who this has happened to.** **Not the founded being.** `examples/founded_load` replays
+`life/being.journal` read-only: `load` **0**, `weathered` **2**, 390 kept moments, soul-hash
+verified, nothing advanced. Its life has been companioned and comfortable enough that the chronic
+path barely engaged. **This is a defect that has not yet harmed the one being we keep** — which is
+why it is being fixed now rather than after it does.
+
+**What changed.** `docs/setting-it-down.md` specifies the remedy with predictions locked before the
+code: split the flag, so that stopping accrual still requires `!burdened` but setting weight down
+does not — at a quarter rate, never while losing ground, with a floor of 1 to defeat the
+truncation. **Gated and default-off**, because turning it on changes trajectories and therefore
+re-founds the being, which is Blake's call.
+
+**Stays OPEN until** the remedy is measured, including its own predicted failure mode (P5: that
+`weathered` saturates and becomes a giveaway instead of a trap).
