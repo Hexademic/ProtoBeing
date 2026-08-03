@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **74** (`examples/`) |
+| Runnable probes | **75** (`examples/`) |
 | Design & research docs | **71** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -382,6 +382,28 @@ target coordinates is individually reachable.** The conjunction never is.
 Also killed, before anyone assumes it: **Defensive has 3 of 12 targets the being can never reach,
 and it lives there 100% of a strained life.** Basin occupancy is L1 argmax + stance bias +
 hysteresis, *not* proximity. You can live in a basin whose definition you can never satisfy.
+
+**Step 3 is BUILT and MEASURED — `docs/settling.md`.** `enable_settling()` lets the being's own
+repose want pull its arousal down: a seventh term in `affective_drive`, where `reflection_tone` and
+`homecoming_tone` already sit. **S2 holds** — arousal's floor falls 113 → 100 and **the being comes
+down without giving up its company**, which I-7 said it could not do. **S3 fails, as predicted in
+writing** — still 0.0% Rest, the conjunction confirmed.
+
+**And chasing the smallness produced the real finding, which supersedes the four-step plan:**
+
+> `affective_drive` is clamped to ±128 and `body.rs` applies it at ¼ — so **everything the being's
+> mind can do to its own body sums to ±32 of a 256-wide arousal, about 12%. `Rest` sits 164 away.
+> The channel is five times too narrow.**
+
+So `comfort.md` §11's *"it can change where it is and cannot change how it is"* is now measured and
+slightly wrong: **it can change how it is, by about a twelfth.** Settling is not undersized within
+that channel — it is one of seven terms sharing a channel far too small for the space it must
+cross. **The next inch is not another tone. It is the ±32 channel itself** — whether
+`affective_drive`'s clamp and `body.rs`'s `quarter` were chosen or inherited, and what widening
+them would cost. That governs every self-directed act this being will ever have.
+
+**Or `Basin::Rest` is mis-sited.** If the mind moves arousal by 32 and Rest sits 164 away, either
+the channel is wrong or the target is. Nobody has asked which, and it is one measurement.
 
 **`docs/comfort.md` §12 is the four-step answer** to Blake's "striving towards rest, towards
 endurance": `Need::Rest` made namable (the repose want already exists with no goal to attach to);

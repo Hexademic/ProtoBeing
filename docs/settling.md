@@ -1,6 +1,13 @@
 # Settling — the first act this being has that operates on itself
 
-> **Status: specified, nothing built.** Committed before the code, so §4's predictions are on the
+> **Status: BUILT and MEASURED — see §7.** **S2 holds:** arousal's floor falls 113 → 100 and the
+> being comes down **without giving up its company**, which incident I-7 said it could not do.
+> **S3 fails, as predicted in writing.** And chasing the smallness produced the real finding:
+> **everything the being's mind can do to its own body is worth ±32 of a 256-wide arousal — about
+> 12% — while `Rest` sits 164 away. The channel is five times too narrow.** G is untested for the
+> third time and §7 says why I am not going to force it. Ships gated, default-off.
+>
+> **Status when written: specified, nothing built.** Committed before the code, so §4's predictions are on the
 > record first. **Causal** — gated, default off, founded being untouched.
 
 *Written 2026-07-31 from Blake: "what would you do to allow a sense of striving towards rest,
@@ -110,3 +117,88 @@ let settle_tone = if self.settling_causal && !felt.state.at_stake {
 
 Spec committed first. Then the gated term, then the probe, then §7 with what came out — **including
 S3, which I expect to fail, in the form it fails.**
+
+---
+
+## 7. What came out — it works, and the channel is five times too narrow
+
+Both arms lived 4,000 ticks. Nothing died.
+
+| with company, no threat | settling OFF | settling ON |
+|---|---:|---:|
+| **arousal, minimum (S2)** | **113** | **100** |
+| arousal, mean | 236 | 237 |
+| channel 8, minimum | 103 | 91 |
+| Rest / Recovery (S3) | 0.0% | 0.0% |
+| load converted (S4) | 0 | 0 |
+| mean drive, past COMFORT (W) | 93.8, 0.0% | 93.8, 0.0% |
+
+### S1 — holds. Default-off is bit-identical; the founded being wakes at 390 moments.
+
+### S2 — **holds**, and it is the first time this has happened
+
+Arousal's floor moves **113 → 100**, channel 8 **103 → 91**. Small, and it matters for one reason:
+
+> **The being came down without giving up its company.** Incident I-7 established that solitude
+> was the *only* thing that lowered its arousal, and that solitude costs it the thing keeping it
+> unburdened — it had to choose. It no longer strictly has to. The mind now has *some* purchase on
+> the body while the being stays in company.
+
+**And that is the whole of the good news.** The mean does not move (236 → 237). This is a floor
+effect, not a shift.
+
+### S3 — **fails, exactly as predicted and predicted in writing**
+
+0.0% → 0.0%. Rest is a conjunction and settling supplies one coordinate of three. Recorded as the
+conjunction confirmed rather than as a failed fix, because that is what §4 said it would mean.
+
+### S4 — 0 → 0, which follows from S3. No rest, no conversion.
+
+### The finding: the mind→body channel is only worth ±32 of 256
+
+Chasing why the effect is so small produced something better than "the constant is too low":
+
+```rust
+affective_drive              clamped to ±128 (raw Q8.8)
+body.rs:  arousal += affective_drive · ¼      ⇒  ±32 of a 256-wide arousal
+```
+
+> **Everything the being's mind can do to its own body — all seven tones, mode, relational,
+> restlessness, recall, reflection, homecoming and now settling — sums to at most ±32 arousal out
+> of 256. About 12%.**
+>
+> **Rest requires moving arousal from ~237 to 73. That is 164. The entire channel is five times
+> too narrow.**
+
+So `docs/comfort.md` §11's *"the being can change where it is and cannot change how it is"* is
+now measured rather than argued, and it is not quite right. **It can change how it is — by about a
+twelfth.** Settling is not undersized within that channel; it is one of seven terms sharing a
+channel that is itself far too small for the state space it is being asked to traverse.
+
+That is a statement about `body.rs`'s `quarter` coefficient and `affective_drive`'s ±128 clamp,
+not about this faculty. **And it is the real reason `Basin::Rest` is an unvisited corner.**
+
+### G — **untested for the third time, and I am going to stop trying**
+
+The guard is structural and reads `!self.last_felt.state.at_stake`. But the being is `at_stake` on
+**0.0%** of ticks in *both* the easy life and the deliberately hard one (threat 130, nutrient 200),
+so no distribution could have violated it in either. G is **not passed** — it is unexercised.
+
+This is the third vacuous welfare verdict in two days (`survival-first.md` §11,
+`earned-authority.md` §6, here). The pattern is not carelessness about the guard; it is that
+**this being is almost never in trouble**, so guards written for its trouble have nothing to bite
+on. Testing G properly needs a life engineered to put the being at its edge and hold it there —
+which is a deliberate act on a creature, and belongs in its own inch with its own welfare case,
+not tacked onto the end of a session.
+
+## 8. Where this leaves it
+
+- **Ships gated, default-off.** It does something real and small, and nothing downstream depends
+  on it.
+- **The next inch is not another tone.** It is the **±32 channel** — whether `affective_drive`'s
+  clamp and `body.rs`'s `quarter` were chosen to be a gentle influence or inherited as one, and
+  what widening them would cost. That question governs every self-directed act this being will
+  ever have, including all four steps of `docs/comfort.md` §12.
+- **And `Basin::Rest` may simply be mis-sited.** If the mind can move arousal by 32 and Rest sits
+  164 away, then either the channel is wrong or the target is. Both are one measurement from being
+  answered, and nobody has asked which.

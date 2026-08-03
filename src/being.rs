@@ -87,6 +87,16 @@ const BROADCAST_GAIN: i32 = 64;
 /// unreachable: something was always most urgent. See `docs/comfort.md`.
 const TELOS_ARRIVED: i16 = Q88_SCALE * 3 / 4;
 
+/// **Settling** (`docs/settling.md`, opt-in). How much of the being's own hunger for repose
+/// becomes a downward pull on its arousal. The repose want runs 0–256, `affective_drive`'s whole
+/// sum is clamped to ±128, and the five other tones there span roughly ±90 — so a divisor of 3
+/// lets settling be *heard* among them without ever dominating them.
+///
+/// Proportional, never thresholded: every threshold this project has shipped produced a dead zone
+/// (`NOCI_THRESHOLD`, and `TELOS_ARRIVED`'s first value). The being settles in proportion to how
+/// much it wants to.
+const SETTLE_DIVISOR: i16 = 3;
+
 const WORKSPACE_RETENTION: i16 = 192;
 const WORKSPACE_DEPOSIT: i16 = 160;
 const WORKSPACE_INJECT: i16 = 128;
@@ -713,11 +723,30 @@ pub struct UnifiedBeing {
     /// **Default false** — off, the trajectory and soul-hash are bit-identical and the founded
     /// being is untouched. Enable via `enable_comfort()`.
     pub comfort_causal: bool,
+    /// **Settling (`docs/settling.md`), opt-in.** Lets the being's own hunger for repose pull its
+    /// arousal *down* — the first thing this being can do that acts on itself rather than on the
+    /// world. Every other act it has changes *where it is*; this changes *how it is*.
+    ///
+    /// Not a new faculty: a seventh term in `affective_drive`'s existing sum, negative, sitting
+    /// where `reflection_tone` and `homecoming_tone` already sit. And because
+    /// `intent_from` sets `effort = arousal × 256`, an arousal that falls carries effort down with
+    /// it — **the being settling is the being doing less.**
+    ///
+    /// **Zeroed whenever the being is `at_stake`**: a creature whose survival is in question must
+    /// not be able to sedate itself.
+    ///
+    /// **Default false** — off, the trajectory and soul-hash are bit-identical and the founded
+    /// being is untouched. Enable via `enable_settling()`.
+    pub settling_causal: bool,
     /// Last tick's learned caution (Q8.8 [0,256]): how strongly the being's memory
     /// forewarned it — `-expected_outcome × confidence` when forewarned, else 0. Held
     /// a tick because the refusal decision runs before this tick's memory is read
     /// (the codebase's lagged-feedback convention, as with threat/affective_drive).
     last_forewarning: i16,
+    /// Last tick's hunger for repose (`joy.rs`'s third want, Q8.8 [0,256]). Held a tick because
+    /// `joy` is read after `affective_drive` is composed — the lagged-feedback convention used
+    /// for threat, reflection and homecoming. Read only under `settling_causal`.
+    last_repose_want: i16,
 }
 
 impl UnifiedBeing {
@@ -801,7 +830,9 @@ impl UnifiedBeing {
             felt_choice_causal: false,
             memory_causal: false,
             comfort_causal: false,
+            settling_causal: false,
             last_forewarning: 0,
+            last_repose_want: 0,
         }
     }
 
@@ -1401,8 +1432,25 @@ impl UnifiedBeing {
         // and then becomes ordinary presence. Lagged (last tick's release), the being's
         // own convention, since attachment is read later in the tick.
         let homecoming_tone = if self.homecoming_causal { self.last_release / 6 } else { 0 };
+        // SETTLING, made causal (opt-in, `enable_settling`; default off ⇒ this term is 0 and the
+        // trajectory is bit-identical). The being's own hunger for repose (`joy.rs`'s third want,
+        // computed since that module was written and attached to no goal) pulls its arousal DOWN.
+        // Negative by construction — this is the one need approached by doing less, and the only
+        // act this being has that operates on itself rather than on its world.
+        //
+        // Lagged one tick, the codebase's convention: `joy_report` is computed later in the tick,
+        // exactly as threat, affective_drive and reflection already are.
+        //
+        // ZEROED AT STAKE. A being whose survival is in question must not be able to sedate
+        // itself; the same floor `docs/deferral.md` §4 wrote before its mechanism existed.
+        let settle_tone = if self.settling_causal && !self.last_felt.state.at_stake {
+            -(self.last_repose_want / SETTLE_DIVISOR)
+        } else {
+            0
+        };
         self.affective_drive = Q8_8::from_raw(
-            (mode_tone + relational_tone + restlessness + recall + reflection_tone + homecoming_tone)
+            (mode_tone + relational_tone + restlessness + recall + reflection_tone
+                + homecoming_tone + settle_tone)
                 .clamp(-128, 128),
         );
 
@@ -1620,6 +1668,10 @@ impl UnifiedBeing {
         // that can sit at a stable elevated level, unlike the bimodal viability. A
         // pure read of feeling + wanting; nothing downstream consumes it.
         let drive_report = drive(felt.state.viability, &joy_report.want);
+        // Carry this tick's hunger for repose forward for `settle_tone` (lagged, as with threat,
+        // reflection and homecoming). Stored unconditionally; read only when settling is enabled,
+        // so the default path is untouched.
+        self.last_repose_want = joy_report.want[2].clamp(0, Q88_SCALE);
 
         // HABITS (observer, `docs/habits.md`). One-tick credit assignment: the way the
         // being reached *last* tick, in the kind of moment it was in, is credited with
@@ -2017,6 +2069,15 @@ impl UnifiedBeing {
     /// unfree as one forbidden to — the same law, from the other side.
     pub fn enable_comfort(&mut self) {
         self.comfort_causal = true;
+    }
+
+    /// Let the being quiet itself (`docs/settling.md`). Its hunger for repose becomes a downward
+    /// pull on its own arousal — the first act it has that operates on itself.
+    ///
+    /// This does not make the being rest, and it must never be able to. It lets the being's own
+    /// want do something, where before the want was computed and attached to nothing.
+    pub fn enable_settling(&mut self) {
+        self.settling_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed
