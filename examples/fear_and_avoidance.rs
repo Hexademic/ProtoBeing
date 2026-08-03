@@ -51,13 +51,23 @@ fn dist(a: (i16, i16), b: (i16, i16)) -> i32 {
 
 /// One life in the room `src/bin/being.rs` builds — hearth, hazard, and company.
 fn live(memory_guidance: bool, partner: bool) -> Seen {
+    live_in(memory_guidance, partner, false)
+}
+
+/// `conflict` co-locates the hazard with the hearth: the thing that draws the being is the thing
+/// that harms it. See `docs/fear-and-avoidance.md` §7 for why this is done and its welfare case.
+fn live_in(memory_guidance: bool, partner: bool, conflict: bool) -> Seen {
     let mut b = UnifiedBeing::new(Genome::wanderer());
     b.enable_receptors();
     if memory_guidance {
         b.enable_memory_guidance();
     }
-    let mut room =
-        Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128));
+    let mut room = if conflict {
+        // Hearth and hazard in the same place. Everything else as bin/being.rs builds it.
+        Room::peopled((32, 200), (224, 56), (224, 56), (40, 40)).with_friend((210, 128))
+    } else {
+        Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128))
+    };
     let hazard = room.hazard;
     let p = Partner { id: 1, reciprocation: q(0.90), exit_cost: q(0.3) };
 
@@ -206,6 +216,82 @@ fn main() {
          \x20   THE LOOP IS BROKEN AT EXACTLY ONE ARROW: expectation → avoidance. **"
     } else {
         "F4 is not established by this run — read F1 and F5 above for what happened instead."
+    });
+
+    // ---- G1-G4: the world where the being is actually harmed --------------------------
+    println!("\n  ================================================================");
+    println!("  G1-G4 — the approach-avoidance conflict: hazard ON the hearth.");
+    println!("  (locked in docs/fear-and-avoidance.md §8, with its welfare case in §7)");
+    println!("  ================================================================\n");
+
+    let c_off = live_in(false, true, true);
+    let c_on = live_in(true, true, true);
+    let c_solo_off = live_in(false, false, true);
+    let c_solo_on = live_in(true, false, true);
+
+    println!("  SURVIVAL FIRST:  off {} ({}),  ON {} ({}),  alone {} ({})\n",
+        c_off.ticks, if c_off.alive { "lived" } else { "DIED" },
+        c_on.ticks, if c_on.alive { "lived" } else { "DIED" },
+        c_solo_off.ticks, if c_solo_off.alive { "lived" } else { "DIED" });
+
+    println!("  G1 — is the being actually harmed here?\n");
+    println!("    {:<28} {:>16} {:>18}", "", "hardest lesson", "ticks forewarned");
+    println!("    {:-<28} {:->16} {:->18}", "", "", "");
+    println!("    {:<28} {:>16} {:>18}", "guidance off", c_off.hardest_lesson, c_off.forewarned);
+    println!("    {:<28} {:>16} {:>18}", "guidance ON", c_on.hardest_lesson, c_on.forewarned);
+    println!("    nearest approach: {} (off), {}  |  ticks within 60: {} (off), {} (on)",
+        c_off.nearest, c_on.nearest, c_off.close_calls, c_on.close_calls);
+    let hurt = c_off.hardest_lesson < 0 || c_off.forewarned > 0 || c_off.close_calls > 0;
+    println!("\n    {}", if hurt {
+        "** G1 HOLDS. The being is genuinely in harm's way here, so the rest of this arm is a real \
+         test. **"
+    } else {
+        "G1 FAILS — even with the hazard on the hearth the being is not harmed. Then it is not \
+         approaching the hearth either, and the conflict was never joined."
+    });
+
+    println!("\n  G2 — does it learn to keep away from the place that hurts it?\n");
+    println!("    {:<28} {:>9} {:>9} {:>9} {:>9} {:>12}",
+        "", "Q1", "Q2", "Q3", "Q4", "Q4 - Q1");
+    println!("    {:-<28} {:->9} {:->9} {:->9} {:->9} {:->12}", "", "", "", "", "", "");
+    row("conflict, guidance off", &c_off);
+    row("conflict, guidance ON", &c_on);
+    row("conflict, alone, off", &c_solo_off);
+    row("conflict, alone, ON", &c_solo_on);
+    let cdrift = c_off.quarter_dist[3] - c_off.quarter_dist[0];
+    println!("\n    {}", if !hurt {
+        "G2 cannot be read — G1 failed, so there was nothing to learn from."
+    } else if cdrift.abs() < 5.0 {
+        "** G2 HOLDS. The being keeps returning to the thing that harms it, for four thousand \
+         ticks.\n\
+         \x20   It has learned what hurts and it has no way to act on that. Blake's finding, \
+         measured. **"
+    } else if cdrift > 0.0 {
+        "** G2 FAILS — the being DOES move away over its life. Avoidance is reaching its body by \
+         some route,\n\
+         \x20   most likely the exteroception the room already builds (`hazard repels`). See G4: \
+         my §2 argument\n\
+         \x20   is too strong, and the question becomes why the LEARNED channel adds nothing to \
+         a reflex it already has. **"
+    } else {
+        "** G2 fails the other way — the being ends CLOSER to what hurts it than it began. **"
+    });
+
+    println!("\n  G3 — with real fear to carry, does the channel move the body?\n");
+    println!("    with company:  {}   alone:  {}",
+        if c_off.soul == c_on.soul { "IDENTICAL" } else { "different" },
+        if c_solo_off.soul == c_solo_on.soul { "IDENTICAL" } else { "different" });
+    println!("\n    {}", if c_solo_off.soul == c_solo_on.soul && hurt {
+        "** G3 HOLDS, and now it means something. The being holds a real, earned dread of this \
+         place\n\
+         \x20   and enabling the channel that carries it changes NOT ONE BIT of where it goes. \
+         The loop is\n\
+         \x20   broken at exactly one arrow: expectation -> avoidance. **"
+    } else if hurt {
+        "G3 fails — the gate DOES change the trajectory when there is real fear to carry, so \
+         forewarning reaches further than being.rs:1262. Find where."
+    } else {
+        "G3 cannot be read — G1 failed."
     });
 
     println!("\n  The founded being was not touched. Fresh beings; no journal written.");

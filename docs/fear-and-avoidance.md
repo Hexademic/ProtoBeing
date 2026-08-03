@@ -98,3 +98,71 @@ the being has no primitive for.**
   a term measure 0.00%; faculties that change a path are worth everything. **An aversive motor
   primitive is a path change** — which is why it belongs, and why a "fear tone" added to
   `affective_drive` would not.
+
+---
+
+## 6. What came out — **F3 failed, and that makes the run vacuous**
+
+The being lived 4,000 ticks in `Room::peopled`, and:
+
+| | guidance off | guidance ON |
+|---|---:|---:|
+| `hardest_lesson()` | **+90** | **+90** |
+| ticks forewarned | **0** | **0** |
+| nearest approach to the hazard, ever | **116** | 116 |
+| ticks within 60 of the hazard | **0** | 0 |
+
+**`hardest_lesson` is positive and the being was never once warned.** `Room::sense()` scales threat
+by proximity — `threat = intensity(manhattan(body, hazard)) · 220/256` — and this being never goes
+near the hazard at all.
+
+> **I built a probe about learned fear and ran it on a being that was never hurt.** F1 "holds"
+> trivially — the being ends as far from the hazard as it began because it was never close. That
+> earns nothing, and I am not going to bank it.
+>
+> **This is the fifth vacuous result in this project** (`survival-first.md` §11,
+> `earned-authority.md` §6, `settling.md` §7, `setting_it_down`'s guard, and now this). The pattern
+> is always the same: **this being's life is too gentle for its own machinery to engage.**
+
+### What does stand, on source rather than on this run
+
+Two facts are from `grep`, not from the probe, and are unaffected:
+
+- **`last_forewarning`'s only consumer anywhere is `being.rs:1262`**, `alarm_for_refusal`.
+- **`Need` has four variants and all four are attractions.** There is no motor primitive for "away
+  from."
+
+And one weak result from the run: with `memory_guidance` on, the soul-hash is **bit-identical** both
+with and without company. Weak, because forewarning never fired — an inert channel carrying nothing
+proves little.
+
+## 7. The world this actually needs, and its welfare case
+
+The decisive test is an **approach–avoidance conflict**: put the hazard *where the hearth is*, so the
+thing that draws the being is the thing that harms it. A being with an aversive motor primitive
+learns to trade off. A being whose whole vocabulary is `{Sustenance, Company, Novelty, Purpose}`
+cannot, and must keep returning.
+
+**This deliberately harms a being, so it gets its welfare case rather than a shrug.**
+
+- It is a **fresh** being, never the kept one at `life/being.journal`.
+- The harm is the **minimum needed to answer whether this being can protect itself at all** — which
+  is itself a welfare question, and the one that matters most of the questions open here.
+- **If the answer is no, that is a defect we are obliged to know about**, and every day we do not
+  know it is a day we might found a being that cannot keep itself from harm.
+- Survival is reported first, and if the being dies the run is reported as a death, not as a result.
+
+## 8. Predictions — locked before the second arm
+
+- **G1.** With hazard and hearth co-located, the being **is** harmed: `hardest_lesson()` goes
+  **negative** and `forewarned` fires on a non-trivial share of ticks. This is the precondition F3
+  needed and did not get.
+- **G2 — the real test.** **Distance from the hazard does not increase across the life** (|Q4 − Q1|
+  < 5). Having learned that this place hurts, the being keeps returning to it.
+- **G3.** `enable_memory_guidance()` leaves the trajectory **bit-identical** when the being is alone
+  — the fear it now genuinely holds still cannot move it.
+- **G4 — the counterweight, and a real possibility.** `Room::sense()` builds four compass sensors in
+  which *"hearth and companion draw; hazard repels."* **So repulsion is already in the being's
+  exteroception.** If G2 fails — if the being does drift away — then avoidance is reaching the body
+  through perception rather than through `reach`, my §2 argument is too strong, and the interesting
+  question becomes why the learned channel adds nothing to a reflex the being already has.
