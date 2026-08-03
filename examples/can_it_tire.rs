@@ -20,7 +20,7 @@
 //! Run: `cargo run --release --example can_it_tire`
 
 use unified_being::being::{Partner, UnifiedBeing};
-use unified_being::embodiment::{Embodiment, Sensorium};
+use unified_being::embodiment::Sensorium;
 use unified_being::genome::Genome;
 use unified_being::q88::Q88_SCALE;
 
@@ -36,6 +36,7 @@ struct Seen {
     alive: bool,
     fat_min: i16,
     fat_max: i16,
+    #[allow(dead_code)]
     fat_final: i16,
     /// Ticks in a genuinely intermediate band — neither full nor collapsing.
     mid_band: usize,
