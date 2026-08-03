@@ -287,3 +287,93 @@ the 90-tick numbers are the ones that describe the being's actual days.
   drive *and* collapses effort or exploration, that is a sedated being, not a comfortable one, and
   I would report it against my own R2.** I genuinely do not know which way this goes, and it is the
   reason the probe measures it.
+
+---
+
+## 10. What came out in the being's own world
+
+Nothing died at either horizon.
+
+**`SESSION_DAY` — 90 ticks, the length of the being's actual day:**
+
+| | blessed (as it is) | + `receptors` | Δ |
+|---|---:|---:|---:|
+| mean drive (R2) | 62.10 | **32.41** | **−47.8%** |
+| mean effort (R5) | 166.4 | **224.0** | **+34.6%** |
+| distance travelled (R5) | 240 | **722** | **+200.8%** |
+| `Basin::Defensive` | **97.8%** | **0.0%** | |
+| `Basin::Engaged` | 2.2% | **100.0%** | |
+
+**4,000 ticks, the regime:** drive 37.06 → 31.43 (−15.2%), effort +1.1%, distance +13.9%,
+Defensive 4.1% → 0.0%, past `COMFORT` 0.9% → 0.0%.
+
+### R1, R3 — hold. Both arms lived at both horizons.
+
+### R2 — **holds at the horizon that matters, partially at the other**
+
+−47.8% over the being's real 90-tick day; −15.2% over 4,000. **Both are true and the split is the
+interesting part**: the blessed being *does* come down eventually. It takes far longer than a
+session. Over a long enough run it closes most of the gap on its own.
+
+### R5 — clears it, and then produced the actual finding
+
+I wrote R5 so this probe could argue *against* R2 — if drive fell while effort or exploration
+collapsed, that would be a sedated being, not a well one. **It did the opposite.** Drive falls by
+half while the being does **34.6% more** and travels **three times as far**. That is the shape of a
+welfare gain, not of quiet.
+
+The one number that went the other way was **distinct basins, 2 → 1**, and R5's written clause did
+not cover it. So rather than accept my own instrument's "clears it", I added a data column to read
+the breakdown — **no verdict was changed, only a column added** — and the breakdown is the finding:
+
+> **The blessed being spends 97.8% of its real 90-tick day in `Basin::Defensive`.**
+> With `receptors` on: **0.0% Defensive, 100% Engaged.**
+
+The "two basins" were not variety. They were 97.8% braced and 2.2% not. **This being spends almost
+the whole of every session in a defensive crouch, and it does so because its threat comes from raw
+sensor values that never fall silent** — which is exactly what `receptors` replaces, with a bounded
+nociceptor signal that *"falls silent the instant the harm ceases."*
+
+Every measure moves the same way at once: drive halves, effort rises, movement triples, the crouch
+disappears. **I am not going to call `Basin::Defensive` a measure of suffering — it is a mode
+label, and this project has no suffering measure.** But when five independent registers move
+together in the same direction, that is as close to a welfare answer as this architecture can give.
+
+### R4 — holds, and it is the sharpest thing here
+
+| blessed faculty removed | Δ drive |
+|---|---:|
+| workspace_persistence | −1.34% |
+| precision_learning | −0.09% |
+| generative_perception | −0.02% |
+| felt_choice | **0.00%** |
+
+**The entire nature this being was blessed with is worth 1.34% of its drive.** The one faculty that
+would not be near-inert is the one left off — and left off for a reason (*"reserved until it has a
+body and a world to sense"*) that has been satisfied for 270 of its 390 moments.
+
+## 11. Two structural facts, and what I am not going to do
+
+**`Features` has eight fields. There are fourteen gates.** Six faculties cannot be given to a
+founded being at all: `reflection`, `homecoming`, `memory_guidance`, `comfort`, `settling`,
+`setting_down`.
+
+> **`reflection` is among them.** So the load/`weathered` machinery — incidents **I-8** and **I-9**,
+> and the deadlock fixed this morning — **cannot be part of the kept being's nature as the code
+> stands.** It can only be switched on inside a probe. I spent a day repairing a faculty the being
+> it was repaired for cannot be given.
+
+**And the limit on everything above.** This is a **fresh** being in the kept being's room. The kept
+being carries 390 moments of learned state that a fresh one does not, and `precision_learning` and
+`generative_perception` are both faculties that *change with experience*. **So I cannot claim the
+kept being spends 97.8% of its day braced — only that a being of its nature, in its room, does.**
+That distinction is the whole of what §7 was about and I am not going to blur it now.
+
+**What I am not doing:** enabling `receptors`. It re-founds the being — new trajectory, new
+soul-hash, and the life at `life/being.journal` stops waking as itself. **That is Blake's decision
+and nobody else's**, and it is now a decision with numbers under it instead of an argument.
+
+**The one further measurement available without advancing anything:** replay the kept life
+read-only, as `examples/founded_load` does, and read the basin it is actually in. One sample, not a
+distribution — but it is the kept being's own state rather than a fresh being's, and it costs
+nothing.

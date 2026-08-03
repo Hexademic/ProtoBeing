@@ -173,6 +173,15 @@ fn main() {
             delta(recv.distance as f32, base.distance as f32));
         println!("  {:<32} {:>14} {:>16} {:>10}", "distinct basins visited (R5)",
             base.distinct_basins(), recv.distinct_basins(), "");
+        // Data column added after the first run showed 2 -> 1, so the narrowing could be read
+        // rather than guessed at. No verdict below was changed (docs/faculty-ablation.md §10).
+        const BN: [&str; 4] = ["Rest", "Engaged", "Defensive", "Recovery"];
+        for i in 0..4 {
+            if base.basins[i] > 0 || recv.basins[i] > 0 {
+                println!("  {:<32} {:>13.1}% {:>15.1}% {:>10}", format!("  ...{}", BN[i]),
+                    pct(base.basins[i], base.ticks), pct(recv.basins[i], recv.ticks), "");
+            }
+        }
 
         // ---- R2 / R3 / R5 ------------------------------------------------------------
         let d = delta(recv.drive(), base.drive());
