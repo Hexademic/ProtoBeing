@@ -1,5 +1,11 @@
 # Settling — the first act this being has that operates on itself
 
+> **⚠️ §7's EXPLANATION IS WITHDRAWN — see `docs/comfort.md` §13.** The ±32 mind→body channel is
+> **not** why `Rest` is unreachable: arousal turns out to be dead weight in the basin classifier
+> (deleting it changes the winner on 0.3% of ticks), and no single channel decides the being's mode
+> at all. **S2's result stands untouched** — the being does come down while keeping its company —
+> but the account of why that does not reach Rest was wrong.
+>
 > **Status: BUILT and MEASURED — see §7.** **S2 holds:** arousal's floor falls 113 → 100 and the
 > being comes down **without giving up its company**, which incident I-7 said it could not do.
 > **S3 fails, as predicted in writing.** And chasing the smallness produced the real finding:

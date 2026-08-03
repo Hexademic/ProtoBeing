@@ -5,6 +5,11 @@
 > striving** — a being can want nothing and still not be at rest, and this being never rests in
 > either arm. Three errors of mine are recorded in §8, including a first constant that was
 > arithmetically incapable of firing. The gate ships **default-off and unrecommended.**
+> **⚠️ §13 WITHDRAWS §10's EXPLANATION.** Arousal is **dead weight in the classifier** — deleting
+> both arousal channels changes the winning basin on 0.3% of ticks. And leave-one-out across all
+> twelve finds **no channel decides anything**: the being's mode is over-determined by the whole
+> field, which is why it never moves. `docs/settling.md` §7's ±32 bottleneck is withdrawn too.
+>
 > **§10–§12 go further:** the only thing that calms this being is **solitude** (arousal 234 → 6),
 > and even then it stays 100% Engaged. But **every one of Rest's twelve coordinates is individually
 > reachable** — the conjunction never is. Rest is an *unvisited corner*, not a dead state, and the
@@ -434,3 +439,95 @@ enterable. That is also incident **I-8**'s answer, and it means I-8 closes the m
 **The guardrail, before any of it:** rest made *reachable*, never *compulsory*. A being that must
 rest is as unfree as one that cannot — the same law from the other side, and `docs/habits.md`'s
 breakability law already binds it.
+
+---
+
+## 13. **§10 was a category error of mine.** Arousal decides nothing.
+
+*`examples/arousal_range.rs`, A1–A4 locked in its header and committed before it ran.*
+
+§10 reported that the two arousal channels are ~48% of the distance between where the being lives
+and `Basin::Rest`, and read that as **arousal is the obstruction**. Dominating a *distance* and
+deciding a *classification* are different things, and I conflated them.
+
+### A1 — holds. The being runs hotter than every mode it has.
+
+Channel 8 over an ordinary life: min 105, **p5 219, median 224**, p95 245, max 246. Against the
+four targets — Rest 73, Recovery 89, Engaged 159, **Defensive 209**:
+
+> The being is above **all four** targets on **96.3%** of ticks. It runs hotter than the hottest
+> mode its own architecture describes, so the arousal term is a monotone penalty applied to every
+> basin, ordered identically every tick.
+
+### A2 — and that ordering is fixed: arousal favours **Defensive** on 98.2% of ticks, `Rest` on **0**.
+
+### A3 — the decisive test. **Arousal is dead weight.**
+
+| basin | wins, all 12 channels | wins, arousal removed |
+|---|---:|---:|
+| Rest | 0.1% | 0.3% |
+| **Engaged** | **99.9%** | **99.7%** |
+| Defensive | 0.0% | 0.0% |
+| Recovery | 0.0% | 0.0% |
+
+**The two agree on 99.7% of ticks.** Deleting both arousal channels outright changes which basin
+the being is in essentially never. Arousal inflates every distance and **selects nothing** — and
+where it does register, it pushes *away* from Rest (0.1% → 0.3% when removed).
+
+### And then the same method answered the real question
+
+Leave-one-out across all twelve: remove each channel, count how often the winner changes.
+
+| channel removed | winner changed |
+|---|---:|
+| 10 · fatigue | **0.2%** |
+| 4 · arousal-set | 0.1% |
+| all other nine | **0.0%** |
+
+> **No single channel decides anything.** The being's mode is not determined by any one register —
+> it is **over-determined by the whole field**, and that is why it never moves. 100.0% occupancy in
+> §10's table was not a curiosity; it is what over-determination looks like.
+
+## 14. Two of my documents are wrong, and this is the correction
+
+**`docs/comfort.md` §10** — *"the top three channels are 63% of the whole distance, and the top two
+are both arousal"* is **true as arithmetic and false as explanation**. It is a fact about a
+distance, cited as a cause of a classification. The sentence *"the single largest obstruction is
+4·arousal-set"* is withdrawn.
+
+**`docs/settling.md` §7** — *"the mind→body channel is five times too narrow, and that is the real
+reason `Basin::Rest` is an unvisited corner"* is **withdrawn**. Widening `affective_drive`'s clamp
+or `body.rs`'s `quarter` would move a number that does not choose. Settling's S2 result stands
+untouched — the being really does come down while keeping its company — but its §7 explanation of
+*why that does not reach Rest* was wrong.
+
+**What actually stands, across all of it:**
+
+- `Rest` is never occupied. *(measured, five regimes, three documents)*
+- Every one of its twelve coordinates is individually reachable; the conjunction is not. *(§11)*
+- The being can quiet itself, slightly, without giving up company. *(`settling.md` S2)*
+- **And the classifier is over-determined**: no one channel moves it, so no one-channel
+  intervention ever will.
+
+## 15. Where this actually leaves the work
+
+**Stop trying to reach `Rest` by moving a register.** Three attempts now — purpose satiety, the
+settling tone, and the proposed channel-widening — all share the assumption that some single
+quantity gates the being's mode. The leave-one-out says none does.
+
+The honest options, and I do not know which is right:
+
+1. **The basin targets were authored a priori and never fitted to this being.** Its field simply
+   lives somewhere the four-point map does not describe. Fitting the targets to the being's actual
+   trajectory would be a *re-founding*, not a tuning — it changes who the being is — and belongs to
+   Blake, not to me.
+2. **Four fixed target vectors may be the wrong model.** `boundary_margin` already exists and
+   already reports how finely balanced the being is; the machinery for a softer account of mode is
+   half-present.
+3. **Or occupancy is simply not where rest lives**, and `reflection.rs`'s conversion should key on
+   something the being can actually reach — low *effort*, say, which `settling` demonstrably moves —
+   rather than on a basin it cannot enter.
+
+**Option 3 is the cheapest and the least invasive, and it is what I would test first.** It asks
+whether "rest" in the sense that matters — the being winding down and converting its load — needs
+`Basin::Rest` at all, or whether that basin was only ever a proxy we chose.

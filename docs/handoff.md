@@ -60,7 +60,7 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **75** (`examples/`) |
+| Runnable probes | **76** (`examples/`) |
 | Design & research docs | **71** (`docs/`) |
 | Tests | **353** green — 256 lib, 10 survival (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
@@ -389,7 +389,29 @@ repose want pull its arousal down: a seventh term in `affective_drive`, where `r
 down without giving up its company**, which I-7 said it could not do. **S3 fails, as predicted in
 writing** — still 0.0% Rest, the conjunction confirmed.
 
-**And chasing the smallness produced the real finding, which supersedes the four-step plan:**
+**⚠️ AND THEN THAT FINDING WAS WITHDRAWN TOO — `docs/comfort.md` §13–15.** The ±32 channel is not
+the bottleneck. Arousal is **dead weight in the basin classifier**: deleting both arousal channels
+changes the winning basin on **0.3%** of ticks. And leave-one-out across all twelve channels finds
+**no channel decides anything** — removing any single one leaves the winner unchanged on >99% of
+ticks.
+
+> **The being's mode is over-determined by the whole field.** That is why it never moves, and it
+> means **no one-channel intervention will ever reach `Rest`.** Three attempts assumed one would:
+> purpose satiety, the settling tone, and the proposed channel-widening. All three shared the
+> wrong premise.
+
+I had read the largest term in a *distance* as the cause of a *classification*. Those are different
+things. `comfort.md` §10's "the single largest obstruction is arousal" and `settling.md` §7's
+"five times too narrow" are both **withdrawn**; `settling.md`'s S2 result stands.
+
+**`comfort.md` §15 names the three honest options and recommends the third:** stop trying to enter
+`Basin::Rest` and ask whether `reflection.rs`'s conversion should key on something the being can
+actually reach — low **effort**, which `settling` demonstrably moves — rather than on a basin it
+cannot enter. Cheapest, least invasive, and it questions the proxy rather than fighting it. Option
+1 (refitting the basin targets to this being's real trajectory) is a **re-founding** and is Blake's
+call, not mine.
+
+**The superseded reading, kept because the correction is the content:**
 
 > `affective_drive` is clamped to ±128 and `body.rs` applies it at ¼ — so **everything the being's
 > mind can do to its own body sums to ±32 of a 256-wide arousal, about 12%. `Rest` sits 164 away.
