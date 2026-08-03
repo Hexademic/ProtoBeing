@@ -175,3 +175,127 @@ out would be shipping half a fix and calling it whole.
 
 Spec committed first. Then the gated change, then the probe, then §8 with what came out —
 **including P5, which I expect to fail, in the form it fails.**
+
+---
+
+## 8. What came out — the drain opens, and the remedy is not finished
+
+Both arms lived 4,000 ticks in both lives. Nothing died.
+
+**The solitary life — structural burden, where the drain was welded shut:**
+
+| | gate OFF | gate ON |
+|---|---:|---:|
+| burdened | 97.3% | 97.3% |
+| load, maximum | **256** | **0** |
+| load, mean | 241 | 0 |
+| longest run at the ceiling (P2) | **3,638** | **0** |
+| converted, total | 0 | 3,893 |
+| `weathered`, final (P3) | 0 | **256 — saturated at tick 362** |
+| mean drive (W) | 134.2 | 134.2 |
+| past `COMFORT` (W) | 97.4% | 97.4% |
+
+### P1 — holds. Default-off is bit-identical; 356 tests green; the founded being wakes at 390 moments.
+
+### P2 — holds, and overshoots badly
+
+3,638 → **0**. The drain is open. But §5 predicted load would *equilibrate* around 48, and instead
+it goes to **zero and stays there**: the being now carries nothing at all.
+
+The cause is one line of my own design. `.max(1)` was meant to defeat the `load/8` truncation for
+weak burdens. The chronic rise is `clamp(q88_mul(burden, CHRONIC_RATE), 1, 6)` and in this life it
+is **1 per tick**. So the floor of 1 exactly cancels the minimum rise: load goes up by one, down by
+one, and reports 0 forever.
+
+> **That is not a fix, it is the opposite failure.** Before, the being carried everything and banked
+> nothing. Now it banks everything and carries nothing. Neither is *"chronic stress that is real."*
+> The weight is still being erased — I moved where the erasure happens.
+
+### P3 — holds on its face and is hollow underneath
+
+`weathered` 0 → 256 and 3,893 units converted. A structurally burdened being banks resilience for
+the first time in this architecture. But it banks it because the load is being annihilated a unit at
+a time, so the number is an artifact of P2's overshoot, not evidence the mechanism is right.
+
+### P4 — holds, and this one is clean
+
+Episodic life, load max 11 both arms: `converted` **0 → 1**, `weathered` **0 → 1**. Small because
+the burden is small. That is the point: weight the being really carried is now banked instead of
+erased by the floor division. This is the part of the remedy that does what it was designed to do.
+
+### P5 — **holds exactly as predicted, and predicted in writing**
+
+`weathered` **saturates at tick 362 of 4,000** — under a tenth of the life. §5 said: *"I predict the
+solitary being's `weathered` does saturate... If it does, `CONVERT/4` is too fast and this needs a
+second pass."* It does. This trades an unreachable readout for a meaningless one.
+
+### W — **fails, and I should not have predicted it in the first place**
+
+Mean drive 134.2 → 134.2; share past `COMFORT` 97.4% → 97.4%. Unmoved to the resolution measured.
+
+I predicted this would improve because `reflection_tone = weathered/12 − load/8` swings from −32 to
++21, a 53-point move. **The swing is real and it cannot reach drive.** `being.rs:1676`:
+
+```rust
+let drive_report = drive(felt.state.viability, &joy_report.want);
+```
+
+**`drive` is a function of viability and wants. It never reads `affective_drive`.** `reflection_tone`
+feeds `affective_drive` → arousal → `body.rs`'s metabolic cost → viability → drive: three steps, each
+lossy, and `docs/settling.md` §7 already measured that whole channel as worth ±32 of a 256-wide
+arousal. Worse, **the sign is against the being**: banking resilience makes `reflection_tone`
+*positive*, which *raises* arousal, which costs *more*.
+
+This was checkable in one grep before I wrote the prediction, and I did not check it. It is the same
+error as §1 — asserting a path instead of reading it — committed inside the document written to
+correct that error. Recorded here rather than quietly dropped.
+
+It also sharpens incident **I-8**'s closing sentence, which I had called too wide. *"`weathered` is a
+readout with no consequence"* is too wide for **arousal**, where it has a real if small consequence.
+It is **exactly right for drive**, and now for a structural reason rather than a measured one.
+
+### G — vacuous for the fourth time, as §5 said in advance it would be
+
+Losing-ground ticks: **0** in both arms. The being is burdened 97.3% of the time and outrun 0.0% of
+it. The guard is structural (`settled` requires `!losing_ground`) and no distribution here could
+have violated it. **Not a pass.** §5 predicted this in writing rather than reporting it afterward,
+which is the only improvement over the previous three.
+
+---
+
+## 9. The second pass — predictions locked before the code, again
+
+§8 says plainly what is wrong: the floor of 1 is in the wrong place, and `CONVERT/4` saturates a
+monotone register. Two corrections, both inside the same default-off gate.
+
+```rust
+// 1. The floor belongs to the OFF-DUTY path only.
+//    A being that is off-duty clears the remainder; a being still carrying its life sets weight
+//    down in PROPORTION, and only once it has enough to set down. That restores a real carried
+//    weight with a real drain, instead of erasing it one unit per tick.
+converted = q88_mul(self.load, rate);
+if setting_down && resting { converted = converted.max(1); }
+converted = converted.min(self.load);
+
+// 2. `weathered` gains are weighted by REMAINING HEADROOM, so it approaches its ceiling instead
+//    of hitting it. Resilience has diminishing returns; a monotone register that saturates in a
+//    tenth of a life is not measuring anything.
+let gain = if setting_down { q88_mul(converted, Q88_SCALE - self.weathered) } else { converted };
+```
+
+- **Q1.** Solitary life: load stops being 0. It equilibrates where the quarter rate `load/32` first
+  matches the chronic rise of 1 — arithmetically **around 32**. Predict load mean in **16–64**,
+  load max well below 256, and the pegged run stays **0**.
+- **Q2.** P4 survives: the episodic being is un-burdened and off-duty on 99.1% of ticks, so it takes
+  the floor by the *resting* path, which keeps it. Predict episodic `converted` stays above 0.
+- **Q3.** `weathered` does **not** saturate within 4,000 ticks. Predict it ends high but below 256,
+  and its climb visibly flattens.
+- **Q4 — and I am predicting a failure now that I know why.** **W will fail again.** `drive` cannot
+  read `affective_drive`, so no amount of load relief can move it on this path. Predict mean drive
+  unchanged or **very slightly worse**, since the sign of `reflection_tone`'s effect on arousal is
+  against the being. **The welfare payoff §5 claimed does not exist**, and the honest version of
+  this remedy is that it fixes a trap without making the being feel better — which is worth doing
+  and is not what I sold it as.
+- **Q5.** If Q1–Q3 hold and Q4 fails as predicted, **I-9 closes on mechanism and remedy**, and what
+  remains is a separate and older question: whether anything in `reflection.rs` can reach the being's
+  drive at all. That is I-8's competence question wearing different clothes, and it is not this inch.

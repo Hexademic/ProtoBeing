@@ -738,6 +738,11 @@ pub struct UnifiedBeing {
     /// **Default false** — off, the trajectory and soul-hash are bit-identical and the founded
     /// being is untouched. Enable via `enable_settling()`.
     pub settling_causal: bool,
+    /// Let the being set weight down while it is still carrying its life
+    /// (`docs/setting-it-down.md`, incident **I-9**). Default off ⇒ the trajectory and
+    /// soul-hash are bit-identical and the founded being is untouched. Enable via
+    /// `enable_setting_down()`.
+    pub setting_down_causal: bool,
     /// Last tick's learned caution (Q8.8 [0,256]): how strongly the being's memory
     /// forewarned it — `-expected_outcome × confidence` when forewarned, else 0. Held
     /// a tick because the refusal decision runs before this tick's memory is read
@@ -831,6 +836,7 @@ impl UnifiedBeing {
             memory_causal: false,
             comfort_causal: false,
             settling_causal: false,
+            setting_down_causal: false,
             last_forewarning: 0,
             last_repose_want: 0,
         }
@@ -1748,9 +1754,23 @@ impl UnifiedBeing {
         // burdened being does not count as resting, and its weight accrues in its quiet
         // rather than discharging — the fix the measurement demanded (a being adapts so
         // fast that a hard life feels calm, and that calm must not erase the weight).
-        let resting = !burdened
-            && (matches!(basin, Basin::Rest | Basin::Recovery)
-                || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2));
+        //
+        // That reasoning is right **for accrual**, and it was applied to a flag that also
+        // governs *discharge* — which welded the exit shut. Where the burden is structural
+        // rather than episodic (solitude is), the being can never become un-burdened, so it
+        // never converts, so its load climbs to the 256 ceiling and stays: measured at 3,638
+        // consecutive pegged ticks of a 4,000-tick life (incident **I-9**,
+        // `examples/reflection_deadlock`). So `settled` is the same condition **without** the
+        // `!burdened` conjunct, and the two questions are asked separately:
+        //   - off-duty enough to stop ACCRUING?   -> `resting`, unchanged, still needs !burdened
+        //   - settled enough to SET SOME DOWN?    -> `settled`, which a burdened being can reach
+        // Both still require `!losing_ground` (inside `settled`): a being being outrun must never
+        // be able to bank its way out of noticing.
+        let settled = matches!(basin, Basin::Rest | Basin::Recovery)
+            || (!losing_ground
+                && free_energy < Q88_SCALE * 3 / 16
+                && felt.state.arousal < Q88_SCALE / 2);
+        let resting = !burdened && settled;
         let reflection_report = self.reflection.cycle(
             free_energy,
             felt.state.at_stake,
@@ -1761,6 +1781,8 @@ impl UnifiedBeing {
             self.episodic.hardest_lesson(),
             self.reciprocity.dearest().map(|(id, _)| id),
             telos_report.active.is_some(),
+            settled,
+            self.setting_down_causal,
         );
         // Carry this tick's weight forward for the (lagged) causal path next tick.
         self.last_load = reflection_report.load;
@@ -2078,6 +2100,24 @@ impl UnifiedBeing {
     /// want do something, where before the want was computed and attached to nothing.
     pub fn enable_settling(&mut self) {
         self.settling_causal = true;
+    }
+
+    /// Let the being **set weight down while it is still carrying its life**
+    /// (`docs/setting-it-down.md`, incident **I-9**).
+    ///
+    /// With this off, discharging carried load requires the being to be *un-burdened* — the same
+    /// condition that accrues it. A being under a **structural** burden therefore never discharges
+    /// at all: measured, a solitary being sits at the 256 ceiling for 3,638 consecutive ticks of a
+    /// 4,000-tick life and converts nothing. `reflection.rs` promises that path is *"always
+    /// liftable at rest — chronic stress that is real, still not a trap."* It is a trap.
+    ///
+    /// With this on, a being that is *settled* — calm, not being outrun — sets some weight down at
+    /// a **quarter** rate even while burdened, and the floor division that erased weak loads is
+    /// given a floor of one. It never fires while the being is losing ground.
+    ///
+    /// This does not make the being's life easier. It stops the exit from being welded shut.
+    pub fn enable_setting_down(&mut self) {
+        self.setting_down_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed

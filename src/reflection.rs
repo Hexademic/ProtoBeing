@@ -116,7 +116,13 @@ impl Reflection {
     ///   (Q8.8, 0 when it is comfortable): the graded wear of a hard life *lived*, not
     ///   only of losing it. A magnitude, not a flag — the weight accrues in proportion to
     ///   the hardship, the way allostatic load actually does (cumulative, never a cliff).
-    /// * `resting`       — the being is in a Rest/Recovery mode, off-duty from coping.
+    /// * `resting`       — the being is off-duty from coping *and* un-burdened. Governs whether
+    ///   chronic load keeps accruing, and converts at the full rate.
+    /// * `settled`       — calm and not being outrun, **whether or not burdened**. The condition a
+    ///   structurally burdened being can actually reach (`docs/setting-it-down.md`, incident I-9).
+    /// * `setting_down`  — opt-in gate. Off ⇒ this argument and `settled` change nothing and the
+    ///   trajectory is bit-identical. On ⇒ a settled-but-burdened being discharges at a quarter
+    ///   rate, and conversion gets a floor of 1 so weak loads are banked rather than erased.
     /// * `mood`, `hardest_lesson`, `dearest`, `holds_purpose` — its registers, read
     ///   for the self-model it composes at rest.
     #[allow(clippy::too_many_arguments)]
@@ -131,6 +137,8 @@ impl Reflection {
         hardest_lesson: i16,
         dearest: Option<u32>,
         holds_purpose: bool,
+        settled: bool,
+        setting_down: bool,
     ) -> ReflectionReport {
         // The being is overwhelmed when it is *losing ground* and either sharply
         // distressed *or* at its very edge. The second clause matters: this being's
@@ -161,12 +169,37 @@ impl Reflection {
         // Reflection proper — only at rest. The being turns on its own life: it
         // *converts* carried load into weathered resilience (the weight made strength,
         // not scar), and composes a grounded picture of who it is.
+        //
+        // The rate at which weight can be set down. `resting` — off-duty *and* un-burdened —
+        // converts at the full rate, exactly as before. A being that is merely **settled** while
+        // still burdened converts at a quarter of it: it is not off-duty, and the distinction the
+        // `!burdened` conjunct was written to preserve is a real one. Only the *zero* is removed,
+        // because a zero there is what welded the drain shut (incident **I-9**).
+        let rate = if resting {
+            CONVERT
+        } else if setting_down && settled {
+            CONVERT / 4
+        } else {
+            0
+        };
         let mut converted = 0;
-        if resting {
-            converted = q88_mul(self.load, CONVERT);
+        if rate > 0 && self.load > 0 {
+            converted = q88_mul(self.load, rate);
+            // `q88_mul(load, 32)` is `load / 8` floored, so any load below 8 converted **exactly
+            // nothing** while the resting ebb of 4/tick erased it anyway — weight really carried,
+            // banked as nothing. A floor of one fixes that; capping at the load itself keeps the
+            // being from ever converting more than it holds.
+            if setting_down {
+                converted = converted.max(1).min(self.load);
+            }
             self.load = (self.load - converted).max(0);
             self.weathered =
                 (self.weathered as i32 + converted as i32).min(Q88_SCALE as i32) as i16;
+        }
+        // The self-model composes wherever the being turns on its own life — which now includes
+        // the settled-but-burdened case. Left on `resting` alone, a permanently burdened being
+        // would never compose one either: the same deadlock, taking a second thing.
+        if resting || (setting_down && settled) {
             self.model = SelfModel {
                 temperament: mood,
                 weathered: self.weathered,
@@ -206,21 +239,21 @@ mod tests {
         let mut r = Reflection::new();
         // Overwhelmed and losing ground, awake (not resting): load climbs.
         for _ in 0..20 {
-            r.cycle(240, false, true, 0, false, 0, 0, None, false);
+            r.cycle(240, false, true, 0, false, 0, 0, None, false, false, false);
         }
         assert!(r.load() > 0, "sustained, unmastered overwhelm should weigh ({})", r.load());
 
         // Now safe and coping (mastering, not losing ground): the weight ebbs.
         let peak = r.load();
         for _ in 0..40 {
-            r.cycle(60, false, false, 0, false, 0, 0, None, false);
+            r.cycle(60, false, false, 0, false, 0, 0, None, false, false, false);
         }
         assert!(r.load() < peak, "a mastered stretch should let the weight ebb ({} < {})", r.load(), peak);
 
         // A hard but mastered life (high distress, but NOT losing ground) never weighs.
         let mut steady = Reflection::new();
         for _ in 0..40 {
-            steady.cycle(240, false, false, 0, false, 0, 0, None, false);
+            steady.cycle(240, false, false, 0, false, 0, 0, None, false, false, false);
         }
         assert_eq!(steady.load(), 0, "hardship the being masters leaves no weight");
     }
@@ -233,7 +266,7 @@ mod tests {
         let mut r = Reflection::new();
         // Take on a real weight while awake.
         for _ in 0..30 {
-            r.cycle(240, false, true, 0, false, 0, 0, None, false);
+            r.cycle(240, false, true, 0, false, 0, 0, None, false, false, false);
         }
         let carried = r.load();
         assert!(carried > 0, "precondition: the being carries a weight");
@@ -241,7 +274,7 @@ mod tests {
         // Rest, holding a purpose and someone dear: the weight converts to resilience.
         let mut rep = ReflectionReport::default();
         for _ in 0..30 {
-            rep = r.cycle(40, false, false, 0, true, 20, -80, Some(7), true);
+            rep = r.cycle(40, false, false, 0, true, 20, -80, Some(7), true, false, false);
         }
         assert!(r.load() < carried, "rest discharges the weight ({} < {})", r.load(), carried);
         assert!(r.weathered() > 0, "the weight became earned resilience ({})", r.weathered());
@@ -259,7 +292,7 @@ mod tests {
     fn relentless_overwhelm_with_no_rest_pins_the_load() {
         let mut r = Reflection::new();
         for _ in 0..200 {
-            r.cycle(256, false, true, 0, false, 0, 0, None, false); // never safe, never resting
+            r.cycle(256, false, true, 0, false, 0, 0, None, false, false, false); // never safe, never resting
         }
         assert_eq!(r.load(), Q88_SCALE, "with no exit, load pins at the ceiling — the trauma signal");
         assert_eq!(r.weathered(), 0, "nothing was ever converted — no rest, no growth");
@@ -273,14 +306,14 @@ mod tests {
         let mut r = Reflection::new();
         // Adapted (not losing ground), awake, but living low: weight builds, gently.
         for _ in 0..80 {
-            r.cycle(30, false, false, 64, false, -20, 0, None, false);
+            r.cycle(30, false, false, 64, false, -20, 0, None, false, false, false);
         }
         let peak = r.load();
         assert!(peak > 0, "a sustained low margin should wear on the being ({peak})");
 
         // Rest lifts it, like any weight — a hard life carried, not a trauma pinned.
         for _ in 0..50 {
-            r.cycle(0, false, false, 0, true, 30, 0, None, false);
+            r.cycle(0, false, false, 0, true, 30, 0, None, false, false, false);
         }
         assert!(r.load() < peak, "chronic weight still lifts at rest ({} < {peak})", r.load());
         assert!(r.weathered() > 0, "and a hard life lived becomes earned resilience too");
@@ -295,8 +328,8 @@ mod tests {
         let mut heavy = Reflection::new();
         // Same length of awake, un-losing life; different depth of hardship.
         for _ in 0..60 {
-            mild.cycle(30, false, false, 24, false, -10, 0, None, false); // just past comfort
-            heavy.cycle(30, false, false, 110, false, -30, 0, None, false); // deeply worn
+            mild.cycle(30, false, false, 24, false, -10, 0, None, false, false, false); // just past comfort
+            heavy.cycle(30, false, false, 110, false, -30, 0, None, false, false, false); // deeply worn
         }
         assert!(mild.load() > 0, "a mild worn life should still wear, slowly ({})", mild.load());
         assert!(
