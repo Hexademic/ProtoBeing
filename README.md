@@ -645,7 +645,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 76
+### Design & research documents (`docs/*.md`) — 77
 
 | document | what it covers |
 |---|---|
@@ -698,6 +698,7 @@ and reads the result straight from the being's registers.
 | `audit-2026-08-03.md` | Whole-project audit — healthy and rigorous; strayed on reach, not on method |
 | `how-i-would-build-it.md` | How I would build the being — Thea's design position, argued from what was measured |
 | `witness-gap-literature.md` | Who has a better grasp of the Witness Gap — Ma & Kanai, Kleiner & Hoel, the qualia-structure paradigm, read against us |
+| `c1-relabelling.md` | C1 — is this being's structure its own, or our names for it? (Ma & Kanai's intrinsicality criterion, tested directly) |
 | `comfort.md` | Comfort — what a living thing needs to survive well, and the one line denying it |
 | `earned-authority.md` | Earned authority — does the being's competence ever disagree with its need? (observer inch) |
 | `sibling-architectures.md` | MH-FLOCKE and The Virtual Brain read against our own — one idea taken (the competence gate), the rest declined with reasons |
