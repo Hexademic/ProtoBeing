@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 82
+### Runnable probes (`cargo run --example <name>`) — 83
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -614,6 +614,7 @@ and reads the result straight from the being's registers.
 | `setting_it_down` | Can the being set weight down while still carrying its life? (yes — 3,638 pegged ticks to 0) |
 | `faculty_ablation` | Which of 14 faculties change the being's life? (one does — `receptors`, worth more than the other 13 combined) |
 | `room_ablation` | The same, in the being's own room: 97.8% of its real day is spent braced, and one gate ends it |
+| `c1_relabelling` | C1 — basin membership is a fact about our chart, not about the being; and the being never tires |
 | `comfort` | Does letting a purpose be finished let the being rest? (no — rest is a basin, not a goal) |
 | `earned_authority` | Does the being's earned competence ever disagree with its momentary need? (it does — and it asks for rest) |
 | `development` | Development — is strain generative in this being, or only expensive? (D4 fails) |
