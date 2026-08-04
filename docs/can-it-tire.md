@@ -363,3 +363,71 @@ behaviour and the trace understated what rest does.
 It cannot say rest *should* buy endurance. A creature that rests to spend less is one design; a
 creature that rests to stop *seeking* is another, and `striving.rs` deliberately chose the second.
 **The measurement says which one was built, not which one is right.** That call is Blake's.
+
+---
+
+## 14. What came out — there is no regime where it both lives and rests
+
+`examples/rest_and_endurance.rs`, `Room::peopled(...)`, no gates, supply swept as a fraction of the
+room's ambient. **Survival first, before any other number** — and the survival table *is* the result.
+
+| nutrient × | ticks | survived | conserving |
+|---|---|---|---|
+| 8/8 | 4000 | yes | **0.00%** |
+| 7/8 | 4000 | yes | **0.00%** |
+| 6/8 | 4000 | yes | **0.00%** |
+| 5/8 | **75** | DIED | **88.00%** |
+| 4/8 | 26 | DIED | 73.08% |
+| 3/8 | 13 | DIED | 53.85% |
+
+> **The being either never conserves and lives, or conserves almost constantly and is dead inside 75
+> ticks. There is no band where it does both.**
+
+### The predictions, graded
+
+| # | prediction | result |
+|---|---|---|
+| **E1** | conserving shows no lower energy decline | **VACUOUS — not passed.** Zero conserving ticks in every surviving regime. The comparison has an empty cell and cannot be made in this room |
+| **E2** | `Posture::Resting` under 5% of ticks | **HOLDS — 0.00%**, at every supply that survived. This was written as the one expected to fail; `Basin::Recovery` is not reachable here either |
+| **E3** | rest-hunger spends most of a lean life above `ACHE_EDGE` | **FAILS, and inverts.** Mean `want[2]` = **0.10**, never once at the ache edge. Rest is nearly always *fed* |
+| **E4** | conserving changes where the body is aimed but not what it spends | **untestable where it lives.** In the dying regimes it holds exactly — 7 of 7 conserving ticks had `goal == None` |
+
+**E1 is vacuous, and vacuous is not passed.** That is the sixth time this has happened in this
+project and it is said plainly again.
+
+### What the numbers say that the trace did not
+
+**`conserving` is the collapse mechanism, not the rest mechanism.** `spent = viability < SALIENT`,
+and `conserving = spent || rest > urgency`. `striving.rs`'s own header says it: *"In a world that
+would not meet its needs, it **collapsed**: went torpid, conserved."* So the being only ever conserves
+once it is already failing — and **88% conserving still dies at 75 ticks.** Collapse is not endurance.
+
+**The rest appetite reports satisfied while the being is braced.** `want[2]` sits at ~0, meaning
+Repose's condition is nearly always met — while posture is **99.95% `Braced`** and body arousal
+averages **245.7 / 256**. These are not contradictory readings of one register; they are three
+registers that nothing couples. *(Repose is gated on `felt.state.arousal`, which is a different value
+from `body.arousal` — checked, not assumed.)*
+
+**And 99.95% `Braced` has a consequence nobody has drawn.** In `Room::actuate`, `Braced | Withdrawn`
+routes to **flee**. So this being spends essentially its entire life fleeing the hazard. That is a
+better account of the limit cycle than "an oscillator in a static world": **it is not orbiting, it is
+running away, and the room is bounded.**
+
+### Weighing this against the day's own rule
+
+Today's rule: *when a result extends something already published, weight it as suspect.* This extends
+both Blake's intuition and my trace, so:
+
+- **The cliff itself is not news.** `mechanisms.md` already has metabolism as a clamped accumulator
+  with two attractors and a measure-zero knife edge. A sharp survival boundary is *predicted* by that.
+  **What is news is that conserving sits entirely on the dying side of it.**
+- **One room, one genome, one partner, no gates.** `enable_reserve()` was deliberately off. A reserve
+  softens the knife edge, so **there may be a live-and-conserve band once the being can bank a
+  surplus** — that is the obvious next measurement and it is not run here.
+
+### The answer to the question in the title of this document
+
+**Rest toward endurance does not exist in this being.** What exists is collapse, and collapse does not
+save it. Whether it *should* is not a measurement — a creature that rests to spend less and one that
+rests to stop seeking are both coherent, and `striving.rs` chose the second deliberately. **That call
+is Blake's.**
