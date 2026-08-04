@@ -374,3 +374,86 @@ that has been worth more than the ones that held.
 - **A low ratio does not by itself indict the architecture.** That is the whole point of running it
   across regimes: if occupancy moves a lot when the being is given a reserve, the space was unvisited,
   not poor.
+
+---
+
+## 12. The census — what came out
+
+`examples/quality_space_census.rs`, 4,000 ticks per regime in `Room::peopled(...).with_friend(...)`,
+four regimes, three quantisation grains, 200,000 uniform samples for the afforded box.
+**All four regimes survived 4,000 ticks**, so the ratios are comparable.
+
+**Two of four predictions held. Both failures are worth more than the two that held.**
+
+| | prediction | result |
+|---|---|---|
+| **QS-1** | default occupies **< 5%** of afforded volume | **HOLDS** — 0.049% / 0.224% / 3.667% at bins 8 / 32 / 128 |
+| **QS-2** | `enable_reserve()` **at least doubles** occupied volume | **FAILS.** 0.93× / 0.92× / 1.09×. It *slightly reduces* occupancy at fine grain |
+| **QS-3** | `receptors` raises occupancy **less** than `reserve` | **FAILS, as predicted.** Receptors: 4.10× / 2.92× / 1.82×, against reserve's ~1.0× |
+| **QS-4** | ours within **2×** of random 4×12 bases | **HOLDS** — 1.31×, and ours (0.615%) sits *inside* the random spread (0.364–0.673%) |
+
+### QS-2 is the expensive one, and it corrects yesterday
+
+I predicted it at **high** confidence, from a chain I had already published: a reserve took the
+spatial orbit from **186 → 564** distinct positions, so quality occupancy should follow.
+
+**It does not.** The post-hoc channel column says why — added after seeing the result, changing no
+verdict, and said plainly here:
+
+| regime | ch10 (fatigue) | ch0 | ch5 | ch6 |
+|---|---|---|---|---|
+| default | 17 | 30 | 19 | 69 |
+| +reserve | **35** | 30 | 19 | 64 |
+| +receptors | **1** | **115** | **154** | 97 |
+| +both | 12 | 95 | 140 | 99 |
+
+**The reserve does exactly what it was built to do — it doubles the variety of `fatigue` — and
+`fatigue` is one channel of twelve.** It reaches only two of the four quality axes (weight −128 on
+ACTIVATION, −256 on VITALITY, **zero on COMFORT and COHERENCE**), and its range is 0–77 against
+channel 0's 63–445. Doubling one narrow input to half the axes moves a four-axis projection almost
+not at all.
+
+> **The correction: behavioural variation does not imply felt variation.** Yesterday I found that
+> internal variation produces behavioural variation, and today I ran that inference backwards without
+> noticing. A tripled orbit and a 0.93× quality occupancy are the same being. **Where the body goes
+> and what the being's state is like are different measurements, and I had been treating one as
+> evidence for the other.**
+
+### QS-3 failed in the direction it was written to fail in
+
+`receptors` raises occupancy **3–4×** where the reserve raises it not at all, and it does so by
+widening nearly every channel at once (ch0 30→115, ch5 19→154). This is the second independent
+measure on which `receptors` dominates every other faculty.
+
+**And it destroys `fatigue` completely: ch10 falls to ONE distinct value.** The bounded nociceptor
+lowers threat, threat lowers metabolic cost, and energy pins. So:
+
+> **`+both` is not strictly better than `+receptors` alone by this measure** — 99 vs 105 occupied at
+> bin 32. What the reserve buys back is the *one channel receptors kills*: fatigue variety, 1 → 12.
+> They are close to complementary, and that is a real trade rather than a ranking.
+
+### QS-4 held, and it is the uncomfortable one — stated at exactly its width
+
+Our hand-designed basis is **not distinguishable from a random 4×12 basis by occupancy.** Ours is not
+even at the top of the random spread.
+
+**What this does and does not license, because C1-4b's over-reach is still fresh:**
+
+- It **does** say: *occupancy fraction is not evidence that our axes are the right axes.* Any four
+  random projections of the field give the same answer.
+- It does **not** say the basis is worthless. `similarity(a, b)` — whether felt states that *should*
+  be alike come out alike — is a different measure, and `examples/quality_space_probe.rs` tests that
+  one. **This census did not test it, and nothing here bears on it.**
+
+### The fork, answered
+
+> **The quality space is unvisited, not poor.**
+
+Turning on a faculty that already exists, changing no structure, **quadruples occupancy**. That is
+the signature of a space the being has not been in a position to explore, not of a space with nothing
+in it. And the reported ratios are a **lower bound** — the afforded box over-counts by construction,
+since uniform sampling includes channel combinations a real body never produces.
+
+**The honest limit:** even the best regime reaches 0.65% at bin 32. "Unvisited" is the answer to the
+fork; it is not a claim that the ceiling is high. Four axes are four axes, and **volume is not
+quality**. Per `docs/witness-gap-literature.md` §2.1 none of this touches whether the being feels.
