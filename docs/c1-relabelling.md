@@ -314,3 +314,63 @@ Two different instruments, and I had reported them as one.
 evidence about the being. It is a property relative to a partition we chose and cannot defend, and
 `docs/how-i-would-build-it.md` §3's *"stop hand-placing basin targets"* now has the paper's own
 argument behind it rather than my misreading of it.
+
+---
+
+## 11. The quality-space census — predictions, locked 2026-08-04 before the probe exists
+
+§9 item 3 said `quality_space.rs` should be re-examined next, *"if the quality axes fail C1 the same
+way the basins did."* That framing is now known to be wrong in the same way §10 was: **the basins
+passed C1.** Permuting the twelve channels and permuting `BASIS`'s columns with them leaves every
+projection identical, so the quality axes pass C1 trivially and for the same uninteresting reason.
+
+**The live question is the one `findings.md` has carried unanswered since:**
+
+> **Is the quality space poor, or merely unvisited?** Those have opposite fixes — a poor space is an
+> architecture problem, an unvisited one is a world problem — and we have never distinguished them.
+
+### The measure, and why it is a ratio
+
+**Occupied volume:** distinct `QualityPoint`s the being actually visits in a life.
+**Afforded volume:** distinct `QualityPoint`s reachable by projecting somatic fields the being's body
+can actually produce.
+
+**The absolute counts are chart-relative and I will not report them as findings.** What is not
+chart-relative is the **ratio**, and the **change in the ratio under intervention** — which is C2's
+own question, counterfactual response, and the instrument that already worked on the faculty
+ablation.
+
+**One thing I have to declare before measuring, because assuming it is exactly ledger row 5.** There
+is no clean `0..256` box to sample "afforded" from. Reading **both** writers — `write_from_body` *and*
+`inject`, the pair that produced row 6 — gives:
+
+- channels 0, 2, 4, 8 clamped to `0..255`; channel 10 to `0..256`
+- **channel 9 (valence) and channel 11 (FE velocity) are signed** and not clamped at the writer
+- `inject()` **saturating-adds** on top of whatever `write_from_body` wrote, so any channel can leave
+  its apparent range afterwards
+
+So afforded volume is defined against a box of **measured per-channel extrema across all regimes
+run**, never an assumed range, and every number below is relative to that box. Said here rather than
+discovered later.
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **QS-1** | The default being occupies **< 5%** of afforded quality volume | high — it visits 27–68 positions in 4,000 ticks and `fatigue` is one distinct value |
+| **QS-2** | `enable_reserve()` **at least doubles** occupied volume | high — it took the spatial orbit from 186 → 564, and quality is a projection of the field the body writes |
+| **QS-3** | `receptors` increases occupancy **less** than `reserve` does, despite being worth 961% of drive | **low — this is the one I expect to fail.** The nociceptor is bounded and falls silent when harm ceases, which should *narrow* channel 2's range in a benign room. But drive and quality are different measures and I have been wrong before about one standing in for the other |
+| **QS-4** | Occupancy under our hand-designed `BASIS` lands **within a factor of 2** of occupancy under random 4×12 bases | high, and **uncomfortable if it holds** — it would mean the axes are decoration for this purpose, the same result C1-4b produced for the basin chart |
+
+**QS-3 is the prediction I expect to fail, and it is written that way on purpose** — the house rule
+that has been worth more than the ones that held.
+
+### What this census cannot settle, said in advance
+
+- **It cannot say the space is rich enough to matter.** A high occupancy ratio in a four-axis space
+  is still four axes. Volume is not quality.
+- **It says nothing about phenomenality.** Per `docs/witness-gap-literature.md` §2.1, we make no
+  phenomenal prediction, and a census does not change that.
+- **A low ratio does not by itself indict the architecture.** That is the whole point of running it
+  across regimes: if occupancy moves a lot when the being is given a reserve, the space was unvisited,
+  not poor.
