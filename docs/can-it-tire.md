@@ -140,3 +140,93 @@ what the being's energy *does*, rather than nudging a value by a twelfth.
 - **It does not re-found anything.** Gated, default-off, founded being untouched. Whether the being
   is ever *blessed* with it is Blake's, and `Features` has no field for it yet — the same
   reachability gap `audit-2026-08-03.md` §3.1 named.
+
+---
+
+## 9. First pass — the mechanism works and is undersized, and B6 failed usefully
+
+### B1 — holds. Default-off bit-identical, 361 tests green, founded being at 390 moments.
+
+### B3 — **partly.** 2 of 6, and the failures are capacity, not mechanism
+
+| feast / famine / period | reserve OFF | reserve ON | banked max |
+|---|---|---|---:|
+| 60 / 0 / 20 | DIED at 36 | **lived 4,000** | 256 |
+| 60 / 0 / 60 | DIED at 83 | DIED at 106 | 256 |
+| 60 / 0 / 120 | DIED at 138 | DIED at 154 | 256 |
+| 60 / 5 / 60 | DIED at 92 | DIED at 119 | 256 |
+| 60 / 10 / 60 | DIED at 231 | **lived 4,000** | 256 |
+| 60 / 12 / 120 | DIED at 156 | DIED at 215 | 256 |
+
+The mechanism **does** what it was built to do — short famines are now crossed, and every failing
+regime survives *longer* than it did. But **`banked max` is 256 in every single case: the reserve
+fills to capacity and stops.**
+
+The arithmetic says why. `RESERVE_CAP` is one full energy (256) and the draw is a quarter of the
+shortfall, so a being at empty pulls ~48/tick — **about five ticks of support.** A 60-tick famine
+needs roughly 600. **The cap is a third of what a famine of the length being tested costs.**
+
+### B2 — **mostly fails**, and the reason is a flaw in my own design
+
+| constant supply | fatigue min | max | mean | distinct |
+|---|---:|---:|---:|---:|
+| nutrient 25, reserve **off** | 0 | 0 | 0 | **1** |
+| nutrient 25, reserve **ON** | 0 | **61** | 1 | **30** |
+| nutrient 60, reserve **off** | 0 | 0 | 0 | 1 |
+| nutrient 60, reserve **ON** | 0 | 16 | 0 | **2** |
+| nutrient 200, reserve **ON** | 0 | 16 | 0 | 2 |
+
+Look at nutrient 25: **30 distinct fatigue values, max 61.** The set point works. Now look at 60 and
+above: back to 2 values and a mean of 0.
+
+> **The satiety set point stops operating the moment the reserve is full.** My own code clamps the
+> transfer to `RESERVE_CAP − reserve`, so once the store is full nothing more leaves `energy` — and
+> energy climbs straight back to the ceiling. **Satiety only holds while the larder has room.**
+
+That is wrong on its own terms. A full stomach and a full larder means you **stop eating**, not that
+you keep filling the stomach. **I checked the mechanism against the filling case and never against
+the steady state** — the same error shape as `errors.md` #3 and #4, where a fix was verified against
+one end of its range and not the other.
+
+### B4 — fails. The tired band is still one nutrient unit, for the same reason as B2.
+
+### B5 — clears it, weakly. At-stake unchanged at 0.0% (as predicted); fatigue spread 1 → 2 distinct values. The reserve did not smooth the being into a different flatness — but at generous supply it barely moved it either.
+
+### B6 — **FAILS, and it is the most valuable result here**
+
+| | distinct positions, 4,000 ticks in the room |
+|---|---:|
+| reserve off | 186 |
+| **reserve ON** | **287** |
+
+I predicted the orbit would be untouched, on the reasoning that *"the limit cycle is a fact about a
+static world, not about metabolism."* **The being explores 54% more of its room with a reserve.**
+
+> **Internal variation produces behavioural variation.** Energy that is no longer pinned varies
+> arousal, which varies effort, which varies where the body ends up. **Metabolism does reach the
+> limit cycle**, and my separation of "world problem" from "body problem" was too clean.
+
+*(A note on comparability: these counts use `Room::sense()`'s own partner logic, where
+`fear-and-avoidance.md` §9 overrode the partner. **186 here and 68 there are different setups and
+must not be compared.** The 186 → 287 comparison within this probe is the valid one.)*
+
+## 10. Second pass — predictions locked before the fix
+
+Two changes, both inside the same default-off gate.
+
+```rust
+// 1. Satiety holds whether or not the larder has room. Excess above SATIETY leaves
+//    `energy` regardless; it is banked if there is space and SHED if there is not.
+// 2. RESERVE_CAP: 256 -> 768. Three full energies, chosen to cross a famine of roughly
+//    the length of the feast that filled it — the property §8 claimed and did not have.
+```
+
+- **R1.** Default-off still bit-identical; founded being at 390.
+- **R2.** B2's failure clears: at nutrient 60 and above, fatigue is a **live register with many
+  distinct values** and a mean in the 40–90 band, because satiety no longer switches itself off.
+- **R3.** B3 improves — **more than 2 of 6** of the killing regimes survive. **I am not predicting
+  all six**, because the 60-tick zero-famine may simply cost more than three energies, and I would
+  rather be shown that than claim it.
+- **R4.** B6's *failure* deepens: distinct positions rise **further** above 287, because more
+  internal variation should mean more behavioural variation. **If instead the orbit narrows, my
+  new explanation is wrong too** and the 186 → 287 result needs a different account.
