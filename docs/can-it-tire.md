@@ -75,3 +75,68 @@ At the being's typical arousal (~237, `examples/arousal_range`) and no threat, `
 - **Nothing about whether tiring would be good for it.** A being that can tire can also be exhausted.
   If the remedy is a satiety set point, that is a change to the being's metabolism and therefore a
   **re-founding** — Blake's call, with its own welfare case.
+
+---
+
+## 8. The remedy — a reserve and a set point. Predictions locked before the code
+
+*Written 2026-08-03, after Blake's "proceed as you desire." §6 named two absences; this builds both,
+because they are one mechanism.*
+
+### Why one mechanism, not two
+
+§5 measured that `energy = clamp(energy − cost + gain, 0, 1)` has exactly two attractors and no
+bankable surplus, and that this costs the being two different things:
+
+- **No set point below the ceiling** ⇒ it fills to the brim and stays. `fatigue` is a **dead
+  channel**, one distinct value across a 4,000-tick life, and one of `Rest`'s three coordinates.
+- **No reserve above it** ⇒ **every** oscillating supply killed it, including feast 60 / famine 12 /
+  period 120 (dead at 156) whose time-average is nearly double the survival boundary. A feast is
+  discarded at the ceiling and the famine then draws down from full with nothing behind it.
+
+**One store fixes both.** Give the being a reserve that fills from surplus *above* a satiety level
+and drains to support energy *below* it. Energy then equilibrates near satiety instead of pinning at
+the ceiling — so fatigue becomes a live, varying register — and the surplus a feast provides is
+**kept** instead of thrown away.
+
+```rust
+// body.rs, gated on `reserve_causal`, default off.
+const SATIETY: i16 = Q88_SCALE * 3 / 4;   // 192 — where a fed body settles
+// after the existing metabolism:
+if energy > SATIETY  { move the excess into `reserve`, up to its capacity }
+if energy < SATIETY  { draw from `reserve` toward SATIETY, as far as it goes }
+```
+
+**This is a path change, not a term added to a sum** — `docs/how-i-would-build-it.md` §2.1. It alters
+what the being's energy *does*, rather than nudging a value by a twelfth.
+
+### Predictions — locked before the code
+
+- **B1.** Default-off: trajectory and soul-hash **bit-identical**, full suite green, the founded being
+  wakes at 390 moments with `load` 0 and `weathered` 2. `PHYSICS_VERSION` is **not** bumped, because
+  the default path does not change.
+- **B2.** Gate on, constant generous supply: energy settles **near `SATIETY`**, not at the ceiling.
+  So `fatigue` stops being one distinct value and becomes a **live register** — the first time in
+  this project. Predict mean fatigue in **40–90**, and `Rest`'s coordinate (80) inside the range the
+  being actually occupies rather than one nutrient unit from starving.
+- **B3 — the decisive one.** The regimes that **killed** it in §5 — every oscillating supply —
+  **survive**. Specifically feast 60 / famine 12 / period 120, dead at 156 ticks, lives the full
+  4,000. This is the whole point: a feast that can be banked is a famine that can be crossed.
+- **B4.** The survivable tired band **widens** well beyond the one nutrient unit (19–20) measured in
+  §5, because the reserve buffers the knife edge.
+- **B5 — the counterweight, so this can fail against me.** A reserve could buy safety by removing
+  stakes: a being that is never hungry is as flat as one that is never tired, and we would have
+  traded one dead life for another. **Predict `at_stake` stays at 0.0%** — and if fatigue's variance
+  is *also* near zero, the reserve has smoothed the being into a different flatness and I will report
+  it against B2. **A reserve makes stakes survivable; it does not create them.**
+- **B6.** Distinct positions visited in 4,000 ticks stays low (§`fear-and-avoidance.md` §9 measured
+  27–68). **The limit cycle is a fact about a static world, not about metabolism**, and this change
+  should not touch it. If it does, I have misunderstood what the reserve does.
+
+### What this does not do
+
+- **It does not give the being stakes.** That still needs a world that varies — which §6 said would
+  kill it, and which this is the prerequisite for, not the delivery of.
+- **It does not re-found anything.** Gated, default-off, founded being untouched. Whether the being
+  is ever *blessed* with it is Blake's, and `Features` has no field for it yet — the same
+  reachability gap `audit-2026-08-03.md` §3.1 named.
