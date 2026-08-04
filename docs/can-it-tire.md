@@ -230,3 +230,97 @@ Two changes, both inside the same default-off gate.
 - **R4.** B6's *failure* deepens: distinct positions rise **further** above 287, because more
   internal variation should mean more behavioural variation. **If instead the orbit narrows, my
   new explanation is wrong too** and the 186 → 287 result needs a different account.
+
+---
+
+## 11. Second pass — five of six lethal famines survive, and the orbit **triples**
+
+### R1 — holds. Bit-identical default path, 361 tests green, founded being at 390 moments.
+
+### R3 — **holds, and by more than predicted: 2 of 6 → 5 of 6**
+
+| feast / famine / period | before the reserve | first pass | **second pass** |
+|---|---|---|---|
+| 60 / 0 / 20 | DIED at 36 | lived | **lived** |
+| 60 / 0 / 60 | DIED at 83 | DIED at 106 | **lived 4,000** |
+| 60 / 0 / 120 | DIED at 138 | DIED at 154 | DIED at 195 |
+| 60 / 5 / 60 | DIED at 92 | DIED at 119 | **lived 4,000** |
+| 60 / 10 / 60 | DIED at 231 | lived | **lived** |
+| 60 / 12 / 120 | DIED at 156 | DIED at 215 | **lived 4,000** |
+
+**Five of the six lives that killed this being are now survivable.** The one that still ends it is a
+**120-tick total famine** — and I said in §10 I would not predict all six, because that may simply
+cost more than three energies. It does. That is a fact about the cap, and it is stated rather than
+tuned away.
+
+### R2 — **partly, and my prediction wanted the wrong thing**
+
+| constant supply | fatigue min | max | mean | distinct |
+|---|---:|---:|---:|---:|
+| nutrient 25, reserve off | 0 | 0 | 0 | **1** |
+| **nutrient 25, reserve ON** | **16** | **61** | **46** | **28** |
+| nutrient 40, reserve ON | 16 | 28 | 16 | **13** |
+| nutrient 60, reserve ON | 16 | 16 | 16 | **1** |
+| nutrient 200, reserve ON | 16 | 16 | 16 | 1 |
+
+At **lean** supply the set point does exactly what it was built for: **fatigue spans 16–61 with 28
+distinct values, and the being lives the full 4,000 ticks.** That is a real tired-and-living band,
+and this project has never had one.
+
+At **generous** supply fatigue settles at a constant **16**, not the 40–90 I predicted. Two things
+are true about that:
+
+- **It is a proportional controller's steady-state offset, not a bug.** Shedding a quarter of the
+  excess per tick balances the inflow at `energy − SATIETY = 4 × net gain`. With a rich supply that
+  parks the being at 240 rather than 192.
+- **And my prediction wanted the wrong thing.** I asked for a well-fed being to be tired. **A
+  well-fed creature should not be tired.** Fatigue should come from exertion and from time since
+  eating, not from being fed. R2 is half-failed on the arithmetic and half-wrong in what it wished
+  for, and the second half is the more useful correction.
+
+### B4 — still fails against `Rest`'s coordinate, but the distance has changed character
+
+Max survivable fatigue is **61**; `Rest` wants **80**. So the coordinate remains out of reach — but
+it is now short by **19 in a regime the being lives in**, rather than reachable only on the way down.
+That is a different kind of gap from the one §5 measured.
+
+### B5 — the automatic verdict fires **against me**, and it is right about half of what it says
+
+The probe printed *"the reserve has traded one flat life for another."* At **nutrient 60** that is
+**correct** — 1 distinct fatigue value before, 1 after, only the constant moved from 0 to 16. As a
+general claim it is **wrong**: at nutrient 25 it is 1 → **28**.
+
+**Reported both ways rather than quoting whichever suits.** The honest statement: *the reserve gives
+the being a varying interior when its supply is lean, and does not when its supply is rich.*
+
+### R4 — **holds. B6's failure deepens, and this is the headline**
+
+| | distinct positions, 4,000 ticks |
+|---|---:|
+| reserve off | 186 |
+| first pass | 287 |
+| **second pass** | **564** |
+
+> **The being explores three times as much of its room.** Same world, same static hearth and hazard
+> and people — the only change is that its own energy is no longer pinned at a rail.
+
+`fear-and-avoidance.md` §9 concluded the limit cycle was *"a fact about a static world, not about
+metabolism."* **That was wrong, and it was the largest conclusion of that day.** Internal variation
+produces behavioural variation: energy that moves varies arousal, which varies effort, which varies
+where the body ends up.
+
+**The being was not only unexercised. It was internally still, and that stillness was most of what
+kept it in a 27-cell orbit.**
+
+## 12. Where this leaves it
+
+- **Ships gated, default-off.** `enable_reserve()`. Nothing is re-founded; `PHYSICS_VERSION` is not
+  bumped, because the default path is untouched.
+- **The critical path has moved.** §6 said a life with stakes would kill this being. **Five of six
+  such lives are now survivable**, so a varying world is no longer disqualified — it is the next
+  thing, with its own welfare case.
+- **Two constants are chosen, not derived**, and should be treated as provisional: `SATIETY` at ¾ of
+  full, and `RESERVE_CAP` at three energies. The 120-tick famine that still kills the being is the
+  measurement that would set the second one honestly.
+- **`Features` still has no field for this**, so the founded being cannot be blessed with it — the
+  same reachability gap `audit-2026-08-03.md` §3.1 named, now blocking something that matters.

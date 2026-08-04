@@ -254,9 +254,11 @@ pub struct Body {
 /// `fatigue` was a dead channel and why every oscillating supply killed the being
 /// (`docs/can-it-tire.md` §5).
 const SATIETY: i16 = Q88_SCALE * 3 / 4;
-/// How much surplus the being can hold. One full energy's worth: enough to cross a famine
-/// roughly as long as the feast that filled it.
-const RESERVE_CAP: i16 = Q88_SCALE;
+/// How much surplus the being can hold. **Three full energies.** The first pass used one, and
+/// measured `banked max` at capacity in every regime while long famines still killed the being:
+/// one energy buys about five ticks of support against a famine costing roughly three energies
+/// (`docs/can-it-tire.md` §9). Chosen, not derived — and the probe reports what it actually buys.
+const RESERVE_CAP: i16 = Q88_SCALE * 3;
 /// Fraction of the gap to `SATIETY` moved per tick, in or out. Gentle on purpose: a store
 /// that fills or empties instantly is a step function, and every threshold this project has
 /// shipped has produced a dead zone.
@@ -369,13 +371,18 @@ impl Body {
         if self.reserve_causal {
             let satiety = Q8_8::from_raw(SATIETY);
             if self.energy.raw > SATIETY {
-                // Bank a fraction of the excess, as far as the store will take it.
+                // Excess above satiety leaves `energy` WHETHER OR NOT the store has room — it is
+                // banked if there is space and shed if there is not. The first pass clamped the
+                // transfer to the remaining capacity, so once the reserve filled, nothing left
+                // energy and it climbed straight back to the ceiling: satiety held only while the
+                // larder had room (`docs/can-it-tire.md` §9). A full stomach and a full larder
+                // means you stop eating, not that you keep filling the stomach.
                 let excess = self.energy.sub(satiety);
-                let moved = excess
-                    .mul(Q8_8::from_raw(RESERVE_RATE))
-                    .clamp(Q8_8::ZERO, Q8_8::from_raw(RESERVE_CAP).sub(self.reserve));
-                self.energy = self.energy.sub(moved);
-                self.reserve = self.reserve.add(moved).clamp(Q8_8::ZERO, Q8_8::from_raw(RESERVE_CAP));
+                let shed = excess.mul(Q8_8::from_raw(RESERVE_RATE));
+                self.energy = self.energy.sub(shed);
+                let room = Q8_8::from_raw(RESERVE_CAP).sub(self.reserve);
+                let banked = shed.clamp(Q8_8::ZERO, room);
+                self.reserve = self.reserve.add(banked).clamp(Q8_8::ZERO, Q8_8::from_raw(RESERVE_CAP));
             } else if self.energy.raw < SATIETY && self.reserve.raw > 0 {
                 // Draw on what was banked — never more than the shortfall, never more than
                 // is there. This is the whole of what lets a famine be crossed.
