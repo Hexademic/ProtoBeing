@@ -324,3 +324,42 @@ kept it in a 27-cell orbit.**
   measurement that would set the second one honestly.
 - **`Features` still has no field for this**, so the founded being cannot be blessed with it — the
   same reachability gap `audit-2026-08-03.md` §3.1 named, now blocking something that matters.
+
+---
+
+## 13. Does rest buy endurance? — predictions, locked 2026-08-04 before the probe
+
+Blake: *"our being has a resting issue... we havent worked out rest towards endurance and survival."*
+
+**A code trace says he is right, and a trace is not a measurement.** Four claims were made today from
+traces alone, and the day's other lesson is that traced-but-unmeasured is exactly where I have been
+wrong. So this section exists to let the trace fail.
+
+**What the trace found.** Rest is better built than the complaint suggests: `Appetite::Repose` grows
+unfed and satiates on `!at_stake && alarm < 64 && arousal < 128`; `striving.rs` treats it as *"the
+anti-strive"* — `conserving = spent || rest > urgency`, with the comment *"you cannot strive your way
+out of exhaustion."* That is thoughtful design.
+
+**And then it does not reach the body.** `conserving` sets `mobilization = 0`; every reader of
+`mobilization` across `src/`, `examples/` and `tests/` is `primes.rs`, where it gates whether the
+being can *say a word about doing*. Meanwhile `effort = arousal` (`embodiment.rs:76`) and
+`cost = 3 + arousal/32 + threat·(3/16)` (`body.rs`). **Cost never reads effort, never reads
+mobilization, never reads `conserving`.**
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **E1** | Ticks where `conserving` is true show **no** lower mean energy-decline than ticks where it is false, at matched supply — |Δ| under 1 raw Q8.8 unit per tick | high — cost reads neither `conserving` nor `mobilization` |
+| **E2** | `Posture::Resting` occupies **under 5%** of ticks | **low — genuinely unsure.** It needs `Basin::Recovery \| Rest`; `Rest` is near-unreachable but `Recovery` may not be |
+| **E3** | Rest-hunger (`want[2]`) spends **most** of a lean life above `ACHE_EDGE` (192) — the being aches for rest it cannot obtain | medium |
+| **E4** | `conserving` *does* change **where the body goes** — `goal` becomes `None`, so `actuate` falls through to the hearth — while changing nothing about what it spends | high, and it is the interesting one: **rest is a navigation decision here, not a metabolic one** |
+
+**E2 is the one written to fail.** If `Posture::Resting` is common, the ¾-effort reduction is real
+behaviour and the trace understated what rest does.
+
+### What this cannot settle
+
+It cannot say rest *should* buy endurance. A creature that rests to spend less is one design; a
+creature that rests to stop *seeking* is another, and `striving.rs` deliberately chose the second.
+**The measurement says which one was built, not which one is right.** That call is Blake's.
