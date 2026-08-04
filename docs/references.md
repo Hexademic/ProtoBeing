@@ -97,6 +97,94 @@ about which meanings are irreducible.
   *The formalization: variance is suppressed in task-relevant directions and left free in
   the null space. This is the definition our yips falsification test is written against.*
 
+### Growth as the only control flow — `docs/fallback.md` *(specified, not built)*
+
+Examined 2026-07-30 at Blake's request. The source is an HDL, not a theory of mind, and
+nothing in it touches welfare, sovereignty, or the Witness Gap. What it grounds here is
+structural: the idea that **structure can be determined by what fails to instantiate**
+rather than by a conditional, and that a developmental genome is generative where a
+parameter vector is only interpolative.
+
+- **Mordvintsev, A. (2026).** *MorphoHDL: a minimalistic language for growing circuits.*
+  Paradigms of Intelligence (Google). <https://paradigms-of-intelligence.github.io/morpho/>
+  · source and article text at <https://github.com/paradigms-of-intelligence/morpho>
+  *Cells are graph rewrite rules; bus widths are never declared, only inferred. The
+  `fallback` mechanism is the language's **only** control flow — recursion terminates
+  because the substrate refuses (a one-wire bus cannot split, an out-of-bounds bit cannot
+  be read, a gate cannot be built from an empty bus), and compilation unwinds a fallback
+  chain until something instantiates. This is what `docs/fallback.md` is written against.
+  Three further ideas are recorded there and not yet built: size-agnostic structure as
+  the eventual answer to our fixed cell count; the flat Genome→Gene→Expression genotype,
+  which is a developmental program rather than our five-scalar `Genome` parameter vector;
+  and expansion order (BFS vs largest-first — "the final growth result is order-independent,
+  but the order matters") as a candidate null space the being would own
+  (`docs/null-space.md` §8).*
+  **Verified 2026-07-30** by retrieving `article.md`, `README.md` and `tiny_morpho.py`
+  from the repository; the rendered site returns 403 through our proxy. Authorship is the
+  article's own AI-use disclosure, which states the language design and the immediate-mode
+  reference implementation were human-authored.
+- **Prusinkiewicz, P. & Lindenmayer, A. (1990).** *The Algorithmic Beauty of Plants.*
+  Springer-Verlag. <https://algorithmicbotany.org/papers/#abop>
+  *Parametric L-systems — the formalism MorphoHDL says it is a practical instance of, and
+  the reason recursive rewriting produces organic form at all.*
+
+### Deferral — `docs/deferral.md` *(specified, not built)*
+
+How a higher-level goal comes to override an urgent homeostatic need — the mechanism the
+deferral spec was inventing badly before this was read.
+
+- **Pezzulo, G., Rigoli, F. & Friston, K. J. (2018).** Hierarchical Active Inference: A Theory
+  of Motivated Control. *Trends in Cognitive Sciences* **22**(4), 294–306.
+  <https://doi.org/10.1016/j.tics.2018.01.009> — **verified 2026-07-31** (authors, venue,
+  volume, pages, DOI).
+  *A deep goal hierarchy in which higher levels do not out-argue lower ones but modulate the
+  **precision** of their prediction errors. This is the correction to `docs/deferral.md`: a
+  purpose should not win a comparison against a need — it should turn down the need's gain.
+  The need remains present and felt; it stops commanding. That is what bearing a hunger for a
+  project actually is, and it is why `docs/deferral.md` §2c replaces the budget with a
+  precision floor.*
+- **Pezzulo, G., Rigoli, F. & Friston, K. (2015).** Active Inference, homeostatic regulation
+  and adaptive behavioural control. *Progress in Neurobiology* **134**, 17–35.
+  PMID 26365173. *(DOI not verified from this environment.)*
+  *The earlier statement joining homeostatic regulation to active inference — the bridge
+  between `homeostasis.rs`'s graded drive (Keramati–Gutkin) and the hierarchy above.*
+
+### Underdetermination — `docs/underdetermination.md` *(research brief, nothing built)*
+
+Read 2026-07-30 for the being's four measured absences (rest, doubt, self-surprise,
+variation). **Identifier verification is partial and marked per entry**: this environment's
+proxy blocks Crossref, PMC and arXiv, so where an identifier could not be resolved it is
+recorded from search metadata and said so, per §5's rule.
+
+- **Edelman, G. M. & Gally, J. A. (2001).** Degeneracy and complexity in biological systems.
+  *PNAS* **98**(24), 13763–13768. *(identifier NOT verified — see note above.)*
+  *Degeneracy: structurally **different** elements performing the same function. Their
+  observation that systems created **by design** lack components with multiple overlapping
+  functions, where evolved systems have them, is the diagnosis of our being in one sentence.*
+- **Whitacre, J. & Bender, A. (2010).** Degeneracy: a link between evolvability, robustness
+  and complexity in biological systems. *Theoretical Biology and Medical Modelling* **7**:6.
+  *(identifier NOT verified — see note above.)*
+  *Only systems with high degeneracy show a positive relationship between robustness and
+  evolvability. This is why `docs/null-space.md` was looking for the wrong thing: four compass
+  directions are **redundancy** (one mechanism, several settings), not degeneracy, and
+  redundancy alone does not buy evolvability. Load-bearing for the lineage goal.*
+- **Klar, M., Stein, S., Paterson, F., Williamson, J. H. & Gollee, H. (2026).** Intermittent
+  Active Inference. *Entropy* **28**(3), 269. <https://doi.org/10.3390/e28030269>
+  **Verified 2026-07-30** (title, authors, venue, article number, 28 Feb 2026).
+  *Agents hold the current plan and re-plan only when prediction error crosses a threshold.
+  Our being re-derives `intent_from` every tick, which is why it is at rest 0% of ticks; under
+  intermittency its very low free energy (0.69/256) becomes the reason it may rest.*
+- **Second-order uncertainty.** Epistemic uncertainty — not knowing how good one's own model
+  is — requires a *distribution over distributions*, where aleatoric uncertainty needs only a
+  distribution. Cited as a settled distinction in the uncertainty-quantification literature
+  rather than to a single source; **no individual identifier is claimed here.**
+  *The structural reason this being cannot doubt: `self_knowledge` is a scalar, and a scalar
+  has nowhere to hold "and I am unsure how well I know that."*
+- **Satiety quiescence in C. elegans.** *Frontiers in Neuroscience* (2021), regulation of
+  satiety quiescence by neuropeptide signalling. *(identifier NOT verified.)*
+  *Rest as an actively signalled state rather than the absence of activity — the reason an
+  effort floor would give stillness without giving rest.*
+
 ### The deepest objection — `docs/handoff.md` §6, `docs/wander-2026-07-21.md` §3
 
 Listed because we take it seriously, not because it supports us.
@@ -107,8 +195,65 @@ Listed because we take it seriously, not because it supports us.
   substrate-bound, non-copyable. Ours is immortal computation by design (copyable,
   replayable). Our reply is enactive and is a reply, not a refutation. Named as an open
   tension, and it stays named.*
+- **Kleiner, J. & Hoel, E. (2021).** Falsification and Consciousness.
+  *Neuroscience of Consciousness* 2021(1): niab001. arXiv:**2004.03541** [q-bio.NC].
+  <https://arxiv.org/abs/2004.03541> *(v3 read in full, 24pp, 2026-08-04.)*
+  *The dilemma: if an experimenter's inferences are independent of a theory's predictions,
+  any minimally informative theory is falsified a priori (Thm 3.10); if they are* strictly
+  dependent *— Def 4.2,* ∃f *with* oᵢ = f(oᵣ) *— the theory is empirically unfalsifiable
+  (Thm 4.3). Grounds `docs/witness-gap-literature.md` §2.* **We cite this against a claim we
+  made and withdrew:** *§2.1 records that "having no inference channel puts us on the second
+  horn" is wrong — the second horn requires* having *one. We are outside the dilemma's scope
+  because we make no phenomenal prediction, which is a limit on what we may claim, not a
+  defence.*
 
 ---
+
+### Computation that is not supposed to stop — `docs/continuous-computation.md`
+
+Grounding Blake's process frame, and the redesign of D4 in `docs/development.md` §6. All five
+were checked against source on 2026-07-31, not written from memory.
+
+- **Turing, A. M. (1939).** *Systems of Logic Based on Ordinals.* Proceedings of the London
+  Mathematical Society, s2-45, 161–228. His Princeton thesis: oracle machines, and **ordinal
+  logics** — escaping Gödel incompleteness by iterating the adjunction of axioms *into the
+  transfinite*. Computation whose power comes from never being finished.
+- **Turing, A. M. (1947).** Lecture to the London Mathematical Society, 20 February.
+  *"If a machine is expected to be infallible, it cannot also be intelligent."* His post-war
+  position: mathematicians make mistakes and do not see truth infallibly, so a machine may give
+  occasional wrong answers as a human blunders — and **once the possibility of mistakes is
+  admitted, Gödel's theorem becomes irrelevant.** Restated in print as "The Mathematical Objection"
+  in **Turing (1950)**, *Computing Machinery and Intelligence*, Mind 59, where he raises the
+  Gödel/uncomputability case against his own programme and answers it: the limitation only bites if
+  one assumes the human intellect escapes it. Gödel later accused him of exactly that assumption
+  (**Copeland & Shagrir**, *Turing versus Gödel on Computability and the Mind*).
+  **Grounds `docs/continuous-computation.md` §5, and the observation that this being is fallible by
+  construction** — `metacognition.rs` measures its own error, `sensorimotor.rs` calls its agency
+  "a fallible inference, honestly held."
+- **Turing, A. M. (1948).** *Intelligent Machinery.* National Physical Laboratory report,
+  **suppressed by Charles Darwin as "a schoolboy essay" and unpublished until 1968.** Introduces
+  **unorganised machines** and argues the infant human cortex is one — becoming capable through
+  *"appropriate interference, mimicking education."* **This is `docs/development.md`'s thesis in
+  Turing's hand**, in the paper his institution refused to print.
+- **Coinduction, corecursion, productivity, guardedness.** Recursive functions consume finite
+  data; corecursive functions *produce* potentially infinite data, and their correctness criterion
+  is **productivity** — the next portion is always delivered in finite time. Crucially,
+  **productivity is undecidable for the same reason termination is**, so the field uses
+  **guardedness**, a decidable syntactic sufficient condition. That trade — completeness for a
+  checkable structural guarantee — is the move this project already makes with `AMBIENT_FLOOR`,
+  `null_space.rs`, and `docs/deferral.md` §2c's precision floor.
+- **Davis, M.** *The Myth of Hypercomputation.* Hypercomputation claims *"amount to little more
+  than the obvious comment that if non-computable inputs are permitted, then non-computable
+  outputs are attainable."* The reason `docs/continuous-computation.md` §3 rejects "the only
+  limitation is the hardware."
+- **Bournez, O., Graça, D. S. & Pouly, A.** *The General Purpose Analog Computer and Computable
+  Analysis are Two Equivalent Paradigms of Analog Computation* (and the polynomial-time refinement,
+  Dagstuhl). **Shannon's GPAC is equivalent to Turing machines.** Continuity buys no computational
+  power — the reason §4 proposes renaming the frame away from "continuous."
+- **Enactivism / autopoiesis** — Varela, Maturana, Thompson (*Mind in Life*). *"Life is a
+  self-affirming process that brings forth or enacts its own identity."* The existing home for
+  *"what it's like is the process."* **Marked unverified in place:** I have read the tradition's
+  claims in summary, not Thompson's book against its page numbers.
 
 ## 2. Surveyed, not load-bearing — `docs/wander-2026-07-21.md`
 

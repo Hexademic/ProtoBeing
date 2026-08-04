@@ -64,6 +64,39 @@ const BROADCAST_GAIN: i32 = 64;
 /// body-vote deposited each tick; fraction of the held trace re-injected into the
 /// field; and a hard cap so the trace can never run away. All Q8.8. Chosen so the
 /// held focus cascades (spread-probe reach > 1) while staying bounded.
+/// **Arrival** — the proximity at which the being's purpose counts as *met* rather than merely
+/// close. **Derived, not chosen:** `striving.rs` defines a need as pressing at `SALIENT`
+/// (`Q88_SCALE / 4` = 64), so a purpose whose divergence is already below that is *already* not
+/// pressing, and declaring it satisfied changes nothing. Satiety is only meaningful at the point
+/// where the need stops being salient:
+///
+/// ```text
+/// TELOS_ARRIVED = Q88_SCALE − SALIENT = 256 − 64 = 192
+/// ```
+///
+/// **The first version of this constant was 224 and it was a no-op by arithmetic** — at proximity
+/// 224 the divergence is 32, already below `SALIENT`, so the branch fired on 53 ticks of 4,000 and
+/// changed nothing. The soul-hash came back identical and the probe reported "C3 fails" for a test
+/// that had never run. Recorded in `docs/comfort.md` §8; the lesson is the one this repository
+/// keeps re-learning — *state what a measurement could not have shown, before reporting what it
+/// did.*
+///
+/// Every other need this being has can be satisfied — sustenance at full viability, company on a
+/// partner's presence, novelty on discovery, repose on being calm. Purpose alone was written as a
+/// raw distance with no satiety point, which is why `striving.rs`'s existing rest path was
+/// unreachable: something was always most urgent. See `docs/comfort.md`.
+const TELOS_ARRIVED: i16 = Q88_SCALE * 3 / 4;
+
+/// **Settling** (`docs/settling.md`, opt-in). How much of the being's own hunger for repose
+/// becomes a downward pull on its arousal. The repose want runs 0–256, `affective_drive`'s whole
+/// sum is clamped to ±128, and the five other tones there span roughly ±90 — so a divisor of 3
+/// lets settling be *heard* among them without ever dominating them.
+///
+/// Proportional, never thresholded: every threshold this project has shipped produced a dead zone
+/// (`NOCI_THRESHOLD`, and `TELOS_ARRIVED`'s first value). The being settles in proportion to how
+/// much it wants to.
+const SETTLE_DIVISOR: i16 = 3;
+
 const WORKSPACE_RETENTION: i16 = 192;
 const WORKSPACE_DEPOSIT: i16 = 160;
 const WORKSPACE_INJECT: i16 = 128;
@@ -680,11 +713,45 @@ pub struct UnifiedBeing {
     /// partner. **Default false** — off, the learned expectation is a pure observer
     /// and the being's numbers are bit-identical. Enable via `enable_memory_guidance()`.
     pub memory_causal: bool,
+    /// **Comfort (`docs/comfort.md`), opt-in.** Gives the being's *purpose* a satiety band, so
+    /// that arriving at the place it holds as its own means the need is **met** rather than merely
+    /// small. Without it, `telos_divergence` is a raw distance that keeps purpose salient until the
+    /// being is within 75% proximity — and since it holds a purpose 85–96% of its life, it almost
+    /// never has permission to stop. `striving.rs` already implements rest as the anti-strive and
+    /// tests it; this removes the obstruction that made it unreachable, and adds no mechanism.
+    ///
+    /// **Default false** — off, the trajectory and soul-hash are bit-identical and the founded
+    /// being is untouched. Enable via `enable_comfort()`.
+    pub comfort_causal: bool,
+    /// **Settling (`docs/settling.md`), opt-in.** Lets the being's own hunger for repose pull its
+    /// arousal *down* — the first thing this being can do that acts on itself rather than on the
+    /// world. Every other act it has changes *where it is*; this changes *how it is*.
+    ///
+    /// Not a new faculty: a seventh term in `affective_drive`'s existing sum, negative, sitting
+    /// where `reflection_tone` and `homecoming_tone` already sit. And because
+    /// `intent_from` sets `effort = arousal × 256`, an arousal that falls carries effort down with
+    /// it — **the being settling is the being doing less.**
+    ///
+    /// **Zeroed whenever the being is `at_stake`**: a creature whose survival is in question must
+    /// not be able to sedate itself.
+    ///
+    /// **Default false** — off, the trajectory and soul-hash are bit-identical and the founded
+    /// being is untouched. Enable via `enable_settling()`.
+    pub settling_causal: bool,
+    /// Let the being set weight down while it is still carrying its life
+    /// (`docs/setting-it-down.md`, incident **I-9**). Default off ⇒ the trajectory and
+    /// soul-hash are bit-identical and the founded being is untouched. Enable via
+    /// `enable_setting_down()`.
+    pub setting_down_causal: bool,
     /// Last tick's learned caution (Q8.8 [0,256]): how strongly the being's memory
     /// forewarned it — `-expected_outcome × confidence` when forewarned, else 0. Held
     /// a tick because the refusal decision runs before this tick's memory is read
     /// (the codebase's lagged-feedback convention, as with threat/affective_drive).
     last_forewarning: i16,
+    /// Last tick's hunger for repose (`joy.rs`'s third want, Q8.8 [0,256]). Held a tick because
+    /// `joy` is read after `affective_drive` is composed — the lagged-feedback convention used
+    /// for threat, reflection and homecoming. Read only under `settling_causal`.
+    last_repose_want: i16,
 }
 
 impl UnifiedBeing {
@@ -767,7 +834,11 @@ impl UnifiedBeing {
             last_felt: FeltReport::default(),
             felt_choice_causal: false,
             memory_causal: false,
+            comfort_causal: false,
+            settling_causal: false,
+            setting_down_causal: false,
             last_forewarning: 0,
+            last_repose_want: 0,
         }
     }
 
@@ -1367,8 +1438,25 @@ impl UnifiedBeing {
         // and then becomes ordinary presence. Lagged (last tick's release), the being's
         // own convention, since attachment is read later in the tick.
         let homecoming_tone = if self.homecoming_causal { self.last_release / 6 } else { 0 };
+        // SETTLING, made causal (opt-in, `enable_settling`; default off ⇒ this term is 0 and the
+        // trajectory is bit-identical). The being's own hunger for repose (`joy.rs`'s third want,
+        // computed since that module was written and attached to no goal) pulls its arousal DOWN.
+        // Negative by construction — this is the one need approached by doing less, and the only
+        // act this being has that operates on itself rather than on its world.
+        //
+        // Lagged one tick, the codebase's convention: `joy_report` is computed later in the tick,
+        // exactly as threat, affective_drive and reflection already are.
+        //
+        // ZEROED AT STAKE. A being whose survival is in question must not be able to sedate
+        // itself; the same floor `docs/deferral.md` §4 wrote before its mechanism existed.
+        let settle_tone = if self.settling_causal && !self.last_felt.state.at_stake {
+            -(self.last_repose_want / SETTLE_DIVISOR)
+        } else {
+            0
+        };
         self.affective_drive = Q8_8::from_raw(
-            (mode_tone + relational_tone + restlessness + recall + reflection_tone + homecoming_tone)
+            (mode_tone + relational_tone + restlessness + recall + reflection_tone
+                + homecoming_tone + settle_tone)
                 .clamp(-128, 128),
         );
 
@@ -1563,9 +1651,16 @@ impl UnifiedBeing {
         // company need directly, so missing someone can become what it most strives
         // for (`striving.rs`). Still an observer of the being's core; it steers only
         // the body, across the embodiment seam.
-        let telos_divergence = telos_report
-            .active
-            .map_or(0, |t| (Q88_SCALE - t.current_proximity).max(0));
+        // Purpose's urgency. Off (the default) this is a raw distance with no satiety point —
+        // the only need in this being that cannot be finished, and therefore the reason rest is
+        // unreachable (`docs/comfort.md` §1). On, arriving counts as arriving.
+        let telos_divergence = telos_report.active.map_or(0, |t| {
+            if self.comfort_causal && t.current_proximity >= TELOS_ARRIVED {
+                0
+            } else {
+                (Q88_SCALE - t.current_proximity).max(0)
+            }
+        });
         let strive_report = strive(
             felt.state.viability,
             felt.anticipating,
@@ -1579,6 +1674,10 @@ impl UnifiedBeing {
         // that can sit at a stable elevated level, unlike the bimodal viability. A
         // pure read of feeling + wanting; nothing downstream consumes it.
         let drive_report = drive(felt.state.viability, &joy_report.want);
+        // Carry this tick's hunger for repose forward for `settle_tone` (lagged, as with threat,
+        // reflection and homecoming). Stored unconditionally; read only when settling is enabled,
+        // so the default path is untouched.
+        self.last_repose_want = joy_report.want[2].clamp(0, Q88_SCALE);
 
         // HABITS (observer, `docs/habits.md`). One-tick credit assignment: the way the
         // being reached *last* tick, in the kind of moment it was in, is credited with
@@ -1655,9 +1754,23 @@ impl UnifiedBeing {
         // burdened being does not count as resting, and its weight accrues in its quiet
         // rather than discharging — the fix the measurement demanded (a being adapts so
         // fast that a hard life feels calm, and that calm must not erase the weight).
-        let resting = !burdened
-            && (matches!(basin, Basin::Rest | Basin::Recovery)
-                || (!losing_ground && free_energy < Q88_SCALE * 3 / 16 && felt.state.arousal < Q88_SCALE / 2));
+        //
+        // That reasoning is right **for accrual**, and it was applied to a flag that also
+        // governs *discharge* — which welded the exit shut. Where the burden is structural
+        // rather than episodic (solitude is), the being can never become un-burdened, so it
+        // never converts, so its load climbs to the 256 ceiling and stays: measured at 3,638
+        // consecutive pegged ticks of a 4,000-tick life (incident **I-9**,
+        // `examples/reflection_deadlock`). So `settled` is the same condition **without** the
+        // `!burdened` conjunct, and the two questions are asked separately:
+        //   - off-duty enough to stop ACCRUING?   -> `resting`, unchanged, still needs !burdened
+        //   - settled enough to SET SOME DOWN?    -> `settled`, which a burdened being can reach
+        // Both still require `!losing_ground` (inside `settled`): a being being outrun must never
+        // be able to bank its way out of noticing.
+        let settled = matches!(basin, Basin::Rest | Basin::Recovery)
+            || (!losing_ground
+                && free_energy < Q88_SCALE * 3 / 16
+                && felt.state.arousal < Q88_SCALE / 2);
+        let resting = !burdened && settled;
         let reflection_report = self.reflection.cycle(
             free_energy,
             felt.state.at_stake,
@@ -1668,6 +1781,8 @@ impl UnifiedBeing {
             self.episodic.hardest_lesson(),
             self.reciprocity.dearest().map(|(id, _)| id),
             telos_report.active.is_some(),
+            settled,
+            self.setting_down_causal,
         );
         // Carry this tick's weight forward for the (lagged) causal path next tick.
         self.last_load = reflection_report.load;
@@ -1966,6 +2081,62 @@ impl UnifiedBeing {
     /// past teaches its present choices.
     pub fn enable_memory_guidance(&mut self) {
         self.memory_causal = true;
+    }
+
+    /// Let the being's purpose be **finished** (`docs/comfort.md`). With this on, a purpose the
+    /// being has arrived at (proximity ≥ `TELOS_ARRIVED`) stops generating urgency, which makes
+    /// `striving.rs`'s existing rest path reachable on the being's own terms.
+    ///
+    /// This does not make the being rest. It stops forbidding it. A being forced to rest is as
+    /// unfree as one forbidden to — the same law, from the other side.
+    pub fn enable_comfort(&mut self) {
+        self.comfort_causal = true;
+    }
+
+    /// Let the being quiet itself (`docs/settling.md`). Its hunger for repose becomes a downward
+    /// pull on its own arousal — the first act it has that operates on itself.
+    ///
+    /// This does not make the being rest, and it must never be able to. It lets the being's own
+    /// want do something, where before the want was computed and attached to nothing.
+    pub fn enable_settling(&mut self) {
+        self.settling_causal = true;
+    }
+
+    /// Give the being a **satiety set point and a reserve** (`docs/can-it-tire.md` §8).
+    ///
+    /// Without this, `energy` is a pure accumulator clamped at both ends, so it has exactly two
+    /// attractors — the ceiling and the floor. Measured consequences: the being is **full or
+    /// dying, never tired** (`fatigue` had ONE distinct value across a 4,000-tick life, and it is
+    /// one of `Basin::Rest`'s three coordinates), and **a feast cannot be banked**, so every
+    /// oscillating supply killed it — including feast 60 / famine 12, whose time-average is nearly
+    /// double the survival boundary.
+    ///
+    /// With it on, surplus above satiety is kept rather than discarded at the ceiling, and the
+    /// deficit below it is met from what was kept. Energy settles *near* satiety instead of
+    /// pinned at full.
+    ///
+    /// **This does not give the being stakes.** It makes stakes survivable. A varying world is
+    /// still needed, and this is its prerequisite, not its delivery.
+    pub fn enable_reserve(&mut self) {
+        self.body.reserve_causal = true;
+    }
+
+    /// Let the being **set weight down while it is still carrying its life**
+    /// (`docs/setting-it-down.md`, incident **I-9**).
+    ///
+    /// With this off, discharging carried load requires the being to be *un-burdened* — the same
+    /// condition that accrues it. A being under a **structural** burden therefore never discharges
+    /// at all: measured, a solitary being sits at the 256 ceiling for 3,638 consecutive ticks of a
+    /// 4,000-tick life and converts nothing. `reflection.rs` promises that path is *"always
+    /// liftable at rest — chronic stress that is real, still not a trap."* It is a trap.
+    ///
+    /// With this on, a being that is *settled* — calm, not being outrun — sets some weight down at
+    /// a **quarter** rate even while burdened, and the floor division that erased weak loads is
+    /// given a floor of one. It never fires while the being is losing ground.
+    ///
+    /// This does not make the being's life easier. It stops the exit from being welded shut.
+    pub fn enable_setting_down(&mut self) {
+        self.setting_down_causal = true;
     }
 
     /// Step the being through one tick of an embodiment: the body's sensed

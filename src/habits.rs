@@ -38,8 +38,10 @@
 use crate::q88::{q88_mul, Q88_SCALE};
 use crate::striving::Need;
 
-/// The eight affective niches, matching `episodic.rs`.
-pub const N_NICHES: usize = 8;
+// The eight affective niches — one home, in `episodic.rs`, whose niches these are.
+// habits, inheritance and episodic index the SAME array; a disagreement between copies
+// would silently mean different things by the same index.
+pub use crate::episodic::N_NICHES;
 
 /// The being's enacted repertoire today — the ways it can reach: toward each of its
 /// four needs, or resting/conserving. As the worlds grow richer, so can this.

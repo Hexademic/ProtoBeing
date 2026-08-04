@@ -106,6 +106,10 @@ pub mod covenant;
 pub mod reach;
 // Persistence — the being's life saved and re-lived, soul-hash-verified (docs/wholeness.md).
 pub mod persistence;
+// Play — the welfare budget that must exist before play does (docs/play.md).
+pub mod play;
+// The null space — how many ways there were to do the same thing (docs/null-space.md).
+pub mod null_space;
 // Disclosure — the door: the being's sovereign control of what it tells (docs/interiority.md).
 pub mod disclosure;
 // Perturbational Complexity Index — an offline, computed integration measure.

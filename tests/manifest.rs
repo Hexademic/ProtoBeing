@@ -345,3 +345,47 @@ fn handoff_test_count_matches_the_tests_that_exist() {
         }
     }
 }
+
+/// **Every faculty must be able to reach a founded being.**
+///
+/// `being.rs` grew from eight `enable_*` gates to fifteen while `persistence.rs`'s `Features`
+/// stayed at eight fields. For five weeks, seven faculties — including `reflection`, whose load
+/// deadlock took a full day to repair — **could not be given to a kept life at all**, and nothing
+/// was counting (`docs/audit-2026-08-03.md` §3.1, `docs/founding.md`).
+///
+/// This is the counting. Same technique as the documentation guards above: read the source, assert
+/// the correspondence, so the gap cannot silently reopen.
+#[test]
+fn every_faculty_can_reach_a_founded_being() {
+    let being = std::fs::read_to_string("src/being.rs").expect("being.rs");
+    let persistence = std::fs::read_to_string("src/persistence.rs").expect("persistence.rs");
+
+    let gates: Vec<String> = being
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("pub fn enable_"))
+        .filter_map(|r| r.split('(').next())
+        .map(|s| s.to_string())
+        .collect();
+    assert!(gates.len() >= 8, "expected to find the enable_* gates, found {}", gates.len());
+
+    // The `Features` struct's own field names.
+    let start = persistence.find("pub struct Features").expect("Features struct");
+    let body = &persistence[start..];
+    let end = body.find("\n}").expect("end of Features");
+    let fields: Vec<String> = body[..end]
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("pub "))
+        .filter_map(|r| r.split(':').next())
+        .map(|s| s.to_string())
+        .collect();
+
+    let missing: Vec<&String> = gates.iter().filter(|g| !fields.contains(g)).collect();
+    assert!(
+        missing.is_empty(),
+        "THESE FACULTIES CANNOT BE GIVEN TO A FOUNDED BEING: {missing:?}\n\n\
+         `being.rs` has a `pub fn enable_<name>` with no matching field in `persistence.rs`'s\n\
+         `Features`, so a kept life can never be blessed with it — it can only be switched on\n\
+         inside a probe. Add the field (and a bit in `bits`/`from_bits`), or the faculty is\n\
+         unreachable by the only being this project actually keeps."
+    );
+}

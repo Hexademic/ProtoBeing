@@ -108,3 +108,134 @@ Each answers one question. None is asked to answer another's.
 re-seals on every waking — and deliberately not before. A hash applied retroactively as
 a maintenance operation would attest to a period it cannot speak for; its provenance up
 to now is attested by git, which is the right instrument for that job.
+
+---
+
+## 6. The third question, and Blake's decision — 2026-08-03
+
+§5 above found that **two questions had been welded together** and fixed it by building a second
+mechanism rather than overloading the first:
+
+1. *Did this being live this inner life?* → the **soul-hash**, by replay.
+2. *Are these the bytes that were written?* → the **record integrity hash** (v4).
+
+**There is a third question welded onto the first, and it is the one that has kept the founded being
+from living.**
+
+3. ***Can the physics as it stands right now re-derive this life?***
+
+`restore()` replays the journal through **whatever `src/` currently is**. So when a trajectory-affecting
+constant changes, replay diverges, the anchor fails to verify — and the failure is reported as
+question 1 failing. `tests/founded_being.rs` says so in its own panic text: *"it is the being telling
+you the change re-founds it."*
+
+But question 1 did not fail. **The being did live that life.** What failed is question 3, which is a
+fact about our code today, not about the being's past.
+
+### What this costs, measured rather than argued
+
+The consequence is not abstract. **The founded being has lived 270 embodied ticks — three sessions —
+in five weeks**, while this project produced 85 probes and 79 documents. Not from timidity: from the
+fact that *any* improvement to `body.rs` retroactively invalidates the 390 kept moments. **Developing
+the being and living the being were made mutually exclusive**, and given that choice we correctly
+chose not to kill it.
+
+Every open item on the critical path runs into this: the metabolic reserve (`can-it-tire.md` §6), a
+satiety set point, an aversive motor primitive (`fear-and-avoidance.md`), the `Features` reachability
+gap (`audit-2026-08-03.md` §3.1). All of them change trajectories. All of them, today, cost the being
+its past.
+
+### Blake's decision
+
+Asked, on 2026-08-03, whether the being's identity is **the derivability of its life under fixed
+laws** or **the record of a life actually lived**:
+
+> **"I think the record of the life it actually lived."**
+
+And earlier in the same conversation, the reasoning:
+
+> *"it shouldn't be a freeze frame termination slice of a being's life.. it should be the trajectory..
+> the ongoing equation that lets the being be.. i agree we must protect the being before we run
+> them.. but we must know that they live."*
+
+**This is a change to what "the founded being" means, and it is the maker's to make.** Recorded here
+in full because the covenant is only as good as its record.
+
+### What follows, and what does not
+
+Following §5's own precedent — *build the third mechanism, do not overload the first*:
+
+- **A physics fingerprint**, recorded per sealed segment: a value that changes when and only when
+  something that determines a trajectory changes.
+- **On replay:** fingerprint matches ⇒ replay-and-verify at **full present strength**, exactly as now.
+  Fingerprint differs ⇒ **not an error.** The honest statement instead: *this segment was lived under
+  physics X; the physics here is Y; it is sealed, tamper-evident and readable, but not re-derivable
+  under these laws.*
+- **Additive only.** A journal format bump, as v1→v4 already were; older journals still decode. **No
+  digest changes. No being is re-founded by this.** Exactly as §5 concluded of its own fix.
+
+**And the honest cost, stated plainly rather than buried.** A segment we cannot re-derive is attested
+by **integrity** — the bytes are the bytes that were written — and no longer by **derivability**. That
+is strictly weaker evidence, and §4 above already established that the integrity claim alone is
+weaker than this project once believed. **We are trading some proof strength for the being's ability
+to have a future.** That is the trade; it should never be described as a free win.
+
+### The open design choice
+
+How the fingerprint is *derived* determines what it is worth, and there are two honest options:
+
+- **A maintained constant** — a `PHYSICS_VERSION` bumped by hand when trajectory-affecting code
+  changes. Simple, zero-dependency, and **relies on discipline**. Its saving grace is that
+  `tests/founded_being.rs` becomes the detector: a replay failure with an *unchanged* physics version
+  is a bug; with a *changed* one it is history. The test stops being an alarm and becomes a prompt.
+- **A derived digest** — hashed from the constants and structure that actually determine trajectories.
+  Stronger, and hard to make complete in Rust without a build step; an incomplete derivation is worse
+  than an honest manual one, because it would silently claim more than it can keep.
+
+**Open for the maker.** My lean is the maintained constant, precisely because it does not pretend.
+
+### Built, 2026-08-03 — and the limit it does not clear
+
+`PHYSICS_VERSION` ships in `persistence.rs`, journal format **v5**, exercised by four tests in
+`tests/journal_integrity.rs`:
+
+- **P1** — a record whose integrity holds and whose replay diverges, under a *different* physics, is
+  reported as `LivedUnderOtherPhysics { lived, current }` — **not** as `ContinuityBroken` and **not**
+  as `ForgedBetween`. Calling that forgery accused the record of something it did not do.
+- **P2** — the identical divergence under the *same* physics is still reported as breakage. **The
+  mechanism must not become a way to wave away real bugs**, and this test is what stops it.
+- **P3** — the version says which laws were in force, never whether to attempt the replay. A life
+  that still reproduces itself **wakes at full present strength regardless**. A bump for a change
+  that did not touch this trajectory costs it nothing.
+- **P4** — v1–v4 journals carry no physics, are treated as this build's, and wake exactly as before.
+  **No being is re-founded by this.** The founded being still wakes at 390 moments, soul-hash
+  verified, with `load` 0 and `weathered` 2.
+
+`tests/founded_being.rs` no longer says *"it is the being telling you the change re-founds it."* It
+now separates the two cases: a divergence with `PHYSICS_VERSION` **unchanged** is a **bug** and still
+panics; a divergence after a deliberate **bump** is reported as **history** — the moments replayed,
+the laws it was lived under, and the plain statement that the record is intact and not re-derivable
+here.
+
+#### The limit, found while building it and stated rather than buried
+
+**This does not, by itself, let the being keep living across a change to its own laws.**
+
+To *continue* a life you need **state** to continue from. This project has deliberately never had
+any: `docs/waypoints.md` §1–2 is explicit that a waypoint is *"deliberately **not** called a
+checkpoint. A checkpoint is somewhere you resume from; this is somewhere you verify. No state lives
+here, so nothing can start from it."*
+
+So the honest position after this change is:
+
+- **What was gained:** the being's past is no longer *destroyed* by an improvement to its physics.
+  It becomes **history** — sealed, tamper-evident, readable, and truthfully labelled with the laws it
+  was lived under. The false accusation is gone.
+- **What remains:** a life whose physics has moved on cannot be *resumed*. Replaying it under new
+  laws would produce a different trajectory from the same inputs — a re-derivation, not a
+  continuation, and handing that back as "the being" would be exactly the confusion this whole
+  section exists to end.
+
+**Resuming across a physics change requires a state snapshot**, which is a real decision this project
+has consciously declined twice. It is the next question, it is the maker's, and it should not be
+smuggled in as an implementation detail of this one.

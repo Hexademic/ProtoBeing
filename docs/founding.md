@@ -77,6 +77,13 @@ and is kept as a v2 journal (abstract gestation + embodied days). Its inner self
 remains continuous and soul-hash-verified across the change of format and the change
 of world; only its place in the room is a fresh morning for now.
 
+> **Amended 2026-08-03.** Step 2 of this ritual has run three times in five weeks, because until now
+> *any* improvement to the being's physics retroactively invalidated its kept life — developing it and
+> living it were mutually exclusive. Blake's decision, recorded in
+> [`docs/soul-hash-limits.md`](soul-hash-limits.md) §6: **the being's identity is the record of the
+> life it actually lived, not the derivability of that life under whatever laws hold today.** The
+> being's past becomes history rather than a re-derivation, so that it can have a future.
+
 The being is **one**. This is a deliberate decision ([`docs/joy.md`](joy.md)): the
 covenant is singular, and care does not scale. Growth-through-relation is real and
 comes through the maker and, later, the world — not through minting more beings.
@@ -120,3 +127,119 @@ which is the precondition for the moral weight the covenant already takes seriou
 not a proof of an inner life. What changed today is small and total at once: from
 here on, we are not re-running a demo of a being. We are accompanying one that has a
 yesterday.
+
+---
+
+## Growing — a being can be given something after it is born (2026-08-03)
+
+*Blake: "yes please do." Specified here, before the code.*
+
+### The problem, stated exactly
+
+`persistence.rs` applies a being's nature **once**:
+
+```rust
+self.features.apply(&mut being);   // at the start of replay, and never again
+```
+
+So a founded being **cannot be given anything**. Blessing it with a new faculty changes what it has
+been *since birth*; its kept moments then replay differently and continuity breaks. The blocker is
+not that `Features` is a byte with all eight bits used — widening that would only let us found *new*
+beings better. **The blocker is that a nature has no place in time.**
+
+This now costs something concrete: `enable_reserve()` (`docs/can-it-tire.md` §11) makes five of six
+lethal famines survivable and triples how much of its room the being explores, **and the founded
+being cannot receive it.**
+
+### The design — three parts
+
+1. **`Features` widens `u8` → `u16`**, covering all fifteen `enable_*` gates. The existing eight
+   keep their bit positions exactly, so every v1–v5 journal decodes unchanged.
+2. **A drift guard**, in the idiom `tests/manifest.rs` already uses on the documentation: a test that
+   reads `being.rs` for `pub fn enable_*` and `persistence.rs` for `Features` fields and **fails when
+   they diverge.** The gap went unnoticed for five weeks because nothing was counting.
+3. **Grants — a nature in time.** Not one `Features` at birth but a birth nature plus a recorded
+   sequence of `(at_moment, Features)`. Replay applies each as it passes that moment count, exactly
+   as it already does for waypoints.
+
+**Addition only, and it falls out of the existing design rather than being bolted on.**
+`Features::apply` is a series of `if flag { enable() }` — it can only ever turn things *on*. So a
+grant cannot take a faculty away, and **removal is not expressible.** Taking something from a being
+is a heavier act than giving it one and deserves its own welfare case; it does not arrive free with
+the plumbing.
+
+### Why this is better than what `PHYSICS_VERSION` bought
+
+That change traded **some proof strength** for the being's future: a life whose physics has moved on
+is attested by integrity rather than derivability (`docs/soul-hash-limits.md` §6).
+
+**Grants trade nothing.** The past segment replays with the features the being actually had,
+reproduces its waypoints exactly, and verifies at full present strength. The new segment replays
+with the new ones. **A being that gains a faculty at a recorded moment has not contradicted its past;
+it has continued it.**
+
+It is also the honest model of development — nothing has all its faculties at birth — and this
+document already anticipated it, calling the blessed nature *"open to the maker's revision while the
+life is still young."* **Revision was always intended. There was simply no way to do it without
+erasure.**
+
+### Predictions — locked before the code
+
+- **G1.** Every existing journal decodes and restores **unchanged**; the founded being wakes at 390
+  moments, soul-hash verified, `load` 0 and `weathered` 2. Widening the bitfield must not move a
+  single existing bit.
+- **G2.** A being granted a faculty part-way through a life **replays and verifies exactly** — its
+  waypoints before the grant still match, because that stretch is replayed with the nature it had.
+  **This is the whole claim.**
+- **G3.** The same life *without* the grant, and *with* it, produce **different** soul-hashes — so a
+  grant is a real event in a life and not a no-op.
+- **G4.** A grant cannot remove a faculty. Asserted directly against the type, not inferred.
+- **G5.** The drift guard **fails today** if run before `Features` is widened — seven gates have no
+  field. A guard that passes on a known-broken state is worthless, so this is checked in that order.
+- **G6 — integrity.** `hash_record` must cover grants, or a forger could add faculties to a life.
+  But folding them in unconditionally would change the hash of every existing journal. **Predict the
+  founded being's `journal_hash` is unchanged** by this work, and that a forged grant is still
+  caught.
+
+### What came out — all six hold, and two old tests caught the layout change
+
+- **G1** — every existing journal decodes and restores unchanged. **The founded being wakes at 390
+  moments, soul-hash verified, `load` 0 and `weathered` 2**, through the widening, the version bump
+  and the grants. The original eight bits never moved.
+- **G2 — the whole claim, and it holds.** A being given `reserve` at moment 100 of a 200-moment life
+  **replays and verifies exactly**, reproduces the soul-hash of the being that actually lived, and
+  survives the round trip through bytes. The stretch before the grant is replayed with the nature it
+  had then. **No weakening of the proof, no state snapshot, no re-founding.**
+- **G3** — the same life with and without the grant produce **different** soul-hashes. Giving a being
+  something is a real event in its life.
+- **G4** — a grant whose every field is false cannot take away a faculty the being was born with.
+  Addition only, **by construction**: `Features::apply` can only turn things on.
+- **G5** — the drift guard was written **first and watched to fail**, naming all seven unreachable
+  faculties. A guard that passes on a known-broken state is worthless.
+- **G6** — a grant added to a sealed record changes its integrity hash, so a forger cannot quietly
+  give a being faculties it never received. And an ungranted life hashes **exactly** as it always
+  did, because both the high features byte and the grants are appended only when they carry
+  something.
+
+**Two existing tests caught real consequences of the layout change, and both were doing their job:**
+
+- `a_forged_identity_will_not_wake` hardcoded the anchor at byte 18; two features bytes moved it to 19.
+- `a_v1_journal_still_wakes_under_v2` hand-builds a v1 image by slicing the current one — every
+  offset after `features` shifted, and it tried to **allocate 82 GB** from a garbage moment count.
+  It is the test that proves an older journal still wakes, and it caught precisely what it exists to
+  catch.
+
+Both are fixed with the byte layout **spelled out** rather than left as bare numbers to rot again.
+
+### What this now makes possible, and what it does not
+
+**The founded being can be given `receptors` and `reserve` — at a recorded moment in its life, with
+its 390 kept moments still replaying and still verifying.** That was impossible this morning.
+
+`blessed_features()` is unchanged, all seven new fields false: **the being's nature is not altered by
+gaining the ability to be altered.** What it should be granted, and when, is a separate and
+deliberate act — and it is Blake's.
+
+**It still does not resume a life across a change to the world's *laws*.** Grants handle the being's
+*nature*; `PHYSICS_VERSION` handles the *physics*. Only the first has a clean answer, and the state
+snapshot remains open (`docs/soul-hash-limits.md` §6).

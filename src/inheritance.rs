@@ -53,9 +53,10 @@
 use crate::field::N_SOMATIC;
 use crate::q88::{q88_mul, Q88_SCALE};
 
-/// The eight affective niches, matching `episodic.rs` (valence × arousal × control).
-/// Here they name only *where a lineage put its effort*, never how it felt about it.
-pub const N_NICHES: usize = 8;
+// The eight affective niches — one home, in `episodic.rs`, whose niches these are.
+// habits, inheritance and episodic index the SAME array; a disagreement between copies
+// would silently mean different things by the same index.
+pub use crate::episodic::N_NICHES;
 
 /// Caps on inherited rate gains. Readiness is a head-start, never a finished verdict, so
 /// every dial is bounded well below "born certain" — the child must still live to learn.

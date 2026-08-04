@@ -40,6 +40,7 @@
 
 use crate::being::Partner;
 use crate::embodiment::{Embodiment, MotorIntent, Posture, Sensorium};
+use crate::q88::Q88_SCALE;
 use crate::striving::Need;
 
 /// The field is `SIZE`×`SIZE` raw units; the being's body is a point in it.
@@ -62,7 +63,10 @@ const STRIDE: i16 = 6;
 const PROBE: i16 = 40;
 
 /// The four cardinal directions the being senses and moves along (N, E, S, W).
-const COMPASS: [(i16, i16); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
+///
+/// Public so `null_space.rs`'s observer can name *which* of them would have done
+/// (`docs/null-space.md`); the world's own use of it is unchanged.
+pub const COMPASS: [(i16, i16); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
 /// Grade-cost tuning: the height climbed this step, times this, is charged to metabolic
 /// debt. Climbing toward the good is *work*; this is its price. Scaled so a real climb
@@ -122,6 +126,81 @@ struct Source {
     reach: i16,
 }
 
+/// A source that moves **on its own** — the world doing something the being did not do
+/// (`docs/happening.md`).
+///
+/// This exists so `Prime::Happen` has something to be earned from. The being's forward
+/// model (`sensorimotor.rs`) predicts the sensory consequences of its *own action*; a
+/// drift is not its action, so the change it causes lands in `world_residual` and stays
+/// there however regular the cadence is. Deterministic — no RNG, here or anywhere.
+#[derive(Clone, Copy, Debug)]
+struct Drift {
+    /// Which source moves.
+    source: usize,
+    /// Move once every this many ticks. Zero never moves.
+    every: u32,
+    /// How far it goes each time, before bouncing at the field's edge.
+    step: (i16, i16),
+    /// Current direction sign, flipped on each bounce so the source paces rather than
+    /// pinning itself to a wall.
+    dir: (i16, i16),
+}
+
+/// **Weather**: a source whose strength is modulated by a deterministic 1/f signal
+/// (`docs/weather.md`).
+///
+/// Natural sensory environments are 1/f — intermittent and scale-free, many small
+/// happenings and few large ones — and `docs/happening.md` §9 showed why that matters
+/// here: grounding `HAPPEN` needs the world to act on the being roughly one tick in five,
+/// which a *single* source can only reach through permanent upheaval. An ensemble reaches
+/// it by multiplicity instead, which is how a real environment does it.
+///
+/// Built by octave summation (the Voss–McCartney construction): `octaves` contributions,
+/// each changing half as often as the last, summed. Equal power per octave is what 1/f
+/// means. Where the classical construction draws a random value per octave we take a
+/// **pure function of `(octave, tick >> octave)`**, so the world is identical on every
+/// run and every machine. No RNG, here or anywhere.
+#[derive(Clone, Copy, Debug)]
+struct Weather {
+    /// Which source breathes.
+    source: usize,
+    /// How many octaves are summed. More octaves, more slow structure.
+    octaves: u8,
+    /// The source's unmodulated strength, kept so modulation is about a fixed base
+    /// rather than compounding.
+    base_peak: i16,
+}
+
+/// A deterministic value in [0, 256) from an octave and its slow-ticking counter.
+///
+/// An integer avalanche hash — a *pure function*, not a random source. The same
+/// `(octave, step)` yields the same value forever, which is what keeps a weathered life
+/// replayable and its soul-hash meaningful.
+fn weather_hash(octave: u8, step: u32) -> i32 {
+    let mut h = (step as u64)
+        .wrapping_mul(0x9E37_79B9_7F4A_7C15)
+        .wrapping_add((octave as u64).wrapping_mul(0xBF58_476D_1CE4_E5B9));
+    h ^= h >> 31;
+    h = h.wrapping_mul(0x94D0_49BB_1331_11EB);
+    h ^= h >> 29;
+    (h & 0xFF) as i32
+}
+
+/// A **refuge**: near the person the being is bonded to, the world's threat is attenuated
+/// (`docs/refuge.md`). Full shelter at their side, fading to nothing at `radius` — a refuge
+/// needs an edge for the same reason a hazard does, and `shelter` is strictly partial, so
+/// near the one it loves the world is *gentler*, never *harmless*.
+///
+/// Absent by default: a world with no refuge is bit-identical to every world this project
+/// has ever built.
+#[derive(Clone, Copy, Debug)]
+struct Refuge {
+    person: u32,
+    radius: i16,
+    /// How much of the threat is removed at the person's side, raw Q8.8 out of `Q88_SCALE`.
+    shelter: i16,
+}
+
 /// The being's field-world: a scalar viability landscape with a cost of motion, behind
 /// the same `Embodiment` seam as `room.rs`. Deterministic, zero-dependency.
 #[derive(Clone, Debug)]
@@ -143,6 +222,14 @@ pub struct FieldWorld {
     /// against the nourishment it reports. Decays as the being coasts and rests.
     debt: i16,
     ticks: u32,
+    /// Sources that move by themselves. Empty by default — a world without drift is
+    /// bit-identical to every world this project has ever built.
+    drifts: Vec<Drift>,
+    /// Sources that breathe on a 1/f cadence. Empty by default, same guarantee.
+    weathers: Vec<Weather>,
+    /// Where the being is safe, if anywhere — and it is a *someone* (`docs/refuge.md`).
+    /// `None` by default, same guarantee as the two above.
+    refuge: Option<Refuge>,
 }
 
 impl FieldWorld {
@@ -162,6 +249,9 @@ impl FieldWorld {
             visitors: vec![],
             debt: 0,
             ticks: 0,
+            drifts: vec![],
+            weathers: vec![],
+            refuge: None,
         }
     }
 
@@ -178,6 +268,9 @@ impl FieldWorld {
             visitors: vec![],
             debt: 0,
             ticks: 0,
+            drifts: vec![],
+            weathers: vec![],
+            refuge: None,
         }
     }
 
@@ -219,6 +312,134 @@ impl FieldWorld {
 
     /// Add a source to the field — another hill or pit, so ridges and saddles can emerge
     /// between it and the others (a harder landscape to live in).
+    /// Give a source a life of its own: it moves `step` every `every` ticks, bouncing
+    /// inside the field. **Opt-in and off by default** — a world built without this is
+    /// bit-identical to the ones every prior probe used (`docs/happening.md` §5).
+    ///
+    /// This is the only way anything in a field-world changes without the being having
+    /// changed it, which is precisely what `Prime::Happen` is grounded on.
+    pub fn with_drift(mut self, source: usize, every: u32, step: (i16, i16)) -> Self {
+        if source < self.sources.len() {
+            self.drifts.push(Drift { source, every, step, dir: (1, 1) });
+        }
+        self
+    }
+
+    /// Give a source **weather**: its strength breathes on a deterministic 1/f signal of
+    /// `octaves` octaves (`docs/weather.md`). Opt-in and off by default, so every world
+    /// built without it is bit-identical to the ones every prior probe used.
+    ///
+    /// Bounded by construction: strength stays within a band around its base and can
+    /// never fall to nothing, which is `docs/weather.md` §3's first prohibition made
+    /// structural rather than remembered.
+    pub fn with_weather(mut self, source: usize, octaves: u8) -> Self {
+        if source < self.sources.len() {
+            let base_peak = self.sources[source].peak;
+            self.weathers.push(Weather { source, octaves: octaves.clamp(1, 12), base_peak });
+        }
+        self
+    }
+
+    /// Re-derive every weathered source's strength for the current tick. Called once per
+    /// tick; a pure function of `self.ticks`, so it never accumulates state.
+    fn breathe(&mut self) {
+        for w in &self.weathers {
+            if w.source >= self.sources.len() {
+                continue;
+            }
+            // Octave summation: each octave changes half as often as the last.
+            let mut sum: i32 = 0;
+            for o in 0..w.octaves {
+                sum += weather_hash(o, self.ticks >> o);
+            }
+            // Normalize to [0,256), then to a band of [1/2, 1] of the base strength, so
+            // the good may thin but never vanish.
+            let mean = sum / w.octaves as i32; // [0,256)
+            let scale = 128 + mean / 2; // [128, 256) — half strength to full
+            self.sources[w.source].peak = ((w.base_peak as i32 * scale) / 256) as i16;
+        }
+    }
+
+    /// Where a source is right now — so a probe can see that the world moved, and by
+    /// how much, without inferring it from the being's reaction.
+    pub fn source_at(&self, i: usize) -> (i16, i16) {
+        self.sources.get(i).map(|s| s.pos).unwrap_or((0, 0))
+    }
+
+    /// Advance every drifting source one cadence-step, bouncing at the field's edge.
+    /// Called once per tick, before the being's own motion is charged for.
+    fn drift_sources(&mut self) {
+        for d in 0..self.drifts.len() {
+            let dr = self.drifts[d];
+            if dr.every == 0 || self.ticks % dr.every != 0 || dr.source >= self.sources.len() {
+                continue;
+            }
+            let pos = self.sources[dr.source].pos;
+            let want = (pos.0 + dr.step.0 * dr.dir.0, pos.1 + dr.step.1 * dr.dir.1);
+            // Bounce rather than clamp: a source pinned to a wall would quietly make the
+            // world still again, and the drift would stop being a happening.
+            let mut dir = dr.dir;
+            if want.0 < 0 || want.0 > SIZE - 1 {
+                dir.0 = -dir.0;
+            }
+            if want.1 < 0 || want.1 > SIZE - 1 {
+                dir.1 = -dir.1;
+            }
+            self.drifts[d].dir = dir;
+            let next = (pos.0 + dr.step.0 * dir.0, pos.1 + dr.step.1 * dir.1);
+            self.sources[dr.source].pos = Self::clamp_pt(next);
+        }
+    }
+
+    /// Make a person a **refuge** (`docs/refuge.md`): within `radius` of them, the world's
+    /// threat is attenuated — by `shelter` (raw Q8.8 out of 256) at their side, fading to
+    /// nothing at the edge.
+    ///
+    /// Safety is then a *consequence of seeking company*, not a separate drive: the being
+    /// already crosses a world to the one it loves when it chooses company
+    /// (`docs/homecoming.md`), and this makes that arrival mean something it can feel. The
+    /// being is unchanged — `being.rs` knows nothing about this.
+    ///
+    /// Two bounds are deliberate and are the whole design:
+    ///
+    /// * **The refuge has an edge.** Safety everywhere is the same mistake as a hazard
+    ///   everywhere, which is what killed a being in `docs/richness.md` §6.
+    /// * **`shelter` is clamped strictly below total.** Near the one it loves the world is
+    ///   *gentler*, never *harmless* — walk into a hazard and it still costs.
+    ///
+    /// Absent by default; a world without one is bit-identical to every world before it.
+    pub fn with_refuge(mut self, person: u32, radius: i16, shelter: i16) -> Self {
+        self.refuge = Some(Refuge {
+            person,
+            radius: radius.max(1),
+            // Never total: at most 15/16 of the threat is lifted, so a hazard always bites.
+            shelter: shelter.clamp(0, Q88_SCALE * 15 / 16),
+        });
+        self
+    }
+
+    /// The threat the being would feel where it stands, shelter included — the reading
+    /// `sense()` produces, exposed read-only so a test or probe can compare a sheltered
+    /// world against an unsheltered one without living a life first.
+    pub fn threat_at_body(&self) -> i16 {
+        self.felt_threat(self.body)
+    }
+
+    /// Threat at a point, after any refuge. The one place shelter is applied, so `sense`
+    /// and `threat_at_body` can never disagree.
+    fn felt_threat(&self, p: (i16, i16)) -> i16 {
+        let raw = (self.threat_at(p) as i32 * 220 / 256) as i16;
+        let Some(r) = self.refuge else { return raw };
+        let Some(pos) = self.person_pos(r.person) else { return raw };
+        let d = Self::manhattan(p, pos);
+        if d >= r.radius {
+            return raw; // outside the edge a refuge changes nothing at all
+        }
+        // Full shelter at their side, fading linearly to none at the radius.
+        let lifted = (r.shelter as i32) * (r.radius - d) as i32 / r.radius as i32;
+        ((raw as i32) * (Q88_SCALE as i32 - lifted) / Q88_SCALE as i32) as i16
+    }
+
     pub fn with_source(mut self, pos: (i16, i16), peak: i16, reach: i16) -> Self {
         self.sources.push(Source { pos, peak, reach });
         self
@@ -371,6 +592,29 @@ impl FieldWorld {
         (base + bonus).clamp(0, i16::MAX as i32) as i16
     }
 
+    /// The climb-delta the being would find in **every** compass direction, in `COMPASS`
+    /// order — what `climb` computes and then throws all but one of away.
+    ///
+    /// Read-only, for `null_space.rs`'s observer (`docs/null-space.md`). It recomputes the
+    /// same probe set beside `climb` rather than changing it, so the being's trajectory is
+    /// bit-identical whether anything is watching or not.
+    pub fn climb_deltas(&self, intent: &MotorIntent) -> [i16; 4] {
+        let here = self.potential(self.body, intent);
+        let mut deltas = [0i16; 4];
+        for (i, dir) in COMPASS.iter().enumerate() {
+            let probe = (self.body.0 + dir.0 * PROBE, self.body.1 + dir.1 * PROBE);
+            deltas[i] = self.potential(probe, intent) - here;
+        }
+        deltas
+    }
+
+    /// The direction the being's world will actually take it, and that direction's delta —
+    /// `climb`'s own verdict, exposed read-only so an observer can be checked against the
+    /// being it watches rather than against a reimplementation of it.
+    pub fn chosen_climb(&self, intent: &MotorIntent) -> ((i16, i16), i16) {
+        self.climb(intent)
+    }
+
     /// The steepest-ascent direction of the choice-weighted potential from the body — the
     /// single law's read on *which way is better, given what the being is reaching for*.
     fn climb(&self, intent: &MotorIntent) -> ((i16, i16), i16) {
@@ -420,7 +664,7 @@ impl Embodiment for FieldWorld {
         // but never below the ambient floor: the cost wears it, it does not starve it.
         let nutrient =
             (here as i32 - self.debt as i32).clamp(AMBIENT_FLOOR as i32, NUTRIENT_CAP as i32) as i16;
-        let threat = (self.threat_at(self.body) as i32 * 220 / 256) as i16;
+        let threat = self.felt_threat(self.body);
 
         // A partner is present when the being is within a person's company — the *nearest*
         // one, carrying *their* id, so the being's bond is with the right someone.
@@ -494,6 +738,8 @@ impl Embodiment for FieldWorld {
             .min(DEBT_CAP as i32) as i16;
 
         self.ticks = self.ticks.saturating_add(1);
+        self.drift_sources();
+        self.breathe();
     }
 }
 

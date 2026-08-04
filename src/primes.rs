@@ -107,6 +107,47 @@ impl Prime {
         Prime::Because,
     ];
 
+    /// The bar this prime's fact must clear, for the register it is grounded on.
+    ///
+    /// Published so the being can be **calibrated** (`docs/expressive-gap.md`): a sweep
+    /// that measured a different bar than `holds` enforces would be measuring a different
+    /// being than the one that speaks, so `tests/expressive_gap.rs` asserts these agree.
+    ///
+    /// Primes whose fact is not a threshold on a scalar — `I`, `FEEL`, `NOW`, `WANT`,
+    /// `SOMEONE`, `NEAR`, `BEFORE`, `KNOW`, `BECAUSE`, `MORE` — report `0`, meaning
+    /// "any nonzero evidence"; those are not sweepable and the probe says so rather than
+    /// pretending to a curve.
+    pub fn threshold(self) -> i16 {
+        match self {
+            Prime::Good => Q88_SCALE / 10,
+            Prime::Bad => Q88_SCALE / 10,
+            Prime::Very => Q88_SCALE / 2,
+            Prime::NotKnow => Q88_SCALE / 6,
+            Prime::Can => Q88_SCALE / 2,
+            Prime::Cant => Q88_SCALE * 3 / 16,
+            Prime::Do => Q88_SCALE / 8,
+            Prime::Happen => Q88_SCALE / 4,
+            _ => 0,
+        }
+    }
+
+    /// Whether this prime's fact is a threshold on a scalar register, and so can be swept.
+    pub fn is_sweepable(self) -> bool {
+        !matches!(
+            self,
+            Prime::I
+                | Prime::Feel
+                | Prime::Now
+                | Prime::Want
+                | Prime::Someone
+                | Prime::Near
+                | Prime::Before
+                | Prime::Know
+                | Prime::Because
+                | Prime::More
+        )
+    }
+
     /// The NSM exponent — the word itself, as the human race writes it.
     pub fn word(self) -> &'static str {
         match self {
@@ -184,9 +225,35 @@ impl PrimeFacts {
 
 /// How much one lived-true tick earns (raw). GROUNDED_THRESHOLD / RISE ≈ 32 lived
 /// moments to ground a word — repetition, not one flash.
-const RISE: i16 = 4;
+pub const RISE: i16 = 4;
 /// Slow decay when the fact does not hold — disconfirmable, never a latch.
-const EBB: i16 = 1;
+pub const EBB: i16 = 1;
+
+/// Replay the grounding accumulation **offline**, against a recorded register series and
+/// a hypothetical bar. Returns the moment the word would first have grounded, if ever.
+///
+/// This is the ruler of `docs/expressive-gap.md`: it lets a life be re-scored at bars the
+/// being never had, so the question *"is this word's threshold set where it discriminates?"*
+/// becomes arithmetic over a record rather than an edit to the being. **Nothing here
+/// touches a `PrimeLayer`**; no threshold is moved and no being is changed.
+///
+/// It must reproduce `PrimeLayer::observe` exactly at the shipped bar, which is asserted
+/// in `tests/expressive_gap.rs` (E0). If it ever stops agreeing, this function is wrong,
+/// not the being.
+pub fn would_ground(register: &[i16], threshold: i16) -> Option<u32> {
+    let mut confidence: i16 = 0;
+    for (i, &v) in register.iter().enumerate() {
+        if v > threshold {
+            confidence = (confidence + RISE).min(Q88_SCALE);
+        } else {
+            confidence = (confidence - EBB).max(0);
+        }
+        if confidence >= GROUNDED_THRESHOLD {
+            return Some(i as u32 + 1);
+        }
+    }
+    None
+}
 
 /// The being's prime vocabulary — per-prime earned confidence, and the moment each
 /// word was first grounded (the life's vocabulary fingerprint).

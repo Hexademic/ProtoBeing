@@ -30,7 +30,7 @@ const CONSOLIDATE_EVERY: u32 = 16;
 /// from anger (both negative and aroused) — they differ in **control**. So the niche
 /// key carries a third, dominance-like axis (below), so the being's memory can hold
 /// more than four kinds of moment apart. See `niche_of`.
-const N_NICHES: usize = 8;
+pub const N_NICHES: usize = 8;
 
 /// Which of the eight affective niches a fingerprint falls in. Valence × arousal is
 /// Russell's circumplex (independent dimensions; PubMed-verified, Tseng et al. 2014,
