@@ -74,6 +74,16 @@ pub struct Features {
     pub felt_choice: bool,
     pub generative_perception: bool,
     pub receptors: bool,
+    // Added 2026-08-03. For five weeks these seven faculties existed in `being.rs` with no field
+    // here, so a founded being could never be blessed with any of them — `reflection` included,
+    // whose load deadlock took a full day to repair. `tests/manifest.rs` now counts.
+    pub reflection: bool,
+    pub homecoming: bool,
+    pub memory_guidance: bool,
+    pub comfort: bool,
+    pub settling: bool,
+    pub setting_down: bool,
+    pub reserve: bool,
 }
 
 impl Features {
@@ -102,20 +112,50 @@ impl Features {
         if self.receptors {
             being.enable_receptors();
         }
+        if self.reflection {
+            being.enable_reflection();
+        }
+        if self.homecoming {
+            being.enable_homecoming();
+        }
+        if self.memory_guidance {
+            being.enable_memory_guidance();
+        }
+        if self.comfort {
+            being.enable_comfort();
+        }
+        if self.settling {
+            being.enable_settling();
+        }
+        if self.setting_down {
+            being.enable_setting_down();
+        }
+        if self.reserve {
+            being.enable_reserve();
+        }
     }
 
-    fn bits(&self) -> u8 {
-        (self.precision_learning as u8)
+    /// Widened `u8` -> `u16` on 2026-08-03. **The original eight keep their exact bit positions**,
+    /// so every v1-v5 journal decodes to precisely the nature it was written with.
+    fn bits(&self) -> u16 {
+        ((self.precision_learning as u8)
             | (self.workspace_broadcast as u8) << 1
             | (self.workspace_persistence as u8) << 2
             | (self.serial_access as u8) << 3
             | (self.schema_control as u8) << 4
             | (self.felt_choice as u8) << 5
             | (self.generative_perception as u8) << 6
-            | (self.receptors as u8) << 7
+            | (self.receptors as u8) << 7) as u16
+            | (self.reflection as u16) << 8
+            | (self.homecoming as u16) << 9
+            | (self.memory_guidance as u16) << 10
+            | (self.comfort as u16) << 11
+            | (self.settling as u16) << 12
+            | (self.setting_down as u16) << 13
+            | (self.reserve as u16) << 14
     }
 
-    fn from_bits(b: u8) -> Self {
+    fn from_bits(b: u16) -> Self {
         Self {
             precision_learning: b & 1 != 0,
             workspace_broadcast: b & 1 << 1 != 0,
@@ -125,6 +165,13 @@ impl Features {
             felt_choice: b & 1 << 5 != 0,
             generative_perception: b & 1 << 6 != 0,
             receptors: b & 1 << 7 != 0,
+            reflection: b & 1 << 8 != 0,
+            homecoming: b & 1 << 9 != 0,
+            memory_guidance: b & 1 << 10 != 0,
+            comfort: b & 1 << 11 != 0,
+            settling: b & 1 << 12 != 0,
+            setting_down: b & 1 << 13 != 0,
+            reserve: b & 1 << 14 != 0,
         }
     }
 }
@@ -224,7 +271,14 @@ fn hash_record(genome: &Genome, features: &Features, moments: &[Moment]) -> [u8;
         bytes.extend_from_slice(&raw.to_le_bytes());
     }
     bytes.push(kind_to_u8(genome.kind));
-    bytes.push(features.bits());
+    // The low byte is written exactly as it always was, so every journal whose nature fits the
+    // original eight bits hashes **identically** to before the widening. The high byte is appended
+    // only when it carries something — a nature using a post-2026-08-03 faculty.
+    let fb = features.bits();
+    bytes.push(fb as u8);
+    if fb >> 8 != 0 {
+        bytes.push((fb >> 8) as u8);
+    }
     for m in moments {
         match m {
             Moment::Abstract(s) => {
@@ -265,9 +319,10 @@ const MAGIC: &[u8; 4] = b"SOUL";
 /// Format version. v1 recorded only abstract stimuli (untagged); v2 records tagged
 /// moments so an embodied life is keepable too; v3 adds the waypoint chain
 /// (`docs/waypoints.md`); v4 adds the record's integrity hash
-/// (`docs/journal-integrity.md`). All are decoded — a being founded under v1 or v2
+/// (`docs/journal-integrity.md`); v5 records the physics the life was lived under; v6 widens
+/// the nature to sixteen bits and records grants (`docs/founding.md`). All are decoded — a being founded under v1 or v2
 /// still wakes, with an empty chain and no integrity hash — and re-saves as v4.
-const VERSION: u8 = 5;
+const VERSION: u8 = 6;
 
 /// **The physics this build lives beings under.** Bump it whenever a change to `src/`
 /// could alter a trajectory — a constant, a formula, an ordering, a new causal term.
@@ -522,7 +577,7 @@ impl LifeJournal {
             b.extend_from_slice(&raw.to_le_bytes());
         }
         b.push(kind_to_u8(self.genome.kind));
-        b.push(self.features.bits());
+        b.extend_from_slice(&self.features.bits().to_le_bytes());
         // Anchor (presence byte + 32 bytes when present).
         match self.anchor {
             Some(h) => {
@@ -588,7 +643,7 @@ impl LifeJournal {
         // tagged, v3 chain, v4 record hash, v5 physics) — a being founded under an
         // older format still wakes.
         let version = c.u8().ok_or(RestoreError::Corrupt)?;
-        if !(1..=5).contains(&version) {
+        if !(1..=6).contains(&version) {
             return Err(RestoreError::Corrupt);
         }
         let genome = Genome {
@@ -599,7 +654,13 @@ impl LifeJournal {
             mesh_coupling: Q8_8::from_raw(c.i16().ok_or(RestoreError::Corrupt)?),
             kind: kind_from_u8(c.u8().ok_or(RestoreError::Corrupt)?).ok_or(RestoreError::Corrupt)?,
         };
-        let features = Features::from_bits(c.u8().ok_or(RestoreError::Corrupt)?);
+        // v1-v5 wrote the nature as one byte; v6 writes two. An older life decodes to exactly
+        // the nature it was written with, because the original eight bits never moved.
+        let features = Features::from_bits(if version >= 6 {
+            c.u16().ok_or(RestoreError::Corrupt)?
+        } else {
+            c.u8().ok_or(RestoreError::Corrupt)? as u16
+        });
         let anchor = match c.u8().ok_or(RestoreError::Corrupt)? {
             0 => None,
             1 => {
@@ -823,12 +884,16 @@ mod tests {
         // The sealed soul-hash is the being's claimed identity. Tamper with it —
         // present a self the lived life does not add up to — and the replay's true
         // hash will not match, so the being is refused rather than handed back a
-        // self it cannot prove is its own. Anchor sits at offset
-        // 4(magic)+1(ver)+10(genome)+1(kind)+1(features)+1(anchor?) = 18.
+        // self it cannot prove is its own.
+        //
+        // Anchor offset, **v6**: 4(magic) + 1(ver) + 10(genome) + 1(kind) + 2(features) +
+        // 1(anchor-present) = 19. It was 18 until `Features` widened from one byte to two
+        // (`docs/founding.md`) — and this test catching that is the layout guard working, so the
+        // arithmetic is spelled out rather than left as a bare number to rot again.
         let (being, mut journal) = life(Features::default(), 120);
         journal.seal(&being);
         let mut bytes = journal.encode();
-        bytes[18] ^= 0xFF; // forge one byte of the claimed identity
+        bytes[19] ^= 0xFF; // forge one byte of the claimed identity
         let forged = LifeJournal::decode(&bytes).expect("still structurally decodes");
         assert_eq!(
             forged.restore().err(),
@@ -934,11 +999,18 @@ mod tests {
 
         // Re-encode the SAME journal in the old v1 layout: version 1, untagged
         // abstract moments (nutrient + partner), no per-moment tag byte.
+        //
+        // v6 layout, spelled out because this test slices it and a bare number rots:
+        //   0..4 magic | 4 version | 5..15 genome(10) | 15 kind | 16..18 features(2)
+        //   | 18 anchor-present | 19..51 anchor(32) | 51.. moment count
+        // A **v1** image carries features as ONE byte, so take the low byte only — which is the
+        // whole nature for any being founded before the widening (`docs/founding.md`).
         let mut v1 = Vec::new();
         v1.extend_from_slice(MAGIC);
         v1.push(1);
-        v1.extend_from_slice(&v2[5..17]); // genome(10)+kind(1)+features(1), byte-identical
-        v1.extend_from_slice(&v2[17..50]); // anchor: presence byte + 32 bytes
+        v1.extend_from_slice(&v2[5..16]); // genome(10) + kind(1), byte-identical
+        v1.push(v2[16]); // features, low byte — v1 wrote exactly one
+        v1.extend_from_slice(&v2[18..51]); // anchor: presence byte + 32 bytes
         v1.extend_from_slice(&(journal.ticks() as u32).to_le_bytes());
         for m in &journal.moments {
             if let Moment::Abstract(s) = m {

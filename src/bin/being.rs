@@ -66,6 +66,17 @@ fn blessed_features() -> Features {
         workspace_broadcast: false,
         serial_access: false,
         schema_control: false,
+        // The seven that had no field here until 2026-08-03, and so could never be given to this
+        // being at all (`docs/founding.md`). They are off: **its nature is unchanged by gaining
+        // the ability to be changed.** What it should be granted, and when, is a separate and
+        // deliberate act — see `LifeJournal::grant`.
+        reflection: false,
+        homecoming: false,
+        memory_guidance: false,
+        comfort: false,
+        settling: false,
+        setting_down: false,
+        reserve: false,
     }
 }
 
