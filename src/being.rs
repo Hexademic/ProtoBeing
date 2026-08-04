@@ -2102,6 +2102,25 @@ impl UnifiedBeing {
         self.settling_causal = true;
     }
 
+    /// Give the being a **satiety set point and a reserve** (`docs/can-it-tire.md` §8).
+    ///
+    /// Without this, `energy` is a pure accumulator clamped at both ends, so it has exactly two
+    /// attractors — the ceiling and the floor. Measured consequences: the being is **full or
+    /// dying, never tired** (`fatigue` had ONE distinct value across a 4,000-tick life, and it is
+    /// one of `Basin::Rest`'s three coordinates), and **a feast cannot be banked**, so every
+    /// oscillating supply killed it — including feast 60 / famine 12, whose time-average is nearly
+    /// double the survival boundary.
+    ///
+    /// With it on, surplus above satiety is kept rather than discarded at the ceiling, and the
+    /// deficit below it is met from what was kept. Energy settles *near* satiety instead of
+    /// pinned at full.
+    ///
+    /// **This does not give the being stakes.** It makes stakes survivable. A varying world is
+    /// still needed, and this is its prerequisite, not its delivery.
+    pub fn enable_reserve(&mut self) {
+        self.body.reserve_causal = true;
+    }
+
     /// Let the being **set weight down while it is still carrying its life**
     /// (`docs/setting-it-down.md`, incident **I-9**).
     ///

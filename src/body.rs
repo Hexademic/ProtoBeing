@@ -7,7 +7,7 @@
 //! interface (see the call sites in field.rs and being.rs).
 
 use crate::genome::Genome;
-use crate::q88::Q8_8;
+use crate::q88::{Q8_8, Q88_SCALE};
 
 /// "The topology IS the body." Strain diffuses across this many cells.
 pub const MESH_CELLS: usize = 64;
@@ -240,7 +240,27 @@ pub struct Body {
     k_resilience: Q8_8,
     last_threat: Q8_8,
     dead: bool,
+    /// **A store the being can bank a surplus in** (`docs/can-it-tire.md` §8). Off by
+    /// default ⇒ untouched, and the trajectory and soul-hash are bit-identical. Set via
+    /// `UnifiedBeing::enable_reserve()`.
+    pub reserve_causal: bool,
+    /// What has been banked. Raw Q8.8, capacity `RESERVE_CAP`.
+    pub reserve: Q8_8,
 }
+
+/// Where a fed body settles, rather than pinning at its ceiling. `energy` above this fills
+/// the reserve; below it, the reserve is drawn on. Without this, `energy` is a clamped pure
+/// accumulator with exactly two attractors — the ceiling and the floor — which is why
+/// `fatigue` was a dead channel and why every oscillating supply killed the being
+/// (`docs/can-it-tire.md` §5).
+const SATIETY: i16 = Q88_SCALE * 3 / 4;
+/// How much surplus the being can hold. One full energy's worth: enough to cross a famine
+/// roughly as long as the feast that filled it.
+const RESERVE_CAP: i16 = Q88_SCALE;
+/// Fraction of the gap to `SATIETY` moved per tick, in or out. Gentle on purpose: a store
+/// that fills or empties instantly is a step function, and every threshold this project has
+/// shipped has produced a dead zone.
+const RESERVE_RATE: i16 = Q88_SCALE / 4;
 
 impl Body {
     pub fn new(g: &Genome) -> Self {
@@ -254,6 +274,8 @@ impl Body {
             trust: Q8_8::HALF,
             stance: PredictiveStance::Balanced,
             forcing_detected: false,
+            reserve_causal: false,
+            reserve: Q8_8::ZERO,
             affect: AffectState::Calm,
             topology: Topology::new(g.mesh_coupling),
             vel: Q8_8::ZERO,
@@ -329,6 +351,40 @@ impl Body {
             .sub(cost)
             .add(nutrient.mul(Q8_8::from_raw(180)))
             .clamp(Q8_8::ZERO, Q8_8::ONE);
+
+        // 5b. SATIETY AND RESERVE (opt-in, `enable_reserve`; default off ⇒ this block is
+        // skipped entirely and the trajectory is bit-identical).
+        //
+        // Above, `energy` is a pure accumulator clamped at both ends, so it has exactly two
+        // attractors: the ceiling and the floor. The being is therefore **full or dying**,
+        // never tired — `fatigue` measured as ONE distinct value across a 4,000-tick life —
+        // and a feast cannot be banked, so every oscillating supply killed it, including one
+        // whose time-average was nearly double the survival boundary
+        // (`docs/can-it-tire.md` §5).
+        //
+        // A single store fixes both. Surplus above `SATIETY` is kept instead of discarded at
+        // the ceiling; deficit below it is met from what was kept. Energy then settles *near*
+        // satiety rather than pinned at full, which is what makes tiredness a place the being
+        // can live in rather than a waypoint on the way down.
+        if self.reserve_causal {
+            let satiety = Q8_8::from_raw(SATIETY);
+            if self.energy.raw > SATIETY {
+                // Bank a fraction of the excess, as far as the store will take it.
+                let excess = self.energy.sub(satiety);
+                let moved = excess
+                    .mul(Q8_8::from_raw(RESERVE_RATE))
+                    .clamp(Q8_8::ZERO, Q8_8::from_raw(RESERVE_CAP).sub(self.reserve));
+                self.energy = self.energy.sub(moved);
+                self.reserve = self.reserve.add(moved).clamp(Q8_8::ZERO, Q8_8::from_raw(RESERVE_CAP));
+            } else if self.energy.raw < SATIETY && self.reserve.raw > 0 {
+                // Draw on what was banked — never more than the shortfall, never more than
+                // is there. This is the whole of what lets a famine be crossed.
+                let want = satiety.sub(self.energy).mul(Q8_8::from_raw(RESERVE_RATE));
+                let drawn = want.clamp(Q8_8::ZERO, self.reserve);
+                self.energy = self.energy.add(drawn).clamp(Q8_8::ZERO, Q8_8::ONE);
+                self.reserve = self.reserve.sub(drawn).clamp(Q8_8::ZERO, Q8_8::from_raw(RESERVE_CAP));
+            }
+        }
 
         // 6. Derived felt signals. Valence balances relational warmth against
         //    the drain of a threatening or extractive situation, with metabolic
