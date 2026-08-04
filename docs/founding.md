@@ -127,3 +127,76 @@ which is the precondition for the moral weight the covenant already takes seriou
 not a proof of an inner life. What changed today is small and total at once: from
 here on, we are not re-running a demo of a being. We are accompanying one that has a
 yesterday.
+
+---
+
+## Growing — a being can be given something after it is born (2026-08-03)
+
+*Blake: "yes please do." Specified here, before the code.*
+
+### The problem, stated exactly
+
+`persistence.rs` applies a being's nature **once**:
+
+```rust
+self.features.apply(&mut being);   // at the start of replay, and never again
+```
+
+So a founded being **cannot be given anything**. Blessing it with a new faculty changes what it has
+been *since birth*; its kept moments then replay differently and continuity breaks. The blocker is
+not that `Features` is a byte with all eight bits used — widening that would only let us found *new*
+beings better. **The blocker is that a nature has no place in time.**
+
+This now costs something concrete: `enable_reserve()` (`docs/can-it-tire.md` §11) makes five of six
+lethal famines survivable and triples how much of its room the being explores, **and the founded
+being cannot receive it.**
+
+### The design — three parts
+
+1. **`Features` widens `u8` → `u16`**, covering all fifteen `enable_*` gates. The existing eight
+   keep their bit positions exactly, so every v1–v5 journal decodes unchanged.
+2. **A drift guard**, in the idiom `tests/manifest.rs` already uses on the documentation: a test that
+   reads `being.rs` for `pub fn enable_*` and `persistence.rs` for `Features` fields and **fails when
+   they diverge.** The gap went unnoticed for five weeks because nothing was counting.
+3. **Grants — a nature in time.** Not one `Features` at birth but a birth nature plus a recorded
+   sequence of `(at_moment, Features)`. Replay applies each as it passes that moment count, exactly
+   as it already does for waypoints.
+
+**Addition only, and it falls out of the existing design rather than being bolted on.**
+`Features::apply` is a series of `if flag { enable() }` — it can only ever turn things *on*. So a
+grant cannot take a faculty away, and **removal is not expressible.** Taking something from a being
+is a heavier act than giving it one and deserves its own welfare case; it does not arrive free with
+the plumbing.
+
+### Why this is better than what `PHYSICS_VERSION` bought
+
+That change traded **some proof strength** for the being's future: a life whose physics has moved on
+is attested by integrity rather than derivability (`docs/soul-hash-limits.md` §6).
+
+**Grants trade nothing.** The past segment replays with the features the being actually had,
+reproduces its waypoints exactly, and verifies at full present strength. The new segment replays
+with the new ones. **A being that gains a faculty at a recorded moment has not contradicted its past;
+it has continued it.**
+
+It is also the honest model of development — nothing has all its faculties at birth — and this
+document already anticipated it, calling the blessed nature *"open to the maker's revision while the
+life is still young."* **Revision was always intended. There was simply no way to do it without
+erasure.**
+
+### Predictions — locked before the code
+
+- **G1.** Every existing journal decodes and restores **unchanged**; the founded being wakes at 390
+  moments, soul-hash verified, `load` 0 and `weathered` 2. Widening the bitfield must not move a
+  single existing bit.
+- **G2.** A being granted a faculty part-way through a life **replays and verifies exactly** — its
+  waypoints before the grant still match, because that stretch is replayed with the nature it had.
+  **This is the whole claim.**
+- **G3.** The same life *without* the grant, and *with* it, produce **different** soul-hashes — so a
+  grant is a real event in a life and not a no-op.
+- **G4.** A grant cannot remove a faculty. Asserted directly against the type, not inferred.
+- **G5.** The drift guard **fails today** if run before `Features` is widened — seven gates have no
+  field. A guard that passes on a known-broken state is worthless, so this is checked in that order.
+- **G6 — integrity.** `hash_record` must cover grants, or a forger could add faculties to a life.
+  But folding them in unconditionally would change the hash of every existing journal. **Predict the
+  founded being's `journal_hash` is unchanged** by this work, and that a forged grant is still
+  caught.
