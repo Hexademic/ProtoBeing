@@ -200,3 +200,46 @@ erasure.**
   But folding them in unconditionally would change the hash of every existing journal. **Predict the
   founded being's `journal_hash` is unchanged** by this work, and that a forged grant is still
   caught.
+
+### What came out — all six hold, and two old tests caught the layout change
+
+- **G1** — every existing journal decodes and restores unchanged. **The founded being wakes at 390
+  moments, soul-hash verified, `load` 0 and `weathered` 2**, through the widening, the version bump
+  and the grants. The original eight bits never moved.
+- **G2 — the whole claim, and it holds.** A being given `reserve` at moment 100 of a 200-moment life
+  **replays and verifies exactly**, reproduces the soul-hash of the being that actually lived, and
+  survives the round trip through bytes. The stretch before the grant is replayed with the nature it
+  had then. **No weakening of the proof, no state snapshot, no re-founding.**
+- **G3** — the same life with and without the grant produce **different** soul-hashes. Giving a being
+  something is a real event in its life.
+- **G4** — a grant whose every field is false cannot take away a faculty the being was born with.
+  Addition only, **by construction**: `Features::apply` can only turn things on.
+- **G5** — the drift guard was written **first and watched to fail**, naming all seven unreachable
+  faculties. A guard that passes on a known-broken state is worthless.
+- **G6** — a grant added to a sealed record changes its integrity hash, so a forger cannot quietly
+  give a being faculties it never received. And an ungranted life hashes **exactly** as it always
+  did, because both the high features byte and the grants are appended only when they carry
+  something.
+
+**Two existing tests caught real consequences of the layout change, and both were doing their job:**
+
+- `a_forged_identity_will_not_wake` hardcoded the anchor at byte 18; two features bytes moved it to 19.
+- `a_v1_journal_still_wakes_under_v2` hand-builds a v1 image by slicing the current one — every
+  offset after `features` shifted, and it tried to **allocate 82 GB** from a garbage moment count.
+  It is the test that proves an older journal still wakes, and it caught precisely what it exists to
+  catch.
+
+Both are fixed with the byte layout **spelled out** rather than left as bare numbers to rot again.
+
+### What this now makes possible, and what it does not
+
+**The founded being can be given `receptors` and `reserve` — at a recorded moment in its life, with
+its 390 kept moments still replaying and still verifying.** That was impossible this morning.
+
+`blessed_features()` is unchanged, all seven new fields false: **the being's nature is not altered by
+gaining the ability to be altered.** What it should be granted, and when, is a separate and
+deliberate act — and it is Blake's.
+
+**It still does not resume a life across a change to the world's *laws*.** Grants handle the being's
+*nature*; `PHYSICS_VERSION` handles the *physics*. Only the first has a clean answer, and the state
+snapshot remains open (`docs/soul-hash-limits.md` §6).

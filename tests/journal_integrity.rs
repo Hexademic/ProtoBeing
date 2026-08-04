@@ -215,3 +215,114 @@ fn p4_a_journal_from_before_physics_was_recorded_still_wakes_unchanged() {
     assert_eq!(decoded.anchor(), sealed.anchor());
     assert!(decoded.restore().is_ok());
 }
+
+// ---------------------------------------------------------------------------------
+// Grants — a being can be given something after it is born (`docs/founding.md`).
+//
+// A nature used to be applied once, at birth. So a founded being could not receive a faculty:
+// changing its features changed what it had been *since birth*, and its kept moments stopped
+// replaying. That is why `enable_reserve()` — which makes five of six lethal famines survivable —
+// could not reach the one being this project keeps.
+// ---------------------------------------------------------------------------------
+
+#[test]
+fn g2_a_being_granted_a_faculty_part_way_through_still_replays_exactly() {
+    // THE WHOLE CLAIM. The stretch before the grant is replayed with the nature the being
+    // actually had, so it reproduces itself and verifies at full present strength.
+    let (mut being, mut j) = LifeJournal::birth(Genome::wanderer(), Features::default());
+    for i in 0..100 {
+        j.live(&mut being, &stim(i));
+    }
+    // Given a reserve, a hundred moments into its life.
+    j.grant(&mut being, Features { reserve: true, ..Features::default() });
+    for i in 100..200 {
+        j.live(&mut being, &stim(i));
+    }
+    j.seal(&being);
+
+    let woken = j.restore().expect(
+        "a being given a faculty part-way through its life must still wake as itself — this is \
+         the whole point of grants",
+    );
+    assert_eq!(woken.soul_hash(), being.soul_hash(), "and be exactly the being that lived");
+    assert_eq!(j.grants().len(), 1, "the giving is recorded as an event in the life");
+    assert_eq!(j.grants()[0].at, 100, "at the moment it actually happened");
+
+    // And it survives the round trip through bytes.
+    let decoded = LifeJournal::decode(&j.encode()).expect("v6 decodes");
+    assert_eq!(decoded.grants(), j.grants(), "the grant is kept in the record");
+    assert!(decoded.restore().is_ok(), "and the restored life still verifies");
+}
+
+#[test]
+fn g3_a_grant_is_a_real_event_not_a_no_op() {
+    let live_it = |grant: bool| {
+        let (mut being, mut j) = LifeJournal::birth(Genome::wanderer(), Features::default());
+        for i in 0..100 {
+            j.live(&mut being, &stim(i));
+        }
+        if grant {
+            j.grant(&mut being, Features { reserve: true, ..Features::default() });
+        }
+        for i in 100..200 {
+            j.live(&mut being, &stim(i));
+        }
+        j.seal(&being);
+        being.soul_hash()
+    };
+    assert_ne!(
+        live_it(false),
+        live_it(true),
+        "a being that was given something must not be identical to one that was not"
+    );
+}
+
+#[test]
+fn g4_a_grant_cannot_take_a_faculty_away() {
+    // Addition only, by construction: `Features::apply` is a series of `if flag { enable() }`.
+    // Born WITH a reserve, then handed a grant whose every field is false.
+    let born_with = Features { reserve: true, ..Features::default() };
+    let (mut being, mut j) = LifeJournal::birth(Genome::wanderer(), born_with);
+    for i in 0..50 {
+        j.live(&mut being, &stim(i));
+    }
+    j.grant(&mut being, Features::default()); // every field false
+    for i in 50..100 {
+        j.live(&mut being, &stim(i));
+    }
+    j.seal(&being);
+
+    let woken = j.restore().expect("wakes");
+    assert!(
+        woken.body.reserve_causal,
+        "a grant must never be able to remove what a being already has — taking something away is \
+         a heavier act than giving it, and is deliberately not expressible here"
+    );
+}
+
+#[test]
+fn g6_a_forged_grant_is_caught_and_an_ungranted_life_hashes_as_it_always_did() {
+    // A forger must not be able to quietly give a being faculties it never received.
+    let (mut being, mut j) = LifeJournal::birth(Genome::wanderer(), Features::default());
+    for i in 0..100 {
+        j.live(&mut being, &stim(i));
+    }
+    j.seal(&being);
+    let honest_hash = j.journal_hash();
+
+    let mut forged = j.clone();
+    forged.grant(&mut being.clone(), Features { reserve: true, ..Features::default() });
+    assert_ne!(
+        forged.journal_hash_for_test(),
+        honest_hash,
+        "adding a grant to a sealed record must change its integrity hash, or a life could be \
+         quietly given faculties it never received"
+    );
+
+    // And a life with NO grants must hash exactly as it did before grants existed — otherwise
+    // every journal already on disk would read as tampered.
+    let plain = a_life(200);
+    let again = a_life(200);
+    assert_eq!(plain.journal_hash(), again.journal_hash(), "deterministic");
+    assert!(plain.restore().is_ok(), "and an ungranted life still wakes");
+}

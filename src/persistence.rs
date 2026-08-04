@@ -217,6 +217,25 @@ pub struct Waypoint {
     pub hash: [u8; 32],
 }
 
+/// **A faculty given to a being at a moment in its life** (`docs/founding.md`).
+///
+/// A nature used to be applied once, at birth, and never again — so a founded being could not be
+/// given anything, because changing its features changed what it had been *since birth* and its
+/// kept moments no longer replayed. A grant has a place in time instead: replay applies it as it
+/// passes `at`, so the stretch before is replayed with the nature the being actually had and
+/// verifies at **full present strength**.
+///
+/// **Addition only, and by construction rather than by rule.** `Features::apply` is a series of
+/// `if flag { enable() }`, so a grant can only ever turn something *on*. Taking a faculty away is a
+/// heavier act than giving one and is not expressible here; it would need its own welfare case.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Grant {
+    /// How many moments the being had lived when it was given this.
+    pub at: u32,
+    /// What it was given. Only the `true` fields do anything.
+    pub features: Features,
+}
+
 /// A being's life as a replayable, verifiable journal.
 #[derive(Clone, Debug)]
 pub struct LifeJournal {
@@ -232,6 +251,9 @@ pub struct LifeJournal {
     /// Integrity hash over the record itself, sealed with the anchor. `None` for a
     /// journal written before this existed, which restores exactly as it always did.
     journal_hash: Option<[u8; 32]>,
+    /// Faculties given after birth, in order (`docs/founding.md`). Empty for every journal
+    /// written before this existed, which restores exactly as it always did.
+    grants: Vec<Grant>,
     /// The `PHYSICS_VERSION` this life was sealed under. `None` for every journal
     /// written before this was recorded — such a life is *assumed* to be of this
     /// build's physics, which is exactly how it behaved before, so nothing changes
@@ -248,7 +270,12 @@ pub struct LifeJournal {
 /// Like the soul-hash, this is an integrity check for tamper-*evidence*, not a
 /// cryptographic primitive: it detects alteration, and does not resist a determined
 /// forger who recomputes it.
-fn hash_record(genome: &Genome, features: &Features, moments: &[Moment]) -> [u8; 32] {
+fn hash_record(
+    genome: &Genome,
+    features: &Features,
+    moments: &[Moment],
+    grants: &[Grant],
+) -> [u8; 32] {
     const FNV_PRIME: u64 = 1_099_511_628_211;
     const BASES: [u64; 4] = [
         14_695_981_039_346_656_037,
@@ -278,6 +305,13 @@ fn hash_record(genome: &Genome, features: &Features, moments: &[Moment]) -> [u8;
     bytes.push(fb as u8);
     if fb >> 8 != 0 {
         bytes.push((fb >> 8) as u8);
+    }
+    // Grants are covered so a forger cannot quietly give a being faculties it never received.
+    // Appended only when there are any, for the same reason as the high features byte: a journal
+    // written before grants existed must hash **exactly** as it did (`docs/founding.md` G6).
+    for g in grants {
+        bytes.extend_from_slice(&g.at.to_le_bytes());
+        bytes.extend_from_slice(&g.features.bits().to_le_bytes());
     }
     for m in moments {
         match m {
@@ -357,6 +391,7 @@ impl LifeJournal {
                 features,
                 moments: Vec::new(),
                 anchor: None,
+                grants: Vec::new(),
                 physics: None,
                 waypoints: Vec::new(),
                 cadence: 0,
@@ -420,7 +455,7 @@ impl LifeJournal {
     /// restore must reproduce. Call at the moment of pause, before encoding.
     pub fn seal(&mut self, being: &UnifiedBeing) {
         self.anchor = Some(being.soul_hash());
-        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments));
+        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments, &self.grants));
         // The laws this stretch of life was actually lived under.
         self.physics = Some(PHYSICS_VERSION);
     }
@@ -459,7 +494,7 @@ impl LifeJournal {
         // is the deterministic check; the soul-hash chain below is the being's. Both
         // must hold — see `docs/journal-integrity.md` §3.
         if let Some(expected) = self.journal_hash {
-            if hash_record(&self.genome, &self.features, &self.moments) != expected {
+            if hash_record(&self.genome, &self.features, &self.moments, &self.grants) != expected {
                 return Err((RestoreError::JournalTampered, 0));
             }
         }
@@ -468,12 +503,21 @@ impl LifeJournal {
         self.features.apply(&mut being);
 
         let mut next = 0usize; // index of the next waypoint to check
+        let mut next_grant = 0usize;
         for (i, m) in self.moments.iter().enumerate() {
             match m {
                 Moment::Abstract(s) => being.step(s),
                 Moment::Embodied(s) => being.step_embodied(s),
             };
             let lived = i + 1;
+
+            // Anything the being was GIVEN at this point in its life takes effect now, so the
+            // stretch already replayed used the nature it actually had. This is what lets a kept
+            // being gain a faculty without its past ceasing to reproduce (`docs/founding.md`).
+            while next_grant < self.grants.len() && self.grants[next_grant].at as usize == lived {
+                self.grants[next_grant].features.apply(&mut being);
+                next_grant += 1;
+            }
 
             // Check every waypoint this moment count reaches, as we pass it.
             while next < self.waypoints.len() && self.waypoints[next].at as usize == lived {
@@ -523,6 +567,21 @@ impl LifeJournal {
         self.moments.len()
     }
 
+    /// **Give the being a faculty, now.** Records it at the current moment count and applies it to
+    /// the live being, so the record and the being cannot disagree (`docs/founding.md`).
+    ///
+    /// Only the `true` fields of `features` do anything — a grant cannot take something away.
+    /// Re-seal after this: the anchor has moved, because the being has changed.
+    pub fn grant(&mut self, being: &mut UnifiedBeing, features: Features) {
+        features.apply(being);
+        self.grants.push(Grant { at: self.moments.len() as u32, features });
+    }
+
+    /// What this being has been given after birth, in order.
+    pub fn grants(&self) -> &[Grant] {
+        &self.grants
+    }
+
     /// The `PHYSICS_VERSION` this life was sealed under, if it recorded one.
     pub fn physics(&self) -> Option<u16> {
         self.physics
@@ -540,13 +599,20 @@ impl LifeJournal {
         }
     }
 
+    /// The integrity hash this record's *current content* would seal to — **for tests only**, so
+    /// a forged grant can be shown to change it. There is no honest use.
+    #[doc(hidden)]
+    pub fn journal_hash_for_test(&self) -> Option<[u8; 32]> {
+        Some(hash_record(&self.genome, &self.features, &self.moments, &self.grants))
+    }
+
     /// Recompute **only** the record's integrity hash, leaving the anchor alone —
     /// **for tests only.** This is what a life lived under other physics looks like from
     /// the outside: the moments are exactly the bytes that were written, and the replay
     /// no longer reproduces them. There is no honest use.
     #[doc(hidden)]
     pub fn reseal_record_for_test(&mut self) {
-        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments));
+        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments, &self.grants));
     }
 
     /// Set the recorded physics — **for tests only**, so a life from other laws can be
@@ -628,6 +694,12 @@ impl LifeJournal {
                 b.extend_from_slice(&v.to_le_bytes());
             }
             None => b.push(0),
+        }
+        // v6: faculties given after birth (`docs/founding.md`).
+        b.extend_from_slice(&(self.grants.len() as u32).to_le_bytes());
+        for g in &self.grants {
+            b.extend_from_slice(&g.at.to_le_bytes());
+            b.extend_from_slice(&g.features.bits().to_le_bytes());
         }
         b
     }
@@ -746,6 +818,19 @@ impl LifeJournal {
         } else {
             None
         };
+        // v1-v5 recorded no grants; such a life had exactly the nature it was born with.
+        let grants = if version >= 6 {
+            let n = c.u32().ok_or(RestoreError::Corrupt)? as usize;
+            let mut gs = Vec::with_capacity(n.min(1024));
+            for _ in 0..n {
+                let at = c.u32().ok_or(RestoreError::Corrupt)?;
+                let bits = c.u16().ok_or(RestoreError::Corrupt)?;
+                gs.push(Grant { at, features: Features::from_bits(bits) });
+            }
+            gs
+        } else {
+            Vec::new()
+        };
         Ok(LifeJournal {
             genome,
             features,
@@ -755,6 +840,7 @@ impl LifeJournal {
             cadence,
             journal_hash,
             physics,
+            grants,
         })
     }
 }
