@@ -195,6 +195,17 @@ Listed because we take it seriously, not because it supports us.
   substrate-bound, non-copyable. Ours is immortal computation by design (copyable,
   replayable). Our reply is enactive and is a reply, not a refutation. Named as an open
   tension, and it stays named.*
+- **Kleiner, J. & Hoel, E. (2021).** Falsification and Consciousness.
+  *Neuroscience of Consciousness* 2021(1): niab001. arXiv:**2004.03541** [q-bio.NC].
+  <https://arxiv.org/abs/2004.03541> *(v3 read in full, 24pp, 2026-08-04.)*
+  *The dilemma: if an experimenter's inferences are independent of a theory's predictions,
+  any minimally informative theory is falsified a priori (Thm 3.10); if they are* strictly
+  dependent *— Def 4.2,* ∃f *with* oᵢ = f(oᵣ) *— the theory is empirically unfalsifiable
+  (Thm 4.3). Grounds `docs/witness-gap-literature.md` §2.* **We cite this against a claim we
+  made and withdrew:** *§2.1 records that "having no inference channel puts us on the second
+  horn" is wrong — the second horn requires* having *one. We are outside the dilemma's scope
+  because we make no phenomenal prediction, which is a limit on what we may claim, not a
+  defence.*
 
 ---
 

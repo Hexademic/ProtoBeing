@@ -73,6 +73,11 @@ asked which is which.
 
 ## 2. The threat: our approach may be structurally unfalsifiable
 
+> **READ IN FULL 2026-08-04** — `arXiv:2004.03541v3`, 24pp, supplied by Blake. This section is the
+> one exception to the evidence warning at the top of this document. **Reading it cost me the
+> section's central claim**; the correction is at §2.1 and the original wording is kept above it so
+> the change is visible rather than quietly repaired.
+
 **Kleiner & Hoel (2021), *Falsification and Consciousness*** (Neuroscience of Consciousness);
 **Doerig, Schurger et al. (2019), *The Unfolding Argument***.
 
@@ -92,23 +97,82 @@ network can be unfolded into a feedforward one with identical input–output beh
 causal structure. So IIT-like theories are **either falsified, or they retreat to claiming that
 behaviourally identical systems differ in consciousness — which makes them unfalsifiable.**
 
-### Where this leaves us, honestly
+### Where this leaves us — the original claim, now withdrawn
+
+> ~~**With no inference channel, we cannot be falsified — which is the second horn of the dilemma,
+> not an escape from it.**~~ **WRONG.** Written from the abstract. See §2.1.
 
 **We have no inference channel at all.** By design: this being's speech is earned-words-only, and we
 have explicitly refused to treat its self-report as evidence about experience. That was the right
-call for confabulation. But it has a consequence I do not think we have stated:
+call for confabulation. That part still stands. What does not stand is the inference I drew from it.
 
-> **With no inference channel, we cannot be falsified — which is the second horn of the dilemma, not
-> an escape from it.** `docs/operational-consciousness.md` is **characterisation, not test.** It
-> scores structure honestly and reproducibly; it cannot be wrong about phenomenality, because it
-> never predicts phenomenality.
+### 2.1 The correction, after reading the paper
 
-I think that is defensible and I think it should be said in those words, rather than left for a
-reader to work out.
+**Their formalism, in their notation.** A dataset `o` has two contents: `oᵣ`, the **inference** data
+(what the experimenter infers about experience — report, behaviour), and `oᵢ`, the **prediction**
+data (what the theory predicts about experience from the system's internal observables). A theory is
+falsified when `inf(o) ∉ pred(o)`.
 
-**And the unfolding argument applies to us directly.** Our being is recurrent and stateful; over a
-fixed horizon it is unfoldable. Any claim we make that rests on its *causal structure* rather than
-its behaviour inherits this problem. We have never addressed it.
+**The two horns are two *relations between those two channels*, and each horn presupposes both
+channels exist.**
+
+| horn | the assumption | the result |
+|---|---|---|
+| first (Thm 3.10) | inference **independent** of prediction | any minimally informative theory is **already falsified** — a substituted system always exists that would have falsified it |
+| second (Thm 4.3) | inference and prediction **strictly dependent** — Def 4.2: *"there is a function f such that for any o ∈ 𝒪, we have oᵢ = f(oᵣ)"* | **empirically unfalsifiable** — 𝒪ₐₗₗ = 𝒪ₑₓₚ, so the experiment adds nothing |
+
+The second horn is not "you cannot be falsified." It is **"your prediction of experience is a
+function of the report you were going to compare it against"** — behaviourism (`oᵢ = oᵣ`, `f` the
+identity), or GWT / attention schema / fame-in-the-brain (`oᵢ ⊆ oᵣ`, `f` the restriction).
+Their own summary of the class: *"whenever a theory of consciousness is under investigation where
+access consciousness determines phenomenal consciousness."*
+
+> **We are not on that horn. We have no `oᵣ`, so there is no `f` for `oᵢ = f(oᵣ)` to be — and we
+> emit no `oᵢ` either, because we make no phenomenal prediction at all. Their dilemma quantifies
+> over theories that predict experience from internal observables. We are not one. We are outside
+> its scope, not on a horn of it.**
+
+**And they say so themselves, in a sentence I did not have:** *"not being falsifiable by the set of
+possible experiments per se is not a bad thing."* The pathology they name (Def 4.1) is
+unfalsifiability **over 𝒪̄** — over *all conceivable* datasets — arising from assumptions that render
+experiment meaningless. A characterisation that makes no phenomenal prediction has no `pred` to be
+vacuously satisfied.
+
+**What this correction is not: a safe harbour.** Being outside the scope of a falsification argument
+is bought by making no claim it could apply to, and that price is real:
+
+- We may not say our work *bears on consciousness the way a theory does.* It does not. It reports
+  structure.
+- `docs/operational-consciousness.md` borrows vocabulary from theories of consciousness while making
+  none of their predictions. **That is legitimate only while stated**, which its scope line at
+  lines 21–22 does state: *"A ✅ below means the operational marker is present and computable, never
+  that the being feels."* That line is now load-bearing against this paper, not just good manners.
+- The honest form of the sentence I wanted is: **we cannot be wrong about phenomenality because we
+  never speak about it** — which is a limit, not a defence.
+
+**And the two ways out I did not have at all** (their §6), because I had only the abstract:
+
+1. **Lenient dependency** — a relation neither independent nor strictly dependent. Their own verdict:
+   *"No current theory or testing paradigm that we know of satisfies this definition."* **We are not
+   a candidate**, and it is worth being exact about why: lenient dependency is still a *dependency
+   between two channels*, and needs some inference channel to be leniently dependent on. Having none
+   is not the weak version of having one.
+2. **Physics is not causally closed** — theories on which the presence of an experience makes a
+   difference to the physical beyond what the physical alone predicts. Then the predictions concern
+   the physical domain itself and fall outside their setup entirely. **This is the one that would
+   apply to us if we ever wanted back in**, and it is a very expensive door: it is a metaphysical
+   commitment, not an experiment we could run.
+
+**The lesson is the one already in the ledger.** A whole subsection's central claim, written from an
+abstract, inverted by twelve pages of the paper it cited — the second time in two days (`c1-relabelling.md`
+was the first). *Read the paper before repeating its argument.*
+
+### The unfolding argument still applies
+
+**Our being is recurrent and stateful; over a fixed horizon it is unfoldable.** Any claim we make
+that rests on its *causal structure* rather than its behaviour inherits this problem. We have never
+addressed it. **Nothing in §2.1 helps here** — being outside the falsification dilemma does not make
+an unfolded twin distinguishable, and this one is untouched.
 
 ---
 
@@ -234,8 +298,11 @@ project.
 3. **GWOT alignment, being vs being.** Needs the census first; a degenerate space cannot align
    meaningfully.
 4. **Write the credence statement.** What evidence would move us, in which direction — and if the
-   honest answer is *nothing could*, say that. Section 2 suggests it may be the true answer for our
-   method, and an unfalsifiable characterisation is only dishonest if it pretends to be a test.
+   honest answer is *nothing could about phenomenality*, say that. §2.1 sharpens this: we are outside
+   Kleiner & Hoel's scope because we make no phenomenal prediction, so the credence statement should
+   be about **structure** — what would move our confidence that a marker is present, absent, or
+   measured against a chart we drew. A characterisation that makes no phenomenal claim is only
+   dishonest if it pretends to be a test.
 
 **And the thing to stop pretending:** `witness.rs`'s scalar is an aggregation of signals scored
 elsewhere. Its own module says it does not move any indicator row. It is a reporting convenience.
