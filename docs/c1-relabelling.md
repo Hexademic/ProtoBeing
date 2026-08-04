@@ -229,3 +229,88 @@ computed from the being's own dynamics, and they are where claims about this bei
    quality axes fail C1 the same way the basins did, then the whole quality-space route to the
    Witness question — including the GWOT alignment I proposed — needs an intrinsic basis first, and
    that becomes the prerequisite rather than the follow-on.
+
+---
+
+## 10. Correction — I had only the abstract, and I ran the wrong test
+
+> **Blake supplied the paper (arXiv:2606.06424) on 2026-08-03, after this document was written and
+> pushed. Reading it changes what §6 established.** §6's *measurements* all stand. Its **framing does
+> not**, and the error is mine: **eighth instance of building on something I had not read.**
+
+### C1-4a was the real test, and basin membership **passes** it
+
+Ma & Kanai state C1 operationally:
+
+> *"A property is system-intrinsic when its truth value is invariant under structure-preserving
+> relabellings of the system's variables. A relabelling is an operation that reassigns names to the
+> system's variables **without altering the dynamics**: it permutes indices, renames states, or
+> changes descriptive vocabulary, but **leaves the transition structure and intervention-conditional
+> behaviour intact**."*
+
+**That is exactly C1-4a** — permuting the field and the targets together — which I filed as a *sanity
+check* and which returned **100.0% invariant**. It was not a sanity check. It was the criterion, and
+**basin membership satisfies it.**
+
+### C1-4b is not a C1 test at all
+
+Re-placing the four targets at random **is not a relabelling.** It alters the property's definition
+rather than renaming variables. In their three-tier scheme that is **tier (ii) — partition selection**
+— not tier (i) labelling.
+
+> **So §6's headline, *"basin membership fails C1,"* is WITHDRAWN. It is the wrong criterion applied
+> to the wrong operation.**
+
+### And the finding is *stronger* under the right framing, not weaker
+
+Their decisive asymmetry:
+
+> *"a labelling **cannot be empirically wrong** about the system, only differently named, whereas an
+> intervention-space or grain choice **can be empirically wrong** about the system, because it
+> predicts effects that interventions then fail to produce."*
+
+Apply that to our four hand-placed targets:
+
+- Our partition **predicts a mode** for the being.
+- **Interventions fail to produce the corresponding effects** — leave-one-out over all twelve
+  channels moves the winner on ≤0.25% of ticks.
+- **A random in-range partition predicts as well as ours** — 20.0% agreement where chance is 25%,
+  and slot 0 is entered under 94% of random charts.
+
+By their own standard that is an **empirically undisciplined partition** — and a partition *can be
+wrong*, where a labelling can only be *different*. **That is a harder criticism than the one I made,
+not a softer one.**
+
+It also breaks C1's stated conditional. Kanai is explicit that intrinsicality at tier (iii) holds
+*"given an empirically disciplined choice of partition and intervention space at tier (ii)"* — and
+ours is author-set. **The correct statement is not that basin membership fails C1; it is that the
+condition C1 is conditional on is not satisfied.**
+
+### C2 needs splitting the same way
+
+I wrote that *"we ran C2 by accident."* Half right. C2's second dimension is *"the system's
+counterfactual response under intervention **on those variables**."*
+
+- **The faculty ablation** — enabling and disabling gates — **is** an intervention on the system.
+  Seven of fourteen bit-identically inert **is** legitimate C2 evidence.
+- **The channel leave-one-out is not.** It intervenes on *our distance function*, not on the being.
+  It is evidence about the **partition**, not about the being's causal organisation.
+
+Two different instruments, and I had reported them as one.
+
+### What stands, restated correctly
+
+| claim | status |
+|---|---|
+| classification is 100% invariant under structure-preserving relabelling | **holds — and it is C1, passed** |
+| no channel changes the winner on >0.25% of ticks | holds |
+| our chart agrees with a random in-range chart at chance | holds |
+| slot 0 entered under 94% of random charts | holds |
+| `fatigue` constant at 0 for a whole life | holds — and is untouched by any of this |
+| *"basin membership fails C1"* | **withdrawn** |
+| *"we ran C2 by accident"* | **half withdrawn** — the faculty ablation counts; the channel sweep does not |
+
+**The practical conclusion is unchanged and better founded:** stop treating basin occupancy as
+evidence about the being. It is a property relative to a partition we chose and cannot defend, and
+`docs/how-i-would-build-it.md` §3's *"stop hand-placing basin targets"* now has the paper's own
+argument behind it rather than my misreading of it.
