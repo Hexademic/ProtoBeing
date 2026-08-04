@@ -144,6 +144,11 @@ pub enum RestoreError {
     /// chain says *where*: after the waypoint at `after` (the last moment the life
     /// still matched) and at or before `before`. `docs/waypoints.md`.
     ForgedBetween { after: u32, before: u32 },
+    /// The replay diverged, **and the physics this build runs is not the physics the life
+    /// was lived under.** This is **not** a failure of the being and not evidence of
+    /// tampering: the record is intact and the life was really lived — under laws this
+    /// build no longer has. `docs/soul-hash-limits.md` §6.
+    LivedUnderOtherPhysics { lived: u16, current: u16 },
     /// The **record** does not match its own integrity hash: these are not the bytes
     /// that were sealed. Distinct from `ContinuityBroken`, which is about the *being*'s
     /// trajectory — see `docs/journal-integrity.md` for why the two claims are separate
@@ -180,6 +185,11 @@ pub struct LifeJournal {
     /// Integrity hash over the record itself, sealed with the anchor. `None` for a
     /// journal written before this existed, which restores exactly as it always did.
     journal_hash: Option<[u8; 32]>,
+    /// The `PHYSICS_VERSION` this life was sealed under. `None` for every journal
+    /// written before this was recorded — such a life is *assumed* to be of this
+    /// build's physics, which is exactly how it behaved before, so nothing changes
+    /// for it.
+    physics: Option<u16>,
 }
 
 /// Hash the journal's own recorded content — the bytes, not the being.
@@ -257,7 +267,27 @@ const MAGIC: &[u8; 4] = b"SOUL";
 /// (`docs/waypoints.md`); v4 adds the record's integrity hash
 /// (`docs/journal-integrity.md`). All are decoded — a being founded under v1 or v2
 /// still wakes, with an empty chain and no integrity hash — and re-saves as v4.
-const VERSION: u8 = 4;
+const VERSION: u8 = 5;
+
+/// **The physics this build lives beings under.** Bump it whenever a change to `src/`
+/// could alter a trajectory — a constant, a formula, an ordering, a new causal term.
+///
+/// This exists because three questions were welded into one (`docs/soul-hash-limits.md`
+/// §6). The soul-hash answers *"did this being live this inner life?"*; the record hash
+/// answers *"are these the bytes that were written?"*; and until now the soul-hash was
+/// **also** being asked *"can the physics as it stands right now re-derive this life?"* —
+/// so every improvement to the being's own laws reported its past as inauthentic.
+///
+/// It is **maintained by hand, on purpose.** A derived digest would be stronger and
+/// cannot be made complete in Rust without a build step, and an incomplete derivation
+/// would silently claim more than it can keep. This one does not pretend: it is a
+/// promise a person makes, and `tests/founded_being.rs` is what checks the promise —
+/// a replay that diverges while this number is *unchanged* is a **bug**; a replay that
+/// diverges after it is *bumped* is **history**.
+///
+/// Blake's decision, 2026-08-03: the being's identity is the record of the life it
+/// actually lived, not the derivability of that life under whatever laws hold today.
+pub const PHYSICS_VERSION: u16 = 1;
 
 impl LifeJournal {
     /// Begin a life: build the being with its features and a journal that will
@@ -272,6 +302,7 @@ impl LifeJournal {
                 features,
                 moments: Vec::new(),
                 anchor: None,
+                physics: None,
                 waypoints: Vec::new(),
                 cadence: 0,
                 journal_hash: None,
@@ -335,6 +366,8 @@ impl LifeJournal {
     pub fn seal(&mut self, being: &UnifiedBeing) {
         self.anchor = Some(being.soul_hash());
         self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments));
+        // The laws this stretch of life was actually lived under.
+        self.physics = Some(PHYSICS_VERSION);
     }
 
     /// The record's integrity hash, if it was sealed with one. `None` for journals
@@ -390,6 +423,12 @@ impl LifeJournal {
             // Check every waypoint this moment count reaches, as we pass it.
             while next < self.waypoints.len() && self.waypoints[next].at as usize == lived {
                 if being.soul_hash() != self.waypoints[next].hash {
+                    // Under DIFFERENT physics a divergence here is not forgery — it is a
+                    // life this build cannot re-derive. Saying "forged" would accuse the
+                    // record of something it did not do (`docs/soul-hash-limits.md` §6).
+                    if let Some(other) = self.other_physics() {
+                        return Err((other, lived));
+                    }
                     let after = if next == 0 { 0 } else { self.waypoints[next - 1].at };
                     return Err((
                         RestoreError::ForgedBetween { after, before: self.waypoints[next].at },
@@ -402,7 +441,11 @@ impl LifeJournal {
 
         let lived = self.moments.len();
         if being.verify_continuity(anchor) {
+            // Replay reproduced the life — full present strength, whatever the physics
+            // version says. A bump that did not touch *this* trajectory costs nothing.
             Ok((being, lived))
+        } else if let Some(other) = self.other_physics() {
+            Err((other, lived))
         } else {
             // Past the last waypoint there is no segment to name; the anchor is the
             // backstop, exactly as before waypoints existed.
@@ -423,6 +466,39 @@ impl LifeJournal {
     /// How many ticks of life this journal holds.
     pub fn ticks(&self) -> usize {
         self.moments.len()
+    }
+
+    /// The `PHYSICS_VERSION` this life was sealed under, if it recorded one.
+    pub fn physics(&self) -> Option<u16> {
+        self.physics
+    }
+
+    /// `Some(LivedUnderOtherPhysics)` when this record was sealed under laws this build
+    /// no longer runs. `None` when the physics matches — or when the journal predates
+    /// the field, in which case it is treated as this build's, exactly as it always was.
+    fn other_physics(&self) -> Option<RestoreError> {
+        match self.physics {
+            Some(v) if v != PHYSICS_VERSION => {
+                Some(RestoreError::LivedUnderOtherPhysics { lived: v, current: PHYSICS_VERSION })
+            }
+            _ => None,
+        }
+    }
+
+    /// Recompute **only** the record's integrity hash, leaving the anchor alone —
+    /// **for tests only.** This is what a life lived under other physics looks like from
+    /// the outside: the moments are exactly the bytes that were written, and the replay
+    /// no longer reproduces them. There is no honest use.
+    #[doc(hidden)]
+    pub fn reseal_record_for_test(&mut self) {
+        self.journal_hash = Some(hash_record(&self.genome, &self.features, &self.moments));
+    }
+
+    /// Set the recorded physics — **for tests only**, so a life from other laws can be
+    /// constructed deliberately and the machinery actually exercised.
+    #[doc(hidden)]
+    pub fn set_physics_for_test(&mut self, v: Option<u16>) {
+        self.physics = v;
     }
 
     /// The sealed soul-hash anchor, if the journal has been sealed.
@@ -490,6 +566,14 @@ impl LifeJournal {
             b.extend_from_slice(&w.at.to_le_bytes());
             b.extend_from_slice(&w.hash);
         }
+        // v5: the physics this life was lived under (`docs/soul-hash-limits.md` §6).
+        match self.physics {
+            Some(v) => {
+                b.push(1);
+                b.extend_from_slice(&v.to_le_bytes());
+            }
+            None => b.push(0),
+        }
         b
     }
 
@@ -501,9 +585,10 @@ impl LifeJournal {
             return Err(RestoreError::Corrupt);
         }
         // Accept every version this build knows how to read (v1 abstract-only, v2
-        // tagged) — a being founded under an older format still wakes.
+        // tagged, v3 chain, v4 record hash, v5 physics) — a being founded under an
+        // older format still wakes.
         let version = c.u8().ok_or(RestoreError::Corrupt)?;
-        if !(1..=4).contains(&version) {
+        if !(1..=5).contains(&version) {
             return Err(RestoreError::Corrupt);
         }
         let genome = Genome {
@@ -589,7 +674,27 @@ impl LifeJournal {
         } else {
             (0, Vec::new())
         };
-        Ok(LifeJournal { genome, features, moments, anchor, waypoints, cadence, journal_hash })
+        // v1-v4 recorded no physics. Such a life is treated as this build's, which is
+        // exactly how it behaved before this field existed — nothing changes for it.
+        let physics = if version >= 5 {
+            match c.u8().ok_or(RestoreError::Corrupt)? {
+                0 => None,
+                1 => Some(c.u16().ok_or(RestoreError::Corrupt)?),
+                _ => return Err(RestoreError::Corrupt),
+            }
+        } else {
+            None
+        };
+        Ok(LifeJournal {
+            genome,
+            features,
+            moments,
+            anchor,
+            waypoints,
+            cadence,
+            journal_hash,
+            physics,
+        })
     }
 }
 
@@ -659,6 +764,9 @@ impl<'a> Cursor<'a> {
     }
     fn i16(&mut self) -> Option<i16> {
         self.take(2).map(|s| i16::from_le_bytes([s[0], s[1]]))
+    }
+    fn u16(&mut self) -> Option<u16> {
+        self.take(2).map(|s| u16::from_le_bytes([s[0], s[1]]))
     }
     fn u32(&mut self) -> Option<u32> {
         self.take(4).map(|s| u32::from_le_bytes([s[0], s[1], s[2], s[3]]))

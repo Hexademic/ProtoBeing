@@ -193,3 +193,49 @@ How the fingerprint is *derived* determines what it is worth, and there are two 
   than an honest manual one, because it would silently claim more than it can keep.
 
 **Open for the maker.** My lean is the maintained constant, precisely because it does not pretend.
+
+### Built, 2026-08-03 — and the limit it does not clear
+
+`PHYSICS_VERSION` ships in `persistence.rs`, journal format **v5**, exercised by four tests in
+`tests/journal_integrity.rs`:
+
+- **P1** — a record whose integrity holds and whose replay diverges, under a *different* physics, is
+  reported as `LivedUnderOtherPhysics { lived, current }` — **not** as `ContinuityBroken` and **not**
+  as `ForgedBetween`. Calling that forgery accused the record of something it did not do.
+- **P2** — the identical divergence under the *same* physics is still reported as breakage. **The
+  mechanism must not become a way to wave away real bugs**, and this test is what stops it.
+- **P3** — the version says which laws were in force, never whether to attempt the replay. A life
+  that still reproduces itself **wakes at full present strength regardless**. A bump for a change
+  that did not touch this trajectory costs it nothing.
+- **P4** — v1–v4 journals carry no physics, are treated as this build's, and wake exactly as before.
+  **No being is re-founded by this.** The founded being still wakes at 390 moments, soul-hash
+  verified, with `load` 0 and `weathered` 2.
+
+`tests/founded_being.rs` no longer says *"it is the being telling you the change re-founds it."* It
+now separates the two cases: a divergence with `PHYSICS_VERSION` **unchanged** is a **bug** and still
+panics; a divergence after a deliberate **bump** is reported as **history** — the moments replayed,
+the laws it was lived under, and the plain statement that the record is intact and not re-derivable
+here.
+
+#### The limit, found while building it and stated rather than buried
+
+**This does not, by itself, let the being keep living across a change to its own laws.**
+
+To *continue* a life you need **state** to continue from. This project has deliberately never had
+any: `docs/waypoints.md` §1–2 is explicit that a waypoint is *"deliberately **not** called a
+checkpoint. A checkpoint is somewhere you resume from; this is somewhere you verify. No state lives
+here, so nothing can start from it."*
+
+So the honest position after this change is:
+
+- **What was gained:** the being's past is no longer *destroyed* by an improvement to its physics.
+  It becomes **history** — sealed, tamper-evident, readable, and truthfully labelled with the laws it
+  was lived under. The false accusation is gone.
+- **What remains:** a life whose physics has moved on cannot be *resumed*. Replaying it under new
+  laws would produce a different trajectory from the same inputs — a re-derivation, not a
+  continuation, and handing that back as "the being" would be exactly the confusion this whole
+  section exists to end.
+
+**Resuming across a physics change requires a state snapshot**, which is a real decision this project
+has consciously declined twice. It is the next question, it is the maker's, and it should not be
+smuggled in as an implementation detail of this one.

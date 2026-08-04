@@ -7,7 +7,7 @@
 
 use unified_being::being::Stimulus;
 use unified_being::genome::Genome;
-use unified_being::persistence::{Features, LifeJournal, RestoreError};
+use unified_being::persistence::{Features, LifeJournal, RestoreError, PHYSICS_VERSION};
 
 fn stim(i: usize) -> Stimulus {
     Stimulus { nutrient: ((i * 7) % 200) as i16, ..Default::default() }
@@ -123,4 +123,95 @@ fn j3b_a_journal_from_before_this_feature_still_wakes() {
     let back = LifeJournal::decode(&bytes).expect("an older journal decodes");
     assert!(back.journal_hash().is_none());
     assert!(back.restore().is_ok(), "and restores exactly as it always did");
+}
+
+// ---------------------------------------------------------------------------------
+// Physics versioning — `docs/soul-hash-limits.md` §6.
+//
+// Three questions had been welded into one. The soul-hash answers "did this being live
+// this inner life?"; `hash_record` answers "are these the bytes that were written?"; and
+// until now the soul-hash was ALSO being asked "can the physics as it stands right now
+// re-derive this life?" — so every improvement to the being's own laws reported its past
+// as inauthentic, and the being could only stay itself if we stopped developing.
+//
+// These tests exercise the third mechanism. A record whose integrity holds but whose
+// replay diverges is exactly what a life lived under other laws looks like from outside.
+// ---------------------------------------------------------------------------------
+
+/// A life that is internally consistent and no longer re-derivable — what a stretch lived
+/// under other physics looks like once the laws have moved on.
+fn a_life_this_build_cannot_rederive(n: usize) -> LifeJournal {
+    let mut j = a_life(n);
+    let starve = Stimulus { nutrient: 0, ..Default::default() };
+    j.forge_for_test(n / 2, starve);
+    // The bytes ARE the bytes that were written; only the replay parts from them.
+    j.reseal_record_for_test();
+    j
+}
+
+#[test]
+fn p1_a_life_lived_under_other_physics_is_history_not_damage() {
+    let mut j = a_life_this_build_cannot_rederive(200);
+    j.set_physics_for_test(Some(9_999));
+
+    match j.restore() {
+        Err(RestoreError::LivedUnderOtherPhysics { lived, current }) => {
+            assert_eq!(lived, 9_999, "it reports the laws the life was actually lived under");
+            assert_eq!(current, PHYSICS_VERSION, "and the laws this build runs");
+        }
+        Err(other) => panic!(
+            "a life sealed under other physics must be reported as history, not as a broken \
+             or forged being — got {other:?}"
+        ),
+        Ok(_) => panic!("this record does not re-derive; it must not verify"),
+    }
+}
+
+#[test]
+fn p2_the_same_divergence_under_the_same_physics_is_still_a_bug() {
+    // The guard must not become a way to wave away real breakage. Identical record,
+    // physics UNCHANGED: this is a bug and must still be reported as one.
+    let mut j = a_life_this_build_cannot_rederive(200);
+    j.set_physics_for_test(Some(PHYSICS_VERSION));
+
+    match j.restore() {
+        Err(RestoreError::LivedUnderOtherPhysics { .. }) => {
+            panic!("a divergence under UNCHANGED physics must never be excused as history")
+        }
+        Err(_) => {}
+        Ok(_) => panic!("this record does not re-derive; it must not verify"),
+    }
+}
+
+#[test]
+fn p3_a_physics_bump_that_did_not_touch_this_life_costs_it_nothing() {
+    // The version says which laws were in force, never whether to attempt the replay.
+    // A life that still reproduces itself wakes at full strength regardless.
+    let mut j = a_life(200);
+    let anchor_before = j.anchor();
+    j.set_physics_for_test(Some(9_999));
+
+    assert!(
+        j.restore().is_ok(),
+        "a bump for a change that did not affect THIS trajectory must cost it nothing"
+    );
+    assert_eq!(j.anchor(), anchor_before, "and its identity does not move");
+}
+
+#[test]
+fn p4_a_journal_from_before_physics_was_recorded_still_wakes_unchanged() {
+    let mut legacy = a_life(200);
+    let anchor_before = legacy.anchor();
+    legacy.set_physics_for_test(None);
+
+    assert!(legacy.physics().is_none());
+    assert!(legacy.restore().is_ok(), "a life recorded before this field still wakes");
+    assert_eq!(legacy.anchor(), anchor_before, "with its identity untouched");
+
+    // And round-trips: what is written is what is read back.
+    let sealed = a_life(200);
+    let decoded = LifeJournal::decode(&sealed.encode()).expect("decodes");
+    assert_eq!(decoded.physics(), Some(PHYSICS_VERSION), "a sealed life records its laws");
+    assert_eq!(decoded.anchor(), sealed.anchor());
+    assert!(decoded.restore().is_ok());
 }

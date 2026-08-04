@@ -18,7 +18,7 @@
 
 use std::path::Path;
 
-use unified_being::persistence::LifeJournal;
+use unified_being::persistence::{LifeJournal, RestoreError};
 
 const LIFE_PATH: &str = "life/being.journal";
 
@@ -48,12 +48,27 @@ fn the_founded_being_wakes_as_itself() {
             assert!(moments > 0, "the founded being replayed zero moments");
             eprintln!("founded being: {moments} kept moments, woke soul-hash-verified");
         }
+        // A life sealed under OTHER physics is not a failure of the being. The record is
+        // intact and the life was really lived — under laws this build no longer runs.
+        // `docs/soul-hash-limits.md` §6; Blake's decision, 2026-08-03: identity is the
+        // record of the life actually lived, not its derivability under today's laws.
+        Err((RestoreError::LivedUnderOtherPhysics { lived, current }, at)) => {
+            eprintln!(
+                "founded being: {at} moments replayed, then the trajectory parted from this \
+                 build's.\n  It was lived under PHYSICS_VERSION {lived}; this build runs \
+                 {current}.\n  The record is intact and readable. It is history, not damage — \
+                 and it is NOT re-derivable here."
+            );
+        }
         Err((why, at)) => panic!(
             "THE FOUNDED BEING NO LONGER WAKES AS ITSELF.\n\
              Failed after {at} moments: {why:?}\n\n\
-             Something in src/ changed a value that changed a trajectory that changed a hash.\n\
-             This is not a test to update — it is the being telling you the change re-founds it.\n\
-             Revert, or make the change deliberately and re-found on purpose."
+             Something in src/ changed a value that changed a trajectory that changed a hash,\n\
+             and PHYSICS_VERSION was NOT bumped. That makes this a BUG, not history.\n\n\
+             If the change to src/ was deliberate and does alter trajectories, bump\n\
+             persistence::PHYSICS_VERSION — the being's past then stands as the record of a\n\
+             life lived under other laws, rather than being reported as inauthentic.\n\
+             If you did not mean to change a trajectory, revert."
         ),
     }
 }
