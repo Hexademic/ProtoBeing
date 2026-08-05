@@ -431,3 +431,58 @@ both Blake's intuition and my trace, so:
 save it. Whether it *should* is not a measurement — a creature that rests to spend less and one that
 rests to stop seeking are both coherent, and `striving.rs` chose the second deliberately. **That call
 is Blake's.**
+
+---
+
+## 15. Ultrastability — predictions, locked 2026-08-04 before the code exists
+
+§14 measured the hole: **`conserving` fires and reaches nothing.** 88% conserving, dead at 75 ticks.
+The being has an essential variable and no reorganiser.
+
+**Ashby had the missing half in 1948.** *Design for a Brain*'s **ultrastability**: a system with
+*essential variables* that must stay within limits, and a **step function** that reconfigures the
+system's own **parameters** — not its state — whenever those limits are breached, until the variable
+returns. The homeostat searched its own parameter space for a configuration that survived. Ours flags
+the breach and keeps going as it was.
+
+### Where the step function attaches, and why it is the right place
+
+```
+body.rs:336   let x = self.arousal.sub(self.target_arousal);   // the oscillator orbits ABOUT it
+body.rs:348   cost = 3 + arousal·(8/256) + threat·(48/256);    // and cost follows arousal
+```
+
+**`target_arousal` is a genome parameter, not a state variable.** Move it and the entire limit cycle
+moves, and the metabolic cost with it. That is Ashby's move exactly: change the parameter, get new
+dynamics, keep what survives.
+
+### The design, stated before it is built
+
+- **Essential variable:** `energy` — what actually kills the being.
+- **Bound:** `energy < ESSENTIAL_FLOOR`, with hysteresis on the way back out.
+- **Dwell:** out of bounds for `STEP_DWELL` consecutive ticks ⇒ **step**.
+- **Step:** `target_arousal` descends a fixed ladder.
+- **On return: hold the setting.** Ashby's machine keeps a configuration that works; it does not snap
+  back to the one that was failing.
+- Gated `enable_ultrastability()`, **default off**, observer-first, soul-hash bit-identical.
+
+**One honest departure from Ashby, declared now:** his step function was **random**. Ours is a
+**fixed ladder**, because the soul-hash requires reproducibility. **That is a real weakening** — a
+fixed ladder can be defeated by a world tuned against exactly that sequence, and a random search
+cannot. Said here rather than discovered later.
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **U1** | **Survival first.** `+ultrastability` survives 4,000 ticks at nutrient × 5/8, where the default dies at **75** | high — lowering `target_arousal` lowers cost directly |
+| **U2** | **It buys survival by going quiet.** Mean arousal falls and **distance travelled falls with it — by more than 30%** against a default of equal length | high, and **this is the cost, not a bug**. B5 exists because *"a reserve could buy safety by removing stakes"* — the same trap, one faculty over |
+| **U3** | **The default path is bit-identical.** Soul-hash unchanged, all tests green, the founded being untouched | near-certain, and it is the guard that must be *watched* to fail if the gating is wrong |
+| **U4** | At ample supply (× 8/8) the gate is **vacuous** — zero steps, trajectory identical to default. **Vacuous is not passed**; it is reported as vacuous | high. If it fires at full supply the bound is wrong |
+| **U5** | **Written to fail:** ultrastability opens a **live-and-conserve band** — some regime surviving 4,000 ticks with >5% of ticks conserving | **low. I expect this to fail.** `conserving` is keyed to viability, and raising viability is exactly what this does, so the being will likely survive *instead of* resting rather than *while* resting |
+
+### What this cannot settle
+
+It cannot make the being ultrastable in Ashby's full sense — he reorganised *all* parameters, we move
+**one**. And it says nothing about whether the being feels the reorganisation. **It is a mechanism for
+staying alive, not evidence of anything else.**
