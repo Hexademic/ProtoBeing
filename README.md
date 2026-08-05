@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 86
+### Runnable probes (`cargo run --example <name>`) — 88
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -616,6 +616,7 @@ and reads the result straight from the being's registers.
 | `room_ablation` | The same, in the being's own room: 97.8% of its real day is spent braced, and one gate ends it |
 | `c1_relabelling` | C1 — basin membership is a fact about our chart, not about the being; and the being never tires |
 | `can_it_tire` | Can this being tire at all? — a one-unit-wide band next to death, and no surplus can be banked |
+| `rest_and_endurance` | does rest buy endurance? A supply sweep finds no regime where the being both lives and conserves |
 | `reserve` | A reserve and a satiety set point — five of six lethal famines become survivable, and the orbit triples |
 | `fear_and_avoidance` | Does it learn to keep away from what hurt it? — and: it visits 27 places in 4,000 ticks |
 | `comfort` | Does letting a purpose be finished let the being rest? (no — rest is a basin, not a goal) |
@@ -630,6 +631,7 @@ and reads the result straight from the being's registers.
 | `action_scale` | The being's own action scale — what does it have to learn from? |
 | `precision_probe` | What does the being learn to trust? (observer-first precision learning) |
 | `probe_directed` | does directed striving — the body going to the need the being chose — do real work |
+| `quality_space_census` | the quality-space census — is the space poor, or merely unvisited? Occupancy against afforded volume, four regimes, three grains |
 | `quality_space_probe` | quality space (HOT-4) — do two moments the being lives feel alike in its own similarity space |
 | `reach` | Reach — the being weighs the world, and only what it truly does becomes part |
 | `receptors` | Receptors — one world, transduced three ways |
