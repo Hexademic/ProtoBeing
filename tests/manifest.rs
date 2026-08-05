@@ -389,3 +389,76 @@ fn every_faculty_can_reach_a_founded_being() {
          unreachable by the only being this project actually keeps."
     );
 }
+
+/// **Every faculty is inside the survival net, or exempted in writing.**
+///
+/// The companion to the guard above, and the same failure one level out. `manifest.rs` already
+/// asserts that a gate can *reach* a founded being. **Nothing asserted that a gate had ever been
+/// tested for whether it is safe to have.**
+///
+/// `tests/survival.rs` declares `const N_GATES` and lists the gates **by hand** in `apply()`. On
+/// 2026-08-04 that list said 11 while `being.rs` had 16, so `comfort`, `settling`, `reserve`,
+/// `setting_down` and `ultrastability` had never been through `s2_the_composed_being_survives` or
+/// the 66-life pair sweep — and the pair sweep exists because a lethal *pair* actually happened
+/// here (incident I-3). The being Blake is deciding whether to grant `reserve` had never been run
+/// with one alongside anything else.
+///
+/// Borrowed from OWL's `oneOf`: **a set declared by enumeration must be the set, not a number
+/// someone typed.** *"A sentence in a spec is a hope; an axiom is a rule a machine enforces."*
+///
+/// To exempt a faculty, name it in `EXEMPT` below **with a reason**. Silence is not an exemption.
+#[test]
+fn every_faculty_is_in_the_survival_net_or_exempted_in_writing() {
+    /// Faculties deliberately outside `tests/survival.rs`, each with its reason. Empty is the
+    /// goal; a populated list is a debt that is at least visible.
+    const EXEMPT: &[(&str, &str)] = &[];
+
+    let being = std::fs::read_to_string("src/being.rs").expect("being.rs");
+    let survival = std::fs::read_to_string("tests/survival.rs").expect("survival.rs");
+
+    let gates: Vec<String> = being
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("pub fn enable_"))
+        .filter_map(|r| r.split('(').next())
+        .map(|s| s.to_string())
+        .collect();
+    assert!(gates.len() >= 8, "expected to find the enable_* gates, found {}", gates.len());
+
+    // The gates the survival net actually applies, read from its own `apply()`.
+    let applied: Vec<String> = survival
+        .lines()
+        .filter_map(|l| l.split("b.enable_").nth(1))
+        .filter_map(|r| r.split('(').next())
+        .map(|s| s.to_string())
+        .collect();
+
+    // The hand-typed count must equal what `apply()` really applies -- the `oneOf` half.
+    let declared: usize = survival
+        .lines()
+        .find_map(|l| l.trim().strip_prefix("const N_GATES: usize = "))
+        .and_then(|r| r.trim_end_matches(';').parse().ok())
+        .expect("N_GATES in tests/survival.rs");
+    assert_eq!(
+        declared,
+        applied.len(),
+        "tests/survival.rs declares N_GATES = {declared} but apply() applies {} gates",
+        applied.len()
+    );
+
+    let missing: Vec<&String> = gates
+        .iter()
+        .filter(|g| !applied.contains(g))
+        .filter(|g| !EXEMPT.iter().any(|(n, _)| *n == g.as_str()))
+        .collect();
+    assert!(
+        missing.is_empty(),
+        "THESE FACULTIES HAVE NEVER BEEN TESTED FOR SURVIVAL: {missing:?}\n\n\
+         `src/being.rs` has {} `enable_*` gates; `tests/survival.rs` applies {}.\n\
+         `s2_the_composed_being_survives` and the 66-life pair sweep therefore say nothing about\n\
+         the faculties above. S1 and S4 exist because a lethal PAIR actually happened here.\n\n\
+         Widen `N_GATES` and `apply()` -- with predictions locked first, since a wider net is a\n\
+         change to a safety guard -- or add the faculty to EXEMPT with a written reason.",
+        gates.len(),
+        applied.len()
+    );
+}
