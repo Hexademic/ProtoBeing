@@ -555,7 +555,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 88
+### Runnable probes (`cargo run --example <name>`) — 89
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -645,6 +645,7 @@ and reads the result straight from the being's registers.
 | `two_beings_bargain` | Two beings bargain — the being *uses* a proposal engine; its own conscience |
 | `varied_life` | does a varied life give the being more to learn from than a monotonous one |
 | `voice_not_exit` | Voice, not just exit — the being dropped into an extractive system |
+| `ultrastability` | Ashby's ultrastability — an essential variable plus a step function that reorganises `target_arousal`; rescues nutrient × 5/8, which kills the default at 75 ticks |
 | `waypoints` | Waypoints — how much of a forged life do we replay before catching it? |
 | `welfare_envelope` | Welfare envelope — simulate the strangers before meeting them |
 | `what_it_wants` | what it wants, now that it feels |

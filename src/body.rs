@@ -262,11 +262,18 @@ pub struct Body {
 /// rather than snapping back to the one that was failing.
 const ESSENTIAL_FLOOR: i16 = Q88_SCALE * 3 / 8;
 const ESSENTIAL_HYSTERESIS: i16 = Q88_SCALE / 16;
-/// Consecutive out-of-bounds ticks before the step function fires. Long enough that a passing
-/// dip is not a reorganisation; short enough to act before the accumulator reaches zero.
-const STEP_DWELL: u16 = 24;
-/// One rung of the ladder. `target_arousal` descends by this each step.
-const STEP_RUNG: i16 = Q88_SCALE / 16;
+/// Consecutive out-of-bounds ticks before the step function fires.
+///
+/// **Derived from the being's measured time-to-death, not chosen** (`docs/can-it-tire.md` §16).
+/// The first pass used 24 with a 16-rung: 13 rungs × 24 ticks = **312 ticks to traverse the ladder,
+/// in a regime where the being is dead at 75.** U1 failed on exactly that, and the reasoning behind
+/// 24 — *"long enough that a passing dip is not a reorganisation"* — was plausibility, never
+/// measurement. `errors.md` #5, one faculty over.
+///
+/// 7 rungs × 8 ticks = 56, inside a 75-tick life.
+const STEP_DWELL: u16 = 8;
+/// One rung of the ladder. `target_arousal` descends by this each step. See `STEP_DWELL`.
+const STEP_RUNG: i16 = Q88_SCALE / 8;
 /// The lowest the ladder goes. Below this the being would be inert rather than quiet.
 const TARGET_FLOOR: i16 = Q88_SCALE / 8;
 

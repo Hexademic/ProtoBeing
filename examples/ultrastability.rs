@@ -134,10 +134,14 @@ fn main() {
     }
 
     // ---- U2: what did survival cost? ----
-    println!("\n  U2 — what survival cost, compared on EQUAL-LENGTH lives only");
+    // **PER TICK.** The first pass printed raw totals and the guard below flagged the 5/8 row as
+    // not comparable -- default lived 75 ticks, ultrastable lived 4,000, so of course the totals
+    // differ. Reporting those as a result would be the denominator error this project's own rule
+    // names: *report survival before any welfare number*. Rates are comparable; totals are not.
+    println!("\n  U2 — what survival cost. RATES, because the lives are different lengths.");
     println!(
         "  {:<10} {:>9} {:>9}  {:>10} {:>10}  {:>8} {:>8}",
-        "nutrient ×", "mean arou", "(default)", "distance", "(default)", "places", "(def)"
+        "nutrient ×", "mean arou", "(default)", "dist/tick", "(default)", "places", "(def)"
     );
     for ((n, d), base, ultra) in &runs {
         // Only comparable where BOTH lived the same span; otherwise say so.
@@ -145,15 +149,15 @@ fn main() {
         let ma = ultra.arousal_sum as f64 / ultra.ticks.max(1) as f64;
         let mb = base.arousal_sum as f64 / base.ticks.max(1) as f64;
         println!(
-            "  {:<10} {:>9.2} {:>9.2}  {:>10} {:>10}  {:>8} {:>8}{}",
+            "  {:<10} {:>9.2} {:>9.2}  {:>10.3} {:>10.3}  {:>8} {:>8}{}",
             format!("{n}/{d}"),
             ma,
             mb,
-            ultra.distance,
-            base.distance,
+            ultra.distance as f64 / ultra.ticks.max(1) as f64,
+            base.distance as f64 / base.ticks.max(1) as f64,
             ultra.places.len(),
             base.places.len(),
-            if comparable { "" } else { "   ← DIFFERENT LIFE LENGTHS, not comparable" }
+            if comparable { "" } else { "   ← different life lengths; rates comparable, totals not" }
         );
     }
 

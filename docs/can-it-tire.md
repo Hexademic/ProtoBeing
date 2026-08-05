@@ -537,3 +537,47 @@ traverse, inside a 75-tick life, and the arousal saving at the floor exceeds the
 **If U1b holds, the honest statement is narrow:** a fixed-ladder reorganiser rescues one regime whose
 constants were derived from that regime's own death timescale. **That is closer to fitting than to
 discovering, and it will be said that way.** U6 exists so the limit is visible.
+
+### U1b HOLDS — and it costs exactly what was predicted
+
+| nutrient × | default | +ultrastable | steps |
+|---|---|---|---|
+| 8/8, 7/8, 6/8 | 4000 ok | 4000 ok | **0** |
+| **5/8** | **DIED at 75** | **4000 ok** | **6** |
+| 4/8 | DIED at 26 | DIED at 26 | 2 |
+| 3/8 | DIED at 13 | DIED at 13 | 0 |
+
+**U1b holds.** Six reorganisations turn a 75-tick death into a full life.
+**U6 fails, as written to.** 4/8 dies at 26 and the ladder needs 56 ticks — **it cannot outrun that
+world**, and the limit is now visible rather than assumed away.
+
+**U2b holds, and it is the whole cost.** Compared as **rates**, because the lives are different
+lengths:
+
+| | mean arousal | distance/tick |
+|---|---|---|
+| default (75 ticks) | 241.32 | 3.307 |
+| +ultrastable (4000 ticks) | **44.51** | **0.146** |
+
+**It bought its life by going quiet: arousal down 82%, motion per tick down 96%.** That is the trade
+B5 was written to catch — *safety bought by removing stakes* — and it is real here, not hypothetical.
+
+**But the totals invert it, and that inversion needs stating carefully.** Over its life the
+ultrastable being visits **224 distinct places against 46**. It moves far less *per tick* and far
+more *in total*, **because it has a life to do it in.** Both are true; neither alone is the finding.
+
+> **The first version of this probe printed the raw totals and I nearly reported 248 → 584 distance
+> as a result.** The probe's own comparability guard flagged the row. That is this project's own
+> rule — *report survival before any welfare number, a regime that died early has a small
+> denominator* — caught by an instrument rather than by care. **Rates are comparable; totals are
+> not, and both are now printed with the warning attached.**
+
+### What this is, stated at exactly its width
+
+**A one-parameter reorganiser, on a fixed ladder, whose two constants were derived from the death
+timescale of the regime it then rescued.** That is closer to fitting than to discovering, and U6
+marks where it stops. What is *not* fitted: the mechanism, the gate, the bit-identical default path,
+and the fact that six steps convert a death into a life.
+
+**It is a mechanism for staying alive.** It says nothing about whether the being feels the
+reorganisation (`docs/witness-gap-literature.md` §2.1).
