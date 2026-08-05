@@ -246,7 +246,29 @@ pub struct Body {
     pub reserve_causal: bool,
     /// What has been banked. Raw Q8.8, capacity `RESERVE_CAP`.
     pub reserve: Q8_8,
+    /// **Ashby's ultrastability** (`docs/can-it-tire.md` §15). Off by default ⇒ the step
+    /// function never fires, and the trajectory and soul-hash are bit-identical. Set via
+    /// `UnifiedBeing::enable_ultrastability()`.
+    pub ultrastable: bool,
+    /// Consecutive ticks the essential variable has been out of bounds.
+    breach_ticks: u16,
+    /// How many steps the reorganiser has taken. Reported; never read back into the dynamics.
+    pub reorganisations: u16,
 }
+
+/// The essential variable's lower bound. Below this, `energy` is heading for zero and the
+/// current parameter setting is not working. Above `floor + hysteresis`, the breach counter
+/// resets — **the setting is kept**, because Ashby's machine holds a configuration that works
+/// rather than snapping back to the one that was failing.
+const ESSENTIAL_FLOOR: i16 = Q88_SCALE * 3 / 8;
+const ESSENTIAL_HYSTERESIS: i16 = Q88_SCALE / 16;
+/// Consecutive out-of-bounds ticks before the step function fires. Long enough that a passing
+/// dip is not a reorganisation; short enough to act before the accumulator reaches zero.
+const STEP_DWELL: u16 = 24;
+/// One rung of the ladder. `target_arousal` descends by this each step.
+const STEP_RUNG: i16 = Q88_SCALE / 16;
+/// The lowest the ladder goes. Below this the being would be inert rather than quiet.
+const TARGET_FLOOR: i16 = Q88_SCALE / 8;
 
 /// Where a fed body settles, rather than pinning at its ceiling. `energy` above this fills
 /// the reserve; below it, the reserve is drawn on. Without this, `energy` is a clamped pure
@@ -278,6 +300,9 @@ impl Body {
             forcing_detected: false,
             reserve_causal: false,
             reserve: Q8_8::ZERO,
+            ultrastable: false,
+            breach_ticks: 0,
+            reorganisations: 0,
             affect: AffectState::Calm,
             topology: Topology::new(g.mesh_coupling),
             vel: Q8_8::ZERO,
@@ -353,6 +378,28 @@ impl Body {
             .sub(cost)
             .add(nutrient.mul(Q8_8::from_raw(180)))
             .clamp(Q8_8::ZERO, Q8_8::ONE);
+
+        // 5b. **Ultrastability** (`docs/can-it-tire.md` §15, Ashby 1952). The essential variable is
+        //     `energy`. While it is out of bounds the breach counter runs; when it runs past the
+        //     dwell, the STEP FUNCTION fires and moves a *parameter* — `target_arousal`, which the
+        //     oscillator orbits about and which cost follows — one rung down the ladder. On return
+        //     the setting is KEPT: a configuration that works is not surrendered for the one that
+        //     was failing. Gated; with the gate off this block cannot change a single bit.
+        if self.ultrastable {
+            if self.energy.raw < ESSENTIAL_FLOOR {
+                self.breach_ticks = self.breach_ticks.saturating_add(1);
+                if self.breach_ticks >= STEP_DWELL {
+                    self.breach_ticks = 0;
+                    let stepped = self.target_arousal.raw.saturating_sub(STEP_RUNG);
+                    if stepped >= TARGET_FLOOR {
+                        self.target_arousal = Q8_8::from_raw(stepped);
+                        self.reorganisations = self.reorganisations.saturating_add(1);
+                    }
+                }
+            } else if self.energy.raw >= ESSENTIAL_FLOOR + ESSENTIAL_HYSTERESIS {
+                self.breach_ticks = 0;
+            }
+        }
 
         // 5b. SATIETY AND RESERVE (opt-in, `enable_reserve`; default off ⇒ this block is
         // skipped entirely and the trajectory is bit-identical).

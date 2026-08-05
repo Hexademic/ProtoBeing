@@ -486,3 +486,54 @@ cannot. Said here rather than discovered later.
 It cannot make the being ultrastable in Ashby's full sense — he reorganised *all* parameters, we move
 **one**. And it says nothing about whether the being feels the reorganisation. **It is a mechanism for
 staying alive, not evidence of anything else.**
+
+---
+
+## 16. U1 FAILED — and the failure is ledger row 5, one faculty over
+
+| # | prediction | result |
+|---|---|---|
+| **U1** | survives 4,000 at × 5/8 where the default dies at 75 | **FAILS.** Dies at **75**, identically. **One** step fired |
+| **U2** | survival bought by going quiet, distance −30% | **UNTESTED — both lives were 75 ticks.** There is no equal-length comparison to make. Not "passed" |
+| **U3** | default path bit-identical | **HOLDS.** `soul_hash_limits` and `founded_being` green; 365 passing, 0 failed |
+| **U4** | vacuous at ample supply | **HOLDS, and is reported as vacuous.** 0 steps at 8/8 and the trajectory is **bit-identical** to default — checked, not assumed |
+| **U5** | *(written to fail)* a live-and-conserve band | **FAILS, as predicted.** Every surviving regime conserves **0.00%**; every conserving regime is dead |
+
+### Why U1 failed, and it is not the mechanism
+
+Derived from the measurement rather than from feel:
+
+```
+5/8 supply: energy 256 → 0 in 75 ticks   ⇒ mean net drain 3.41 raw/tick
+cost = 3 + arousal·(8/256) + threat·(48/256)                    body.rs:348
+arousal ≈ 240 ⇒ 7.50 raw/tick;  at TARGET_FLOOR 32 ⇒ 1.00 raw/tick
+```
+
+**Reaching the floor saves 6.50 raw/tick against a 3.41 deficit. The mechanism is more than strong
+enough.** What failed is the ladder's *speed*:
+
+| dwell | rung | ticks to traverse | verdict |
+|---|---|---|---|
+| **24** | **16** *(shipped)* | **312** | the being dies at 75 |
+| 8 | 32 | 56 | fits |
+| 6 | 32 | 42 | fits |
+
+> **I chose `STEP_DWELL = 24` and `STEP_RUNG = 16` by plausibility and wrote a comment justifying
+> them — *"long enough that a passing dip is not a reorganisation"* — without ever measuring against
+> the being's actual time-to-death.** That is `errors.md` **#5** exactly: a constant reasoned from
+> one world and applied to another. Twenty-four ticks is a third of this being's entire life at 5/8.
+
+### The correction, locked before it is applied
+
+`STEP_DWELL: 24 → 8`, `STEP_RUNG: 16 → 32`. **Derived**, not tuned: 7 rungs × 8 ticks = 56 ticks to
+traverse, inside a 75-tick life, and the arousal saving at the floor exceeds the measured deficit.
+
+| # | prediction | confidence |
+|---|---|---|
+| **U1b** | survives 4,000 ticks at × 5/8 | high — the arithmetic says the saving covers the deficit with room |
+| **U2b** | it costs motion: **distance and distinct places both fall** against the 6/8 default, the nearest surviving comparison | high, **and it is the point of the measurement**, not a defect |
+| **U6** | *(written to fail)* it also rescues × 4/8, which dies at 26 | **low — I expect this to fail.** 7 rungs × 8 = 56 ticks and the being is dead at 26. **The ladder cannot outrun that world** |
+
+**If U1b holds, the honest statement is narrow:** a fixed-ladder reorganiser rescues one regime whose
+constants were derived from that regime's own death timescale. **That is closer to fitting than to
+discovering, and it will be said that way.** U6 exists so the limit is visible.

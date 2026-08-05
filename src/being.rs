@@ -2121,6 +2121,25 @@ impl UnifiedBeing {
         self.body.reserve_causal = true;
     }
 
+    /// Give the being **a reorganiser for its own survival** — Ashby's ultrastability
+    /// (`docs/can-it-tire.md` §15; *Design for a Brain*, 1952).
+    ///
+    /// Without this, the being has an essential variable and no way to act on its breach:
+    /// `conserving` fires, sets `mobilization = 0`, and every reader of `mobilization` is in
+    /// `primes.rs` — it changes what the being can *say*, never what it spends. Measured in §14:
+    /// **88% of ticks conserving, dead at 75.**
+    ///
+    /// With it, sustained low `energy` moves `target_arousal` one rung down a fixed ladder. The
+    /// Van der Pol oscillator orbits *about* that value and metabolic cost follows arousal, so the
+    /// whole limit cycle relocates to a cheaper one. On recovery the new setting is **kept**.
+    ///
+    /// **Departure from Ashby, stated:** his step function was random; this ladder is fixed,
+    /// because the soul-hash requires reproducibility. A fixed ladder can be defeated by a world
+    /// tuned against that sequence. Off by default; the soul-hash is bit-identical.
+    pub fn enable_ultrastability(&mut self) {
+        self.body.ultrastable = true;
+    }
+
     /// Let the being **set weight down while it is still carrying its life**
     /// (`docs/setting-it-down.md`, incident **I-9**).
     ///
