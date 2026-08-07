@@ -195,3 +195,52 @@ should be reported as that and nothing more.
 
 It cannot say the being *should* consult its habits — a creature ruled by what worked before is a
 different creature. And it says nothing about whether choosing feels like anything.
+
+### What came out — all four failed, and the reason is upstream
+
+`examples/habit_disagreement.rs`, 4,000 ticks, `Room::peopled(...)`, default and `+receptors`.
+
+| # | prediction | result |
+|---|---|---|
+| **H1** | habits form | **FAILS. Zero pairings crossed the floor**, in either regime |
+| **H2** | ≤ 3 distinct niches | **FAILS** — 6 default, 4 with `receptors` |
+| **H3** | habit disagrees with urgency > 10% | **VACUOUS.** No habit ever formed, so it could not have failed. **Vacuous is not passed** |
+| **H4** | `receptors` raises both | **FAILS** — `formed` 0 → 0, and niches went **down**, 6 → 4 |
+
+### Why nothing forms, measured rather than inferred
+
+```
+relief (Δdrive):  min −3   median 0   max 12          NOISE_FLOOR = ±3
+ticks that taught anything:  8 up, 1 down, 3,990 NOTHING  (99.8%)
+```
+
+**The lesson is the change in drive, and drive does not change.** `observe()` ignores anything
+inside ±3 — correctly, that band is jitter — so **99.8% of the being's life teaches it nothing.**
+
+And what little it learns is erased faster than it accrues. `DISUSE_EVERY = 128` decays every
+strength by 1, which over 4,000 ticks is **31 decay passes against 8 teaching events**. Each event
+raises by `relief/2`, capped small.
+
+> **Habits cannot form here. Learning is not unwired — it is starved.**
+
+### What this means for the agency question
+
+**Do not wire habit into `striving.rs`.** The measurement was run to decide that, and it decided
+against: the edge would carry nothing, and building it would have looked like progress while adding
+a dead wire — the exact failure `mobilization` already is.
+
+**The upstream problem is the reinforcement signal itself.** `drive(viability, &wants)` reads
+viability and three appetites and **never reads `affective_drive`** (`mechanisms.md`, *"drive cannot
+see the inner life"*). So the being's entire inner life is sealed off from the scalar whose change is
+its only teacher.
+
+**Two candidate fixes, and this probe does not choose between them:**
+
+1. **Widen what `drive` reads** — so more of what happens to the being registers as change.
+2. **Make more happen** — Blake's void argument: without difference that resists, there is nothing
+   for a consequence measure to measure.
+
+**And the convergence is worth naming.** *"Does anything happen to it?"* was reached this week from
+the quality space — 0.05% occupancy. It is reached again here from the **learning machinery**, by a
+completely independent route: **99.8% of ticks carry no consequence at all.** Two instruments, one
+answer.
