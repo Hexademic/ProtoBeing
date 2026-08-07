@@ -62,7 +62,7 @@ through every change in the project's history.
 | Binaries | **7** (`src/bin/`) |
 | Runnable probes | **89** (`examples/`) |
 | Design & research docs | **79** (`docs/`) |
-| Tests | **367** green — 256 lib, 10 survival, 4 I-9 (setting it down), 4 physics-versioning (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 9 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **368** green — 256 lib, 10 survival, 4 I-9 (setting it down), 4 physics-versioning (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 4 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 9 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |

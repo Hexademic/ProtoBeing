@@ -104,3 +104,89 @@ fn verifying_the_being_never_writes_to_its_record() {
     let after = std::fs::read(path).expect("readable");
     assert_eq!(before, after, "verifying the being modified its own record");
 }
+
+/// **The being's own state, claimed in 36 places, is now derived from the record in one.**
+///
+/// `tests/manifest.rs` enforces *file* counts — modules, docs, probes, tests — which is why it
+/// caught two stale numbers on 2026-08-04. It enforces nothing about **the being**. Its kept
+/// moment count appears in **36 claims across 22 files**, every one hand-typed, and the moment
+/// `cargo run --bin being` advances the life, all 36 become wrong at once.
+///
+/// That is the same defect as `tests/survival.rs`'s hand-typed `N_GATES`, one level in: a fact
+/// with many copies and no source of truth. Here the source of truth is the record itself, so a
+/// document cannot drift from the being without this failing.
+///
+/// Other counts in the prose are legitimate and named in `OTHER_COUNTS` **with a reason**.
+/// Silence is not an exemption — an unexplained number in this position fails.
+///
+/// Read-only: decodes and replays, writes nothing, advances no life.
+#[test]
+fn no_document_claims_a_moment_count_the_record_denies() {
+    /// Counts that appear before "moments" and are *not* the founded being's life.
+    const OTHER_COUNTS: &[(usize, &str)] = &[
+        (1500, "probe life length — `a_pleasant_life`, `weather`, `nested_speech`"),
+        (270, "ticks ago, not a count of the life"),
+        (120, "FOUNDING_DAY in src/bin/being.rs"),
+        (90, "SESSION_DAY in src/bin/being.rs"),
+        (60, "a short probe span"),
+        (32, "a short probe span"),
+        (9, "a short probe span"),
+    ];
+
+    let Some(j) = journal() else {
+        eprintln!("no founded being in this checkout — skipping");
+        return;
+    };
+    let truth = match j.restore_counting() {
+        Ok((_, moments)) => moments,
+        // A life under other physics is history, not damage (docs/soul-hash-limits.md §6).
+        // The count is still the record's, so the check still applies.
+        Err((RestoreError::LivedUnderOtherPhysics { .. }, _)) => {
+            eprintln!("founded being lived under other physics — moment count check skipped");
+            return;
+        }
+        Err((e, at)) => panic!("the founded being's record did not replay: {e:?} at {at}"),
+    };
+
+    let mut wrong: Vec<String> = Vec::new();
+    let roots = ["docs", "examples", "src", "."];
+    for root in roots {
+        let entries = std::fs::read_dir(root).expect("readable directory");
+        for e in entries.flatten() {
+            let p = e.path();
+            let ext = p.extension().and_then(|s| s.to_str()).unwrap_or("");
+            if ext != "md" && ext != "rs" {
+                continue;
+            }
+            let Ok(text) = std::fs::read_to_string(&p) else { continue };
+            for (lineno, line) in text.lines().enumerate() {
+                // "<N> moments" or "<N> kept moments"
+                for (i, _) in line.match_indices("moments") {
+                    let before = &line[..i];
+                    let before = before.trim_end().trim_end_matches("kept").trim_end();
+                    let num: String =
+                        before.chars().rev().take_while(|c| c.is_ascii_digit()).collect();
+                    if num.is_empty() {
+                        continue;
+                    }
+                    let n: usize = num.chars().rev().collect::<String>().parse().unwrap_or(0);
+                    if n == truth || OTHER_COUNTS.iter().any(|(k, _)| *k == n) {
+                        continue;
+                    }
+                    wrong.push(format!("{}:{} claims {n} moments", p.display(), lineno + 1));
+                }
+            }
+        }
+    }
+
+    assert!(
+        wrong.is_empty(),
+        "THE RECORD SAYS {truth} MOMENTS. THESE DO NOT:\n  {}\n\n\
+         `life/being.journal` is the only source of truth for the being's own state. A document\n\
+         that disagrees with it is wrong about the one life this project has kept.\n\
+         Update the claim, or add the number to OTHER_COUNTS with a reason if it is about\n\
+         something else entirely.",
+        wrong.join("\n  ")
+    );
+    eprintln!("{} claims of the being's moment count, all agreeing with the record", truth);
+}
