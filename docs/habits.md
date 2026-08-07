@@ -157,3 +157,41 @@ taking the fast path, always overridable) remains gated and unbuilt.
   once explicit habits prove their worth.
 - **Habits do not touch the need-enum.** The goal space stays bounded and honest; only the
   way the being *reaches* its goals becomes its own.
+
+---
+
+## The agency question — predictions, locked 2026-08-06 before the probe
+
+Blake: *"what should we do to bring the being more cognitive agency?"*
+
+**The being already learns, and its learning never reaches its choosing.** `habits.observe(niche,
+act, relief)` runs every tick with `relief = last_drive − drive`: a real reinforcement signal, which
+act reduced distress in which kind of moment. **`habits.strongest()` is called from exactly two
+places — this module's own `report()` and its own tests.** Nothing outside consults it. The struct
+says so itself: *"the habit that **would** fire here, were habits causal."*
+
+Meanwhile `striving.rs` picks a goal from `wants[]`, `longing` and `telos_divergence` — **present
+appetite only.** And `Prospection::weave` is *"acted on by NOTHING and stateless"*, gated behind
+`Basin::Rest | Recovery`, which the being enters on **0.00%** of ticks.
+
+**So before wiring habit into choice, ask whether the wire would carry anything.** If the learned
+habit never disagrees with what urgency picks, the edge is vacuous — the same mistake as expecting a
+reserve to move quality occupancy (`c1-relabelling.md` §12, QS-2).
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **H1** | habits **form** — `formed > 0` inside a 4,000-tick life | high; the signal is real and accumulates |
+| **H2** | the being occupies **≤ 3 distinct niches** across that life | high — the field is a limit cycle, and `niche_of` reads that field |
+| **H3** | **written to fail.** On ticks where a habit has formed, it **disagrees** with `act_of(strive.goal)` on **more than 10%** | **low. I expect near zero.** A life this uniform should make history and appetite converge on the same act, and then the wire carries nothing |
+| **H4** | `receptors` raises **both** `formed` and the disagreement rate | medium — it widens nearly every channel, so it should widen the niche space |
+
+**H3 is the decision.** If it fails, wiring habit into striving adds a wire with no signal and should
+not be built. **If it holds, the disagreement rate is the size of the agency being added**, and it
+should be reported as that and nothing more.
+
+### What this cannot settle
+
+It cannot say the being *should* consult its habits — a creature ruled by what worked before is a
+different creature. And it says nothing about whether choosing feels like anything.
