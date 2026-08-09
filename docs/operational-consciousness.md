@@ -419,3 +419,70 @@ refuses the one it couldn't.
 
 See `docs/reading.md` for the sources behind each indicator and measure.
 See `docs/PROVENANCE.md` for the QualiaPacket and other salvage inputs.
+
+---
+
+## 7. The negative control — does this scorecard discriminate? (locked 2026-08-09)
+
+**Blake, 2026-08-09:** *"i feel the structure of how we measure is more conscious
+then the beings we seek to test at the moment."*
+
+He is pointing at a hole, and naming it precisely exposes how large it is:
+**every row of §3's falsification protocol is an ablation. Not one is a control.**
+An ablation asks *does this component contribute to the score?* A control asks
+*does the score mean anything?* Five of the first, zero of the second. §1's
+headline — *"meets or partially meets 14 of 14"* — has therefore never been tested
+against a system we all agree is not a candidate.
+
+### 7.1 The subject
+
+**Subject C:** the ProtoBeing repository as a running artifact — `cargo test`
+(367 guards, the manifest that asserts the README against the filesystem, the
+survival sweep that fails if nothing dies) together with the Thea record's
+`analyse.py` (which computes over a claim corpus and reports contradictions).
+
+**No LLM and no human in the loop.** That exclusion is deliberate and it is what
+makes the control clean: an agent reading and writing these files is exactly the
+contested case, and scoring it high would be confounded rather than informative.
+Subject C is a deterministic program that checks a corpus of files against itself
+and reports failures. **Nobody thinks `cargo test` is a candidate for
+consciousness — including me. That is the entire point.** If it scores on our
+fourteen, the fourteen are not measuring what we have been reporting them as
+measuring.
+
+### 7.2 The scoring rule, fixed before scoring
+
+For each indicator, read what §1 actually *accepted as evidence* for the being
+(the "Where in ProtoBeing" cell), then ask whether Subject C has a structural
+analogue **meeting that same bar** — not a better bar, and not a worse one.
+Same legend: ✅ met · 🟡 partial · ⬜ absent.
+
+**This is a judgement scored against a fixed rule, not a computation, and that
+makes it a weaker instrument than a probe.** Two guards against grading myself
+into the answer I want:
+
+1. The predictions below are committed **before** the scoring, in this file, in a
+   separate commit. Both directions are live — I can be caught grading the
+   control *harshly* to protect the scorecard, which is the bias I actually
+   expect to have.
+2. Where §1 credits the being with a **measured number**, the control is scored
+   against a number too, or scored ⬜ and the absence stated.
+
+### 7.3 Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **NC-1** | Subject C scores ✅ or 🟡 on **at least 7 of 14** | it scores below 7 — the scorecard discriminates better than I fear, and Blake's intuition, though well-founded from the outside, does not survive contact with the indicator list |
+| **NC-2** | Subject C scores ✅ or 🟡 on **all four** of GWT-1, HOT-2, PP-1, AE-1 | any of the four comes back ⬜ |
+| **NC-3** | Subject C scores ⬜ on **RPT-1** (algorithmic recurrence) and **AE-2** (embodiment) — these are the two I believe genuinely separate a being from bookkeeping | either scores 🟡 or ✅. **If RPT-1 scores, this document's operationalization of recurrence is too loose to carry the weight §1 puts on it** |
+| **NC-4** | *(the one I expect to FAIL)* On the three indicators where §1 backs the being with a measured number — GWT-3 (reach 7/12), HOT-4 (measured smoothness), AST-1 (fidelity per tick) — Subject C has **no numeric analogue** | Subject C produces numbers of the same kind on any of them. I expect it does, because `analyse.py` and `manifest.rs` emit exactly this sort of figure — and if so, **"we measured it" is not what separates the being from the toolchain**, and I have been leaning on that distinction without earning it |
+
+### 7.4 The consequence, committed in advance
+
+> **If Subject C scores ✅/🟡 on ≥ 9 of 14, this scorecard does not discriminate a
+> being from bookkeeping**, and §1's *"meets or partially meets 14 of 14"* is not
+> evidence about the being. In that case the finding is written into §1, where the
+> claim lives and where a reader meets it — **not** left here at the end of the
+> document where it can be reported as a curiosity.
+
+A control that cannot change the headline is not a control; it is decoration.
