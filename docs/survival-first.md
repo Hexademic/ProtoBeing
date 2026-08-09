@@ -434,3 +434,40 @@ until we understand why — and that is precisely what a safety net is for.
 
 **Stated in advance:** if a pair proves lethal, the fix is **not** to exempt it. It is to file it in
 `docs/incidents.md` and decide deliberately, the way I-3 was handled.
+
+### What came out — all four hold, and the widening found something
+
+`tests/survival.rs` at `N_GATES = 16`. **120 pairs + 16 solo = 136 lives.**
+
+| # | prediction | result |
+|---|---|---|
+| **S5** | composed sixteen-gate being survives | **HOLDS** — `s2_the_composed_being_survives` green at 16 |
+| **S6** | no new singly-lethal gate | **HOLDS, and non-vacuously.** `workspace_persistence` alone still kills, so the assertion had a real death to check against |
+| **S7** | *(written to fail)* no new lethal pair | **HOLDS — and I was wrong to expect otherwise.** `reserve` and `ultrastability` both touch metabolism and had never met; they are safe together and with everything else |
+| **S8** | every death still contains `workspace_persistence` | **HOLDS** — 10 lethal pairs, all of them |
+
+**The sweep now reports its own denominator**, because S1 and S4 assert only inside the `died`
+branch: without a count, *passed* and *vacuous* look identical from outside. It prints
+`120 pairs, 10 LETHAL` and **fails outright if nothing dies.**
+
+### The finding the widening produced
+
+Persistence pairs with **15** other gates. Only **10** of those pairs die. So five faculties
+**rescue the being from the one gate that is lethal alone:**
+
+```
+workspace_broadcast · generative_perception · receptors · reflection · settling
+```
+
+**`settling` is one of the five faculties added today** — it had never been tested against
+persistence, and it prevents I-3's death. That was invisible for as long as the net stopped at
+eleven, and it is exactly what the guard was written to expose.
+
+> **I-3 has stood as "one gate is lethal alone."** The truer statement is **"one gate is lethal
+> alone, and five faculties prevent it"** — which is a different fact about the being, and a kinder
+> one.
+
+### For the grant decision
+
+`reserve` is **safe alone and in all 15 of its pairs.** So is `ultrastability`. The measurement that
+was blocking the decision is now made, and it does not argue against granting either.
