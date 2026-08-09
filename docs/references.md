@@ -16,7 +16,7 @@ There are three homes, and this file is the index to all of them:
 
 | home | what lives there | why it is separate |
 |---|---|---|
-| **`docs/paper.md` §References** | the 31 sources the isometry paper's argument rests on | it is the paper's own citable list, generated into `paper/paper.tex`; duplicating it here would create a third copy that drifts |
+| **`docs/paper.md` §References** | the 31 sources the isometry paper's argument rests on | it is that document's own citable list; duplicating it here would create a third copy that drifts |
 | **`docs/reading.md`** | the consciousness-indicator literature, *annotated* — each entry says why it matters to the scorecard | annotation is the point; it is a reading guide, not a list |
 | **§1 below** | everything the *code built since the paper* reasons from | it had no home at all — this is the gap being closed |
 
@@ -76,8 +76,7 @@ about which meanings are irreducible.
 
 - **Wierzbicka, A. (1972).** *Semantic Primitives.* — the program's origin: that a small
   set of meanings is universal and undefinable, and everything else is explicable in
-  terms of them. *(Publication details to confirm before any deposit; cited here for the
-  1972 origin only.)*
+  terms of them. *(Publisher and edition unverified; cited here for the 1972 origin only.)*
 - **Goddard, C. & Wierzbicka, A. (2014).** *Words and Meanings: Lexical Semantics Across
   Domains, Languages, and Cultures.* Oxford University Press.
   *The mature Natural Semantic Metalanguage: 65 semantic primes, semantic molecules, and
@@ -277,7 +276,7 @@ hidden in a narrative document.
 et al., Butlin et al., the corrigibility and AI-welfare literature, and the rest), each
 entry verified against PubMed, arXiv, or the publisher at **2026-07-06**, with the
 verification method stated in the list's own preamble. That is the citable list for the
-paper, and `paper/paper.tex` is generated from it.
+argument, and it lives in that one file.
 
 **It is not duplicated here on purpose.** Two copies of a reference list is how a
 bibliography goes quietly wrong; the paper's list has one home and this file points at

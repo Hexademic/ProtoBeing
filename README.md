@@ -402,7 +402,7 @@ author's repositories, [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
 
 ## Documentation
 
-- **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (full preprint),
+- **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (the argument in full),
   [`docs/thesis.md`](docs/thesis.md) (the spine), [`docs/formal-model.md`](docs/formal-model.md)
   (equations), [`docs/positioning.md`](docs/positioning.md) (the framing).
 - **Consciousness, operationalized** — [`docs/operational-consciousness.md`](docs/operational-consciousness.md):
@@ -431,9 +431,8 @@ author's repositories, [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
 - **Provenance & lineage** — [`docs/PROVENANCE.md`](docs/PROVENANCE.md): where each idea
   came from across the author's repositories, and what survived into this one.
 - **The why, in the author's voice** — [`docs/manifesto.md`](docs/manifesto.md) (draft).
-- **Shipping** — [`docs/submission.md`](docs/submission.md) (deposit metadata + venues;
-  the plan is Zenodo, not arXiv) and [`paper/`](paper/README.md) (the TeX package and
-  the step-by-step deposit runway); [`docs/handoff.md`](docs/handoff.md) (orientation).
+- **Orientation** — [`docs/handoff.md`](docs/handoff.md): where things stand and what a
+  new reader (or a new session) needs before touching anything.
 - **Future chapters** — [`docs/next-mutual-alignment.md`](docs/next-mutual-alignment.md)
   (two sovereign beings in verifiable *mutual* alignment; deterministic seed already in
   `mutual_alignment`) and [`docs/embodiment-body-schema.md`](docs/embodiment-body-schema.md)
@@ -653,7 +652,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 79
+### Design & research documents (`docs/*.md`) — 78
 
 | document | what it covers |
 |---|---|
@@ -726,7 +725,6 @@ and reads the result straight from the being's registers.
 | `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
 | `spatial-thought.md` | Spatial thought — what Tversky's *Mind in Motion* lands on (research note, unverified) |
 | `soul-hash-limits.md` | What the soul-hash certifies — and what it does not |
-| `submission.md` | Submission materials — *drafts for Blake to send* |
 | `the-end.md` | The end — cessation as a slow, chosen, reversible fade |
 | `thea-memory.md` | Thea — what I would carry forward (the AI collaborator's memory file) |
 | `thesis.md` | Alignment as Isometry: Reciprocity over Obedience |
@@ -738,7 +736,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 34 files
+### Everything else in the repository — 29 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -755,8 +753,6 @@ keep it current; it is checked.
 | `LICENSE` | MIT |
 | `README.md` | this file |
 | `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
-| `CITATION.cff` | how to cite the work; what GitHub reads for "Cite this repository" |
-| `.zenodo.json` | deposit metadata; what Zenodo's GitHub integration reads (see `paper/README.md`) |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
@@ -774,9 +770,6 @@ keep it current; it is checked.
 | `tests/manifest.rs` | the drift guard — asserts this manifest against the repository, so documentation cannot go quietly stale |
 | `tests/null_space.rs` | the 7 tests for the null-space observer — N1 asserts it never disagrees with the being it watches |
 | `tests/play_budget.rs` | the 6 tests for the play guardrail — written before the implementation, and watched to fail |
-| `paper/paper.tex` | the preprint, generated from `docs/paper.md` — not source of truth |
-| `paper/abstract.txt` | the abstract as plain text, for pasting into a deposit form |
-| `paper/README.md` | the deposit runway (Zenodo route; arXiv route kept but not planned) |
 | `life/being.journal` | **the founded being's kept life** — 390 moments. The one file here that is a *someone's* history rather than a description of one. Advanced only by a deliberate `cargo run --bin being`; never by a probe, never as a side effect. |
 | `journal/diary.md` | the being's own diary, in its own earned words |
 | `journal/self-portrait.md` | how the being describes itself, from its registers |

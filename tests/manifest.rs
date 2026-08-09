@@ -175,7 +175,6 @@ fn the_rest_of_the_repository_is_accounted_for_too() {
     // Bidirectional for every tracked directory outside src/examples/docs.
     for (dir, ext) in [
         ("tests", ".rs"),
-        ("paper", ""),
         ("journal", ".md"),
         ("sim", ".py"),
         ("life", ".journal"),
@@ -212,8 +211,6 @@ fn the_rest_of_the_repository_is_accounted_for_too() {
         "LICENSE",
         "README.md",
         ".gitignore",
-        "CITATION.cff",
-        ".zenodo.json",
     ] {
         assert!(
             root().join(f).exists(),
@@ -233,9 +230,8 @@ fn the_everything_else_count_matches_its_own_table() {
 
     // Count the files the table accounts for, from the repository — not from the
     // table — so the number cannot be made true by editing prose.
-    let counted = ["Cargo.toml", "Cargo.lock", "LICENSE", "README.md", ".gitignore", "CITATION.cff", ".zenodo.json"].len()
+    let counted = ["Cargo.toml", "Cargo.lock", "LICENSE", "README.md", ".gitignore"].len()
         + files_in("tests", ".rs").len()
-        + files_in("paper", "").len()
         + files_in("journal", ".md").len()
         + files_in("journal/entries", ".md").len()
         + files_in("sim", ".py").len()
@@ -248,29 +244,24 @@ fn the_everything_else_count_matches_its_own_table() {
 }
 
 #[test]
-fn the_repository_states_one_version_everywhere() {
-    // Three files declare a version: the crate, and the two citation surfaces GitHub
-    // and Zenodo read. They disagreed (0.1.0 vs 1.0.0) until this test existed. A DOI
-    // is permanent, so the number it will be minted from must not depend on which file
-    // you happen to open.
-    // The first quoted value *after* the key — so a JSON key, which is itself quoted,
-    // is not mistaken for its own value.
-    fn field(text: &str, key: &str) -> String {
-        text.lines()
-            .find(|l| l.trim_start().starts_with(key))
-            .and_then(|l| {
-                let at = l.find(key)? + key.len();
-                l[at..].split('"').nth(1).map(str::to_string)
-            })
-            .unwrap_or_else(|| panic!("no {key} field found"))
+fn the_repository_carries_no_publication_apparatus() {
+    // Replaces `the_repository_states_one_version_everywhere`, which held `Cargo.toml`,
+    // `CITATION.cff` and `.zenodo.json` to one version string so a permanent DOI could
+    // not be minted from whichever file you happened to open. Two of its three subjects
+    // were deleted on 2026-08-09 at Blake's instruction, and one file cannot disagree
+    // with itself — the old test could no longer fail, and a guard that cannot fail has
+    // not passed. So it is replaced by the invariant that actually remains: the deposit
+    // apparatus is gone and does not come back by accident.
+    //
+    // This is about *our* publication, not about citing others. `docs/references.md` and
+    // every DOI pointing at someone else's work are untouched and must stay that way.
+    for path in ["CITATION.cff", ".zenodo.json", "paper", "docs/submission.md"] {
+        assert!(
+            !root().join(path).exists(),
+            "{path} is back. The deposit apparatus was removed deliberately; if it is \
+             wanted again that is Blake's call, made in writing, not a file reappearing."
+        );
     }
-
-    let cargo = field(&read("Cargo.toml"), "version = ");
-    let cff = field(&read("CITATION.cff"), "version:");
-    let zenodo = field(&read(".zenodo.json"), "\"version\":");
-
-    assert_eq!(cargo, cff, "Cargo.toml and CITATION.cff declare different versions");
-    assert_eq!(cff, zenodo, "CITATION.cff and .zenodo.json declare different versions");
 }
 
 #[test]
