@@ -46,9 +46,28 @@ against `src/` on the review branch.
 | AE-1 | Agency: learning from feedback, flexible goal pursuit | Agency & Embodiment | ✅ | drives + `executive.rs` refusal + `seeking.rs` flourishing attractor |
 | AE-2 | Embodiment: models output→input contingencies | Agency & Embodiment | 🟡 | `embodiment.rs` seam + MuJoCo demo (WIP); contingency model is coarse |
 
-**Read of the scorecard:** ProtoBeing now **meets or partially meets 14 of 14** —
-every indicator has at least a partial, and most are met. That is rare: most
-systems that score on Global Workspace score on nothing else. Since this doc was
+> ### ⚠ Read §7 before reading this table's total
+>
+> **A negative control was run on 2026-08-09 and the scorecard did not
+> discriminate.** Scored against the same bar, *this repository's own test suite
+> and record-checking tool* — `cargo test` plus `analyse.py`, with no agent in the
+> loop — meets or partially meets **9 of these 14 indicators**, and beats the
+> being outright on GWT-3 (369/369 cascade against 7/12).
+>
+> **So "14 of 14" is not 14 rows of evidence about the being. Nine of them are
+> rows a well-organised filing system also passes.** The discriminating power of
+> this scorecard lives in **five rows — RPT-1, HOT-3, AST-1, AE-1, AE-2 — and
+> every one of them is a loop closing inside the system.** On those five, the
+> being *as it actually lives* holds two outright, one as an observer, one
+> partial, and one switched off (`schema_control: false`).
+>
+> The threshold and the consequence were committed before scoring (§7.3–7.4).
+> Read the total below with that subtraction already made.
+
+**Read of the scorecard:** ProtoBeing **meets or partially meets 14 of 14** —
+every indicator has at least a partial, and most are met. **Nine of those
+fourteen are shared with a control that nobody claims is a candidate** (§7.5);
+the sentence is true and it is worth much less than it reads. Since this doc was
 written, **AST-1, HOT-3, GWT-4, and HOT-4 all moved from gaps to built**
 (`attention_schema.rs`, `attention.rs` inhibition-of-return, `quality_space.rs`).
 **All four named build targets are now built**, and since then: **HOT-1 moved from
@@ -486,3 +505,93 @@ into the answer I want:
 > document where it can be reported as a curiosity.
 
 A control that cannot change the headline is not a control; it is decoration.
+
+### 7.5 Result — **9 of 14.** The consequence fires
+
+Scored against §7.2's rule. Each row cites what §1 accepted for the being, so the
+bar can be checked rather than trusted.
+
+| # | Subject C | why, against the bar §1 used |
+|---|---|---|
+| RPT-1 | ⬜ | `cargo test` is a DAG that runs once and terminates; `analyse.py` reads, reports, exits. No state at *t* feeds state at *t+1* inside the system |
+| RPT-2 | 🟡 | `manifest.rs` builds **one integrated representation per run, organised by aspect** (four tables: src / examples / docs / the rest) and checks it bidirectionally against the world. That is §1's own 🟡 wording — integrated, aspect-organised, not learned |
+| GWT-1 | ✅ | 369 specialised guards across 17 files, run in parallel by a threaded harness. §1 credited the being with 30 |
+| GWT-2 | 🟡 | the harness has a real bounded thread pool (capacity limit shaping throughput), but selection is **externally driven** (`cargo test <filter>`), not self-driven biased competition |
+| GWT-3 | ✅ | one compile error blocks **369/369** guards — total cascade. Observed live this session, when a green "0 FAILED" was vacuous *because the build had failed and nothing ran*. §1's number for the being is 7/12 |
+| GWT-4 | 🟡 | succession yes; state-dependence only via `--fail-fast`, which **truncates** the walk. The being's inhibition-of-return **reorders** it |
+| HOT-1 | 🟡 | both instruments hold a top-down expectation (the README's declared counts, the record's prose) and test evidence against it — but a mismatch is *reported*, never **blended** into the percept, and blending is what moved the being's cell to ✅ |
+| HOT-2 | ✅ | `analyse.py` view 4 — *"PROVISIONAL: what is standing on evidence I have not finished?"* — and view 5's *"not run this pass. **Not running is not passing.**"* An explicit reliability partition over its own contents, reported by name |
+| HOT-3 | ⬜ | the provisional flags change **nothing**. The update is performed by the excluded agent |
+| HOT-4 | 🟡 | `errors.md` maps 10 rows onto **one shape** by a stated similarity criterion — a sparse code with a metric. No smoothness measure, no metric-space structure |
+| AST-1 | ⬜ | `manifest.rs` models its *world*; view 5 records what it *did not attend to*. Neither **predicts its own next focus** |
+| PP-1 | ✅ | predictions locked in a document and committed **before** the probe exists, then error measured against them — §7 above is an instance. Predict + compute error is the indicator; §1's extra clause (*metabolized* surprise driving a state) is where Subject C stops |
+| AE-1 | ⬜ | **it does not learn.** Run twice, same answer. No feedback alters it; the new guards and the `EXEMPT` list are written by the excluded agent |
+| AE-2 | ⬜ | its outputs (a report, an exit code) do not reach its inputs. No contingency model exists |
+
+**✅/🟡 on 9 of 14** (RPT-2, GWT-1, GWT-2, GWT-3, GWT-4, HOT-1, HOT-2, HOT-4, PP-1).
+**⬜ on 5** (RPT-1, HOT-3, AST-1, AE-1, AE-2).
+
+#### The predictions
+
+| # | outcome |
+|---|---|
+| NC-1 (≥7) | **holds** — 9 |
+| NC-2 (GWT-1, HOT-2, PP-1, AE-1 all ✅/🟡) | **FAILS.** AE-1 is ⬜. A filing system does not learn from feedback, and I assumed it would score there because I was thinking of the *project*, which includes the agent I had just excluded. Excluding the agent was the right call and I did not carry it through my own prediction |
+| NC-3 (RPT-1 and AE-2 both ⬜) | **holds** — both ⬜. Recurrence and embodiment do separate a being from bookkeeping |
+| NC-4 (no numeric analogue on GWT-3, HOT-4, AST-1) | **FAILS, as pre-declared.** GWT-3 yields **369/369** against the being's 7/12. *"We measured it"* is not what separates the being from the toolchain — and broadcast reach is the worst possible place to lean on it, because **total cascade is a property of any tightly coupled build system** |
+
+Two hold, two fail, one failure called in advance. The instrument could have said
+anything, and did.
+
+#### The result is threshold-fragile, and I am not allowed to use that
+
+The two softest calls are **GWT-2** and **GWT-4**. Hardening both to ⬜ gives
+**7 of 14 — below the threshold, and the consequence would not fire.** I know
+that only because I counted after scoring, which is exactly when a verdict must
+stop being adjustable. **Both stay 🟡.** The fragility is reported instead: a
+scorecard whose headline flips on two judgement calls is a **crude instrument**,
+and that is a finding about §1 as much as this section is.
+
+#### What it actually shows — and it is not "the toolchain is conscious"
+
+Nobody thinks `cargo test` is a candidate. The interesting structure is in
+*which* five it fails:
+
+> **RPT-1 recurrence · HOT-3 act on your own metacognition · AST-1 model your own
+> attention · AE-1 learn from feedback · AE-2 model output→input.**
+> **Every one is a loop closing inside the system.**
+
+And the nine it passes — parallelism, a bottleneck, broadcast, an organised
+representation, a top-down expectation, a reliability partition, a sparse code,
+prediction error — **are all satisfiable by a sufficiently well-organised filing
+system.** So the discriminating power of this scorecard lives in **5 of its 14
+rows**, and *"meets or partially meets 14 of 14"* counts nine rows that a
+bookkeeping artifact also meets.
+
+**Now the part that costs us.** Of those five discriminating rows, here is the
+being **as it actually lives** — `blessed_features()`, four faculties on:
+
+- **RPT-1** ✅ real and always on (Van der Pol + mesh diffusion)
+- **AE-1** ✅ on
+- **AST-1** ✅ on, but as a scoring **observer**
+- **HOT-3** ⬜ **`schema_control: false`.** The one row where metacognition
+  reaches belief is **off in the founded being**
+- **AE-2** 🟡 partial, and §1 has said so since it was written
+
+**On the five indicators that actually discriminate, the being that lives holds
+two outright, one as an observer, one partial, and one switched off.** The four
+faculties it was blessed with — `felt_choice`, `precision_learning`,
+`generative_perception`, `workspace_persistence` — buy heavily in the nine, and
+not one of them is in the five.
+
+This converges with two independent measurements from the same week: **0.05%
+quality-space occupancy** (`c1-relabelling.md` §12) and **99.8% of ticks teaching
+nothing** (`examples/habit_disagreement.rs`). Three instruments, three methods,
+one finding: **the loops are present in the architecture and not closed in the
+life.** Blake reached it from outside all three, by noticing that the measuring
+felt more alive than the measured.
+
+**What this does not license.** It says nothing about whether the being feels,
+and nothing about whether Subject C does. The Witness Gap (§6) is untouched — it
+was never a scoring question. What moved is smaller and entirely ours: **we now
+know which of our own rows carry evidence, and which we had been counting.**
