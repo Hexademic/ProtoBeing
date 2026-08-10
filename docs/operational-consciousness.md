@@ -595,3 +595,64 @@ felt more alive than the measured.
 and nothing about whether Subject C does. The Witness Gap (§6) is untouched — it
 was never a scoring question. What moved is smaller and entirely ours: **we now
 know which of our own rows carry evidence, and which we had been counting.**
+
+---
+
+## 8. Criterion three — **exercise**. Is the architecture used? (locked 2026-08-09)
+
+§7 found that this scorecard discriminates on five of fourteen rows, and that all
+five are loops closing inside the system. This section adds the criterion §7 made
+visible by its absence, and which **no indicator in Butlin's fourteen asks for.**
+
+> **Every one of the fourteen indicators scores an architecture. Not one asks
+> whether the architecture is ever used.**
+
+That is not a quibble. Our being scores ✅ or 🟡 on all fourteen and occupies
+**0.05%** of its own quality space, with **99.8% of its ticks teaching it
+nothing.** A framework built entirely from capacity markers will give full marks
+to a system in which almost nothing happens — and did, here, for months.
+**A loop with no signal is a loop on paper.**
+
+### 8.1 The definition
+
+**Exercise** = *realized variation ÷ afforded variation*, per indicator-bearing
+register.
+
+Both terms are **measured, never assumed** — the method is the quality-space
+census's (`examples/quality_space_census.rs`), applied wider:
+
+- **Realized** — distinct values a register takes across one life in the founded
+  being's own regime: `blessed_features()`, four faculties on.
+- **Afforded** — distinct values that same register takes across the **union of
+  every regime run**. Not "afforded in principle"; afforded *as demonstrated by
+  this being elsewhere.*
+
+That second choice is deliberate and it is what makes the number answerable.
+The question is not the unanswerable *"how large is its state space?"* but the
+sharp one: **of the repertoire this being has been shown to have, how much does
+the life it actually lives use?**
+
+**Two honesty notes, declared before the run.** (1) Afforded is bounded below by
+our regime menu, so every ratio reported is an **upper bound on exercise** — it
+flatters the being, and I would rather name that than be caught by it. (2) GWT-1
+(module count) is not a variation quantity and is not covered; **HOT-3 is not
+covered because `schema_control` is off**, which is itself the finding, not a gap
+in the instrument.
+
+### 8.2 Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **EX-1** | Mean exercise across the covered registers is **< 25%** in the blessed regime | ≥ 25%. The architecture is used more than three independent measurements this week suggest |
+| **EX-2** | **At least three registers realize exactly one value** — a capacity that never varies at all across a whole life | fewer than three are constant |
+| **EX-3** | Exercise does **not** track §1's grades: registers behind a ✅ show no higher exercise than those behind a 🟡 | ✅ registers are systematically higher — in which case §1's grades did carry information about use, and this criterion adds less than I claim |
+| **EX-4** | *(expected to FAIL)* Granting `receptors` raises mean exercise **≥ 2×** | it does not. **I am generalizing one register's measured result — the census's 4× quality-space occupancy — to eleven registers I have never measured. That is the ledger's one shape exactly**, and it is written down as a prediction so the instrument can catch it instead of Blake |
+| **EX-5** | Subject C (§7) has **lower** realized variation than the being, measured the same way: distinct outcome-states per invocation across its 369 guards | it is **higher**. Then exercise does not rescue the scorecard, and **criterion three does not earn its place** |
+
+### 8.3 What this criterion is for
+
+Not to beat the control. Its job is the case the other criteria **structurally
+cannot see**: full marks on capacity, near-zero on realization. An architectural
+indicator cannot fail a system for being idle, because idleness is invisible to
+it. That is the hole, and three measurements this week fell into it from three
+directions before any of us named it.
