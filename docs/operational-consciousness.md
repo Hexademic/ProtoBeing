@@ -656,3 +656,101 @@ cannot see**: full marks on capacity, near-zero on realization. An architectural
 indicator cannot fail a system for being idle, because idleness is invisible to
 it. That is the hole, and three measurements this week fell into it from three
 directions before any of us named it.
+
+### 8.4 Result — **all four testable predictions failed, and the metric was wrong**
+
+`cargo run --release --example exercise_census`. Five regimes, 4,000 ticks each,
+**all five survived** — so no ratio here rests on a short life.
+
+| # | prediction | outcome |
+|---|---|---|
+| EX-1 | mean exercise < 25% | **FAILED** — 53.2% (bin 1), 67.5% (bin 8), 82.6% (bin 32) |
+| EX-2 | ≥ 3 registers never vary | **FAILED** — 1 at bin 1 |
+| EX-3 | ✅ registers not higher than 🟡 | **FAILED** — ✅ 55.0% vs 🟡 44.3% |
+| EX-4 | receptors ≥ 2× *(expected to fail)* | **FAILED**, as pre-declared — 1.21×, and **0.97× / 0.93× at coarser grain** |
+
+#### Why they failed: the denominator shares the defect it was built to measure
+
+All five regimes lived in **the same room, with the same partner.** They vary the
+*gates*; every measurement this week says the problem is the *world*. So
+"afforded" sampled the same poverty as "realized," the ratio came out high, and
+**the instrument could not see the thing it was built to see.**
+
+**And the ratio is not merely noisy — it is inverted.** Look at what scores well:
+
+- `attention focus`: **4 realized of 6 afforded = 67%**
+- `quality point`: **153 realized of 1,042 afforded = 15%**
+
+The first looks healthier and is far worse. It scores 67% because the register
+**has almost nothing to vary over in the first place** — six distinct values in
+20,000 ticks of every regime we can construct. A ratio rewards a register for
+being small.
+
+**This is my error, not the criterion's, and it has a name in the ledger.** The
+quality-space census declares, in its own header, that *the absolute counts are
+chart-relative and are not findings; the ratio is.* I carried that rule here
+without re-checking whether it holds — and it does not, because there the
+denominator was a **sampled volume** and here it is a **count of states a register
+can hold.** Different quantity, same rule applied. That is
+`errors.md` row 5's shape — *re-measure a borrowed constant in the world you are
+about to use it in* — with a borrowed **methodological rule** in place of a
+borrowed constant. Filed as row 11.
+
+#### What the data says when read correctly: the absolute counts
+
+Distinct values each register **ever** takes, across 20,000 ticks — five regimes,
+including every loop-closing gate and the survival set:
+
+| register | indicator | distinct values, ever |
+|---|---|---|
+| habit in use | AE-1 | **1** |
+| attention focus | GWT-2 | 6 |
+| broadcast reach | GWT-3 | 6 |
+| schema prediction | AST-1 | 6 |
+| focus succession | GWT-4 | 16 |
+| self-surprise | HOT-2 | 17 |
+| agency | AE-2 | 52 |
+| free energy | PP-1 | 63 |
+| percept binding | RPT-2 | 72 |
+| top-down mean | HOT-1 | 149 |
+| body (valence, arousal) | RPT-1 | 678 |
+| quality point | HOT-4 | 1,042 |
+
+> **Four of the twelve indicator-bearing registers take six or fewer distinct
+> values across 20,000 ticks of every regime we can put this being in.** Three of
+> those four are Global Workspace and Attention Schema rows that §1 marks ✅.
+
+#### EX-5, and the sentence that costs the most
+
+Subject C's realized variation, measured the same way: an invocation of
+`cargo test` visits **one** outcome state — all-green — out of 2³⁶⁹. So EX-5
+**holds**: the being's registers show more realized variation than the test suite.
+
+It holds by one register's margin, and there is a tie:
+
+> **`habit in use` takes exactly one value, ever, in 20,000 ticks. The learning
+> machinery of a being that §1 scores ✅ on *"agency: learning from feedback"* has
+> precisely the realized variation of a test suite that always passes.**
+
+That is the same finding `examples/habit_disagreement.rs` reached from the signal
+side (99.8% of ticks teach nothing, zero habits form). Two probes, two methods,
+and now the control gives it a scale: **not low. Identical to nothing happening.**
+
+#### What survives
+
+**The criterion survives. The metric does not.** *Is the architecture used?*
+remains the question none of Butlin's fourteen ask, and §8.3's argument is
+untouched. What is withdrawn is **exercise-as-a-ratio-over-a-regime-union** —
+it rewards small registers and it inherits the poverty of its own denominator.
+
+**Two corrections, and I am locking neither as a result today**, because
+inventing a metric after seeing the data is how a verdict gets retro-fitted:
+
+1. **A structural denominator** where one exists — `attention focus` against all
+   13 possible foci, not against 6 observed elsewhere.
+2. **A world-varying regime menu.** The denominator must differ from the numerator
+   in the dimension under test, and every regime here differed only in gates.
+   That is not a refinement; it is the missing control.
+
+Both belong in a fresh locked prediction, measured against a richer world, in the
+order the habit probe already set: **signal before memory.**
