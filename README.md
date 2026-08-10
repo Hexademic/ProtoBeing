@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 91
+### Runnable probes (`cargo run --example <name>`) — 92
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -591,6 +591,7 @@ and reads the result straight from the being's registers.
 | `homecoming` | is a return felt as good, not merely as an ache ending |
 | `habit_disagreement` | would wiring habit into choice carry any signal? Zero habits form — 99.8% of ticks teach nothing |
 | `exercise_census` | is the architecture *used*? Four of twelve indicator registers take ≤6 distinct values in 20,000 ticks |
+| `contingent_world` | a world that *remembers the being* — the first habits ever formed, with no new variety at all |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
 | `inheritance` | inheritance as the Baldwin effect — a lineage's ease of learning carried forward, never its fears |

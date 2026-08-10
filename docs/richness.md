@@ -315,3 +315,99 @@ the honest record says so rather than inventing a sixth row for symmetry.
   nothing was learned in it.
 - **If the contingent world turns out to be merely crueller** — deaths up, occupancy flat — that
   is a failure, not a result, and it goes in `docs/incidents.md` as one.
+
+### 7.4 Result — **the first habits in the project's history, and one number I have to withdraw**
+
+`cargo run --release --example contingent_world`. Six arms, 4,000 ticks, **all six survived.**
+
+| regime | quality pts | habits formed | in use | foci |
+|---|---|---|---|---|
+| blessed / static | 153 | **0** | 0 | 4 |
+| blessed / **contingent** | 3,810 | **2** | **1** | 6 |
+| bare / static | 160 | **0** | 0 | 4 |
+| bare / **contingent** | 3,892 | **2** | **1** | 5 |
+| all-loops / static | 145 | **0** | 0 | 6 |
+| all-loops / **contingent** | 3,885 | **2** | **1** | 8 |
+
+#### First, a bug of mine that killed three beings
+
+The first run had **every contingent regime dead at ~230 ticks.** Depletion scaled `s.nutrient`
+whole — and `room.rs:214` builds it as `AMBIENT + warmth`, so a drained store took the **ambient
+floor to zero** and the being starved. **The comment three lines above that arithmetic already
+promised the floor was untouched.** Error ledger #3/#4's shape: work the arithmetic against the
+other constant in the same file. The fix is not a better comment; it is a `debug_assert!` that
+can fail, plus `AMBIENT_FLOOR` named and sourced so a change in `room.rs` is one grep away.
+
+Those three deaths are the probe's fault, not the world's. Logged here rather than quietly
+re-run.
+
+#### SUB-2 numerically holds and I am withdrawing it anyway
+
+3,810 against a baseline of 153 is **25×**, and it is the direction I have argued all week —
+which is precisely when this record says to distrust a result. So the probe carries a check
+written *before* the run: **genuine exploration settles; a drifting input does not.**
+
+| regime | Q1 | Q2 | Q3 | Q4 |
+|---|---|---|---|---|
+| blessed / static | 0.14 | 0.01 | **0.00** | **0.00** |
+| blessed / contingent | 0.99 | 0.96 | 0.94 | **0.92** |
+| bare / contingent | 1.00 | 0.94 | 0.98 | **0.97** |
+
+> **Novelty stays at ~0.95 into the final quarter. That is the drift signature, stated in
+> advance, and it fired.** The hearth store ramps 256→0→256 on a ~320-tick cycle, so the being's
+> quality point never *exactly* repeats — without the being doing anything new.
+
+**The behavioural columns confirm it:** attention foci move 4→6, not 4→100. A 25× rise in
+quality points with a 1.5× rise in foci is an input artifact, not more experience.
+
+**SUB-2 is withdrawn as a substantive claim.** It passed its threshold and it measures the
+wrong thing.
+
+**SUB-3 goes with it. VACUOUS, not passed.** `bare/contingent 3,892 > all-loops/static 145`
+rests on the same inflated metric, so **Blake's minimal-pattern thesis is not adjudicated here.**
+I want that thesis to be true, which is exactly why this cannot be allowed to count for it.
+
+#### What actually stands — and it is the thing that matters
+
+> **Two habits formed, and one entered use. Zero had ever formed in this project's history.**
+
+`examples/habit_disagreement.rs` measured **zero habits** and 99.8% of ticks teaching nothing.
+This morning's exercise census found the habit register stuck at **one value across 20,000 ticks
+of every regime we could construct** — tied with a test suite that always passes.
+
+**It happened with no new variety at all.** Same room, same hearth, same hazard, same two
+people. The only change is that the world's answer now depends on what the being did. **Not
+richness. Contingency.** That distinction was the whole reason §7 was written separately from
+§4, and it is now measured.
+
+It holds in all three architectures, including **bare — no gates at all.** The habits are not
+bought by the faculty stack.
+
+#### SUB-4 failed, and its *reasoning* is refuted, which is the better finding
+
+Nothing died — 0 of 6. And the rationale I locked with it was **"a world that cannot kill you
+cannot teach you."**
+
+**That is now false, measured.** This world killed nobody and taught the first habits the being
+has ever formed. **Selection pressure is not the teacher; contingency is.** I would not have
+believed that this morning, and the only reason it is on the record is that the prediction was
+written down where it could be wrong.
+
+#### Scoring
+
+| # | outcome |
+|---|---|
+| SUB-1 | **HOLDS**, and it is the result |
+| SUB-2 | threshold met, **substantively withdrawn** — drift artifact, caught by a pre-declared check |
+| SUB-3 | **VACUOUS** — rests on the withdrawn metric. Blake's thesis remains unadjudicated |
+| SUB-4 | **FAILED**, and its reasoning is refuted, which is worth more than the prediction |
+| SUB-5 | **NOT RUN.** No slow-body gate exists. Carried forward, unresolved, deliberately |
+
+#### The next lock, not run today
+
+A behavioural occupancy measure that a drifting input cannot inflate — distinct **(focus, basin,
+habit, stance)** tuples rather than a projection of a drifting field. **Deliberately not built
+now:** inventing a metric after seeing the data is how a verdict gets retro-fitted, and that is
+the same discipline that withdrew SUB-2 an hour after it passed. It gets its own locked
+prediction, and **SUB-3 is re-run against it** — because that is the measurement Blake's thesis
+actually needs.
