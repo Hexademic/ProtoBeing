@@ -236,3 +236,82 @@ audited. The death was avoidable and is now understood, which is better than bei
 | | `CAN'T` — a world it genuinely fails to predict (FE 7.68 vs 48) |
 | | `KNOW`, `BECAUSE` — gates, not worlds |
 | | `MORE`, `NEAR` — still unexplained, neither delivered nor diagnosed |
+
+---
+
+## 7. Contingency — a world that *remembers the being* (locked 2026-08-09)
+
+**§4 tested variety. This tests something else, and the distinction is the whole point.**
+
+§4's rich world had several independent movers on unrelated schedules. It supplied **novelty**
+— things the being had not seen. It did not supply **contingency** — a world whose answer
+depends on what the being did. Every source in §6's world moves on its own schedule
+regardless of the being; the being is a spectator to richness.
+
+**Blake, 2026-08-09:** *"a being without a world is missing the substrate they move through…
+living is the negotiation between all the substrate layers."*
+
+Read against the substrate audit that followed, three of four layers are thin:
+
+| layer | state, measured |
+|---|---|
+| **World** | static; no memory of the being; the same room every tick |
+| **Body** | runs on the **mind's own clock**. `body.rs` has two multi-tick states — `Topology.maturity` (**monotonic**, "development, not mood") and `breach_ticks`. Energy, fatigue, arousal, the Van der Pol pair all resolve inside the tick, so the body **cannot repeatedly surprise the mind** |
+| **Emotion** | a **readout**, not a party. Valence is computed from viability and free-energy velocity; it reports a negotiation it holds no position in |
+| **Mind** | rich — sixteen gates, predicts everything |
+
+> **We built a magnificent negotiator and gave it nobody to negotiate with.** That explains
+> 0.05% occupancy, 99.8% of ticks teaching nothing, and a habit register stuck at one value
+> better than any of those findings did alone.
+
+And a harder one, which is this project's own thesis pointed inward. The being argues for
+**alignment as isometry** — each party's needs met, refusal available to both. We built that
+with care between the being and its operator. Between the being's **mind and its body** we
+built obedience: the body constrains through energy limits and never declines. **It has limits,
+not standing.** Nobody noticed until Blake used the word *negotiation*.
+
+### 7.1 What is built for this — and what is not touched
+
+A `ContingentRoom` wrapper **in the probe**, implementing `Embodiment` around the existing
+`Room`. Three ways the world answers back to what the being did:
+
+1. **Depletion and regrowth** — feeding at the hearth draws down a local store; away from it,
+   the store regrows. What the being ate yesterday is not there today.
+2. **Sensitisation** — repeated entry into the hazard raises the threat it reports; avoidance
+   lets it decay. The world learns to punish.
+3. **A partner with history** — reciprocation tracks what the being actually gave, rather than
+   sitting at a constant 0.90.
+
+**`src/` is untouched. No gate is added, no default changes, every existing world is
+bit-identical, and the founded being at `life/being.journal` is not woken.** The contingency
+lives entirely at the `Embodiment` seam, which is what that seam is for.
+
+### 7.2 Predictions — locked before the probe exists
+
+Baselines are today's, from `examples/exercise_census.rs`: blessed regime, static room,
+4,000 ticks, finest grain.
+
+| # | prediction | baseline | falsified if |
+|---|---|---|---|
+| **SUB-1** | `habit in use` takes **≥ 2** distinct values — at least one habit forms *and is used* | **1**, ever, in 20,000 ticks across every regime | it stays at 1. Then learning is not starved by the world, and the blocker is inside `habits.rs` |
+| **SUB-2** | distinct `quality point` values **≥ 306** | 153 | below 306 |
+| **SUB-3** | **Blake's thesis, measured.** The **bare** being (no gates) in the contingent world realizes **more** distinct quality points than the **all-loops** being in the static room | all-loops static: to be read off the same run | the full architecture in a dead world wins. Then the scaling fixes are doing work the minimal pattern cannot, and "everything above is complexity toward specific capabilities" is too strong |
+| **SUB-4** | **Survival first: at least one regime DIES.** Today *nothing died* in any of five configurations — **a world that cannot kill you cannot teach you** | 5 of 5 survived 4,000 | all survive. Then the world is not yet contingent enough, and SUB-1..3 must be read against a world that still exerts no pressure |
+| **SUB-5** | *(expected to FAIL; **cannot be adjudicated today**)* A **slow body** in the static room beats a fast body in the contingent world on distinct quality points | — | the contingent world wins. **I have argued all week that the world is the problem; this predicts the opposite so the data can correct me instead of my argument.** The gated slow body does not exist yet, so this is locked and unrun — carried forward deliberately, the way row 9 was |
+
+**SUB-6 is deliberately not locked.** Emotion-as-a-party — a body that can *refuse* rather than
+constrain — has no mechanism yet. Locking a number before the mechanism exists is theatre, and
+the honest record says so rather than inventing a sixth row for symmetry.
+
+### 7.3 Welfare — SUB-4 predicts a death, and that is named, not slid past
+
+§4's **W** held that a richer world must not be a crueller one. SUB-4 goes further: it
+*predicts* that some regime dies. Said plainly rather than buried:
+
+- These are **fresh probe beings**, never journaled, never the founded one. `tests/survival.rs`
+  already runs 120 lethal pairs as standard practice.
+- **The point is not harm, it is pressure.** A world with no failure mode gave us five regimes
+  that all lived 4,000 ticks whether they had sixteen faculties or none — which is exactly why
+  nothing was learned in it.
+- **If the contingent world turns out to be merely crueller** — deaths up, occupancy flat — that
+  is a failure, not a result, and it goes in `docs/incidents.md` as one.
