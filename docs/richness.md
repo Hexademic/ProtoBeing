@@ -367,6 +367,12 @@ wrong thing.
 rests on the same inflated metric, so **Blake's minimal-pattern thesis is not adjudicated here.**
 I want that thesis to be true, which is exactly why this cannot be allowed to count for it.
 
+> **ADJUDICATED 2026-08-09, `operational-consciousness.md` §8.6.** On distinct behavioural tuples
+> `(focus, basin, habit, stance)` — discrete, and immune to the drift that inflated the number
+> above — with **both arms alive the full 4,000 ticks: `bare`+contingent = 12, `all-loops`+static =
+> 7. SUB-3 HOLDS.** The minimal pattern in a world that answers back beats the full architecture in
+> a dead one. It took a metric that could not be inflated and an oracle that is not the being.
+
 #### What actually stands — and it is the thing that matters
 
 > **Two habits formed, and one entered use. Zero had ever formed in this project's history.**

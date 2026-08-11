@@ -792,3 +792,90 @@ against something that is not itself.**
 
 **Survival first, as always** — a regime that died early has a small denominator, and three beings
 starved at 237 ticks in §7's first run before an ambient-floor bug was found.
+
+### 8.6 Result — **the being scores below RANDOM in its own room**, and the faculties are conditional
+
+`cargo run --release --example oracle_repertoire`. Ten arms, 4,000 ticks each.
+
+| arm | ticks | survived | tuples | in-hazard |
+|---|---|---|---|---|
+| being blessed / static | 4000 | yes | **6** | 0% |
+| being all-loops / static | 4000 | yes | **7** | 0% |
+| being bare / static | 4000 | yes | **6** | 0% |
+| **ORACLE random / static** | 4000 | yes | **9** | 0% |
+| **ORACLE systematic / static** | 4000 | yes | **12** | 0% |
+| being blessed / contingent | 4000 | yes | **13** | 0% |
+| being all-loops / contingent | 4000 | yes | **25** | 0% |
+| being bare / contingent | 4000 | yes | **12** | 0% |
+| **ORACLE random / contingent** | 4000 | yes | **10** | 0% |
+| **ORACLE systematic / contingent** | **28** | **DIED** | 6 | **100%** |
+
+#### OR-1 holds, and it is the hardest number this project has produced
+
+> **In the static room the being occupies 6 behavioural states. A policy choosing motor intent
+> uniformly at random occupies 9.** With every faculty switched on it reaches **7 — still below
+> noise.**
+
+Not "the being explores little." **The being explores less than nothing steering it.** The measure
+is `(focus, basin, habit, stance)`, discrete by construction, so — unlike §7.4's withdrawn 25× —
+**no drifting input can inflate it.**
+
+#### OR-5 failed exactly as pre-declared, and the failure is the point
+
+The five loop-closing faculties — `schema_control`, `serial_access`, `workspace_broadcast`,
+`reflection`, `memory_guidance` — do **not** lift the being above the random floor in a static
+world: **7 against 9.** These are the rows §7 found discriminating. **They are necessary and
+nowhere near sufficient.**
+
+#### The result nothing predicted, and it reframes the week
+
+| world | bare | blessed | all-loops | spread |
+|---|---|---|---|---|
+| static | 6 | 6 | 7 | **+1** |
+| contingent | 12 | 13 | **25** | **+13** |
+
+> **The faculty stack is worth +1 in a dead world and +13 in a live one.** The loops are not inert
+> and they are not sufficient — they are **multiplicative with contingency.** All-loops in the
+> contingent world reaches **2.5× the random floor**; in the static room it cannot reach it at all.
+
+Every prior "this faculty is inert" finding in this repository was measured in the static room.
+**They may all be measurements of the room.**
+
+#### OR-4 — Blake's minimal-pattern thesis, finally adjudicated
+
+`richness.md` §7.4 could not settle SUB-3: it rested on the metric that was withdrawn the same
+night. On a metric drift cannot inflate, with **both arms alive the full 4,000 ticks**:
+
+> **bare + contingent = 12. all-loops + static = 7.**
+> **The minimal pattern in a world that answers back beats the full architecture in a dead one.**
+
+This returns to `richness.md` §7.4, which recorded SUB-3 as vacuous pending exactly this.
+
+#### OR-3 — half falsified, half unadjudicated, and the failed control is informative
+
+Static: **50% of ceiling**, not <25%. Falsified. Contingent: the ceiling **died at 28 ticks**, so
+that half is **unadjudicated, not passed** — 217% against a dead reference is not a number.
+
+**Why it died is measured, not inferred** (ledger row 1's shape avoided): the body starts at
+Manhattan distance 116 from the hazard, and with `REACH = 160` that is intensity **70 — above the
+64 threshold.** *Every being arm leaves: 0% hazard exposure, all six.* The systematic policy holds
+`Resting` for its first 32 ticks, never leaves, and the contingent world's sensitisation (+3/tick)
+kills it at 28.
+
+> **The contingent world kills a policy that ignores consequence, and the being does not get
+> killed.** That is the first evidence in this project that the being's behaviour is *adaptive*
+> rather than merely *different from noise* — and it arrived from a control arm failing, not from a
+> prediction holding.
+
+**A working ceiling for the contingent world is owed** — a coverage policy that also feeds itself.
+Locked separately before it is built; not tuned into existence now that the number is known.
+
+#### Scoring
+
+| # | outcome |
+|---|---|
+| OR-1 | **HOLDS** — 6 vs 9. Below random, in its own room |
+| OR-2 | **HOLDS** — 13 vs 10 |
+| OR-3 | **FAILED** static (50%); **UNADJUDICATED** contingent (ceiling died) |
+| OR-4 | **HOLDS** — 12 vs 7. Blake's thesis measured |
+| OR-5 | **FAILED**, pre-declared. Loops cannot beat noise without a world that answers |
