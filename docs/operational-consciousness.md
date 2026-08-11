@@ -754,3 +754,41 @@ inventing a metric after seeing the data is how a verdict gets retro-fitted:
 
 Both belong in a fresh locked prediction, measured against a richer world, in the
 order the habit probe already set: **signal before memory.**
+
+### 8.5 The corrected metric, scored against an ORACLE (locked 2026-08-09)
+
+§8.4 withdrew exercise-as-a-ratio: it rewarded a register for being small, and its denominator
+shared the poverty it was built to measure. Two corrections were named there and deliberately not
+built, because inventing a metric after seeing the data is how a verdict gets retro-fitted. This
+builds them, with predictions locked first.
+
+**The measure.** Distinct **behavioural tuples** `(focus, basin, habit, stance)` — discrete,
+small-cardinality, and **immune to the drift artifact that inflated §8.4**. A slowly ramping
+nutrient makes a projected quality point unique every tick; it does not invent new attention foci
+or new basins. This is what `richness.md` §7.4 said SUB-3 needed.
+
+**The oracle, taken from Continual Harness §4.6.** They score refined navigation skills against a
+**Dijkstra oracle** — path cost versus known-optimal — so *"the skill improved"* is checkable
+independently of *"the agent did better."* Inferring component quality from end-task effect is
+exactly how ledger row 11 happened. Our analogue is two reference policies in the **same world,
+same body, same tick loop**:
+
+- **RANDOM** — uniform motor intent. The **floor**: what undirected motion alone achieves.
+- **SYSTEMATIC** — a coverage-seeking policy that deliberately drives the body around its range.
+  The **ceiling**: what a policy *trying* to occupy the space achieves.
+
+Neither is the being, so neither inherits its history. **The being's repertoire is finally measured
+against something that is not itself.**
+
+#### Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **OR-1** | **In the STATIC room the being scores BELOW random.** 99.95% of `Braced` routes to flee and one response dominates; undirected motion should visit more behavioural states than a being running away in a bounded room | the being beats random. Then the static-room repertoire is genuinely the being's own and the "nothing happens to it" reading is too strong |
+| **OR-2** | **In the CONTINGENT world the being EXCEEDS random** | it does not. Then tonight's habits are real but the repertoire around them is still noise-grade, and contingency bought less than §7.4 claims |
+| **OR-3** | The being reaches **< 25% of SYSTEMATIC** in **both** worlds | ≥ 25% in either |
+| **OR-4** | **SUB-3 re-run — Blake's minimal-pattern thesis, on a metric drift cannot inflate.** `bare`+contingent > `all-loops`+static | the full architecture in a dead world wins. **This is the adjudication `richness.md` §7.4 could not make**, and it goes back into that section either way |
+| **OR-5** | *(expected to FAIL)* The five loop-closing faculties (`schema_control`, `serial_access`, `workspace_broadcast`, `reflection`, `memory_guidance`) lift the being **above the random floor in the STATIC room** | I expect they do not — the negative control says these are the discriminating rows, and if they cannot beat noise without a world that answers back, **the loops are necessary and nowhere near sufficient**, and that is worth more than the prediction holding |
+
+**Survival first, as always** — a regime that died early has a small denominator, and three beings
+starved at 237 ticks in §7's first run before an ambient-floor bug was found.
