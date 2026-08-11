@@ -33,24 +33,13 @@
 //! Run: `cargo run --release --example oracle_repertoire`
 
 use unified_being::basins::Basin;
-use unified_being::being::{Partner, StepReport, UnifiedBeing};
+use unified_being::being::{StepReport, UnifiedBeing};
 use unified_being::body::PredictiveStance;
 use unified_being::embodiment::{intent_from, Embodiment, MotorIntent, Posture, Sensorium};
 use unified_being::q88::Q88_SCALE;
 use unified_being::room::Room;
 
 const LIFE: usize = 4_000;
-
-// Contingency constants — identical to `contingent_world.rs`, including the ambient floor that
-// three beings starved against before it was honoured. Named, not inlined (ledger row 5).
-const DRAW: i16 = 4;
-const REGROW: i16 = 1;
-const STORE_MAX: i16 = 256;
-const SENSITISE: i16 = 3;
-const DESENSITISE: i16 = 1;
-const SENS_MAX: i16 = 128;
-/// Borrowed from `room.rs:52` (`const AMBIENT: i16 = 40`), which is private.
-const AMBIENT_FLOOR: i16 = 40;
 
 fn q(f: f32) -> i16 {
     (f * Q88_SCALE as f32) as i16
@@ -65,62 +54,13 @@ impl Lcg {
     }
 }
 
-struct World {
-    room: Room,
-    contingent: bool,
-    store: i16,
-    sens: i16,
-    reciprocation: i16,
-}
-
-impl World {
-    fn new(contingent: bool) -> Self {
-        World {
-            room: Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128)),
-            contingent,
-            store: STORE_MAX,
-            sens: 0,
-            reciprocation: q(0.90),
-        }
-    }
-    fn remember(&mut self, gave: i16, got: i16) {
-        if self.contingent {
-            let d = (gave as i32 - got as i32).clamp(-8, 8) as i16;
-            self.reciprocation = (self.reciprocation + d).clamp(32, 240);
-        }
-    }
-}
-
-impl Embodiment for World {
-    fn sense(&mut self) -> Sensorium {
-        let mut s = self.room.sense();
-        if !self.contingent {
-            s.partner = Some(Partner { id: 1, reciprocation: q(0.90), exit_cost: 77 });
-            return s;
-        }
-        if self.room.at_hearth() > 64 {
-            self.store = (self.store - DRAW).max(0);
-        } else {
-            self.store = (self.store + REGROW).min(STORE_MAX);
-        }
-        let above = (s.nutrient - AMBIENT_FLOOR).max(0) as i32;
-        s.nutrient = AMBIENT_FLOOR + ((above * self.store as i32) / STORE_MAX as i32) as i16;
-        debug_assert!(s.nutrient >= AMBIENT_FLOOR, "depletion breached the ambient floor");
-
-        if self.room.in_hazard() > 64 {
-            self.sens = (self.sens + SENSITISE).min(SENS_MAX);
-        } else {
-            self.sens = (self.sens - DESENSITISE).max(0);
-        }
-        s.threat = (s.threat as i32 + self.sens as i32).min(255) as i16;
-        if let Some(p) = s.partner.as_mut() {
-            p.reciprocation = self.reciprocation;
-        }
-        s
-    }
-    fn actuate(&mut self, intent: &MotorIntent) {
-        self.room.actuate(intent);
-    }
+/// **The contingency lives in `src/room.rs`** behind `Room::with_contingency()` — gated,
+/// default-off, one copy. This probe and `contingent_world.rs` each carried a hand-written
+/// duplicate until 2026-08-09; two copies of a world that must agree is the drift these probes
+/// exist to catch.
+fn room(contingent: bool) -> Room {
+    let r = Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128));
+    if contingent { r.with_contingency() } else { r }
 }
 
 /// `(focus, basin, habit, stance)` as one integer. Small-cardinality and discrete by construction,
@@ -165,11 +105,11 @@ struct Run {
 fn live_being(name: &str, contingent: bool, gates: fn(&mut UnifiedBeing)) -> Run {
     let mut b = UnifiedBeing::new(unified_being::genome::Genome::wanderer());
     gates(&mut b);
-    let mut w = World::new(contingent);
+    let mut w = room(contingent);
     let mut r = Run { name: name.into(), alive: true, ticks: 0, tuples: Vec::with_capacity(LIFE), hazard_ticks: 0 };
     for _ in 0..LIFE {
         let sens = w.sense();
-        if w.room.in_hazard() > 64 { r.hazard_ticks += 1; }
+        if w.in_hazard() > 64 { r.hazard_ticks += 1; }
         let rep = b.step_embodied(&sens);
         w.actuate(&intent_from(&rep));
         w.remember(rep.gave, rep.got);
@@ -192,7 +132,7 @@ fn live_being(name: &str, contingent: bool, gates: fn(&mut UnifiedBeing)) -> Run
 fn live_oracle(name: &str, contingent: bool, systematic: bool, seed: u64) -> Run {
     use unified_being::striving::Need;
     let mut b = UnifiedBeing::new(unified_being::genome::Genome::wanderer());
-    let mut w = World::new(contingent);
+    let mut w = room(contingent);
     let mut rng = Lcg(seed);
     let postures = [Posture::Resting, Posture::Open, Posture::Braced, Posture::Withdrawn];
     let needs = [None, Some(Need::Sustenance), Some(Need::Company), Some(Need::Novelty), Some(Need::Purpose)];
@@ -200,7 +140,7 @@ fn live_oracle(name: &str, contingent: bool, systematic: bool, seed: u64) -> Run
 
     for t in 0..LIFE {
         let sens = w.sense();
-        if w.room.in_hazard() > 64 { r.hazard_ticks += 1; }
+        if w.in_hazard() > 64 { r.hazard_ticks += 1; }
         let rep = b.step_embodied(&sens);
 
         let intent = if systematic {

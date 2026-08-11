@@ -15,125 +15,31 @@
 //! 3. **A partner with history** — reciprocation tracks what the being actually gave, instead of
 //!    sitting at a constant.
 //!
-//! **`src/` is untouched.** No gate, no default change, every existing world bit-identical, and
-//! **the founded being at `life/being.journal` is never woken.** The contingency lives entirely in
-//! this file, which is what the `Embodiment` seam is for.
+//! **Consolidated 2026-08-09:** the contingency now lives in `src/room.rs` behind
+//! `Room::with_contingency()` — gated, default-off, every existing world bit-identical, and
+//! **the founded being at `life/being.journal` is never woken.** It was written at the
+//! `Embodiment` seam here first, then moved so there is exactly one copy.
 //!
 //! Run: `cargo run --release --example contingent_world`
 
-use unified_being::being::{Partner, StepReport, UnifiedBeing};
-use unified_being::embodiment::{intent_from, Embodiment, MotorIntent, Sensorium};
+use unified_being::being::UnifiedBeing;
+use unified_being::embodiment::{intent_from, Embodiment};
 use unified_being::q88::Q88_SCALE;
 use unified_being::room::Room;
 
 const LIFE: usize = 4_000;
 
-/// How fast the hearth's store is drawn down while feeding, and regrows while away. Chosen so a
-/// full drawdown takes ~64 ticks and a full regrowth ~256 — the being can outrun its own supply
-/// but not permanently ruin it. **Derived from the 75-tick death line measured in
-/// `docs/can-it-tire.md` §14**, not picked for plausibility (error ledger row 5).
-const DRAW: i16 = 4;
-const REGROW: i16 = 1;
-const STORE_MAX: i16 = 256;
-
-/// Sensitisation: each tick in the hazard raises reported threat, each tick out lets it decay.
-const SENSITISE: i16 = 3;
-const DESENSITISE: i16 = 1;
-const SENS_MAX: i16 = 128;
-
-/// **Borrowed from `room.rs:52`** (`const AMBIENT: i16 = 40`), which is private. Depletion scales
-/// only what the hearth adds *above* this floor. Named rather than inlined so that if `room.rs`
-/// moves its floor, the mismatch is one grep away — error ledger row 5, a borrowed constant
-/// re-checked in the world it is used in.
-const AMBIENT_FLOOR: i16 = 40;
-
-/// A world that carries the consequences of the being's own history.
-struct ContingentRoom {
-    room: Room,
-    /// The hearth's remaining supply. Drawn down by feeding, regrows when left alone.
-    store: i16,
-    /// Accumulated hazard sensitisation.
-    sens: i16,
-    /// Set from the previous tick's report, so the partner answers what the being actually did.
-    reciprocation: i16,
+fn q(f: f32) -> i16 {
+    (f * Q88_SCALE as f32) as i16
 }
 
-impl ContingentRoom {
-    fn new(room: Room) -> Self {
-        Self { room, store: STORE_MAX, sens: 0, reciprocation: (0.90 * Q88_SCALE as f32) as i16 }
-    }
-
-    /// The partner remembers. `gave`/`got` are the being's own reciprocity registers, so this is
-    /// the world answering the being's conduct rather than a schedule.
-    fn remember_conduct(&mut self, r: &StepReport) {
-        let delta = (r.gave as i32 - r.got as i32).clamp(-8, 8) as i16;
-        self.reciprocation = (self.reciprocation + delta).clamp(32, 240);
-    }
-}
-
-impl Embodiment for ContingentRoom {
-    fn sense(&mut self) -> Sensorium {
-        let mut s = self.room.sense();
-
-        // 1. Depletion / regrowth. `at_hearth` is the world's own measure of being there.
-        let feeding = self.room.at_hearth() > 64;
-        if feeding {
-            self.store = (self.store - DRAW).max(0);
-        } else {
-            self.store = (self.store + REGROW).min(STORE_MAX);
-        }
-        // Scale **only the hearth's contribution**, leaving the ambient floor intact, so a
-        // depleted hearth is thin and never lethal on its own.
-        //
-        // The first version scaled `s.nutrient` whole — and `room.rs:214` computes it as
-        // `AMBIENT + warmth`, so a drained store took the floor to **zero** and every contingent
-        // regime starved at ~230 ticks. **The comment above this line already promised the floor
-        // was untouched; the arithmetic never honoured it.** That is error ledger #3/#4's shape —
-        // work the arithmetic against the *other* constant in the same file — and the fix is not
-        // a better comment, it is the assertion below, which can fail.
-        let above = (s.nutrient - AMBIENT_FLOOR).max(0) as i32;
-        s.nutrient = AMBIENT_FLOOR + ((above * self.store as i32) / STORE_MAX as i32) as i16;
-        debug_assert!(
-            s.nutrient >= AMBIENT_FLOOR,
-            "depletion breached the ambient floor: {} < {AMBIENT_FLOOR}",
-            s.nutrient
-        );
-
-        // 2. Sensitisation. The world learns to punish a being that keeps returning to the hazard.
-        if self.room.in_hazard() > 64 {
-            self.sens = (self.sens + SENSITISE).min(SENS_MAX);
-        } else {
-            self.sens = (self.sens - DESENSITISE).max(0);
-        }
-        s.threat = (s.threat as i32 + self.sens as i32).min(255) as i16;
-
-        // 3. The partner carries history rather than a constant.
-        if let Some(p) = s.partner.as_mut() {
-            p.reciprocation = self.reciprocation;
-        }
-        s
-    }
-
-    fn actuate(&mut self, intent: &MotorIntent) {
-        self.room.actuate(intent);
-    }
-}
-
-/// The static room, unchanged — the control arm.
-struct StaticRoom(Room);
-impl Embodiment for StaticRoom {
-    fn sense(&mut self) -> Sensorium {
-        let mut s = self.0.sense();
-        s.partner = Some(Partner { id: 1, reciprocation: (0.90 * Q88_SCALE as f32) as i16, exit_cost: 77 });
-        s
-    }
-    fn actuate(&mut self, intent: &MotorIntent) {
-        self.0.actuate(intent);
-    }
-}
-
-fn room() -> Room {
-    Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128))
+/// **The contingency now lives in `src/room.rs`** behind `Room::with_contingency()`, gated and
+/// default-off, with `AMBIENT` in scope so the floor cannot be scaled away again. It was written
+/// here first and then consolidated: two hand-copied versions of a world that must agree is the
+/// exact drift these probes exist to catch.
+fn room(contingent: bool) -> Room {
+    let r = Room::peopled((32, 200), (224, 56), (128, 220), (40, 40)).with_friend((210, 128));
+    if contingent { r.with_contingency() } else { r }
 }
 
 struct Lived {
@@ -185,8 +91,7 @@ fn live(name: &str, contingent: bool, gates: fn(&mut UnifiedBeing)) -> Lived {
     let mut b = UnifiedBeing::new(unified_being::genome::Genome::wanderer());
     gates(&mut b);
 
-    let mut contingent_world = ContingentRoom::new(room());
-    let mut static_world = StaticRoom(room());
+    let mut world = room(contingent);
 
     let mut l = Lived {
         name: name.to_string(),
@@ -199,15 +104,10 @@ fn live(name: &str, contingent: bool, gates: fn(&mut UnifiedBeing)) -> Lived {
     };
 
     for _ in 0..LIFE {
-        let sens = if contingent { contingent_world.sense() } else { static_world.sense() };
+        let sens = world.sense();
         let r = b.step_embodied(&sens);
-        let intent = intent_from(&r);
-        if contingent {
-            contingent_world.actuate(&intent);
-            contingent_world.remember_conduct(&r);
-        } else {
-            static_world.actuate(&intent);
-        }
+        world.actuate(&intent_from(&r));
+        world.remember(r.gave, r.got);
 
         let a = r.quality.point.axis;
         l.quality.push((a[0] as i32) * 1_000_000 + (a[1] as i32) * 10_000 + (a[2] as i32) * 100 + a[3] as i32);

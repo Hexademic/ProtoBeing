@@ -373,6 +373,24 @@ I want that thesis to be true, which is exactly why this cannot be allowed to co
 > 7. SUB-3 HOLDS.** The minimal pattern in a world that answers back beats the full architecture in
 > a dead one. It took a metric that could not be inflated and an oracle that is not the being.
 
+> ## ⚠ SUB-1 REQUIRES RE-ADJUDICATION 2026-08-09
+>
+> Same defect as `operational-consciousness.md` §8.6: this probe's **static arm forced a permanent
+> partner every tick and the contingent arm did not.** With the world consolidated into
+> `Room::with_contingency()` and both arms using the room's own proximity rule, **habits form in
+> the STATIC room too** (`formed = 2` for static bare *and* static blessed; contingent blessed
+> reads 1).
+>
+> **So "the first habits in the project's history, produced by contingency" is not established.**
+> What is established is that the comparison was confounded. Whether contingency, or merely the
+> removal of constant company, is what lets habits form is **now an open question and is not
+> answered by this section.** Re-run under fresh locked predictions.
+>
+> **Nineteen probes in `examples/` supply a constant partner every tick.** That is defensible where
+> the question is about *a companioned life* and the constant is applied to every arm — it is a
+> confound only where arms differ, as they did here. But it does mean **almost nothing in this
+> project has been measured with intermittent company**, and nobody has asked what that costs.
+
 #### What actually stands — and it is the thing that matters
 
 > **Two habits formed, and one entered use. Zero had ever formed in this project's history.**

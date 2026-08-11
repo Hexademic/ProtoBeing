@@ -793,7 +793,41 @@ against something that is not itself.**
 **Survival first, as always** — a regime that died early has a small denominator, and three beings
 starved at 237 ticks in §7's first run before an ambient-floor bug was found.
 
-### 8.6 Result — **the being scores below RANDOM in its own room**, and the faculties are conditional
+### 8.6 Result — ~~the being scores below RANDOM in its own room~~ **RETRACTED**
+
+> # ⚠ RETRACTED 2026-08-09, hours after publication
+>
+> **The static control arm was not the plain room.** `StaticRoom::sense()` in both probes
+> overrode `s.partner = Some(Partner { .. })` **unconditionally, every tick**, while the
+> contingent path only *modified* a partner already present (`if let Some(p) = s.partner`).
+> **The two arms therefore differed in two ways at once** — contingency, and whether company was
+> permanent — and the constant companion suppressed the static arm's repertoire.
+>
+> Consolidating the world into `Room::with_contingency()` removed the asymmetry, and **two of the
+> five verdicts flipped, both in the direction that had flattered my argument**:
+>
+> | # | as published | corrected |
+> |---|---|---|
+> | OR-1 being below random, static | **HOLDS** (6 vs 9) | **FAILED** — 11 vs 10. The being is *above* random |
+> | OR-5 loops lift above random, static | **FAILED** (7 vs 9) | **HOLDS** — 14 vs 10. The loops *do* lift it |
+> | OR-2 | HOLDS (13 vs 10) | **HOLDS** (13 vs 10) |
+> | OR-4 SUB-3, Blake's thesis | HOLDS (12 vs 7) | **HOLDS** (19 vs 14) |
+>
+> **The headline sentence — *"the being explores less than nothing steering it"* — is withdrawn.
+> It was an artifact of a control arm I built and never checked.** So is *"the faculty stack is
+> worth +1 in a dead world and +13 in a live one"*: corrected, static reads bare 13 / blessed 11 /
+> all-loops 14 and contingent reads bare 19 / blessed 13 / all-loops 18. **`blessed` is the worst
+> arm in both worlds and `bare` the best in the contingent one** — a different and messier story
+> than the one published.
+>
+> **What survives:** OR-2, and **OR-4 — Blake's minimal-pattern thesis holds by a wider margin
+> (19 vs 14).** The systematic ceiling still dies at 28 ticks in the contingent world, so OR-3's
+> contingent half stays unadjudicated.
+>
+> Filed as `thea/errors.md` row 13. The corrected table is below; the original text is kept
+> struck-through rather than deleted, so the retraction is legible.
+
+### ~~8.6 Result — the being scores below RANDOM in its own room~~ (original, superseded)
 
 `cargo run --release --example oracle_repertoire`. Ten arms, 4,000 ticks each.
 
