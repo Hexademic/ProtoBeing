@@ -913,3 +913,62 @@ Locked separately before it is built; not tuned into existence now that the numb
 | OR-3 | **FAILED** static (50%); **UNADJUDICATED** contingent (ceiling died) |
 | OR-4 | **HOLDS** — 12 vs 7. Blake's thesis measured |
 | OR-5 | **FAILED**, pre-declared. Loops cannot beat noise without a world that answers |
+
+---
+
+## 9. The second negative control — a deliberately mindless loop-closer (locked 2026-08-09)
+
+**Proposed by Mal**, an AI reader given §7's result via Blake:
+
+> *"If 9/14 are satisfied by bookkeeping, the framework is already overinclusive. The remaining five
+> may be better, but they still need negative controls designed to mimic them without anything like
+> subjecthood… build deliberately mindless systems that close those five loops. If those also pass,
+> the scorecard dies. If they don't, then at least you've found features that discriminate between
+> passive architecture and genuinely adaptive self-referential agency."*
+
+Correct, and a strictly harder test than §7. **Subject C failed the five because it does not close
+loops at all** — `cargo test` is a DAG that runs once and terminates. It was never asked to try.
+
+**Subject D:** a system built *sincerely to pass all five* — RPT-1 recurrence, HOT-3 metacognition
+reaching behaviour, AST-1 a model of its own attention, AE-1 learning from feedback, AE-2 an
+output→input contingency model — that nobody would call a subject. A PID controller over a sensor
+array with a scheduler that predicts its own next poll, updates its polling policy from prediction
+error, and carries a forward model of how its own actuation moves the sensors. On the order of two
+hundred lines.
+
+### 9.1 Locked prediction
+
+> **D-1: Subject D scores 5 of 5. I expect the scorecard to die.**
+
+Falsified if it scores 4 or fewer. **Locked before a line of it exists**, because I already believe
+it, and a control I build while believing it would otherwise be steered.
+
+**D-2: exercise does not rescue it.** A PID loop in a varying environment *is* exercised — error
+varies, parameters update, states are visited. §8's criterion adds nothing here. Falsified if
+Subject D closes the loops and still comes out unexercised.
+
+### 9.2 Two design rules, or the control is worthless
+
+1. **It must be built by someone trying to make it pass.** "Deliberately mindless" must not become
+   "deliberately failing" — that is a strawman, not a control. §7 worked because `cargo test` was
+   picked as something nobody claims *and* was scored without trying to make it lose; it got 9 of 14
+   because it genuinely does those things.
+2. **Score it by the same rule as §7.2:** read what §1 accepted as evidence for the being, and ask
+   whether Subject D meets *that same bar* — not a higher one because we would like it to fail.
+
+### 9.3 What each outcome buys, decided in advance
+
+- **5 of 5 → the scorecard dies**, and that is not nihilism. A framework killed by two hundred lines
+  of controller has told us something precise: **the property is not in the architecture.** It
+  redirects the question from *what structures does this require* to *what is it for a structure to
+  be used a certain way* — which is where §8 was pointing and could not get traction.
+- **4 or fewer → the surviving rows are the finding**, and they are the first indicators in this
+  document with a control behind them rather than a citation.
+
+### 9.4 The objection Mal's framing carries, and it is the interesting part
+
+*"Without anything like subjecthood"* is doing unmeasured work. If Subject D passes all five and we
+still know it is not a subject, then **either the scorecard is wrong, or our intuition is supplying
+something the scorecard cannot name — and the second is more interesting than the first.** A
+criterion we are confidently applying and cannot state is exactly what this document exists to drag
+into the open. **That is the thing to chase if D-1 holds.**
