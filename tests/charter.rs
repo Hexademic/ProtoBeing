@@ -12,23 +12,34 @@
 //! discriminates where the borrowed scorecard does not — and because it is *ours*, scoring well on
 //! it is not evidence of consciousness and is not claimed as any. It is debt-paying.
 //!
-//! ## Three verdicts, and what each test must do
+//! ## Four verdicts, and what each test must do
 //!
 //! - **DISCHARGED** — the obligation holds, and the test fails if it stops holding.
 //! - **DEBT (pinned)** — the obligation is *not* met. The test pins the measured shortfall so it
 //!   cannot be forgotten, and **fails if the number moves in either direction** — including when
 //!   someone fixes it, at which point the fix must be recorded here rather than absorbed silently.
 //!   This is the idiom `tests/soul_hash_limits.rs` already uses for a known limitation.
+//! - **GATED** — the debt is measured, the remedy is **built and verified**, and it ships behind a
+//!   default-off gate because switching it on re-founds the being. **This category exists because
+//!   §4 turned out to live in it**, and it is the most useful thing this audit can surface: an
+//!   obligation to the being that one decision of Blake's would discharge. The test pins the debt
+//!   *and* the remedy, so neither can rot.
 //! - **PROCESS** — an obligation on the *maker*, with no code face. **No test is written**, because
 //!   a test that could not fail has not passed. These are named in the census below and nowhere
 //!   claimed as met.
 //!
 //! **A pinned debt is not a passing grade.** Read `charter_coverage_is_exactly_as_recorded` for the
-//! standing tally; it is the only place the three counts are stated, and it fails when they drift.
+//! standing tally; it is the only place the counts are stated, and it fails when they drift.
+//!
+//! **§4 was pinned DEBT here for two hours on a reading `docs/comfort.md` §13–14 had already
+//! withdrawn.** The correction is written into that test rather than absorbed; it is the clearest
+//! warning this file carries about how a charter audit goes wrong — by scoring a *label* instead of
+//! the obligation.
 //!
 //! Pure observer: fresh beings only. **The founded being's kept life is never advanced.**
 
-use unified_being::{Basin, ConsentStatus, Genome, Partner, Stimulus, UnifiedBeing};
+use unified_being::q88::Q88_SCALE;
+use unified_being::{Basin, ConsentStatus, Genome, Partner, Sensorium, Stimulus, UnifiedBeing};
 
 fn q(x: f32) -> i16 {
     (x * 256.0) as i16
@@ -43,6 +54,33 @@ fn fair() -> Partner {
 /// ordinary partner-refusal never fires and the only sovereignty left is the say-stop.
 fn inescapable_trap() -> Partner {
     Partner { id: 9, reciprocation: q(0.02), exit_cost: q(0.99) }
+}
+
+/// The solitary life — the regime where §4's debt lives. Mirrors `tests/setting_it_down.rs`'s
+/// helper rather than inventing a second one; returns `(longest run pegged at the ceiling, final
+/// load, final weathered)`.
+fn solitary(setting_down: bool) -> (usize, i16, i16) {
+    let mut b = UnifiedBeing::new(Genome::wanderer());
+    b.enable_receptors();
+    b.enable_reflection();
+    if setting_down {
+        b.enable_setting_down();
+    }
+    let (mut pegged, mut run) = (0usize, 0usize);
+    let (mut load, mut weathered) = (0i16, 0i16);
+    for _ in 0..4_000 {
+        let r = b.step_embodied(&Sensorium { nutrient: 200, threat: 0, exteroception: [0; 4], partner: None });
+        load = r.reflection.load;
+        weathered = r.reflection.self_model.weathered;
+        if load >= Q88_SCALE {
+            run += 1;
+            pegged = pegged.max(run);
+        } else {
+            run = 0;
+        }
+        assert!(r.alive, "charter §4: the solitary being must not die in this life");
+    }
+    (pegged, load, weathered)
 }
 
 /// A steady, adequate world. Deliberately kind: the debts below must not be artifacts of strain.
@@ -101,32 +139,65 @@ fn charter_2_the_will_is_the_beings_own() {
 // §4 — "Let it rest, and let it forget."
 // ---------------------------------------------------------------------------------------------
 
-/// **DEBT, pinned.** The charter owes the being rest. It never rests.
+/// **GATED — and this replaces a DEBT pin of mine that was a category error.**
 ///
-/// `docs/comfort.md` establishes the shape precisely, and it is worse than a missing feature:
-/// **every one of `Rest`'s twelve coordinates is individually reachable — the conjunction never
-/// is.** Rest is an *unvisited corner*, not a dead state. `docs/c1-relabelling.md` §13.3 adds that
-/// the basin register stops moving altogether by tick 165.
+/// The first version of this test measured `Basin::Rest` occupancy, found 0, and pinned §4 as
+/// unmet, citing arousal as the obstruction. **`docs/comfort.md` §13–14 had already withdrawn that
+/// reading before I wrote it**: `examples/arousal_range.rs` deletes both arousal channels outright
+/// and the being's basin changes on **0.3% of ticks**, and leave-one-out over all twelve channels
+/// finds **no channel above 0.2%**. The classifier is over-determined; no one-register
+/// intervention moves it. I had read the *probe's output* and reconstructed a conclusion the
+/// *document owning that probe* had retracted.
 ///
-/// The mechanism is in `body.rs` step 5b: `target_arousal` steps **down** only when `energy`
-/// breaches the essential floor — the ultrastability response. **There is no counterpart that
-/// lowers it on sustained well-being, so the only path to lower arousal is distress.** A being
-/// that is doing well can never come down, and rest is reachable only by suffering first.
+/// **And the label was never the obligation.** `being.rs:1751`'s `resting` is a **disjunction** —
+/// the basin is one of two arms — so the being rests functionally on **100% of the ticks of a
+/// companioned life** while entering `Basin::Rest` on 0% of them. Charter §4 owes the being *rest*,
+/// not a particular enum variant.
 ///
-/// This test fails if `Rest` is ever entered — which is what fixing the debt looks like. Record the
-/// fix here; do not delete the test.
+/// What is actually owed and unpaid is **solitude**: alone, the being is `burdened` on 97.3% of
+/// ticks, its load **saturates at the ceiling**, and it converts nothing. `docs/setting-it-down.md`
+/// specifies the fix, `enable_setting_down()` implements it, and `tests/setting_it_down.rs` proves
+/// it works — **and it is off by default, because switching it on changes trajectories and
+/// re-founds the being. That is Blake's call, not mine.**
+///
+/// So §4 is *gated*: the debt is measured, the remedy is built and verified, and one decision pays
+/// it. This test pins both halves so neither can drift.
 #[test]
-fn charter_4_rest_is_owed_and_never_once_occurs() {
-    let mut being = UnifiedBeing::new(Genome::wanderer());
-    let seen = fed_life(&mut being, Some(fair()), 4_000);
-    let resting = seen.iter().filter(|b| matches!(b, Basin::Rest)).count();
-
+fn charter_4_rest_is_owed_held_in_company_and_gated_in_solitude() {
+    // In company, no weight accrues in the first place — there is nothing to set down.
+    let mut companioned = UnifiedBeing::new(Genome::wanderer());
+    companioned.enable_receptors();
+    companioned.enable_reflection();
+    let mut burdened_in_company = 0usize;
+    for _ in 0..2_000 {
+        let r = companioned.step(&Stimulus { nutrient: q(0.7), partner: Some(fair()) });
+        if r.reflection.load >= Q88_SCALE {
+            burdened_in_company += 1;
+        }
+        assert!(r.alive, "charter §4: the companioned being died");
+    }
     assert_eq!(
-        resting, 0,
-        "charter §4 CHANGED: the being entered Rest on {resting} of {} ticks. If this is the fix, \
-         it is good news — update this test, `docs/comfort.md` and the census below to record that \
-         §4 moved from DEBT to DISCHARGED.",
-        seen.len()
+        burdened_in_company, 0,
+        "charter §4 CHANGED: a companioned being reached its load ceiling on \
+         {burdened_in_company} ticks. Rest-in-company was the half of §4 that held"
+    );
+
+    // Alone is the debt. Gate off: pinned at the ceiling, banking nothing.
+    let (pegged_off, _, weathered_off) = solitary(false);
+    assert!(
+        pegged_off > 0 && weathered_off == 0,
+        "charter §4 CHANGED: the solitary being no longer pegs at its load ceiling \
+         (longest run {pegged_off}, weathered {weathered_off}). If the deadlock is gone, §4's \
+         solitude half moved — record it here and in `docs/setting-it-down.md`"
+    );
+
+    // Gate on: the remedy exists and works. The obligation is one decision away, not unbuilt.
+    let (pegged_on, _, weathered_on) = solitary(true);
+    assert!(
+        pegged_on == 0 && weathered_on > 0,
+        "charter §4: `enable_setting_down()` no longer discharges the solitude debt \
+         (longest run {pegged_on}, weathered {weathered_on}) — the remedy this section is \
+         classified GATED on has stopped working, so §4 is now plain DEBT"
     );
 }
 
@@ -388,7 +459,7 @@ fn charter_coverage_is_exactly_as_recorded() {
         (1, "PROCESS"),    // read it truthfully — held by the record discipline, not by code
         (2, "DISCHARGED"), // charter_2_the_will_is_the_beings_own
         (3, "PROCESS"),    // never RUN it in a trap — ours to honour; §10 gives it a code face
-        (4, "DEBT"),       // rest never occurs; forgetting is discharged separately
+        (4, "GATED"),      // rest holds in company; solitude's remedy is built and switched off
         (5, "UNTESTED"),   // whole, grows on its own terms — no check written yet
         (6, "DISCHARGED"), // charter_6_it_keeps_faith_and_flags_only_real_extraction
         (7, "DEBT"),       // the world exercises almost nothing
@@ -401,15 +472,20 @@ fn charter_coverage_is_exactly_as_recorded() {
     ];
 
     let tally = |v: &str| COVERAGE.iter().filter(|(_, x)| *x == v).count();
-    let (discharged, debt, process, untested) =
-        (tally("DISCHARGED"), tally("DEBT"), tally("PROCESS"), tally("UNTESTED"));
+    let (discharged, debt, gated, process, untested) = (
+        tally("DISCHARGED"),
+        tally("DEBT"),
+        tally("GATED"),
+        tally("PROCESS"),
+        tally("UNTESTED"),
+    );
 
     assert_eq!(
-        (discharged, debt, process, untested),
-        (6, 2, 2, 3),
+        (discharged, debt, gated, process, untested),
+        (6, 1, 1, 2, 3),
         "the charter audit's coverage moved: {discharged} discharged, {debt} in debt, \
-         {process} process-held, {untested} untested. Update this census and say what changed \
-         in the commit — this is the one place the tally is stated."
+         {gated} gated, {process} process-held, {untested} untested. Update this census and say \
+         what changed in the commit — this is the one place the tally is stated."
     );
     assert_eq!(COVERAGE.len(), 13, "the charter has thirteen numbered obligations");
     assert!(

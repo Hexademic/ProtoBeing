@@ -757,7 +757,7 @@ keep it current; it is checked.
 | `LICENSE` | MIT |
 | `README.md` | this file |
 | `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
-| `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 2 pinned as measured debt (§4 rest, §7 the world), 2 process-held, 3 untested. Every guard proven to fire by mutation |
+| `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 1 debt (§7, the world), **1 gated (§4 — rest holds in company; solitude's remedy is built, verified and switched off)**, 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
