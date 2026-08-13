@@ -293,6 +293,38 @@ fn main() {
         }
     }
 
+    // RR-2 rests on "the contingent world changes nothing here", and the occupancy spread is the
+    // evidence for it. Computing it by hand in prose put an unverifiable number into a claim; the
+    // probe prints it instead.
+    // The quiet tail and the total are the two figures the write-up leans on hardest, and both
+    // were first obtained by subtracting in my head (4000 - 165, and 8 x 4000). Derived numbers do
+    // not belong in a verified claim: the probe reports them.
+    let total_ticks: usize = runs.iter().map(|r| r.ticks).sum();
+    let quiet: Vec<usize> = runs
+        .iter()
+        .map(|r| r.ticks - r.changed_at.last().map(|t| t + 1).unwrap_or(0))
+        .collect();
+    println!(
+        "\n  --- the quiet tail: ticks after the LAST basin change ({total_ticks} ticks measured in all) ---"
+    );
+    for (r, q) in runs.iter().zip(&quiet) {
+        println!("  {:<26} {:>6} ticks with no basin change to the end of life", r.name, q);
+    }
+    println!("  shortest quiet tail of any being arm: {} ticks", quiet[..3].iter().chain(&quiet[4..7]).min().unwrap());
+
+    println!("\n  --- static vs contingent, same gates: largest occupancy gap in any basin ---");
+    let mut worst = 0.0_f64;
+    for (k, label) in [(0usize, "bare"), (1, "blessed"), (2, "all-loops")] {
+        let (a, b) = (&runs[k], &runs[k + 4]);
+        let (ta, tb) = (a.ticks.max(1) as f64, b.ticks.max(1) as f64);
+        let gap = (0..N_BASIN)
+            .map(|i| (100.0 * a.occupancy[i] as f64 / ta - 100.0 * b.occupancy[i] as f64 / tb).abs())
+            .fold(0.0_f64, f64::max);
+        worst = worst.max(gap);
+        println!("  {label:<12} largest gap {gap:>5.2} points   trans {} vs {}", a.transitions(), b.transitions());
+    }
+    println!("  worst gap across all three pairings: {worst:.2} points");
+
     let bs = &runs[1]; // blessed / static
     let bc = &runs[5]; // blessed / contingent
     let rs = &runs[3]; // random / static

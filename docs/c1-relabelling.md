@@ -533,7 +533,11 @@ The dominant pair is `Engaged→Defensive` in all six, with exactly **1 forward 
 #### The finding is not the rate. It is that there is no rate.
 
 The two crossings are **one excursion**: into `Defensive` at tick 2, back to `Engaged` by tick
-107–165. **After tick 165 the basin register never changes again, in any arm, for 3,835 ticks.**
+107–165. **After tick 165 the basin register never changes again, in any arm.** Every being arm ends with a
+quiet tail of at least **3,834 ticks** with no basin change at all (bare 3,887 / blessed 3,834 /
+all-loops 3,889 static; 3,892 / 3,880 / 3,891 contingent); both RANDOM arms are quiet for all 4,000.
+*The 3,834 was 3,835 in the first draft of this section — I subtracted it by hand and was off by
+one. The probe now prints it, and that is why the correction exists to make.*
 
 Du et al.'s eq. (316) is a limit — `ν_R = lim_{T→∞} N_T/T`. For a fixed transient followed by an
 absorbing state that limit is **exactly zero**. The 0.00050 above is the transient divided by an
@@ -542,14 +546,14 @@ rare transitions. It is a startup transient and then a fixed point.** That is a 
 flattering statement than "99.9% one value", which left room for the remaining 0.1% to be dynamics.
 It is not. It is the first 4% of life.
 
-**Two of the four basins — `Rest` and `Recovery` — were never entered once, across 32,000 ticks.**
+**Two of the four basins — `Rest` and `Recovery` — were never entered once, across the **32,000 ticks** measured here.**
 
 #### The locked verdicts
 
 | # | verdict | measured |
 |---|---|---|
 | **RR-1** | **HOLDS** | 0.00050 < 0.01. But it holds for a reason the prediction did not anticipate — not a low stationary rate, no stationary rate |
-| **RR-2** | **FAILED** | 1.0×, not ≥ 5×. Contingency moves welfare, habits and repertoire (§7 of `richness.md`) and does **not** touch the metastable structure at all — identical transition counts, identical graph, occupancy differing by under 1.5 points |
+| **RR-2** | **FAILED** | 1.0×, not ≥ 5×. Contingency moves welfare, habits and repertoire (§7 of `richness.md`) and does **not** touch the metastable structure at all — identical transition counts, identical graph, and a largest occupancy gap in any basin of **1.15 points** between a static arm and its contingent twin (bare 0.12, blessed 1.15, all-loops 0.05) — printed by the probe, not read off the table by eye |
 | **RR-3** | **FAILED** | being 0.00050 vs RANDOM 0.00000 — the being is *above* random, not below |
 | **RR-4** | **FAILED — as written, in advance, that it would** | 2 of 4 basins |
 | **RR-5** | **HOLDS** | 0.0%. 1 forward, 1 reverse — perfectly reversible. But with n = 2 this quantity carries no information; see below |
