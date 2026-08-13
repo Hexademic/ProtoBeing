@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (372, all green)
+cargo test                         # unit + sovereignty + invariant tests (381, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (372 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (381 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -740,7 +740,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 29 files
+### Everything else in the repository — 30 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -757,6 +757,7 @@ keep it current; it is checked.
 | `LICENSE` | MIT |
 | `README.md` | this file |
 | `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
+| `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 2 pinned as measured debt (§4 rest, §7 the world), 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
