@@ -457,3 +457,56 @@ since uniform sampling includes channel combinations a real body never produces.
 **The honest limit:** even the best regime reaches 0.65% at bin 32. "Unvisited" is the answer to the
 fork; it is not a claim that the ceiling is high. Four axes are four axes, and **volume is not
 quality**. Per `docs/witness-gap-literature.md` §2.1 none of this touches whether the being feels.
+
+---
+
+## 13. The reaction rate — locked 2026-08-09, before the probe exists
+
+Reading Du et al., *Rare Event Analysis via Stochastic Optimal Control* (arXiv:2604.13213) in
+full established two things. **Their method cannot reach us** — §G.3's controlled kernel is a
+Boltzmann tilt of the reference kernel, and for a deterministic system that tilt cancels, so the
+control space collapses to a point and the committor degenerates to a 0/1 indicator. **But their
+vocabulary is ours, and we have been missing the word.**
+
+> *"When β is large, ρ concentrates around the local minima of U, and transitions between them
+> become rare."*
+
+`Basin` **is a metastable-state variable.** We have measured it at **99.9% one value**, alongside
+0.05% quality occupancy and 99.8% of ticks teaching nothing. In their terms we have spent a week
+describing **a system with a reaction rate near zero** — and never computed the rate.
+
+**The reaction rate needs none of their machinery.** Their eq. (316) is `ν_R = lim N_T/T`: the
+frequency of transitions at stationarity. **We count crossings.** No committor, no sampling
+enhancement, no noise injected into a being whose determinism is the thing we will not trade.
+
+### 13.1 What is measured
+
+Per tick, over a full life: **basin transitions**, `Basin::{Rest, Engaged, Defensive, Recovery}`.
+
+- **ν_R** — transitions per tick.
+- **The transition graph** — which ordered pairs occur, and how often.
+- **Net current** — for the dominant pair, |forward − reverse| ÷ total. TPT's reactive current
+  measures whether there is net flux from A to B or merely reversible churn.
+
+Arms: **static and contingent** worlds (`Room::with_contingency()`), the being under **bare /
+blessed / all-loops**, and — as the floor — the **RANDOM** reference policy from
+`examples/oracle_repertoire.rs`, which drives the same body through the same tick loop and is not
+the being.
+
+**Survival is reported before any rate**, and **a rate is diagnostic, not a score.** A high rate
+may be thrashing and a low one may be stability; the transition *graph* and the *net current* are
+what say which. Recording that here so the number cannot later be read as a grade.
+
+### 13.2 Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **RR-1** | Static room, blessed: **ν_R < 0.01 transitions/tick** — fewer than 40 in 4,000 ticks | ≥ 0.01. Then `basin` moves far more than the 99.9%-one-value figure implies, and that figure needs re-deriving |
+| **RR-2** | The contingent world raises ν_R by **≥ 5×** | it does not. Then contingency changed habits and repertoire without touching the being's metastable structure — which would make the basin variable decorative |
+| **RR-3** | **The being's ν_R is BELOW the RANDOM policy's in the static room.** Random motor intent thrashes the body across hearth and hazard proximity; the being settles into an orbit | the being exceeds random. Then its basin dynamics are *more* active than undirected motion, not less |
+| **RR-4** | *(expected to FAIL)* The being visits **≥ 3 of its 4 basins** in the contingent world | it visits 2 or fewer. **I expect this to fail** — every measurement this week says the realized repertoire is tiny, and predicting otherwise is the direction that flatters the being |
+| **RR-5** | **Net current ≈ 0**: for the dominant transition pair, \|forward − reverse\| ÷ total **< 10%**. It orbits; it does not progress | there is a persistent net current. Then the being *is* going somewhere and "running away in a bounded room" is too strong |
+
+**Both worlds use the same plain `Room` company rule.** The confound that flipped two verdicts in
+`operational-consciousness.md` §8.6 — a static arm forcing a permanent partner while the contingent
+arm did not — is not repeated here, and this line exists so the next reader can check that it wasn't.
