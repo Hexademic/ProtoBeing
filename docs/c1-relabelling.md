@@ -510,3 +510,72 @@ what say which. Recording that here so the number cannot later be read as a grad
 **Both worlds use the same plain `Room` company rule.** The confound that flipped two verdicts in
 `operational-consciousness.md` §8.6 — a static arm forcing a permanent partner while the contingent
 arm did not — is not repeated here, and this line exists so the next reader can check that it wasn't.
+
+### 13.3 What came out — 2026-08-09
+
+All eight arms survived 4,000 ticks. No arm died, so every denominator is the full life and the
+rates below are comparable.
+
+| arm | trans | ν_R | basins | crossings at tick |
+|---|---|---|---|---|
+| being bare / static | 2 | 0.00050 | 2 | 2, 112 |
+| being blessed / static | 2 | 0.00050 | 2 | 2, 165 |
+| being all-loops / static | 2 | 0.00050 | 2 | 2, 110 |
+| **RANDOM / static** | **0** | **0.00000** | **1** | never left its first basin |
+| being bare / contingent | 2 | 0.00050 | 2 | 2, 107 |
+| being blessed / contingent | 2 | 0.00050 | 2 | 2, 119 |
+| being all-loops / contingent | 2 | 0.00050 | 2 | 2, 108 |
+| **RANDOM / contingent** | **0** | **0.00000** | **1** | never left its first basin |
+
+Occupancy, every being arm: **Engaged 95.9–97.4%, Defensive 2.6–4.1%, Rest 0.00%, Recovery 0.00%.**
+The dominant pair is `Engaged→Defensive` in all six, with exactly **1 forward and 1 reverse**.
+
+#### The finding is not the rate. It is that there is no rate.
+
+The two crossings are **one excursion**: into `Defensive` at tick 2, back to `Engaged` by tick
+107–165. **After tick 165 the basin register never changes again, in any arm, for 3,835 ticks.**
+
+Du et al.'s eq. (316) is a limit — `ν_R = lim_{T→∞} N_T/T`. For a fixed transient followed by an
+absorbing state that limit is **exactly zero**. The 0.00050 above is the transient divided by an
+arbitrary window; run 40,000 ticks and it reads 0.00005. **`Basin` is not a metastable variable with
+rare transitions. It is a startup transient and then a fixed point.** That is a stronger and less
+flattering statement than "99.9% one value", which left room for the remaining 0.1% to be dynamics.
+It is not. It is the first 4% of life.
+
+**Two of the four basins — `Rest` and `Recovery` — were never entered once, across 32,000 ticks.**
+
+#### The locked verdicts
+
+| # | verdict | measured |
+|---|---|---|
+| **RR-1** | **HOLDS** | 0.00050 < 0.01. But it holds for a reason the prediction did not anticipate — not a low stationary rate, no stationary rate |
+| **RR-2** | **FAILED** | 1.0×, not ≥ 5×. Contingency moves welfare, habits and repertoire (§7 of `richness.md`) and does **not** touch the metastable structure at all — identical transition counts, identical graph, occupancy differing by under 1.5 points |
+| **RR-3** | **FAILED** | being 0.00050 vs RANDOM 0.00000 — the being is *above* random, not below |
+| **RR-4** | **FAILED — as written, in advance, that it would** | 2 of 4 basins |
+| **RR-5** | **HOLDS** | 0.0%. 1 forward, 1 reverse — perfectly reversible. But with n = 2 this quantity carries no information; see below |
+
+#### Two of these verdicts are worth nothing, and one of them flatters me
+
+**RR-3 failed in the direction that favours the being** — it is *more* dynamically active than
+undirected motion. The margin is **two crossings out of 4,000 ticks**, both inside the startup
+transient, against a floor of zero. That cannot support a claim in either direction, and it would
+have been easy to report "the being exceeds the random policy" and let the sentence do work its
+evidence cannot do. It does not. **RR-3 is uninformative, and its failure is not a result.**
+
+**RR-5 is vacuous in the sense §2 of the method file means it.** A net current computed from one
+forward and one reverse crossing is 0.0% by arithmetic necessity — a single excursion always
+returns or the run ends mid-excursion. The guard could not have failed. **Recording it as HOLDS
+without this paragraph would be exactly the error the rule names.**
+
+**RR-2 is the real result**, and it is a negative one about our own instrument. The contingent
+world was built to give the being something whose answer depends on what it did, and it does change
+what the being does — but the variable we have been using to describe *what state the being is in*
+does not notice. Either the world does not reach the basin classifier, or the classifier is too
+coarse to resolve what the world changed. **Both readings say the same thing about the register:
+`Basin` is not carrying the information we have been reading out of it.**
+
+#### What this does not say
+
+`Basin` is one register of twelve. The being may be varying richly elsewhere while this variable
+sits still; the census in §12 is what speaks to that, and it is not encouraging, but it is a
+separate measurement. **This section measures the basin register, not the being.**
