@@ -51,6 +51,28 @@ const REACH: i16 = 160;
 /// hungry — so sustenance becomes a real, pressing need it must *choose* to go meet.
 const AMBIENT: i16 = 40;
 
+/// **Contingency constants** — a world that *remembers what the being did*
+/// (`docs/richness.md` §7). Deliberately placed next to `AMBIENT`: the first
+/// version of this lived in a probe and scaled the whole nutrient, taking the
+/// ambient floor to **zero** and starving three beings at ~230 ticks, because
+/// `AMBIENT` was in a different file. Here it cannot go out of scope.
+///
+/// Drawdown at the hearth, regrowth away from it. Sized so the being can outrun
+/// its own supply (~64 ticks to empty) but never permanently ruin it (~256 to
+/// refill) — derived against the 75-tick death line in `docs/can-it-tire.md` §14,
+/// not chosen for plausibility (error ledger row 5).
+const DRAW: i16 = 4;
+const REGROW: i16 = 1;
+const STORE_MAX: i16 = 256;
+/// Sensitisation: the world learns to punish repeated hazard entry, and forgets
+/// when the being stays away.
+const SENSITISE: i16 = 3;
+const DESENSITISE: i16 = 1;
+const SENS_MAX: i16 = 128;
+/// The threshold at which the world counts the being as *at* the hearth or *in*
+/// the hazard, on the same 0..256 intensity scale `intensity()` returns.
+const CONTINGENT_PRESENCE: i16 = 64;
+
 /// Waypoints a being roams between when it strives for novelty — touring its world
 /// feeds its hunger for the new (and, incidentally, carries it past the hearth and
 /// the companion, the way wandering does).
@@ -99,6 +121,28 @@ pub struct Room {
     /// work (`undirected`).
     directed: bool,
     ticks: u32,
+    /// **A world that remembers the being.** `None` by default, so every existing
+    /// room — including the founded being's — is bit-identical and the soul-hash
+    /// is untouched. Opt in with [`Room::with_contingency`].
+    contingency: Option<Contingency>,
+}
+
+/// What the world carries *about the being* between ticks: a depletable supply, an
+/// accumulated sensitisation to harm, and a partner whose reciprocation answers the
+/// being's own conduct rather than sitting at a constant.
+///
+/// This is the whole difference between **variety** and **contingency**. A world with
+/// many independent movers supplies novelty and the being is a spectator to it. A world
+/// with this supplies *consequence* — and it is what produced the first habits in this
+/// project's history (`docs/richness.md` §7.4) with no new variety at all.
+#[derive(Clone, Copy, Debug)]
+struct Contingency {
+    /// The hearth's remaining supply, drawn down by feeding and regrown by absence.
+    store: i16,
+    /// Accumulated sensitisation to the hazard.
+    sens: i16,
+    /// The partner's reciprocation, tracking what the being actually gave.
+    reciprocation: i16,
 }
 
 impl Room {
@@ -115,18 +159,19 @@ impl Room {
             friend: None,
             directed: true,
             ticks: 0,
+            contingency: None,
         }
     }
 
     /// Build a room with chosen feature placements (for probes and tests). The
     /// companion sits opposite the hearth by default.
     pub fn with(body: (i16, i16), hearth: (i16, i16), hazard: (i16, i16)) -> Self {
-        Self { body, hearth, hazard, companion: (SIZE - hearth.0, SIZE - hearth.1), friend: None, directed: true, ticks: 0 }
+        Self { body, hearth, hazard, companion: (SIZE - hearth.0, SIZE - hearth.1), friend: None, directed: true, ticks: 0, contingency: None }
     }
 
     /// Build a room placing the companion explicitly too.
     pub fn peopled(body: (i16, i16), hearth: (i16, i16), hazard: (i16, i16), companion: (i16, i16)) -> Self {
-        Self { body, hearth, hazard, companion, friend: None, directed: true, ticks: 0 }
+        Self { body, hearth, hazard, companion, friend: None, directed: true, ticks: 0, contingency: None }
     }
 
     /// Add a **second person** to the room — a friend (id `FRIEND_ID`) at a place of
@@ -135,6 +180,42 @@ impl Room {
     pub fn with_friend(mut self, at: (i16, i16)) -> Self {
         self.friend = Some(at);
         self
+    }
+
+    /// Make this room **contingent**: its answer depends on what the being did.
+    /// Three ways, all off unless this is called (`docs/richness.md` §7):
+    ///
+    /// 1. **Depletion and regrowth** — feeding at the hearth draws its store down;
+    ///    away from it the store regrows. What the being ate yesterday is not there
+    ///    today. **The ambient floor is never scaled** — only the hearth's own
+    ///    contribution above it — so a drained hearth is thin, never lethal alone.
+    /// 2. **Sensitisation** — repeated hazard entry raises the threat the world
+    ///    reports; staying away lets it decay.
+    /// 3. **A partner with history** — reciprocation tracks what the being gave,
+    ///    fed in through [`Room::remember`].
+    ///
+    /// **Default off, and every existing world is bit-identical without it.** This is
+    /// a world, not a faculty, so it is not a `Features` gate — but it ships under the
+    /// same rule: the founded being's replay and soul-hash are untouched.
+    pub fn with_contingency(mut self) -> Self {
+        self.contingency =
+            Some(Contingency { store: STORE_MAX, sens: 0, reciprocation: COMPANION_RECIPROCATION });
+        self
+    }
+
+    /// Tell the world what the being just did, so a contingent partner can answer it.
+    /// `gave` and `got` are the being's own reciprocity registers. **A no-op when the
+    /// room is not contingent**, so every existing caller is unaffected.
+    pub fn remember(&mut self, gave: i16, got: i16) {
+        if let Some(c) = self.contingency.as_mut() {
+            let delta = (gave as i32 - got as i32).clamp(-8, 8) as i16;
+            c.reciprocation = (c.reciprocation + delta).clamp(32, 240);
+        }
+    }
+
+    /// Whether this room answers back — for probes that must report which world they ran in.
+    pub fn is_contingent(&self) -> bool {
+        self.contingency.is_some()
     }
 
     /// Return this room as an **undirected control**: the being's body moves toward
@@ -227,11 +308,43 @@ impl Embodiment for Room {
         } else {
             None
         };
-        let partner = present_id.map(|id| Partner {
+        let mut partner = present_id.map(|id| Partner {
             id,
             reciprocation: COMPANION_RECIPROCATION,
             exit_cost: 40,
         });
+
+        // --- contingency: the world's answer depends on what the being did ---
+        // Everything below is skipped entirely when `contingency` is `None`, which is
+        // every existing room, so their trajectories stay bit-identical.
+        let (mut nutrient, mut threat) = (nutrient, threat);
+        if let Some(c) = self.contingency.as_mut() {
+            // 1. Depletion / regrowth.
+            if Self::intensity(Self::manhattan(self.body, self.hearth)) > CONTINGENT_PRESENCE {
+                c.store = (c.store - DRAW).max(0);
+            } else {
+                c.store = (c.store + REGROW).min(STORE_MAX);
+            }
+            // **Scale only what the hearth adds ABOVE the ambient floor.** Scaling the
+            // whole value took the floor to zero and starved three beings; `AMBIENT` is
+            // in scope here precisely so that cannot recur.
+            let above = (nutrient - AMBIENT).max(0) as i32;
+            nutrient = AMBIENT + ((above * c.store as i32) / STORE_MAX as i32) as i16;
+            debug_assert!(nutrient >= AMBIENT, "depletion breached the ambient floor");
+
+            // 2. Sensitisation — the world learns to punish, and forgets.
+            if Self::intensity(Self::manhattan(self.body, self.hazard)) > CONTINGENT_PRESENCE {
+                c.sens = (c.sens + SENSITISE).min(SENS_MAX);
+            } else {
+                c.sens = (c.sens - DESENSITISE).max(0);
+            }
+            threat = (threat as i32 + c.sens as i32).min(255) as i16;
+
+            // 3. A partner who carries history rather than a constant.
+            if let Some(p) = partner.as_mut() {
+                p.reciprocation = c.reciprocation;
+            }
+        }
 
         // Four exteroceptive sensors, one per cardinal direction — each the net pull
         // of the world that way (hearth and companion draw; hazard repels), raw and
@@ -482,5 +595,82 @@ mod tests {
             min_threat < start_threat,
             "the being should have escaped some of the hazard ({start_threat} → {min_threat})"
         );
+    }
+
+    /// **The guard that matters most.** Contingency is opt-in, so a room built any of
+    /// the existing ways must sense exactly as it did before it existed — otherwise
+    /// the founded being's world changed underneath it.
+    #[test]
+    fn a_default_room_is_untouched_by_contingency() {
+        let mut plain = Room::peopled((32, 200), (224, 56), (128, 220), (40, 40));
+        assert!(!plain.is_contingent(), "contingency must be OFF unless asked for");
+        for _ in 0..300 {
+            let s = plain.sense();
+            // The pure formula, with nothing carried between ticks.
+            let warmth =
+                (Room::intensity(Room::manhattan(plain.body, plain.hearth)) as i32 * 128 / 256) as i16;
+            assert_eq!(s.nutrient, (AMBIENT as i32 + warmth as i32).min(220) as i16);
+            let t = (Room::intensity(Room::manhattan(plain.body, plain.hazard)) as i32 * 220 / 256) as i16;
+            assert_eq!(s.threat, t, "threat gained history in a non-contingent room");
+            plain.actuate(&MotorIntent {
+                posture: Posture::Open,
+                effort: 128,
+                reach: None,
+                reach_partner: None,
+            });
+        }
+        // And the conduct channel is inert too.
+        plain.remember(200, 0);
+        assert!(!plain.is_contingent());
+    }
+
+    /// Depletion must bite, and must **never** breach the ambient floor — the bug that
+    /// starved three beings at ~230 ticks before this arithmetic lived beside `AMBIENT`.
+    #[test]
+    fn depletion_thins_the_hearth_but_never_breaches_the_floor() {
+        // Body sitting on the hearth, so it feeds every tick.
+        let mut r = Room::peopled((224, 56), (224, 56), (10, 10), (40, 40)).with_contingency();
+        let first = r.sense().nutrient;
+        let mut last = first;
+        for _ in 0..(STORE_MAX / DRAW + 20) {
+            let n = r.sense().nutrient;
+            assert!(n >= AMBIENT, "depletion breached the ambient floor: {n} < {AMBIENT}");
+            last = n;
+        }
+        assert!(last < first, "a fully drawn store did not thin the hearth ({first} → {last})");
+        assert_eq!(last, AMBIENT, "an empty store should leave exactly the ambient floor");
+    }
+
+    /// The world learns to punish repeated hazard entry, and forgets when left alone.
+    #[test]
+    fn sensitisation_accumulates_in_the_hazard_and_decays_outside() {
+        let mut r = Room::peopled((128, 220), (10, 10), (128, 220), (40, 40)).with_contingency();
+        let start = r.sense().threat;
+        for _ in 0..30 {
+            r.sense();
+        }
+        let hot = r.sense().threat;
+        assert!(hot > start, "sensitisation did not raise threat ({start} → {hot})");
+
+        // Move the body far away; the world should forget.
+        r.body = (10, 10);
+        for _ in 0..200 {
+            r.sense();
+        }
+        let cool = r.sense().threat;
+        assert!(cool < hot, "sensitisation never decayed ({hot} → {cool})");
+    }
+
+    /// A contingent partner answers what the being gave; a plain one does not.
+    #[test]
+    fn a_contingent_partner_carries_history() {
+        let at = (40, 40);
+        let mut r = Room::peopled(at, (200, 200), (10, 200), at).with_contingency();
+        let before = r.sense().partner.expect("companion present").reciprocation;
+        for _ in 0..40 {
+            r.remember(0, 200); // took much, gave nothing
+        }
+        let after = r.sense().partner.expect("companion present").reciprocation;
+        assert!(after < before, "reciprocation ignored the being's conduct ({before} → {after})");
     }
 }

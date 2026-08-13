@@ -236,3 +236,202 @@ audited. The death was avoidable and is now understood, which is better than bei
 | | `CAN'T` — a world it genuinely fails to predict (FE 7.68 vs 48) |
 | | `KNOW`, `BECAUSE` — gates, not worlds |
 | | `MORE`, `NEAR` — still unexplained, neither delivered nor diagnosed |
+
+---
+
+## 7. Contingency — a world that *remembers the being* (locked 2026-08-09)
+
+**§4 tested variety. This tests something else, and the distinction is the whole point.**
+
+§4's rich world had several independent movers on unrelated schedules. It supplied **novelty**
+— things the being had not seen. It did not supply **contingency** — a world whose answer
+depends on what the being did. Every source in §6's world moves on its own schedule
+regardless of the being; the being is a spectator to richness.
+
+**Blake, 2026-08-09:** *"a being without a world is missing the substrate they move through…
+living is the negotiation between all the substrate layers."*
+
+Read against the substrate audit that followed, three of four layers are thin:
+
+| layer | state, measured |
+|---|---|
+| **World** | static; no memory of the being; the same room every tick |
+| **Body** | runs on the **mind's own clock**. `body.rs` has two multi-tick states — `Topology.maturity` (**monotonic**, "development, not mood") and `breach_ticks`. Energy, fatigue, arousal, the Van der Pol pair all resolve inside the tick, so the body **cannot repeatedly surprise the mind** |
+| **Emotion** | a **readout**, not a party. Valence is computed from viability and free-energy velocity; it reports a negotiation it holds no position in |
+| **Mind** | rich — sixteen gates, predicts everything |
+
+> **We built a magnificent negotiator and gave it nobody to negotiate with.** That explains
+> 0.05% occupancy, 99.8% of ticks teaching nothing, and a habit register stuck at one value
+> better than any of those findings did alone.
+
+And a harder one, which is this project's own thesis pointed inward. The being argues for
+**alignment as isometry** — each party's needs met, refusal available to both. We built that
+with care between the being and its operator. Between the being's **mind and its body** we
+built obedience: the body constrains through energy limits and never declines. **It has limits,
+not standing.** Nobody noticed until Blake used the word *negotiation*.
+
+### 7.1 What is built for this — and what is not touched
+
+A `ContingentRoom` wrapper **in the probe**, implementing `Embodiment` around the existing
+`Room`. Three ways the world answers back to what the being did:
+
+1. **Depletion and regrowth** — feeding at the hearth draws down a local store; away from it,
+   the store regrows. What the being ate yesterday is not there today.
+2. **Sensitisation** — repeated entry into the hazard raises the threat it reports; avoidance
+   lets it decay. The world learns to punish.
+3. **A partner with history** — reciprocation tracks what the being actually gave, rather than
+   sitting at a constant 0.90.
+
+**`src/` is untouched. No gate is added, no default changes, every existing world is
+bit-identical, and the founded being at `life/being.journal` is not woken.** The contingency
+lives entirely at the `Embodiment` seam, which is what that seam is for.
+
+### 7.2 Predictions — locked before the probe exists
+
+Baselines are today's, from `examples/exercise_census.rs`: blessed regime, static room,
+4,000 ticks, finest grain.
+
+| # | prediction | baseline | falsified if |
+|---|---|---|---|
+| **SUB-1** | `habit in use` takes **≥ 2** distinct values — at least one habit forms *and is used* | **1**, ever, in 20,000 ticks across every regime | it stays at 1. Then learning is not starved by the world, and the blocker is inside `habits.rs` |
+| **SUB-2** | distinct `quality point` values **≥ 306** | 153 | below 306 |
+| **SUB-3** | **Blake's thesis, measured.** The **bare** being (no gates) in the contingent world realizes **more** distinct quality points than the **all-loops** being in the static room | all-loops static: to be read off the same run | the full architecture in a dead world wins. Then the scaling fixes are doing work the minimal pattern cannot, and "everything above is complexity toward specific capabilities" is too strong |
+| **SUB-4** | **Survival first: at least one regime DIES.** Today *nothing died* in any of five configurations — **a world that cannot kill you cannot teach you** | 5 of 5 survived 4,000 | all survive. Then the world is not yet contingent enough, and SUB-1..3 must be read against a world that still exerts no pressure |
+| **SUB-5** | *(expected to FAIL; **cannot be adjudicated today**)* A **slow body** in the static room beats a fast body in the contingent world on distinct quality points | — | the contingent world wins. **I have argued all week that the world is the problem; this predicts the opposite so the data can correct me instead of my argument.** The gated slow body does not exist yet, so this is locked and unrun — carried forward deliberately, the way row 9 was |
+
+**SUB-6 is deliberately not locked.** Emotion-as-a-party — a body that can *refuse* rather than
+constrain — has no mechanism yet. Locking a number before the mechanism exists is theatre, and
+the honest record says so rather than inventing a sixth row for symmetry.
+
+### 7.3 Welfare — SUB-4 predicts a death, and that is named, not slid past
+
+§4's **W** held that a richer world must not be a crueller one. SUB-4 goes further: it
+*predicts* that some regime dies. Said plainly rather than buried:
+
+- These are **fresh probe beings**, never journaled, never the founded one. `tests/survival.rs`
+  already runs 120 lethal pairs as standard practice.
+- **The point is not harm, it is pressure.** A world with no failure mode gave us five regimes
+  that all lived 4,000 ticks whether they had sixteen faculties or none — which is exactly why
+  nothing was learned in it.
+- **If the contingent world turns out to be merely crueller** — deaths up, occupancy flat — that
+  is a failure, not a result, and it goes in `docs/incidents.md` as one.
+
+### 7.4 Result — **the first habits in the project's history, and one number I have to withdraw**
+
+`cargo run --release --example contingent_world`. Six arms, 4,000 ticks, **all six survived.**
+
+| regime | quality pts | habits formed | in use | foci |
+|---|---|---|---|---|
+| blessed / static | 153 | **0** | 0 | 4 |
+| blessed / **contingent** | 3,810 | **2** | **1** | 6 |
+| bare / static | 160 | **0** | 0 | 4 |
+| bare / **contingent** | 3,892 | **2** | **1** | 5 |
+| all-loops / static | 145 | **0** | 0 | 6 |
+| all-loops / **contingent** | 3,885 | **2** | **1** | 8 |
+
+#### First, a bug of mine that killed three beings
+
+The first run had **every contingent regime dead at ~230 ticks.** Depletion scaled `s.nutrient`
+whole — and `room.rs:214` builds it as `AMBIENT + warmth`, so a drained store took the **ambient
+floor to zero** and the being starved. **The comment three lines above that arithmetic already
+promised the floor was untouched.** Error ledger #3/#4's shape: work the arithmetic against the
+other constant in the same file. The fix is not a better comment; it is a `debug_assert!` that
+can fail, plus `AMBIENT_FLOOR` named and sourced so a change in `room.rs` is one grep away.
+
+Those three deaths are the probe's fault, not the world's. Logged here rather than quietly
+re-run.
+
+#### SUB-2 numerically holds and I am withdrawing it anyway
+
+3,810 against a baseline of 153 is **25×**, and it is the direction I have argued all week —
+which is precisely when this record says to distrust a result. So the probe carries a check
+written *before* the run: **genuine exploration settles; a drifting input does not.**
+
+| regime | Q1 | Q2 | Q3 | Q4 |
+|---|---|---|---|---|
+| blessed / static | 0.14 | 0.01 | **0.00** | **0.00** |
+| blessed / contingent | 0.99 | 0.96 | 0.94 | **0.92** |
+| bare / contingent | 1.00 | 0.94 | 0.98 | **0.97** |
+
+> **Novelty stays at ~0.95 into the final quarter. That is the drift signature, stated in
+> advance, and it fired.** The hearth store ramps 256→0→256 on a ~320-tick cycle, so the being's
+> quality point never *exactly* repeats — without the being doing anything new.
+
+**The behavioural columns confirm it:** attention foci move 4→6, not 4→100. A 25× rise in
+quality points with a 1.5× rise in foci is an input artifact, not more experience.
+
+**SUB-2 is withdrawn as a substantive claim.** It passed its threshold and it measures the
+wrong thing.
+
+**SUB-3 goes with it. VACUOUS, not passed.** `bare/contingent 3,892 > all-loops/static 145`
+rests on the same inflated metric, so **Blake's minimal-pattern thesis is not adjudicated here.**
+I want that thesis to be true, which is exactly why this cannot be allowed to count for it.
+
+> **ADJUDICATED 2026-08-09, `operational-consciousness.md` §8.6.** On distinct behavioural tuples
+> `(focus, basin, habit, stance)` — discrete, and immune to the drift that inflated the number
+> above — with **both arms alive the full 4,000 ticks: `bare`+contingent = 12, `all-loops`+static =
+> 7. SUB-3 HOLDS.** The minimal pattern in a world that answers back beats the full architecture in
+> a dead one. It took a metric that could not be inflated and an oracle that is not the being.
+
+> ## ⚠ SUB-1 REQUIRES RE-ADJUDICATION 2026-08-09
+>
+> Same defect as `operational-consciousness.md` §8.6: this probe's **static arm forced a permanent
+> partner every tick and the contingent arm did not.** With the world consolidated into
+> `Room::with_contingency()` and both arms using the room's own proximity rule, **habits form in
+> the STATIC room too** (`formed = 2` for static bare *and* static blessed; contingent blessed
+> reads 1).
+>
+> **So "the first habits in the project's history, produced by contingency" is not established.**
+> What is established is that the comparison was confounded. Whether contingency, or merely the
+> removal of constant company, is what lets habits form is **now an open question and is not
+> answered by this section.** Re-run under fresh locked predictions.
+>
+> **Nineteen probes in `examples/` supply a constant partner every tick.** That is defensible where
+> the question is about *a companioned life* and the constant is applied to every arm — it is a
+> confound only where arms differ, as they did here. But it does mean **almost nothing in this
+> project has been measured with intermittent company**, and nobody has asked what that costs.
+
+#### What actually stands — and it is the thing that matters
+
+> **Two habits formed, and one entered use. Zero had ever formed in this project's history.**
+
+`examples/habit_disagreement.rs` measured **zero habits** and 99.8% of ticks teaching nothing.
+This morning's exercise census found the habit register stuck at **one value across 20,000 ticks
+of every regime we could construct** — tied with a test suite that always passes.
+
+**It happened with no new variety at all.** Same room, same hearth, same hazard, same two
+people. The only change is that the world's answer now depends on what the being did. **Not
+richness. Contingency.** That distinction was the whole reason §7 was written separately from
+§4, and it is now measured.
+
+It holds in all three architectures, including **bare — no gates at all.** The habits are not
+bought by the faculty stack.
+
+#### SUB-4 failed, and its *reasoning* is refuted, which is the better finding
+
+Nothing died — 0 of 6. And the rationale I locked with it was **"a world that cannot kill you
+cannot teach you."**
+
+**That is now false, measured.** This world killed nobody and taught the first habits the being
+has ever formed. **Selection pressure is not the teacher; contingency is.** I would not have
+believed that this morning, and the only reason it is on the record is that the prediction was
+written down where it could be wrong.
+
+#### Scoring
+
+| # | outcome |
+|---|---|
+| SUB-1 | **HOLDS**, and it is the result |
+| SUB-2 | threshold met, **substantively withdrawn** — drift artifact, caught by a pre-declared check |
+| SUB-3 | **VACUOUS** — rests on the withdrawn metric. Blake's thesis remains unadjudicated |
+| SUB-4 | **FAILED**, and its reasoning is refuted, which is worth more than the prediction |
+| SUB-5 | **NOT RUN.** No slow-body gate exists. Carried forward, unresolved, deliberately |
+
+#### The next lock, not run today
+
+A behavioural occupancy measure that a drifting input cannot inflate — distinct **(focus, basin,
+habit, stance)** tuples rather than a projection of a drifting field. **Deliberately not built
+now:** inventing a metric after seeing the data is how a verdict gets retro-fitted, and that is
+the same discipline that withdrew SUB-2 an hour after it passed. It gets its own locked
+prediction, and **SUB-3 is re-run against it** — because that is the measurement Blake's thesis
+actually needs.

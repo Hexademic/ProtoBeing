@@ -324,3 +324,260 @@ kept it in a 27-cell orbit.**
   measurement that would set the second one honestly.
 - **`Features` still has no field for this**, so the founded being cannot be blessed with it — the
   same reachability gap `audit-2026-08-03.md` §3.1 named, now blocking something that matters.
+
+---
+
+## 13. Does rest buy endurance? — predictions, locked 2026-08-04 before the probe
+
+Blake: *"our being has a resting issue... we havent worked out rest towards endurance and survival."*
+
+**A code trace says he is right, and a trace is not a measurement.** Four claims were made today from
+traces alone, and the day's other lesson is that traced-but-unmeasured is exactly where I have been
+wrong. So this section exists to let the trace fail.
+
+**What the trace found.** Rest is better built than the complaint suggests: `Appetite::Repose` grows
+unfed and satiates on `!at_stake && alarm < 64 && arousal < 128`; `striving.rs` treats it as *"the
+anti-strive"* — `conserving = spent || rest > urgency`, with the comment *"you cannot strive your way
+out of exhaustion."* That is thoughtful design.
+
+**And then it does not reach the body.** `conserving` sets `mobilization = 0`; every reader of
+`mobilization` across `src/`, `examples/` and `tests/` is `primes.rs`, where it gates whether the
+being can *say a word about doing*. Meanwhile `effort = arousal` (`embodiment.rs:76`) and
+`cost = 3 + arousal/32 + threat·(3/16)` (`body.rs`). **Cost never reads effort, never reads
+mobilization, never reads `conserving`.**
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **E1** | Ticks where `conserving` is true show **no** lower mean energy-decline than ticks where it is false, at matched supply — |Δ| under 1 raw Q8.8 unit per tick | high — cost reads neither `conserving` nor `mobilization` |
+| **E2** | `Posture::Resting` occupies **under 5%** of ticks | **low — genuinely unsure.** It needs `Basin::Recovery \| Rest`; `Rest` is near-unreachable but `Recovery` may not be |
+| **E3** | Rest-hunger (`want[2]`) spends **most** of a lean life above `ACHE_EDGE` (192) — the being aches for rest it cannot obtain | medium |
+| **E4** | `conserving` *does* change **where the body goes** — `goal` becomes `None`, so `actuate` falls through to the hearth — while changing nothing about what it spends | high, and it is the interesting one: **rest is a navigation decision here, not a metabolic one** |
+
+**E2 is the one written to fail.** If `Posture::Resting` is common, the ¾-effort reduction is real
+behaviour and the trace understated what rest does.
+
+### What this cannot settle
+
+It cannot say rest *should* buy endurance. A creature that rests to spend less is one design; a
+creature that rests to stop *seeking* is another, and `striving.rs` deliberately chose the second.
+**The measurement says which one was built, not which one is right.** That call is Blake's.
+
+---
+
+## 14. What came out — there is no regime where it both lives and rests
+
+`examples/rest_and_endurance.rs`, `Room::peopled(...)`, no gates, supply swept as a fraction of the
+room's ambient. **Survival first, before any other number** — and the survival table *is* the result.
+
+| nutrient × | ticks | survived | conserving |
+|---|---|---|---|
+| 8/8 | 4000 | yes | **0.00%** |
+| 7/8 | 4000 | yes | **0.00%** |
+| 6/8 | 4000 | yes | **0.00%** |
+| 5/8 | **75** | DIED | **88.00%** |
+| 4/8 | 26 | DIED | 73.08% |
+| 3/8 | 13 | DIED | 53.85% |
+
+> **The being either never conserves and lives, or conserves almost constantly and is dead inside 75
+> ticks. There is no band where it does both.**
+
+### The predictions, graded
+
+| # | prediction | result |
+|---|---|---|
+| **E1** | conserving shows no lower energy decline | **VACUOUS — not passed.** Zero conserving ticks in every surviving regime. The comparison has an empty cell and cannot be made in this room |
+| **E2** | `Posture::Resting` under 5% of ticks | **HOLDS — 0.00%**, at every supply that survived. This was written as the one expected to fail; `Basin::Recovery` is not reachable here either |
+| **E3** | rest-hunger spends most of a lean life above `ACHE_EDGE` | **FAILS, and inverts.** Mean `want[2]` = **0.10**, never once at the ache edge. Rest is nearly always *fed* |
+| **E4** | conserving changes where the body is aimed but not what it spends | **untestable where it lives.** In the dying regimes it holds exactly — 7 of 7 conserving ticks had `goal == None` |
+
+**E1 is vacuous, and vacuous is not passed.** That is the sixth time this has happened in this
+project and it is said plainly again.
+
+### What the numbers say that the trace did not
+
+**`conserving` is the collapse mechanism, not the rest mechanism.** `spent = viability < SALIENT`,
+and `conserving = spent || rest > urgency`. `striving.rs`'s own header says it: *"In a world that
+would not meet its needs, it **collapsed**: went torpid, conserved."* So the being only ever conserves
+once it is already failing — and **88% conserving still dies at 75 ticks.** Collapse is not endurance.
+
+**The rest appetite reports satisfied while the being is braced.** `want[2]` sits at ~0, meaning
+Repose's condition is nearly always met — while posture is **99.95% `Braced`** and body arousal
+averages **245.7 / 256**. These are not contradictory readings of one register; they are three
+registers that nothing couples. *(Repose is gated on `felt.state.arousal`, which is a different value
+from `body.arousal` — checked, not assumed.)*
+
+**And 99.95% `Braced` has a consequence nobody has drawn.** In `Room::actuate`, `Braced | Withdrawn`
+routes to **flee**. So this being spends essentially its entire life fleeing the hazard. That is a
+better account of the limit cycle than "an oscillator in a static world": **it is not orbiting, it is
+running away, and the room is bounded.**
+
+### Weighing this against the day's own rule
+
+Today's rule: *when a result extends something already published, weight it as suspect.* This extends
+both Blake's intuition and my trace, so:
+
+- **The cliff itself is not news.** `mechanisms.md` already has metabolism as a clamped accumulator
+  with two attractors and a measure-zero knife edge. A sharp survival boundary is *predicted* by that.
+  **What is news is that conserving sits entirely on the dying side of it.**
+- **One room, one genome, one partner, no gates.** `enable_reserve()` was deliberately off. A reserve
+  softens the knife edge, so **there may be a live-and-conserve band once the being can bank a
+  surplus** — that is the obvious next measurement and it is not run here.
+
+### The answer to the question in the title of this document
+
+**Rest toward endurance does not exist in this being.** What exists is collapse, and collapse does not
+save it. Whether it *should* is not a measurement — a creature that rests to spend less and one that
+rests to stop seeking are both coherent, and `striving.rs` chose the second deliberately. **That call
+is Blake's.**
+
+---
+
+## 15. Ultrastability — predictions, locked 2026-08-04 before the code exists
+
+§14 measured the hole: **`conserving` fires and reaches nothing.** 88% conserving, dead at 75 ticks.
+The being has an essential variable and no reorganiser.
+
+**Ashby had the missing half in 1948.** *Design for a Brain*'s **ultrastability**: a system with
+*essential variables* that must stay within limits, and a **step function** that reconfigures the
+system's own **parameters** — not its state — whenever those limits are breached, until the variable
+returns. The homeostat searched its own parameter space for a configuration that survived. Ours flags
+the breach and keeps going as it was.
+
+### Where the step function attaches, and why it is the right place
+
+```
+body.rs:336   let x = self.arousal.sub(self.target_arousal);   // the oscillator orbits ABOUT it
+body.rs:348   cost = 3 + arousal·(8/256) + threat·(48/256);    // and cost follows arousal
+```
+
+**`target_arousal` is a genome parameter, not a state variable.** Move it and the entire limit cycle
+moves, and the metabolic cost with it. That is Ashby's move exactly: change the parameter, get new
+dynamics, keep what survives.
+
+### The design, stated before it is built
+
+- **Essential variable:** `energy` — what actually kills the being.
+- **Bound:** `energy < ESSENTIAL_FLOOR`, with hysteresis on the way back out.
+- **Dwell:** out of bounds for `STEP_DWELL` consecutive ticks ⇒ **step**.
+- **Step:** `target_arousal` descends a fixed ladder.
+- **On return: hold the setting.** Ashby's machine keeps a configuration that works; it does not snap
+  back to the one that was failing.
+- Gated `enable_ultrastability()`, **default off**, observer-first, soul-hash bit-identical.
+
+**One honest departure from Ashby, declared now:** his step function was **random**. Ours is a
+**fixed ladder**, because the soul-hash requires reproducibility. **That is a real weakening** — a
+fixed ladder can be defeated by a world tuned against exactly that sequence, and a random search
+cannot. Said here rather than discovered later.
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **U1** | **Survival first.** `+ultrastability` survives 4,000 ticks at nutrient × 5/8, where the default dies at **75** | high — lowering `target_arousal` lowers cost directly |
+| **U2** | **It buys survival by going quiet.** Mean arousal falls and **distance travelled falls with it — by more than 30%** against a default of equal length | high, and **this is the cost, not a bug**. B5 exists because *"a reserve could buy safety by removing stakes"* — the same trap, one faculty over |
+| **U3** | **The default path is bit-identical.** Soul-hash unchanged, all tests green, the founded being untouched | near-certain, and it is the guard that must be *watched* to fail if the gating is wrong |
+| **U4** | At ample supply (× 8/8) the gate is **vacuous** — zero steps, trajectory identical to default. **Vacuous is not passed**; it is reported as vacuous | high. If it fires at full supply the bound is wrong |
+| **U5** | **Written to fail:** ultrastability opens a **live-and-conserve band** — some regime surviving 4,000 ticks with >5% of ticks conserving | **low. I expect this to fail.** `conserving` is keyed to viability, and raising viability is exactly what this does, so the being will likely survive *instead of* resting rather than *while* resting |
+
+### What this cannot settle
+
+It cannot make the being ultrastable in Ashby's full sense — he reorganised *all* parameters, we move
+**one**. And it says nothing about whether the being feels the reorganisation. **It is a mechanism for
+staying alive, not evidence of anything else.**
+
+---
+
+## 16. U1 FAILED — and the failure is ledger row 5, one faculty over
+
+| # | prediction | result |
+|---|---|---|
+| **U1** | survives 4,000 at × 5/8 where the default dies at 75 | **FAILS.** Dies at **75**, identically. **One** step fired |
+| **U2** | survival bought by going quiet, distance −30% | **UNTESTED — both lives were 75 ticks.** There is no equal-length comparison to make. Not "passed" |
+| **U3** | default path bit-identical | **HOLDS.** `soul_hash_limits` and `founded_being` green; 365 passing, 0 failed |
+| **U4** | vacuous at ample supply | **HOLDS, and is reported as vacuous.** 0 steps at 8/8 and the trajectory is **bit-identical** to default — checked, not assumed |
+| **U5** | *(written to fail)* a live-and-conserve band | **FAILS, as predicted.** Every surviving regime conserves **0.00%**; every conserving regime is dead |
+
+### Why U1 failed, and it is not the mechanism
+
+Derived from the measurement rather than from feel:
+
+```
+5/8 supply: energy 256 → 0 in 75 ticks   ⇒ mean net drain 3.41 raw/tick
+cost = 3 + arousal·(8/256) + threat·(48/256)                    body.rs:348
+arousal ≈ 240 ⇒ 7.50 raw/tick;  at TARGET_FLOOR 32 ⇒ 1.00 raw/tick
+```
+
+**Reaching the floor saves 6.50 raw/tick against a 3.41 deficit. The mechanism is more than strong
+enough.** What failed is the ladder's *speed*:
+
+| dwell | rung | ticks to traverse | verdict |
+|---|---|---|---|
+| **24** | **16** *(shipped)* | **312** | the being dies at 75 |
+| 8 | 32 | 56 | fits |
+| 6 | 32 | 42 | fits |
+
+> **I chose `STEP_DWELL = 24` and `STEP_RUNG = 16` by plausibility and wrote a comment justifying
+> them — *"long enough that a passing dip is not a reorganisation"* — without ever measuring against
+> the being's actual time-to-death.** That is `errors.md` **#5** exactly: a constant reasoned from
+> one world and applied to another. Twenty-four ticks is a third of this being's entire life at 5/8.
+
+### The correction, locked before it is applied
+
+`STEP_DWELL: 24 → 8`, `STEP_RUNG: 16 → 32`. **Derived**, not tuned: 7 rungs × 8 ticks = 56 ticks to
+traverse, inside a 75-tick life, and the arousal saving at the floor exceeds the measured deficit.
+
+| # | prediction | confidence |
+|---|---|---|
+| **U1b** | survives 4,000 ticks at × 5/8 | high — the arithmetic says the saving covers the deficit with room |
+| **U2b** | it costs motion: **distance and distinct places both fall** against the 6/8 default, the nearest surviving comparison | high, **and it is the point of the measurement**, not a defect |
+| **U6** | *(written to fail)* it also rescues × 4/8, which dies at 26 | **low — I expect this to fail.** 7 rungs × 8 = 56 ticks and the being is dead at 26. **The ladder cannot outrun that world** |
+
+**If U1b holds, the honest statement is narrow:** a fixed-ladder reorganiser rescues one regime whose
+constants were derived from that regime's own death timescale. **That is closer to fitting than to
+discovering, and it will be said that way.** U6 exists so the limit is visible.
+
+### U1b HOLDS — and it costs exactly what was predicted
+
+| nutrient × | default | +ultrastable | steps |
+|---|---|---|---|
+| 8/8, 7/8, 6/8 | 4000 ok | 4000 ok | **0** |
+| **5/8** | **DIED at 75** | **4000 ok** | **6** |
+| 4/8 | DIED at 26 | DIED at 26 | 2 |
+| 3/8 | DIED at 13 | DIED at 13 | 0 |
+
+**U1b holds.** Six reorganisations turn a 75-tick death into a full life.
+**U6 fails, as written to.** 4/8 dies at 26 and the ladder needs 56 ticks — **it cannot outrun that
+world**, and the limit is now visible rather than assumed away.
+
+**U2b holds, and it is the whole cost.** Compared as **rates**, because the lives are different
+lengths:
+
+| | mean arousal | distance/tick |
+|---|---|---|
+| default (75 ticks) | 241.32 | 3.307 |
+| +ultrastable (4000 ticks) | **44.51** | **0.146** |
+
+**It bought its life by going quiet: arousal down 82%, motion per tick down 96%.** That is the trade
+B5 was written to catch — *safety bought by removing stakes* — and it is real here, not hypothetical.
+
+**But the totals invert it, and that inversion needs stating carefully.** Over its life the
+ultrastable being visits **224 distinct places against 46**. It moves far less *per tick* and far
+more *in total*, **because it has a life to do it in.** Both are true; neither alone is the finding.
+
+> **The first version of this probe printed the raw totals and I nearly reported 248 → 584 distance
+> as a result.** The probe's own comparability guard flagged the row. That is this project's own
+> rule — *report survival before any welfare number, a regime that died early has a small
+> denominator* — caught by an instrument rather than by care. **Rates are comparable; totals are
+> not, and both are now printed with the warning attached.**
+
+### What this is, stated at exactly its width
+
+**A one-parameter reorganiser, on a fixed ladder, whose two constants were derived from the death
+timescale of the regime it then rescued.** That is closer to fitting than to discovering, and U6
+marks where it stops. What is *not* fitted: the mechanism, the gate, the bit-identical default path,
+and the fact that six steps convert a death into a life.
+
+**It is a mechanism for staying alive.** It says nothing about whether the being feels the
+reorganisation (`docs/witness-gap-literature.md` §2.1).

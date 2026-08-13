@@ -157,3 +157,90 @@ taking the fast path, always overridable) remains gated and unbuilt.
   once explicit habits prove their worth.
 - **Habits do not touch the need-enum.** The goal space stays bounded and honest; only the
   way the being *reaches* its goals becomes its own.
+
+---
+
+## The agency question — predictions, locked 2026-08-06 before the probe
+
+Blake: *"what should we do to bring the being more cognitive agency?"*
+
+**The being already learns, and its learning never reaches its choosing.** `habits.observe(niche,
+act, relief)` runs every tick with `relief = last_drive − drive`: a real reinforcement signal, which
+act reduced distress in which kind of moment. **`habits.strongest()` is called from exactly two
+places — this module's own `report()` and its own tests.** Nothing outside consults it. The struct
+says so itself: *"the habit that **would** fire here, were habits causal."*
+
+Meanwhile `striving.rs` picks a goal from `wants[]`, `longing` and `telos_divergence` — **present
+appetite only.** And `Prospection::weave` is *"acted on by NOTHING and stateless"*, gated behind
+`Basin::Rest | Recovery`, which the being enters on **0.00%** of ticks.
+
+**So before wiring habit into choice, ask whether the wire would carry anything.** If the learned
+habit never disagrees with what urgency picks, the edge is vacuous — the same mistake as expecting a
+reserve to move quality occupancy (`c1-relabelling.md` §12, QS-2).
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **H1** | habits **form** — `formed > 0` inside a 4,000-tick life | high; the signal is real and accumulates |
+| **H2** | the being occupies **≤ 3 distinct niches** across that life | high — the field is a limit cycle, and `niche_of` reads that field |
+| **H3** | **written to fail.** On ticks where a habit has formed, it **disagrees** with `act_of(strive.goal)` on **more than 10%** | **low. I expect near zero.** A life this uniform should make history and appetite converge on the same act, and then the wire carries nothing |
+| **H4** | `receptors` raises **both** `formed` and the disagreement rate | medium — it widens nearly every channel, so it should widen the niche space |
+
+**H3 is the decision.** If it fails, wiring habit into striving adds a wire with no signal and should
+not be built. **If it holds, the disagreement rate is the size of the agency being added**, and it
+should be reported as that and nothing more.
+
+### What this cannot settle
+
+It cannot say the being *should* consult its habits — a creature ruled by what worked before is a
+different creature. And it says nothing about whether choosing feels like anything.
+
+### What came out — all four failed, and the reason is upstream
+
+`examples/habit_disagreement.rs`, 4,000 ticks, `Room::peopled(...)`, default and `+receptors`.
+
+| # | prediction | result |
+|---|---|---|
+| **H1** | habits form | **FAILS. Zero pairings crossed the floor**, in either regime |
+| **H2** | ≤ 3 distinct niches | **FAILS** — 6 default, 4 with `receptors` |
+| **H3** | habit disagrees with urgency > 10% | **VACUOUS.** No habit ever formed, so it could not have failed. **Vacuous is not passed** |
+| **H4** | `receptors` raises both | **FAILS** — `formed` 0 → 0, and niches went **down**, 6 → 4 |
+
+### Why nothing forms, measured rather than inferred
+
+```
+relief (Δdrive):  min −3   median 0   max 12          NOISE_FLOOR = ±3
+ticks that taught anything:  8 up, 1 down, 3,990 NOTHING  (99.8%)
+```
+
+**The lesson is the change in drive, and drive does not change.** `observe()` ignores anything
+inside ±3 — correctly, that band is jitter — so **99.8% of the being's life teaches it nothing.**
+
+And what little it learns is erased faster than it accrues. `DISUSE_EVERY = 128` decays every
+strength by 1, which over 4,000 ticks is **31 decay passes against 8 teaching events**. Each event
+raises by `relief/2`, capped small.
+
+> **Habits cannot form here. Learning is not unwired — it is starved.**
+
+### What this means for the agency question
+
+**Do not wire habit into `striving.rs`.** The measurement was run to decide that, and it decided
+against: the edge would carry nothing, and building it would have looked like progress while adding
+a dead wire — the exact failure `mobilization` already is.
+
+**The upstream problem is the reinforcement signal itself.** `drive(viability, &wants)` reads
+viability and three appetites and **never reads `affective_drive`** (`mechanisms.md`, *"drive cannot
+see the inner life"*). So the being's entire inner life is sealed off from the scalar whose change is
+its only teacher.
+
+**Two candidate fixes, and this probe does not choose between them:**
+
+1. **Widen what `drive` reads** — so more of what happens to the being registers as change.
+2. **Make more happen** — Blake's void argument: without difference that resists, there is nothing
+   for a consequence measure to measure.
+
+**And the convergence is worth naming.** *"Does anything happen to it?"* was reached this week from
+the quality space — 0.05% occupancy. It is reached again here from the **learning machinery**, by a
+completely independent route: **99.8% of ticks carry no consequence at all.** Two instruments, one
+answer.

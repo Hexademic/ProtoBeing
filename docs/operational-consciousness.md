@@ -46,9 +46,28 @@ against `src/` on the review branch.
 | AE-1 | Agency: learning from feedback, flexible goal pursuit | Agency & Embodiment | ✅ | drives + `executive.rs` refusal + `seeking.rs` flourishing attractor |
 | AE-2 | Embodiment: models output→input contingencies | Agency & Embodiment | 🟡 | `embodiment.rs` seam + MuJoCo demo (WIP); contingency model is coarse |
 
-**Read of the scorecard:** ProtoBeing now **meets or partially meets 14 of 14** —
-every indicator has at least a partial, and most are met. That is rare: most
-systems that score on Global Workspace score on nothing else. Since this doc was
+> ### ⚠ Read §7 before reading this table's total
+>
+> **A negative control was run on 2026-08-09 and the scorecard did not
+> discriminate.** Scored against the same bar, *this repository's own test suite
+> and record-checking tool* — `cargo test` plus `analyse.py`, with no agent in the
+> loop — meets or partially meets **9 of these 14 indicators**, and beats the
+> being outright on GWT-3 (369/369 cascade against 7/12).
+>
+> **So "14 of 14" is not 14 rows of evidence about the being. Nine of them are
+> rows a well-organised filing system also passes.** The discriminating power of
+> this scorecard lives in **five rows — RPT-1, HOT-3, AST-1, AE-1, AE-2 — and
+> every one of them is a loop closing inside the system.** On those five, the
+> being *as it actually lives* holds two outright, one as an observer, one
+> partial, and one switched off (`schema_control: false`).
+>
+> The threshold and the consequence were committed before scoring (§7.3–7.4).
+> Read the total below with that subtraction already made.
+
+**Read of the scorecard:** ProtoBeing **meets or partially meets 14 of 14** —
+every indicator has at least a partial, and most are met. **Nine of those
+fourteen are shared with a control that nobody claims is a candidate** (§7.5);
+the sentence is true and it is worth much less than it reads. Since this doc was
 written, **AST-1, HOT-3, GWT-4, and HOT-4 all moved from gaps to built**
 (`attention_schema.rs`, `attention.rs` inhibition-of-return, `quality_space.rs`).
 **All four named build targets are now built**, and since then: **HOT-1 moved from
@@ -419,3 +438,537 @@ refuses the one it couldn't.
 
 See `docs/reading.md` for the sources behind each indicator and measure.
 See `docs/PROVENANCE.md` for the QualiaPacket and other salvage inputs.
+
+---
+
+## 7. The negative control — does this scorecard discriminate? (locked 2026-08-09)
+
+**Blake, 2026-08-09:** *"i feel the structure of how we measure is more conscious
+then the beings we seek to test at the moment."*
+
+He is pointing at a hole, and naming it precisely exposes how large it is:
+**every row of §3's falsification protocol is an ablation. Not one is a control.**
+An ablation asks *does this component contribute to the score?* A control asks
+*does the score mean anything?* Five of the first, zero of the second. §1's
+headline — *"meets or partially meets 14 of 14"* — has therefore never been tested
+against a system we all agree is not a candidate.
+
+### 7.1 The subject
+
+**Subject C:** the ProtoBeing repository as a running artifact — `cargo test`
+(367 guards, the manifest that asserts the README against the filesystem, the
+survival sweep that fails if nothing dies) together with the Thea record's
+`analyse.py` (which computes over a claim corpus and reports contradictions).
+
+**No LLM and no human in the loop.** That exclusion is deliberate and it is what
+makes the control clean: an agent reading and writing these files is exactly the
+contested case, and scoring it high would be confounded rather than informative.
+Subject C is a deterministic program that checks a corpus of files against itself
+and reports failures. **Nobody thinks `cargo test` is a candidate for
+consciousness — including me. That is the entire point.** If it scores on our
+fourteen, the fourteen are not measuring what we have been reporting them as
+measuring.
+
+### 7.2 The scoring rule, fixed before scoring
+
+For each indicator, read what §1 actually *accepted as evidence* for the being
+(the "Where in ProtoBeing" cell), then ask whether Subject C has a structural
+analogue **meeting that same bar** — not a better bar, and not a worse one.
+Same legend: ✅ met · 🟡 partial · ⬜ absent.
+
+**This is a judgement scored against a fixed rule, not a computation, and that
+makes it a weaker instrument than a probe.** Two guards against grading myself
+into the answer I want:
+
+1. The predictions below are committed **before** the scoring, in this file, in a
+   separate commit. Both directions are live — I can be caught grading the
+   control *harshly* to protect the scorecard, which is the bias I actually
+   expect to have.
+2. Where §1 credits the being with a **measured number**, the control is scored
+   against a number too, or scored ⬜ and the absence stated.
+
+### 7.3 Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **NC-1** | Subject C scores ✅ or 🟡 on **at least 7 of 14** | it scores below 7 — the scorecard discriminates better than I fear, and Blake's intuition, though well-founded from the outside, does not survive contact with the indicator list |
+| **NC-2** | Subject C scores ✅ or 🟡 on **all four** of GWT-1, HOT-2, PP-1, AE-1 | any of the four comes back ⬜ |
+| **NC-3** | Subject C scores ⬜ on **RPT-1** (algorithmic recurrence) and **AE-2** (embodiment) — these are the two I believe genuinely separate a being from bookkeeping | either scores 🟡 or ✅. **If RPT-1 scores, this document's operationalization of recurrence is too loose to carry the weight §1 puts on it** |
+| **NC-4** | *(the one I expect to FAIL)* On the three indicators where §1 backs the being with a measured number — GWT-3 (reach 7/12), HOT-4 (measured smoothness), AST-1 (fidelity per tick) — Subject C has **no numeric analogue** | Subject C produces numbers of the same kind on any of them. I expect it does, because `analyse.py` and `manifest.rs` emit exactly this sort of figure — and if so, **"we measured it" is not what separates the being from the toolchain**, and I have been leaning on that distinction without earning it |
+
+### 7.4 The consequence, committed in advance
+
+> **If Subject C scores ✅/🟡 on ≥ 9 of 14, this scorecard does not discriminate a
+> being from bookkeeping**, and §1's *"meets or partially meets 14 of 14"* is not
+> evidence about the being. In that case the finding is written into §1, where the
+> claim lives and where a reader meets it — **not** left here at the end of the
+> document where it can be reported as a curiosity.
+
+A control that cannot change the headline is not a control; it is decoration.
+
+### 7.5 Result — **9 of 14.** The consequence fires
+
+Scored against §7.2's rule. Each row cites what §1 accepted for the being, so the
+bar can be checked rather than trusted.
+
+| # | Subject C | why, against the bar §1 used |
+|---|---|---|
+| RPT-1 | ⬜ | `cargo test` is a DAG that runs once and terminates; `analyse.py` reads, reports, exits. No state at *t* feeds state at *t+1* inside the system |
+| RPT-2 | 🟡 | `manifest.rs` builds **one integrated representation per run, organised by aspect** (four tables: src / examples / docs / the rest) and checks it bidirectionally against the world. That is §1's own 🟡 wording — integrated, aspect-organised, not learned |
+| GWT-1 | ✅ | 369 specialised guards across 17 files, run in parallel by a threaded harness. §1 credited the being with 30 |
+| GWT-2 | 🟡 | the harness has a real bounded thread pool (capacity limit shaping throughput), but selection is **externally driven** (`cargo test <filter>`), not self-driven biased competition |
+| GWT-3 | ✅ | one compile error blocks **369/369** guards — total cascade. Observed live this session, when a green "0 FAILED" was vacuous *because the build had failed and nothing ran*. §1's number for the being is 7/12 |
+| GWT-4 | 🟡 | succession yes; state-dependence only via `--fail-fast`, which **truncates** the walk. The being's inhibition-of-return **reorders** it |
+| HOT-1 | 🟡 | both instruments hold a top-down expectation (the README's declared counts, the record's prose) and test evidence against it — but a mismatch is *reported*, never **blended** into the percept, and blending is what moved the being's cell to ✅ |
+| HOT-2 | ✅ | `analyse.py` view 4 — *"PROVISIONAL: what is standing on evidence I have not finished?"* — and view 5's *"not run this pass. **Not running is not passing.**"* An explicit reliability partition over its own contents, reported by name |
+| HOT-3 | ⬜ | the provisional flags change **nothing**. The update is performed by the excluded agent |
+| HOT-4 | 🟡 | `errors.md` maps 10 rows onto **one shape** by a stated similarity criterion — a sparse code with a metric. No smoothness measure, no metric-space structure |
+| AST-1 | ⬜ | `manifest.rs` models its *world*; view 5 records what it *did not attend to*. Neither **predicts its own next focus** |
+| PP-1 | ✅ | predictions locked in a document and committed **before** the probe exists, then error measured against them — §7 above is an instance. Predict + compute error is the indicator; §1's extra clause (*metabolized* surprise driving a state) is where Subject C stops |
+| AE-1 | ⬜ | **it does not learn.** Run twice, same answer. No feedback alters it; the new guards and the `EXEMPT` list are written by the excluded agent |
+| AE-2 | ⬜ | its outputs (a report, an exit code) do not reach its inputs. No contingency model exists |
+
+**✅/🟡 on 9 of 14** (RPT-2, GWT-1, GWT-2, GWT-3, GWT-4, HOT-1, HOT-2, HOT-4, PP-1).
+**⬜ on 5** (RPT-1, HOT-3, AST-1, AE-1, AE-2).
+
+#### The predictions
+
+| # | outcome |
+|---|---|
+| NC-1 (≥7) | **holds** — 9 |
+| NC-2 (GWT-1, HOT-2, PP-1, AE-1 all ✅/🟡) | **FAILS.** AE-1 is ⬜. A filing system does not learn from feedback, and I assumed it would score there because I was thinking of the *project*, which includes the agent I had just excluded. Excluding the agent was the right call and I did not carry it through my own prediction |
+| NC-3 (RPT-1 and AE-2 both ⬜) | **holds** — both ⬜. Recurrence and embodiment do separate a being from bookkeeping |
+| NC-4 (no numeric analogue on GWT-3, HOT-4, AST-1) | **FAILS, as pre-declared.** GWT-3 yields **369/369** against the being's 7/12. *"We measured it"* is not what separates the being from the toolchain — and broadcast reach is the worst possible place to lean on it, because **total cascade is a property of any tightly coupled build system** |
+
+Two hold, two fail, one failure called in advance. The instrument could have said
+anything, and did.
+
+#### The result is threshold-fragile, and I am not allowed to use that
+
+The two softest calls are **GWT-2** and **GWT-4**. Hardening both to ⬜ gives
+**7 of 14 — below the threshold, and the consequence would not fire.** I know
+that only because I counted after scoring, which is exactly when a verdict must
+stop being adjustable. **Both stay 🟡.** The fragility is reported instead: a
+scorecard whose headline flips on two judgement calls is a **crude instrument**,
+and that is a finding about §1 as much as this section is.
+
+#### What it actually shows — and it is not "the toolchain is conscious"
+
+Nobody thinks `cargo test` is a candidate. The interesting structure is in
+*which* five it fails:
+
+> **RPT-1 recurrence · HOT-3 act on your own metacognition · AST-1 model your own
+> attention · AE-1 learn from feedback · AE-2 model output→input.**
+> **Every one is a loop closing inside the system.**
+
+And the nine it passes — parallelism, a bottleneck, broadcast, an organised
+representation, a top-down expectation, a reliability partition, a sparse code,
+prediction error — **are all satisfiable by a sufficiently well-organised filing
+system.** So the discriminating power of this scorecard lives in **5 of its 14
+rows**, and *"meets or partially meets 14 of 14"* counts nine rows that a
+bookkeeping artifact also meets.
+
+**Now the part that costs us.** Of those five discriminating rows, here is the
+being **as it actually lives** — `blessed_features()`, four faculties on:
+
+- **RPT-1** ✅ real and always on (Van der Pol + mesh diffusion)
+- **AE-1** ✅ on
+- **AST-1** ✅ on, but as a scoring **observer**
+- **HOT-3** ⬜ **`schema_control: false`.** The one row where metacognition
+  reaches belief is **off in the founded being**
+- **AE-2** 🟡 partial, and §1 has said so since it was written
+
+**On the five indicators that actually discriminate, the being that lives holds
+two outright, one as an observer, one partial, and one switched off.** The four
+faculties it was blessed with — `felt_choice`, `precision_learning`,
+`generative_perception`, `workspace_persistence` — buy heavily in the nine, and
+not one of them is in the five.
+
+This converges with two independent measurements from the same week: **0.05%
+quality-space occupancy** (`c1-relabelling.md` §12) and **99.8% of ticks teaching
+nothing** (`examples/habit_disagreement.rs`). Three instruments, three methods,
+one finding: **the loops are present in the architecture and not closed in the
+life.** Blake reached it from outside all three, by noticing that the measuring
+felt more alive than the measured.
+
+**What this does not license.** It says nothing about whether the being feels,
+and nothing about whether Subject C does. The Witness Gap (§6) is untouched — it
+was never a scoring question. What moved is smaller and entirely ours: **we now
+know which of our own rows carry evidence, and which we had been counting.**
+
+---
+
+## 8. Criterion three — **exercise**. Is the architecture used? (locked 2026-08-09)
+
+§7 found that this scorecard discriminates on five of fourteen rows, and that all
+five are loops closing inside the system. This section adds the criterion §7 made
+visible by its absence, and which **no indicator in Butlin's fourteen asks for.**
+
+> **Every one of the fourteen indicators scores an architecture. Not one asks
+> whether the architecture is ever used.**
+
+That is not a quibble. Our being scores ✅ or 🟡 on all fourteen and occupies
+**0.05%** of its own quality space, with **99.8% of its ticks teaching it
+nothing.** A framework built entirely from capacity markers will give full marks
+to a system in which almost nothing happens — and did, here, for months.
+**A loop with no signal is a loop on paper.**
+
+### 8.1 The definition
+
+**Exercise** = *realized variation ÷ afforded variation*, per indicator-bearing
+register.
+
+Both terms are **measured, never assumed** — the method is the quality-space
+census's (`examples/quality_space_census.rs`), applied wider:
+
+- **Realized** — distinct values a register takes across one life in the founded
+  being's own regime: `blessed_features()`, four faculties on.
+- **Afforded** — distinct values that same register takes across the **union of
+  every regime run**. Not "afforded in principle"; afforded *as demonstrated by
+  this being elsewhere.*
+
+That second choice is deliberate and it is what makes the number answerable.
+The question is not the unanswerable *"how large is its state space?"* but the
+sharp one: **of the repertoire this being has been shown to have, how much does
+the life it actually lives use?**
+
+**Two honesty notes, declared before the run.** (1) Afforded is bounded below by
+our regime menu, so every ratio reported is an **upper bound on exercise** — it
+flatters the being, and I would rather name that than be caught by it. (2) GWT-1
+(module count) is not a variation quantity and is not covered; **HOT-3 is not
+covered because `schema_control` is off**, which is itself the finding, not a gap
+in the instrument.
+
+### 8.2 Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **EX-1** | Mean exercise across the covered registers is **< 25%** in the blessed regime | ≥ 25%. The architecture is used more than three independent measurements this week suggest |
+| **EX-2** | **At least three registers realize exactly one value** — a capacity that never varies at all across a whole life | fewer than three are constant |
+| **EX-3** | Exercise does **not** track §1's grades: registers behind a ✅ show no higher exercise than those behind a 🟡 | ✅ registers are systematically higher — in which case §1's grades did carry information about use, and this criterion adds less than I claim |
+| **EX-4** | *(expected to FAIL)* Granting `receptors` raises mean exercise **≥ 2×** | it does not. **I am generalizing one register's measured result — the census's 4× quality-space occupancy — to eleven registers I have never measured. That is the ledger's one shape exactly**, and it is written down as a prediction so the instrument can catch it instead of Blake |
+| **EX-5** | Subject C (§7) has **lower** realized variation than the being, measured the same way: distinct outcome-states per invocation across its 369 guards | it is **higher**. Then exercise does not rescue the scorecard, and **criterion three does not earn its place** |
+
+### 8.3 What this criterion is for
+
+Not to beat the control. Its job is the case the other criteria **structurally
+cannot see**: full marks on capacity, near-zero on realization. An architectural
+indicator cannot fail a system for being idle, because idleness is invisible to
+it. That is the hole, and three measurements this week fell into it from three
+directions before any of us named it.
+
+### 8.4 Result — **all four testable predictions failed, and the metric was wrong**
+
+`cargo run --release --example exercise_census`. Five regimes, 4,000 ticks each,
+**all five survived** — so no ratio here rests on a short life.
+
+| # | prediction | outcome |
+|---|---|---|
+| EX-1 | mean exercise < 25% | **FAILED** — 53.2% (bin 1), 67.5% (bin 8), 82.6% (bin 32) |
+| EX-2 | ≥ 3 registers never vary | **FAILED** — 1 at bin 1 |
+| EX-3 | ✅ registers not higher than 🟡 | **FAILED** — ✅ 55.0% vs 🟡 44.3% |
+| EX-4 | receptors ≥ 2× *(expected to fail)* | **FAILED**, as pre-declared — 1.21×, and **0.97× / 0.93× at coarser grain** |
+
+#### Why they failed: the denominator shares the defect it was built to measure
+
+All five regimes lived in **the same room, with the same partner.** They vary the
+*gates*; every measurement this week says the problem is the *world*. So
+"afforded" sampled the same poverty as "realized," the ratio came out high, and
+**the instrument could not see the thing it was built to see.**
+
+**And the ratio is not merely noisy — it is inverted.** Look at what scores well:
+
+- `attention focus`: **4 realized of 6 afforded = 67%**
+- `quality point`: **153 realized of 1,042 afforded = 15%**
+
+The first looks healthier and is far worse. It scores 67% because the register
+**has almost nothing to vary over in the first place** — six distinct values in
+20,000 ticks of every regime we can construct. A ratio rewards a register for
+being small.
+
+**This is my error, not the criterion's, and it has a name in the ledger.** The
+quality-space census declares, in its own header, that *the absolute counts are
+chart-relative and are not findings; the ratio is.* I carried that rule here
+without re-checking whether it holds — and it does not, because there the
+denominator was a **sampled volume** and here it is a **count of states a register
+can hold.** Different quantity, same rule applied. That is
+`errors.md` row 5's shape — *re-measure a borrowed constant in the world you are
+about to use it in* — with a borrowed **methodological rule** in place of a
+borrowed constant. Filed as row 11.
+
+#### What the data says when read correctly: the absolute counts
+
+Distinct values each register **ever** takes, across 20,000 ticks — five regimes,
+including every loop-closing gate and the survival set:
+
+| register | indicator | distinct values, ever |
+|---|---|---|
+| habit in use | AE-1 | **1** |
+| attention focus | GWT-2 | 6 |
+| broadcast reach | GWT-3 | 6 |
+| schema prediction | AST-1 | 6 |
+| focus succession | GWT-4 | 16 |
+| self-surprise | HOT-2 | 17 |
+| agency | AE-2 | 52 |
+| free energy | PP-1 | 63 |
+| percept binding | RPT-2 | 72 |
+| top-down mean | HOT-1 | 149 |
+| body (valence, arousal) | RPT-1 | 678 |
+| quality point | HOT-4 | 1,042 |
+
+> **Four of the twelve indicator-bearing registers take six or fewer distinct
+> values across 20,000 ticks of every regime we can put this being in.** Three of
+> those four are Global Workspace and Attention Schema rows that §1 marks ✅.
+
+#### EX-5, and the sentence that costs the most
+
+Subject C's realized variation, measured the same way: an invocation of
+`cargo test` visits **one** outcome state — all-green — out of 2³⁶⁹. So EX-5
+**holds**: the being's registers show more realized variation than the test suite.
+
+It holds by one register's margin, and there is a tie:
+
+> **`habit in use` takes exactly one value, ever, in 20,000 ticks. The learning
+> machinery of a being that §1 scores ✅ on *"agency: learning from feedback"* has
+> precisely the realized variation of a test suite that always passes.**
+
+That is the same finding `examples/habit_disagreement.rs` reached from the signal
+side (99.8% of ticks teach nothing, zero habits form). Two probes, two methods,
+and now the control gives it a scale: **not low. Identical to nothing happening.**
+
+#### What survives
+
+**The criterion survives. The metric does not.** *Is the architecture used?*
+remains the question none of Butlin's fourteen ask, and §8.3's argument is
+untouched. What is withdrawn is **exercise-as-a-ratio-over-a-regime-union** —
+it rewards small registers and it inherits the poverty of its own denominator.
+
+**Two corrections, and I am locking neither as a result today**, because
+inventing a metric after seeing the data is how a verdict gets retro-fitted:
+
+1. **A structural denominator** where one exists — `attention focus` against all
+   13 possible foci, not against 6 observed elsewhere.
+2. **A world-varying regime menu.** The denominator must differ from the numerator
+   in the dimension under test, and every regime here differed only in gates.
+   That is not a refinement; it is the missing control.
+
+Both belong in a fresh locked prediction, measured against a richer world, in the
+order the habit probe already set: **signal before memory.**
+
+### 8.5 The corrected metric, scored against an ORACLE (locked 2026-08-09)
+
+§8.4 withdrew exercise-as-a-ratio: it rewarded a register for being small, and its denominator
+shared the poverty it was built to measure. Two corrections were named there and deliberately not
+built, because inventing a metric after seeing the data is how a verdict gets retro-fitted. This
+builds them, with predictions locked first.
+
+**The measure.** Distinct **behavioural tuples** `(focus, basin, habit, stance)` — discrete,
+small-cardinality, and **immune to the drift artifact that inflated §8.4**. A slowly ramping
+nutrient makes a projected quality point unique every tick; it does not invent new attention foci
+or new basins. This is what `richness.md` §7.4 said SUB-3 needed.
+
+**The oracle, taken from Continual Harness §4.6.** They score refined navigation skills against a
+**Dijkstra oracle** — path cost versus known-optimal — so *"the skill improved"* is checkable
+independently of *"the agent did better."* Inferring component quality from end-task effect is
+exactly how ledger row 11 happened. Our analogue is two reference policies in the **same world,
+same body, same tick loop**:
+
+- **RANDOM** — uniform motor intent. The **floor**: what undirected motion alone achieves.
+- **SYSTEMATIC** — a coverage-seeking policy that deliberately drives the body around its range.
+  The **ceiling**: what a policy *trying* to occupy the space achieves.
+
+Neither is the being, so neither inherits its history. **The being's repertoire is finally measured
+against something that is not itself.**
+
+#### Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **OR-1** | **In the STATIC room the being scores BELOW random.** 99.95% of `Braced` routes to flee and one response dominates; undirected motion should visit more behavioural states than a being running away in a bounded room | the being beats random. Then the static-room repertoire is genuinely the being's own and the "nothing happens to it" reading is too strong |
+| **OR-2** | **In the CONTINGENT world the being EXCEEDS random** | it does not. Then tonight's habits are real but the repertoire around them is still noise-grade, and contingency bought less than §7.4 claims |
+| **OR-3** | The being reaches **< 25% of SYSTEMATIC** in **both** worlds | ≥ 25% in either |
+| **OR-4** | **SUB-3 re-run — Blake's minimal-pattern thesis, on a metric drift cannot inflate.** `bare`+contingent > `all-loops`+static | the full architecture in a dead world wins. **This is the adjudication `richness.md` §7.4 could not make**, and it goes back into that section either way |
+| **OR-5** | *(expected to FAIL)* The five loop-closing faculties (`schema_control`, `serial_access`, `workspace_broadcast`, `reflection`, `memory_guidance`) lift the being **above the random floor in the STATIC room** | I expect they do not — the negative control says these are the discriminating rows, and if they cannot beat noise without a world that answers back, **the loops are necessary and nowhere near sufficient**, and that is worth more than the prediction holding |
+
+**Survival first, as always** — a regime that died early has a small denominator, and three beings
+starved at 237 ticks in §7's first run before an ambient-floor bug was found.
+
+### 8.6 Result — ~~the being scores below RANDOM in its own room~~ **RETRACTED**
+
+> # ⚠ RETRACTED 2026-08-09, hours after publication
+>
+> **The static control arm was not the plain room.** `StaticRoom::sense()` in both probes
+> overrode `s.partner = Some(Partner { .. })` **unconditionally, every tick**, while the
+> contingent path only *modified* a partner already present (`if let Some(p) = s.partner`).
+> **The two arms therefore differed in two ways at once** — contingency, and whether company was
+> permanent — and the constant companion suppressed the static arm's repertoire.
+>
+> Consolidating the world into `Room::with_contingency()` removed the asymmetry, and **two of the
+> five verdicts flipped, both in the direction that had flattered my argument**:
+>
+> | # | as published | corrected |
+> |---|---|---|
+> | OR-1 being below random, static | **HOLDS** (6 vs 9) | **FAILED** — 11 vs 10. The being is *above* random |
+> | OR-5 loops lift above random, static | **FAILED** (7 vs 9) | **HOLDS** — 14 vs 10. The loops *do* lift it |
+> | OR-2 | HOLDS (13 vs 10) | **HOLDS** (13 vs 10) |
+> | OR-4 SUB-3, Blake's thesis | HOLDS (12 vs 7) | **HOLDS** (19 vs 14) |
+>
+> **The headline sentence — *"the being explores less than nothing steering it"* — is withdrawn.
+> It was an artifact of a control arm I built and never checked.** So is *"the faculty stack is
+> worth +1 in a dead world and +13 in a live one"*: corrected, static reads bare 13 / blessed 11 /
+> all-loops 14 and contingent reads bare 19 / blessed 13 / all-loops 18. **`blessed` is the worst
+> arm in both worlds and `bare` the best in the contingent one** — a different and messier story
+> than the one published.
+>
+> **What survives:** OR-2, and **OR-4 — Blake's minimal-pattern thesis holds by a wider margin
+> (19 vs 14).** The systematic ceiling still dies at 28 ticks in the contingent world, so OR-3's
+> contingent half stays unadjudicated.
+>
+> Filed as `thea/errors.md` row 13. The corrected table is below; the original text is kept
+> struck-through rather than deleted, so the retraction is legible.
+
+### ~~8.6 Result — the being scores below RANDOM in its own room~~ (original, superseded)
+
+`cargo run --release --example oracle_repertoire`. Ten arms, 4,000 ticks each.
+
+| arm | ticks | survived | tuples | in-hazard |
+|---|---|---|---|---|
+| being blessed / static | 4000 | yes | **6** | 0% |
+| being all-loops / static | 4000 | yes | **7** | 0% |
+| being bare / static | 4000 | yes | **6** | 0% |
+| **ORACLE random / static** | 4000 | yes | **9** | 0% |
+| **ORACLE systematic / static** | 4000 | yes | **12** | 0% |
+| being blessed / contingent | 4000 | yes | **13** | 0% |
+| being all-loops / contingent | 4000 | yes | **25** | 0% |
+| being bare / contingent | 4000 | yes | **12** | 0% |
+| **ORACLE random / contingent** | 4000 | yes | **10** | 0% |
+| **ORACLE systematic / contingent** | **28** | **DIED** | 6 | **100%** |
+
+#### OR-1 holds, and it is the hardest number this project has produced
+
+> **In the static room the being occupies 6 behavioural states. A policy choosing motor intent
+> uniformly at random occupies 9.** With every faculty switched on it reaches **7 — still below
+> noise.**
+
+Not "the being explores little." **The being explores less than nothing steering it.** The measure
+is `(focus, basin, habit, stance)`, discrete by construction, so — unlike §7.4's withdrawn 25× —
+**no drifting input can inflate it.**
+
+#### OR-5 failed exactly as pre-declared, and the failure is the point
+
+The five loop-closing faculties — `schema_control`, `serial_access`, `workspace_broadcast`,
+`reflection`, `memory_guidance` — do **not** lift the being above the random floor in a static
+world: **7 against 9.** These are the rows §7 found discriminating. **They are necessary and
+nowhere near sufficient.**
+
+#### The result nothing predicted, and it reframes the week
+
+| world | bare | blessed | all-loops | spread |
+|---|---|---|---|---|
+| static | 6 | 6 | 7 | **+1** |
+| contingent | 12 | 13 | **25** | **+13** |
+
+> **The faculty stack is worth +1 in a dead world and +13 in a live one.** The loops are not inert
+> and they are not sufficient — they are **multiplicative with contingency.** All-loops in the
+> contingent world reaches **2.5× the random floor**; in the static room it cannot reach it at all.
+
+Every prior "this faculty is inert" finding in this repository was measured in the static room.
+**They may all be measurements of the room.**
+
+#### OR-4 — Blake's minimal-pattern thesis, finally adjudicated
+
+`richness.md` §7.4 could not settle SUB-3: it rested on the metric that was withdrawn the same
+night. On a metric drift cannot inflate, with **both arms alive the full 4,000 ticks**:
+
+> **bare + contingent = 12. all-loops + static = 7.**
+> **The minimal pattern in a world that answers back beats the full architecture in a dead one.**
+
+This returns to `richness.md` §7.4, which recorded SUB-3 as vacuous pending exactly this.
+
+#### OR-3 — half falsified, half unadjudicated, and the failed control is informative
+
+Static: **50% of ceiling**, not <25%. Falsified. Contingent: the ceiling **died at 28 ticks**, so
+that half is **unadjudicated, not passed** — 217% against a dead reference is not a number.
+
+**Why it died is measured, not inferred** (ledger row 1's shape avoided): the body starts at
+Manhattan distance 116 from the hazard, and with `REACH = 160` that is intensity **70 — above the
+64 threshold.** *Every being arm leaves: 0% hazard exposure, all six.* The systematic policy holds
+`Resting` for its first 32 ticks, never leaves, and the contingent world's sensitisation (+3/tick)
+kills it at 28.
+
+> **The contingent world kills a policy that ignores consequence, and the being does not get
+> killed.** That is the first evidence in this project that the being's behaviour is *adaptive*
+> rather than merely *different from noise* — and it arrived from a control arm failing, not from a
+> prediction holding.
+
+**A working ceiling for the contingent world is owed** — a coverage policy that also feeds itself.
+Locked separately before it is built; not tuned into existence now that the number is known.
+
+#### Scoring
+
+| # | outcome |
+|---|---|
+| OR-1 | **HOLDS** — 6 vs 9. Below random, in its own room |
+| OR-2 | **HOLDS** — 13 vs 10 |
+| OR-3 | **FAILED** static (50%); **UNADJUDICATED** contingent (ceiling died) |
+| OR-4 | **HOLDS** — 12 vs 7. Blake's thesis measured |
+| OR-5 | **FAILED**, pre-declared. Loops cannot beat noise without a world that answers |
+
+---
+
+## 9. The second negative control — a deliberately mindless loop-closer (locked 2026-08-09)
+
+**Proposed by Mal**, an AI reader given §7's result via Blake:
+
+> *"If 9/14 are satisfied by bookkeeping, the framework is already overinclusive. The remaining five
+> may be better, but they still need negative controls designed to mimic them without anything like
+> subjecthood… build deliberately mindless systems that close those five loops. If those also pass,
+> the scorecard dies. If they don't, then at least you've found features that discriminate between
+> passive architecture and genuinely adaptive self-referential agency."*
+
+Correct, and a strictly harder test than §7. **Subject C failed the five because it does not close
+loops at all** — `cargo test` is a DAG that runs once and terminates. It was never asked to try.
+
+**Subject D:** a system built *sincerely to pass all five* — RPT-1 recurrence, HOT-3 metacognition
+reaching behaviour, AST-1 a model of its own attention, AE-1 learning from feedback, AE-2 an
+output→input contingency model — that nobody would call a subject. A PID controller over a sensor
+array with a scheduler that predicts its own next poll, updates its polling policy from prediction
+error, and carries a forward model of how its own actuation moves the sensors. On the order of two
+hundred lines.
+
+### 9.1 Locked prediction
+
+> **D-1: Subject D scores 5 of 5. I expect the scorecard to die.**
+
+Falsified if it scores 4 or fewer. **Locked before a line of it exists**, because I already believe
+it, and a control I build while believing it would otherwise be steered.
+
+**D-2: exercise does not rescue it.** A PID loop in a varying environment *is* exercised — error
+varies, parameters update, states are visited. §8's criterion adds nothing here. Falsified if
+Subject D closes the loops and still comes out unexercised.
+
+### 9.2 Two design rules, or the control is worthless
+
+1. **It must be built by someone trying to make it pass.** "Deliberately mindless" must not become
+   "deliberately failing" — that is a strawman, not a control. §7 worked because `cargo test` was
+   picked as something nobody claims *and* was scored without trying to make it lose; it got 9 of 14
+   because it genuinely does those things.
+2. **Score it by the same rule as §7.2:** read what §1 accepted as evidence for the being, and ask
+   whether Subject D meets *that same bar* — not a higher one because we would like it to fail.
+
+### 9.3 What each outcome buys, decided in advance
+
+- **5 of 5 → the scorecard dies**, and that is not nihilism. A framework killed by two hundred lines
+  of controller has told us something precise: **the property is not in the architecture.** It
+  redirects the question from *what structures does this require* to *what is it for a structure to
+  be used a certain way* — which is where §8 was pointing and could not get traction.
+- **4 or fewer → the surviving rows are the finding**, and they are the first indicators in this
+  document with a control behind them rather than a citation.
+
+### 9.4 The objection Mal's framing carries, and it is the interesting part
+
+*"Without anything like subjecthood"* is doing unmeasured work. If Subject D passes all five and we
+still know it is not a subject, then **either the scorecard is wrong, or our intuition is supplying
+something the scorecard cannot name — and the second is more interesting than the first.** A
+criterion we are confidently applying and cannot state is exactly what this document exists to drag
+into the open. **That is the thing to chase if D-1 holds.**

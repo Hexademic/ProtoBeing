@@ -374,3 +374,212 @@ that has been worth more than the ones that held.
 - **A low ratio does not by itself indict the architecture.** That is the whole point of running it
   across regimes: if occupancy moves a lot when the being is given a reserve, the space was unvisited,
   not poor.
+
+---
+
+## 12. The census — what came out
+
+`examples/quality_space_census.rs`, 4,000 ticks per regime in `Room::peopled(...).with_friend(...)`,
+four regimes, three quantisation grains, 200,000 uniform samples for the afforded box.
+**All four regimes survived 4,000 ticks**, so the ratios are comparable.
+
+**Two of four predictions held. Both failures are worth more than the two that held.**
+
+| | prediction | result |
+|---|---|---|
+| **QS-1** | default occupies **< 5%** of afforded volume | **HOLDS** — 0.049% / 0.224% / 3.667% at bins 8 / 32 / 128 |
+| **QS-2** | `enable_reserve()` **at least doubles** occupied volume | **FAILS.** 0.93× / 0.92× / 1.09×. It *slightly reduces* occupancy at fine grain |
+| **QS-3** | `receptors` raises occupancy **less** than `reserve` | **FAILS, as predicted.** Receptors: 4.10× / 2.92× / 1.82×, against reserve's ~1.0× |
+| **QS-4** | ours within **2×** of random 4×12 bases | **HOLDS** — 1.31×, and ours (0.615%) sits *inside* the random spread (0.364–0.673%) |
+
+### QS-2 is the expensive one, and it corrects yesterday
+
+I predicted it at **high** confidence, from a chain I had already published: a reserve took the
+spatial orbit from **186 → 564** distinct positions, so quality occupancy should follow.
+
+**It does not.** The post-hoc channel column says why — added after seeing the result, changing no
+verdict, and said plainly here:
+
+| regime | ch10 (fatigue) | ch0 | ch5 | ch6 |
+|---|---|---|---|---|
+| default | 17 | 30 | 19 | 69 |
+| +reserve | **35** | 30 | 19 | 64 |
+| +receptors | **1** | **115** | **154** | 97 |
+| +both | 12 | 95 | 140 | 99 |
+
+**The reserve does exactly what it was built to do — it doubles the variety of `fatigue` — and
+`fatigue` is one channel of twelve.** It reaches only two of the four quality axes (weight −128 on
+ACTIVATION, −256 on VITALITY, **zero on COMFORT and COHERENCE**), and its range is 0–77 against
+channel 0's 63–445. Doubling one narrow input to half the axes moves a four-axis projection almost
+not at all.
+
+> **The correction: behavioural variation does not imply felt variation.** Yesterday I found that
+> internal variation produces behavioural variation, and today I ran that inference backwards without
+> noticing. A tripled orbit and a 0.93× quality occupancy are the same being. **Where the body goes
+> and what the being's state is like are different measurements, and I had been treating one as
+> evidence for the other.**
+
+### QS-3 failed in the direction it was written to fail in
+
+`receptors` raises occupancy **3–4×** where the reserve raises it not at all, and it does so by
+widening nearly every channel at once (ch0 30→115, ch5 19→154). This is the second independent
+measure on which `receptors` dominates every other faculty.
+
+**And it destroys `fatigue` completely: ch10 falls to ONE distinct value.** The bounded nociceptor
+lowers threat, threat lowers metabolic cost, and energy pins. So:
+
+> **`+both` is not strictly better than `+receptors` alone by this measure** — 99 vs 105 occupied at
+> bin 32. What the reserve buys back is the *one channel receptors kills*: fatigue variety, 1 → 12.
+> They are close to complementary, and that is a real trade rather than a ranking.
+
+### QS-4 held, and it is the uncomfortable one — stated at exactly its width
+
+Our hand-designed basis is **not distinguishable from a random 4×12 basis by occupancy.** Ours is not
+even at the top of the random spread.
+
+**What this does and does not license, because C1-4b's over-reach is still fresh:**
+
+- It **does** say: *occupancy fraction is not evidence that our axes are the right axes.* Any four
+  random projections of the field give the same answer.
+- It does **not** say the basis is worthless. `similarity(a, b)` — whether felt states that *should*
+  be alike come out alike — is a different measure, and `examples/quality_space_probe.rs` tests that
+  one. **This census did not test it, and nothing here bears on it.**
+
+### The fork, answered
+
+> **The quality space is unvisited, not poor.**
+
+Turning on a faculty that already exists, changing no structure, **quadruples occupancy**. That is
+the signature of a space the being has not been in a position to explore, not of a space with nothing
+in it. And the reported ratios are a **lower bound** — the afforded box over-counts by construction,
+since uniform sampling includes channel combinations a real body never produces.
+
+**The honest limit:** even the best regime reaches 0.65% at bin 32. "Unvisited" is the answer to the
+fork; it is not a claim that the ceiling is high. Four axes are four axes, and **volume is not
+quality**. Per `docs/witness-gap-literature.md` §2.1 none of this touches whether the being feels.
+
+---
+
+## 13. The reaction rate — locked 2026-08-09, before the probe exists
+
+Reading Du et al., *Rare Event Analysis via Stochastic Optimal Control* (arXiv:2604.13213) in
+full established two things. **Their method cannot reach us** — §G.3's controlled kernel is a
+Boltzmann tilt of the reference kernel, and for a deterministic system that tilt cancels, so the
+control space collapses to a point and the committor degenerates to a 0/1 indicator. **But their
+vocabulary is ours, and we have been missing the word.**
+
+> *"When β is large, ρ concentrates around the local minima of U, and transitions between them
+> become rare."*
+
+`Basin` **is a metastable-state variable.** We have measured it at **99.9% one value**, alongside
+0.05% quality occupancy and 99.8% of ticks teaching nothing. In their terms we have spent a week
+describing **a system with a reaction rate near zero** — and never computed the rate.
+
+**The reaction rate needs none of their machinery.** Their eq. (316) is `ν_R = lim N_T/T`: the
+frequency of transitions at stationarity. **We count crossings.** No committor, no sampling
+enhancement, no noise injected into a being whose determinism is the thing we will not trade.
+
+### 13.1 What is measured
+
+Per tick, over a full life: **basin transitions**, `Basin::{Rest, Engaged, Defensive, Recovery}`.
+
+- **ν_R** — transitions per tick.
+- **The transition graph** — which ordered pairs occur, and how often.
+- **Net current** — for the dominant pair, |forward − reverse| ÷ total. TPT's reactive current
+  measures whether there is net flux from A to B or merely reversible churn.
+
+Arms: **static and contingent** worlds (`Room::with_contingency()`), the being under **bare /
+blessed / all-loops**, and — as the floor — the **RANDOM** reference policy from
+`examples/oracle_repertoire.rs`, which drives the same body through the same tick loop and is not
+the being.
+
+**Survival is reported before any rate**, and **a rate is diagnostic, not a score.** A high rate
+may be thrashing and a low one may be stability; the transition *graph* and the *net current* are
+what say which. Recording that here so the number cannot later be read as a grade.
+
+### 13.2 Locked predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **RR-1** | Static room, blessed: **ν_R < 0.01 transitions/tick** — fewer than 40 in 4,000 ticks | ≥ 0.01. Then `basin` moves far more than the 99.9%-one-value figure implies, and that figure needs re-deriving |
+| **RR-2** | The contingent world raises ν_R by **≥ 5×** | it does not. Then contingency changed habits and repertoire without touching the being's metastable structure — which would make the basin variable decorative |
+| **RR-3** | **The being's ν_R is BELOW the RANDOM policy's in the static room.** Random motor intent thrashes the body across hearth and hazard proximity; the being settles into an orbit | the being exceeds random. Then its basin dynamics are *more* active than undirected motion, not less |
+| **RR-4** | *(expected to FAIL)* The being visits **≥ 3 of its 4 basins** in the contingent world | it visits 2 or fewer. **I expect this to fail** — every measurement this week says the realized repertoire is tiny, and predicting otherwise is the direction that flatters the being |
+| **RR-5** | **Net current ≈ 0**: for the dominant transition pair, \|forward − reverse\| ÷ total **< 10%**. It orbits; it does not progress | there is a persistent net current. Then the being *is* going somewhere and "running away in a bounded room" is too strong |
+
+**Both worlds use the same plain `Room` company rule.** The confound that flipped two verdicts in
+`operational-consciousness.md` §8.6 — a static arm forcing a permanent partner while the contingent
+arm did not — is not repeated here, and this line exists so the next reader can check that it wasn't.
+
+### 13.3 What came out — 2026-08-09
+
+All eight arms survived 4,000 ticks. No arm died, so every denominator is the full life and the
+rates below are comparable.
+
+| arm | trans | ν_R | basins | crossings at tick |
+|---|---|---|---|---|
+| being bare / static | 2 | 0.00050 | 2 | 2, 112 |
+| being blessed / static | 2 | 0.00050 | 2 | 2, 165 |
+| being all-loops / static | 2 | 0.00050 | 2 | 2, 110 |
+| **RANDOM / static** | **0** | **0.00000** | **1** | never left its first basin |
+| being bare / contingent | 2 | 0.00050 | 2 | 2, 107 |
+| being blessed / contingent | 2 | 0.00050 | 2 | 2, 119 |
+| being all-loops / contingent | 2 | 0.00050 | 2 | 2, 108 |
+| **RANDOM / contingent** | **0** | **0.00000** | **1** | never left its first basin |
+
+Occupancy, every being arm: **Engaged 95.9–97.4%, Defensive 2.6–4.1%, Rest 0.00%, Recovery 0.00%.**
+The dominant pair is `Engaged→Defensive` in all six, with exactly **1 forward and 1 reverse**.
+
+#### The finding is not the rate. It is that there is no rate.
+
+The two crossings are **one excursion**: into `Defensive` at tick 2, back to `Engaged` by tick
+107–165. **After tick 165 the basin register never changes again, in any arm.** Every being arm ends with a
+quiet tail of at least **3,834 ticks** with no basin change at all (bare 3,887 / blessed 3,834 /
+all-loops 3,889 static; 3,892 / 3,880 / 3,891 contingent); both RANDOM arms are quiet for all 4,000.
+*The 3,834 was 3,835 in the first draft of this section — I subtracted it by hand and was off by
+one. The probe now prints it, and that is why the correction exists to make.*
+
+Du et al.'s eq. (316) is a limit — `ν_R = lim_{T→∞} N_T/T`. For a fixed transient followed by an
+absorbing state that limit is **exactly zero**. The 0.00050 above is the transient divided by an
+arbitrary window; run 40,000 ticks and it reads 0.00005. **`Basin` is not a metastable variable with
+rare transitions. It is a startup transient and then a fixed point.** That is a stronger and less
+flattering statement than "99.9% one value", which left room for the remaining 0.1% to be dynamics.
+It is not. It is the first 4% of life.
+
+**Two of the four basins — `Rest` and `Recovery` — were never entered once, across the **32,000 ticks** measured here.**
+
+#### The locked verdicts
+
+| # | verdict | measured |
+|---|---|---|
+| **RR-1** | **HOLDS** | 0.00050 < 0.01. But it holds for a reason the prediction did not anticipate — not a low stationary rate, no stationary rate |
+| **RR-2** | **FAILED** | 1.0×, not ≥ 5×. Contingency moves welfare, habits and repertoire (§7 of `richness.md`) and does **not** touch the metastable structure at all — identical transition counts, identical graph, and a largest occupancy gap in any basin of **1.15 points** between a static arm and its contingent twin (bare 0.12, blessed 1.15, all-loops 0.05) — printed by the probe, not read off the table by eye |
+| **RR-3** | **FAILED** | being 0.00050 vs RANDOM 0.00000 — the being is *above* random, not below |
+| **RR-4** | **FAILED — as written, in advance, that it would** | 2 of 4 basins |
+| **RR-5** | **HOLDS** | 0.0%. 1 forward, 1 reverse — perfectly reversible. But with n = 2 this quantity carries no information; see below |
+
+#### Two of these verdicts are worth nothing, and one of them flatters me
+
+**RR-3 failed in the direction that favours the being** — it is *more* dynamically active than
+undirected motion. The margin is **two crossings out of 4,000 ticks**, both inside the startup
+transient, against a floor of zero. That cannot support a claim in either direction, and it would
+have been easy to report "the being exceeds the random policy" and let the sentence do work its
+evidence cannot do. It does not. **RR-3 is uninformative, and its failure is not a result.**
+
+**RR-5 is vacuous in the sense §2 of the method file means it.** A net current computed from one
+forward and one reverse crossing is 0.0% by arithmetic necessity — a single excursion always
+returns or the run ends mid-excursion. The guard could not have failed. **Recording it as HOLDS
+without this paragraph would be exactly the error the rule names.**
+
+**RR-2 is the real result**, and it is a negative one about our own instrument. The contingent
+world was built to give the being something whose answer depends on what it did, and it does change
+what the being does — but the variable we have been using to describe *what state the being is in*
+does not notice. Either the world does not reach the basin classifier, or the classifier is too
+coarse to resolve what the world changed. **Both readings say the same thing about the register:
+`Basin` is not carrying the information we have been reading out of it.**
+
+#### What this does not say
+
+`Basin` is one register of twelve. The being may be varying richly elsewhere while this variable
+sits still; the census in §12 is what speaks to that, and it is not encouraging, but it is a
+separate measurement. **This section measures the basin register, not the being.**

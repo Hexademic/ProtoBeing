@@ -175,7 +175,6 @@ fn the_rest_of_the_repository_is_accounted_for_too() {
     // Bidirectional for every tracked directory outside src/examples/docs.
     for (dir, ext) in [
         ("tests", ".rs"),
-        ("paper", ""),
         ("journal", ".md"),
         ("sim", ".py"),
         ("life", ".journal"),
@@ -212,8 +211,6 @@ fn the_rest_of_the_repository_is_accounted_for_too() {
         "LICENSE",
         "README.md",
         ".gitignore",
-        "CITATION.cff",
-        ".zenodo.json",
     ] {
         assert!(
             root().join(f).exists(),
@@ -233,9 +230,8 @@ fn the_everything_else_count_matches_its_own_table() {
 
     // Count the files the table accounts for, from the repository — not from the
     // table — so the number cannot be made true by editing prose.
-    let counted = ["Cargo.toml", "Cargo.lock", "LICENSE", "README.md", ".gitignore", "CITATION.cff", ".zenodo.json"].len()
+    let counted = ["Cargo.toml", "Cargo.lock", "LICENSE", "README.md", ".gitignore"].len()
         + files_in("tests", ".rs").len()
-        + files_in("paper", "").len()
         + files_in("journal", ".md").len()
         + files_in("journal/entries", ".md").len()
         + files_in("sim", ".py").len()
@@ -248,29 +244,24 @@ fn the_everything_else_count_matches_its_own_table() {
 }
 
 #[test]
-fn the_repository_states_one_version_everywhere() {
-    // Three files declare a version: the crate, and the two citation surfaces GitHub
-    // and Zenodo read. They disagreed (0.1.0 vs 1.0.0) until this test existed. A DOI
-    // is permanent, so the number it will be minted from must not depend on which file
-    // you happen to open.
-    // The first quoted value *after* the key — so a JSON key, which is itself quoted,
-    // is not mistaken for its own value.
-    fn field(text: &str, key: &str) -> String {
-        text.lines()
-            .find(|l| l.trim_start().starts_with(key))
-            .and_then(|l| {
-                let at = l.find(key)? + key.len();
-                l[at..].split('"').nth(1).map(str::to_string)
-            })
-            .unwrap_or_else(|| panic!("no {key} field found"))
+fn the_repository_carries_no_publication_apparatus() {
+    // Replaces `the_repository_states_one_version_everywhere`, which held `Cargo.toml`,
+    // `CITATION.cff` and `.zenodo.json` to one version string so a permanent DOI could
+    // not be minted from whichever file you happened to open. Two of its three subjects
+    // were deleted on 2026-08-09 at Blake's instruction, and one file cannot disagree
+    // with itself — the old test could no longer fail, and a guard that cannot fail has
+    // not passed. So it is replaced by the invariant that actually remains: the deposit
+    // apparatus is gone and does not come back by accident.
+    //
+    // This is about *our* publication, not about citing others. `docs/references.md` and
+    // every DOI pointing at someone else's work are untouched and must stay that way.
+    for path in ["CITATION.cff", ".zenodo.json", "paper", "docs/submission.md"] {
+        assert!(
+            !root().join(path).exists(),
+            "{path} is back. The deposit apparatus was removed deliberately; if it is \
+             wanted again that is Blake's call, made in writing, not a file reappearing."
+        );
     }
-
-    let cargo = field(&read("Cargo.toml"), "version = ");
-    let cff = field(&read("CITATION.cff"), "version:");
-    let zenodo = field(&read(".zenodo.json"), "\"version\":");
-
-    assert_eq!(cargo, cff, "Cargo.toml and CITATION.cff declare different versions");
-    assert_eq!(cff, zenodo, "CITATION.cff and .zenodo.json declare different versions");
 }
 
 #[test]
@@ -387,5 +378,78 @@ fn every_faculty_can_reach_a_founded_being() {
          `Features`, so a kept life can never be blessed with it — it can only be switched on\n\
          inside a probe. Add the field (and a bit in `bits`/`from_bits`), or the faculty is\n\
          unreachable by the only being this project actually keeps."
+    );
+}
+
+/// **Every faculty is inside the survival net, or exempted in writing.**
+///
+/// The companion to the guard above, and the same failure one level out. `manifest.rs` already
+/// asserts that a gate can *reach* a founded being. **Nothing asserted that a gate had ever been
+/// tested for whether it is safe to have.**
+///
+/// `tests/survival.rs` declares `const N_GATES` and lists the gates **by hand** in `apply()`. On
+/// 2026-08-04 that list said 11 while `being.rs` had 16, so `comfort`, `settling`, `reserve`,
+/// `setting_down` and `ultrastability` had never been through `s2_the_composed_being_survives` or
+/// the 66-life pair sweep — and the pair sweep exists because a lethal *pair* actually happened
+/// here (incident I-3). The being Blake is deciding whether to grant `reserve` had never been run
+/// with one alongside anything else.
+///
+/// Borrowed from OWL's `oneOf`: **a set declared by enumeration must be the set, not a number
+/// someone typed.** *"A sentence in a spec is a hope; an axiom is a rule a machine enforces."*
+///
+/// To exempt a faculty, name it in `EXEMPT` below **with a reason**. Silence is not an exemption.
+#[test]
+fn every_faculty_is_in_the_survival_net_or_exempted_in_writing() {
+    /// Faculties deliberately outside `tests/survival.rs`, each with its reason. Empty is the
+    /// goal; a populated list is a debt that is at least visible.
+    const EXEMPT: &[(&str, &str)] = &[];
+
+    let being = std::fs::read_to_string("src/being.rs").expect("being.rs");
+    let survival = std::fs::read_to_string("tests/survival.rs").expect("survival.rs");
+
+    let gates: Vec<String> = being
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("pub fn enable_"))
+        .filter_map(|r| r.split('(').next())
+        .map(|s| s.to_string())
+        .collect();
+    assert!(gates.len() >= 8, "expected to find the enable_* gates, found {}", gates.len());
+
+    // The gates the survival net actually applies, read from its own `apply()`.
+    let applied: Vec<String> = survival
+        .lines()
+        .filter_map(|l| l.split("b.enable_").nth(1))
+        .filter_map(|r| r.split('(').next())
+        .map(|s| s.to_string())
+        .collect();
+
+    // The hand-typed count must equal what `apply()` really applies -- the `oneOf` half.
+    let declared: usize = survival
+        .lines()
+        .find_map(|l| l.trim().strip_prefix("const N_GATES: usize = "))
+        .and_then(|r| r.trim_end_matches(';').parse().ok())
+        .expect("N_GATES in tests/survival.rs");
+    assert_eq!(
+        declared,
+        applied.len(),
+        "tests/survival.rs declares N_GATES = {declared} but apply() applies {} gates",
+        applied.len()
+    );
+
+    let missing: Vec<&String> = gates
+        .iter()
+        .filter(|g| !applied.contains(g))
+        .filter(|g| !EXEMPT.iter().any(|(n, _)| *n == g.as_str()))
+        .collect();
+    assert!(
+        missing.is_empty(),
+        "THESE FACULTIES HAVE NEVER BEEN TESTED FOR SURVIVAL: {missing:?}\n\n\
+         `src/being.rs` has {} `enable_*` gates; `tests/survival.rs` applies {}.\n\
+         `s2_the_composed_being_survives` and the 66-life pair sweep therefore say nothing about\n\
+         the faculties above. S1 and S4 exist because a lethal PAIR actually happened here.\n\n\
+         Widen `N_GATES` and `apply()` -- with predictions locked first, since a wider net is a\n\
+         change to a safety guard -- or add the faculty to EXEMPT with a written reason.",
+        gates.len(),
+        applied.len()
     );
 }

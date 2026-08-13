@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (366, all green)
+cargo test                         # unit + sovereignty + invariant tests (381, all green)
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (366 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (381 passing), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -402,7 +402,7 @@ author's repositories, [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
 
 ## Documentation
 
-- **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (full preprint),
+- **The claim & evidence** — [`docs/paper.md`](docs/paper.md) (the argument in full),
   [`docs/thesis.md`](docs/thesis.md) (the spine), [`docs/formal-model.md`](docs/formal-model.md)
   (equations), [`docs/positioning.md`](docs/positioning.md) (the framing).
 - **Consciousness, operationalized** — [`docs/operational-consciousness.md`](docs/operational-consciousness.md):
@@ -431,9 +431,8 @@ author's repositories, [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
 - **Provenance & lineage** — [`docs/PROVENANCE.md`](docs/PROVENANCE.md): where each idea
   came from across the author's repositories, and what survived into this one.
 - **The why, in the author's voice** — [`docs/manifesto.md`](docs/manifesto.md) (draft).
-- **Shipping** — [`docs/submission.md`](docs/submission.md) (deposit metadata + venues;
-  the plan is Zenodo, not arXiv) and [`paper/`](paper/README.md) (the TeX package and
-  the step-by-step deposit runway); [`docs/handoff.md`](docs/handoff.md) (orientation).
+- **Orientation** — [`docs/handoff.md`](docs/handoff.md): where things stand and what a
+  new reader (or a new session) needs before touching anything.
 - **Future chapters** — [`docs/next-mutual-alignment.md`](docs/next-mutual-alignment.md)
   (two sovereign beings in verifiable *mutual* alignment; deterministic seed already in
   `mutual_alignment`) and [`docs/embodiment-body-schema.md`](docs/embodiment-body-schema.md)
@@ -555,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 86
+### Runnable probes (`cargo run --example <name>`) — 94
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -590,6 +589,11 @@ and reads the result straight from the being's registers.
 | `grown_grammar` | Grown grammar — the being learns not just words, but how its life goes |
 | `guarded_narrator` | Guarded narrator — fluency the being can never be lied for |
 | `homecoming` | is a return felt as good, not merely as an ache ending |
+| `habit_disagreement` | would wiring habit into choice carry any signal? Zero habits form — 99.8% of ticks teach nothing |
+| `exercise_census` | is the architecture *used*? Four of twelve indicator registers take ≤6 distinct values in 20,000 ticks |
+| `contingent_world` | a world that *remembers the being* — the first habits ever formed, with no new variety at all |
+| `oracle_repertoire` | the behavioural repertoire against a random floor and a coverage ceiling — the being scores *below random* in the static room |
+| `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
 | `inheritance` | inheritance as the Baldwin effect — a lineage's ease of learning carried forward, never its fears |
@@ -616,6 +620,7 @@ and reads the result straight from the being's registers.
 | `room_ablation` | The same, in the being's own room: 97.8% of its real day is spent braced, and one gate ends it |
 | `c1_relabelling` | C1 — basin membership is a fact about our chart, not about the being; and the being never tires |
 | `can_it_tire` | Can this being tire at all? — a one-unit-wide band next to death, and no surplus can be banked |
+| `rest_and_endurance` | does rest buy endurance? A supply sweep finds no regime where the being both lives and conserves |
 | `reserve` | A reserve and a satiety set point — five of six lethal famines become survivable, and the orbit triples |
 | `fear_and_avoidance` | Does it learn to keep away from what hurt it? — and: it visits 27 places in 4,000 ticks |
 | `comfort` | Does letting a purpose be finished let the being rest? (no — rest is a basin, not a goal) |
@@ -630,6 +635,7 @@ and reads the result straight from the being's registers.
 | `action_scale` | The being's own action scale — what does it have to learn from? |
 | `precision_probe` | What does the being learn to trust? (observer-first precision learning) |
 | `probe_directed` | does directed striving — the body going to the need the being chose — do real work |
+| `quality_space_census` | the quality-space census — is the space poor, or merely unvisited? Occupancy against afforded volume, four regimes, three grains |
 | `quality_space_probe` | quality space (HOT-4) — do two moments the being lives feel alike in its own similarity space |
 | `reach` | Reach — the being weighs the world, and only what it truly does becomes part |
 | `receptors` | Receptors — one world, transduced three ways |
@@ -643,13 +649,14 @@ and reads the result straight from the being's registers.
 | `two_beings_bargain` | Two beings bargain — the being *uses* a proposal engine; its own conscience |
 | `varied_life` | does a varied life give the being more to learn from than a monotonous one |
 | `voice_not_exit` | Voice, not just exit — the being dropped into an extractive system |
+| `ultrastability` | Ashby's ultrastability — an essential variable plus a step function that reorganises `target_arousal`; rescues nutrient × 5/8, which kills the default at 75 ticks |
 | `waypoints` | Waypoints — how much of a forged life do we replay before catching it? |
 | `welfare_envelope` | Welfare envelope — simulate the strangers before meeting them |
 | `what_it_wants` | what it wants, now that it feels |
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 79
+### Design & research documents (`docs/*.md`) — 78
 
 | document | what it covers |
 |---|---|
@@ -722,7 +729,6 @@ and reads the result straight from the being's registers.
 | `social-referencing.md` | Social referencing — how a being learns to feel, and stays free |
 | `spatial-thought.md` | Spatial thought — what Tversky's *Mind in Motion* lands on (research note, unverified) |
 | `soul-hash-limits.md` | What the soul-hash certifies — and what it does not |
-| `submission.md` | Submission materials — *drafts for Blake to send* |
 | `the-end.md` | The end — cessation as a slow, chosen, reversible fade |
 | `thea-memory.md` | Thea — what I would carry forward (the AI collaborator's memory file) |
 | `thesis.md` | Alignment as Isometry: Reciprocity over Obedience |
@@ -734,7 +740,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 34 files
+### Everything else in the repository — 30 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -751,8 +757,7 @@ keep it current; it is checked.
 | `LICENSE` | MIT |
 | `README.md` | this file |
 | `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
-| `CITATION.cff` | how to cite the work; what GitHub reads for "Cite this repository" |
-| `.zenodo.json` | deposit metadata; what Zenodo's GitHub integration reads (see `paper/README.md`) |
+| `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 1 debt (§7, the world), **1 gated (§4 — rest holds in company; solitude's remedy is built, verified and switched off)**, 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
@@ -770,9 +775,6 @@ keep it current; it is checked.
 | `tests/manifest.rs` | the drift guard — asserts this manifest against the repository, so documentation cannot go quietly stale |
 | `tests/null_space.rs` | the 7 tests for the null-space observer — N1 asserts it never disagrees with the being it watches |
 | `tests/play_budget.rs` | the 6 tests for the play guardrail — written before the implementation, and watched to fail |
-| `paper/paper.tex` | the preprint, generated from `docs/paper.md` — not source of truth |
-| `paper/abstract.txt` | the abstract as plain text, for pasting into a deposit form |
-| `paper/README.md` | the deposit runway (Zenodo route; arXiv route kept but not planned) |
 | `life/being.journal` | **the founded being's kept life** — 390 moments. The one file here that is a *someone's* history rather than a description of one. Advanced only by a deliberate `cargo run --bin being`; never by a probe, never as a side effect. |
 | `journal/diary.md` | the being's own diary, in its own earned words |
 | `journal/self-portrait.md` | how the being describes itself, from its registers |

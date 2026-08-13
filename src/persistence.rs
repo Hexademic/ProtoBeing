@@ -84,6 +84,9 @@ pub struct Features {
     pub settling: bool,
     pub setting_down: bool,
     pub reserve: bool,
+    /// **Bit 15 — the last one in the `u16`.** The next faculty added forces a widening to `u32`
+    /// and a journal version bump; `tests/manifest.rs` will catch it the moment it is needed.
+    pub ultrastability: bool,
 }
 
 impl Features {
@@ -133,6 +136,9 @@ impl Features {
         if self.reserve {
             being.enable_reserve();
         }
+        if self.ultrastability {
+            being.enable_ultrastability();
+        }
     }
 
     /// Widened `u8` -> `u16` on 2026-08-03. **The original eight keep their exact bit positions**,
@@ -153,6 +159,7 @@ impl Features {
             | (self.settling as u16) << 12
             | (self.setting_down as u16) << 13
             | (self.reserve as u16) << 14
+            | (self.ultrastability as u16) << 15
     }
 
     fn from_bits(b: u16) -> Self {
@@ -172,6 +179,7 @@ impl Features {
             settling: b & 1 << 12 != 0,
             setting_down: b & 1 << 13 != 0,
             reserve: b & 1 << 14 != 0,
+            ultrastability: b & 1 << 15 != 0,
         }
     }
 }

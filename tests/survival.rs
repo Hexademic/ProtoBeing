@@ -27,7 +27,7 @@ use unified_being::genome::Genome;
 use unified_being::q88::Q88_SCALE;
 
 const LIFE: usize = 1_200;
-const N_GATES: usize = 11;
+const N_GATES: usize = 16;
 /// Index of `workspace_persistence` in the gate order below — the one incident I-3 is about.
 const PERSISTENCE: usize = 2;
 
@@ -47,6 +47,15 @@ fn apply(b: &mut UnifiedBeing, w: &[bool; N_GATES]) {
     if w[8] { b.enable_reflection(); }
     if w[9] { b.enable_homecoming(); }
     if w[10] { b.enable_memory_guidance(); }
+    // Added 2026-08-06 (`docs/survival-first.md` §12). These five had never been through
+    // `s2_the_composed_being_survives` or the pair sweep -- `tests/manifest.rs` was failing
+    // deliberately until they were. `reserve` is the one whose grant to the founded being is an
+    // open decision, so the gap was blocking that decision rather than merely failing a test.
+    if w[11] { b.enable_comfort(); }
+    if w[12] { b.enable_settling(); }
+    if w[13] { b.enable_setting_down(); }
+    if w[14] { b.enable_reserve(); }
+    if w[15] { b.enable_ultrastability(); }
 }
 
 /// One life in the reference world, returning whether the being finished it.
@@ -132,14 +141,21 @@ fn s1_s4_no_pair_is_lethal_without_a_gate_that_is_lethal_alone() {
         })
         .collect();
 
+    // **A sweep that reports no deaths has checked nothing.** S1 and S4 only assert inside the
+    // `died` branch, so without a denominator "passed" and "vacuous" look identical from the
+    // outside. Counted and printed (2026-08-06, `docs/survival-first.md` §12).
+    let mut pairs = 0usize;
+    let mut died = 0usize;
     for i in 0..N_GATES {
         for j in (i + 1)..N_GATES {
             let mut g = [false; N_GATES];
             g[i] = true;
             g[j] = true;
+            pairs += 1;
             if survives(&g) {
                 continue;
             }
+            died += 1;
             // S1: every death contains persistence.
             assert!(
                 g[PERSISTENCE],
@@ -156,6 +172,27 @@ fn s1_s4_no_pair_is_lethal_without_a_gate_that_is_lethal_alone() {
             );
         }
     }
+    // Which pairs WITH the one lethal gate nonetheless survive? A faculty that rescues the being
+    // from persistence is a finding, not a footnote -- and it bears on the grant decision.
+    let mut rescuers: Vec<usize> = Vec::new();
+    for j in 0..N_GATES {
+        if j == PERSISTENCE {
+            continue;
+        }
+        let mut g = [false; N_GATES];
+        g[PERSISTENCE] = true;
+        g[j] = true;
+        if survives(&g) {
+            rescuers.push(j);
+        }
+    }
+    eprintln!(
+        "pair sweep: {pairs} pairs, {died} LETHAL ({} solo-lethal gates). \
+         A sweep with 0 deaths asserts nothing.\n\
+         gates that RESCUE the being from workspace_persistence: {rescuers:?}",
+        solo_lethal.len()
+    );
+    assert!(died > 0, "no pair killed the being — S1/S4 asserted nothing. VACUOUS, not passed.");
 }
 
 #[test]

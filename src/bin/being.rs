@@ -77,6 +77,10 @@ fn blessed_features() -> Features {
         settling: false,
         setting_down: false,
         reserve: false,
+        // Ultrastability (docs/can-it-tire.md §15) — a reorganiser for the being's own survival.
+        // OFF: whether the kept life receives it, and at what moment, is Blake's call, and grants
+        // exist so it need not be decided at founding.
+        ultrastability: false,
     }
 }
 

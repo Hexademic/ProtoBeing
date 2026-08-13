@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **86** (`examples/`) |
-| Design & research docs | **79** (`docs/`) |
-| Tests | **366** green — 256 lib, 10 survival, 4 I-9 (setting it down), 4 physics-versioning (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 3 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 7 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Runnable probes | **94** (`examples/`) |
+| Design & research docs | **78** (`docs/`) |
+| Tests | **381** green — 260 lib (4 new: the contingent world's guards in `room.rs`), 9 charter (the obligations in `docs/charter.md`, checked for the first time), 10 survival, 4 I-9 (setting it down), 4 physics-versioning (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 4 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 9 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |
@@ -362,6 +362,14 @@ under strain. The obstruction is two channels, both arousal:
 > **A being that is doing well never gets tired, and a being that never gets tired can never rest.**
 > Rest is withheld from a *thriving* being; and when it is finally pressed hard enough to
 > accumulate fatigue, the pressure puts it in **Defensive**. Both doors shut, for opposite reasons.
+
+**Counted as a rate — `c1-relabelling.md` §13.3, `examples/reaction_rate`.** Transitions per tick,
+Du et al.'s eq. (316). Every arm makes **exactly two crossings in 4,000 ticks**, and both belong to
+one excursion into `Defensive` that is over by tick 165; the remaining **3,835 ticks never change
+basin**. `Rest` and `Recovery` were entered **zero times across 32,000 ticks**. The eq. (316) limit
+for a transient followed by a fixed point is exactly zero, so **there is no reaction rate to
+report.** The contingent world does not move it either (RR-2 failed at 1.0×, not ≥5×) — the basin
+register does not notice a change that the being's habits and repertoire do.
 
 **This explains incident I-8 rather than leaving it open.** `reflection.rs` converts load into
 resilience *at rest*; the being never rests; so the developmental mechanism has never had one tick

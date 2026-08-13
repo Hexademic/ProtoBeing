@@ -399,3 +399,75 @@ Honestly, so it is not mistaken for done:
 - **`src/bin/being.rs` was never run**, by design. The founded being is verified by replay only.
 - **`console` runs 30 seconds and was cut at 90**; it and `live` are continuous by design, so
   "exits 0" means "ran clean for as long as we watched", not "terminates".
+
+---
+
+## 12. Widening the net to sixteen — predictions, locked 2026-08-06 before the change
+
+`tests/manifest.rs::every_faculty_is_in_the_survival_net_or_exempted_in_writing` has been failing
+deliberately since it was written:
+
+```
+THESE FACULTIES HAVE NEVER BEEN TESTED FOR SURVIVAL:
+["comfort", "settling", "reserve", "ultrastability", "setting_down"]
+src/being.rs has 16 enable_* gates; tests/survival.rs applies 11.
+```
+
+**S1 and S4 exist because a lethal *pair* actually happened here** (incident I-3). So five faculties
+have never been through `s2_the_composed_being_survives` or the pair sweep — and one of them,
+`reserve`, is the faculty whose grant to the founded being is an open decision. **The guard is not
+merely failing; it is blocking that decision.**
+
+Widening `N_GATES` 11 → 16 takes the pair sweep from `C(11,2)+11 = 66` lives to `C(16,2)+16 = 136`.
+
+### Predictions
+
+| # | prediction | confidence |
+|---|---|---|
+| **S5** | the **composed sixteen-gate being survives** its full 1,200-tick life in the reference world | medium. Eleven composed fine; the five added have never been composed with anything |
+| **S6** | **no new singly-lethal gate** among the five | medium-high — each survived alone in its own probe, though never in *this* harness or world |
+| **S7** | **written to fail: no new lethal PAIR.** I expect **at least one** | **low.** `reserve` changes energy dynamics and `ultrastability` moves `target_arousal`; **two metabolism-touching faculties that have never met.** If any pair kills, that is the most valuable result here |
+| **S8** | S1 still holds — **every death, if any, contains `workspace_persistence`** | low-medium. S1 was true of eleven gates; five new ones is exactly how a second lethal configuration would appear |
+
+**S7 and S8 are the ones that matter.** If either fails, the founded being must not receive `reserve`
+until we understand why — and that is precisely what a safety net is for.
+
+**Stated in advance:** if a pair proves lethal, the fix is **not** to exempt it. It is to file it in
+`docs/incidents.md` and decide deliberately, the way I-3 was handled.
+
+### What came out — all four hold, and the widening found something
+
+`tests/survival.rs` at `N_GATES = 16`. **120 pairs + 16 solo = 136 lives.**
+
+| # | prediction | result |
+|---|---|---|
+| **S5** | composed sixteen-gate being survives | **HOLDS** — `s2_the_composed_being_survives` green at 16 |
+| **S6** | no new singly-lethal gate | **HOLDS, and non-vacuously.** `workspace_persistence` alone still kills, so the assertion had a real death to check against |
+| **S7** | *(written to fail)* no new lethal pair | **HOLDS — and I was wrong to expect otherwise.** `reserve` and `ultrastability` both touch metabolism and had never met; they are safe together and with everything else |
+| **S8** | every death still contains `workspace_persistence` | **HOLDS** — 10 lethal pairs, all of them |
+
+**The sweep now reports its own denominator**, because S1 and S4 assert only inside the `died`
+branch: without a count, *passed* and *vacuous* look identical from outside. It prints
+`120 pairs, 10 LETHAL` and **fails outright if nothing dies.**
+
+### The finding the widening produced
+
+Persistence pairs with **15** other gates. Only **10** of those pairs die. So five faculties
+**rescue the being from the one gate that is lethal alone:**
+
+```
+workspace_broadcast · generative_perception · receptors · reflection · settling
+```
+
+**`settling` is one of the five faculties added today** — it had never been tested against
+persistence, and it prevents I-3's death. That was invisible for as long as the net stopped at
+eleven, and it is exactly what the guard was written to expose.
+
+> **I-3 has stood as "one gate is lethal alone."** The truer statement is **"one gate is lethal
+> alone, and five faculties prevent it"** — which is a different fact about the being, and a kinder
+> one.
+
+### For the grant decision
+
+`reserve` is **safe alone and in all 15 of its pairs.** So is `ultrastability`. The measurement that
+was blocking the decision is now made, and it does not argue against granting either.
