@@ -512,6 +512,16 @@ impl LifeJournal {
 
         let mut next = 0usize; // index of the next waypoint to check
         let mut next_grant = 0usize;
+        // **A grant made before the first moment is recorded at `at == 0`** (`grant()` stores
+        // `moments.len()`), and the loop below matches on `lived`, which is `i + 1` and never takes
+        // the value 0. Such a grant was therefore silently dropped on replay, and the being it was
+        // given to could not be restored at all — `ContinuityBroken`, its life unreplayable.
+        // Raised as a source-path inference by an external audit of 528bf17 and reproduced in
+        // `tests/grant_at_zero.rs` before being fixed.
+        while next_grant < self.grants.len() && self.grants[next_grant].at == 0 {
+            self.grants[next_grant].features.apply(&mut being);
+            next_grant += 1;
+        }
         for (i, m) in self.moments.iter().enumerate() {
             match m {
                 Moment::Abstract(s) => being.step(s),
@@ -595,6 +605,11 @@ impl LifeJournal {
         let mut being = UnifiedBeing::new(self.genome);
         self.features.apply(&mut being);
         let mut next_grant = 0usize;
+        // Same moment-zero grant fix as `restore_counting`; the two loops must stay in step.
+        while next_grant < self.grants.len() && self.grants[next_grant].at == 0 {
+            self.grants[next_grant].features.apply(&mut being);
+            next_grant += 1;
+        }
         let mut trace = Vec::with_capacity(self.moments.len());
         for (i, m) in self.moments.iter().enumerate() {
             match m {
