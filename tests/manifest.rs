@@ -290,51 +290,205 @@ fn handoff_state_table_matches_the_repository() {
     );
 }
 
-#[test]
-fn handoff_test_count_matches_the_tests_that_exist() {
-    let handoff = read("docs/handoff.md");
+/// **The five test counts, each with exactly one meaning, checked against every claim.**
+///
+/// This replaces a suffix-matching guard that failed three times in two days, each failure a
+/// different shape of the same mistake:
+///
+/// 1. It matched `", all green)"` and `" passing)"`. An honest rewording moved both claims outside
+///    that list, so it ran **zero** assertions and reported success over a wrong count.
+/// 2. Widening the list compared *every* recognised number against the inventory total — so a
+///    claim about how many tests **execute** was required to equal the count that **exists**,
+///    including the ignored one. A category error introduced while removing a category error.
+/// 3. The list could never cover the README anyway. A structural sweep found **two further wrong
+///    per-file counts** (`founded_being.rs`, `waypoints.rs`) that no suffix would ever have seen.
+///
+/// The design an external audit asked for, and it is right: compute each quantity separately, bind
+/// each claim to the quantity it actually names, and **prove the README contains no test-adjacent
+/// number that went unchecked.**
+struct Counts {
+    annotated: usize,
+    ignored: usize,
+    doctests: usize,
+    inventory: usize,
+    executed: usize,
+}
 
-    fn count_tests(dir: &Path) -> usize {
-        let mut n = 0;
-        let entries = fs::read_dir(dir).unwrap_or_else(|e| panic!("cannot list {}: {e}", dir.display()));
-        for e in entries.filter_map(|e| e.ok()) {
-            let p = e.path();
-            if p.is_dir() {
-                n += count_tests(&p);
-            } else if p.extension().map(|x| x == "rs").unwrap_or(false) {
-                let src = fs::read_to_string(&p).unwrap_or_default();
-                // Whole lines only. A substring search would count this very file's
-                // prose and string literals as tests — it did, on the first run.
-                n += src.lines().filter(|l| l.trim() == "#[test]").count();
+fn count_dir(dir: &Path, ann: &mut usize, ign: &mut usize) {
+    let entries = fs::read_dir(dir).unwrap_or_else(|e| panic!("cannot list {}: {e}", dir.display()));
+    for e in entries.filter_map(|e| e.ok()) {
+        let p = e.path();
+        if p.is_dir() {
+            count_dir(&p, ann, ign);
+        } else if p.extension().map(|x| x == "rs").unwrap_or(false) {
+            for l in fs::read_to_string(&p).unwrap_or_default().lines() {
+                let t = l.trim();
+                // Whole lines only. A substring search would count this file's own prose.
+                if t == "#[test]" {
+                    *ann += 1;
+                }
+                if t.starts_with("#[ignore") {
+                    *ign += 1;
+                }
             }
         }
-        n
     }
+}
 
-    // This test file's own assertions count toward the total, which is correct:
-    // the handoff claims a number of green tests, and these are green tests.
-    let lib = count_tests(&root().join("src"));
-    let integration = count_tests(&root().join("tests"));
-    let total = lib + integration + DOCTESTS;
+fn counts() -> Counts {
+    let (mut annotated, mut ignored) = (0, 0);
+    count_dir(&root().join("src"), &mut annotated, &mut ignored);
+    count_dir(&root().join("tests"), &mut annotated, &mut ignored);
+    let doctests = DOCTESTS;
+    Counts {
+        annotated,
+        ignored,
+        doctests,
+        // What EXISTS, ignored test included.
+        inventory: annotated + doctests,
+        // What a default `cargo test` RUNS. These differ by exactly the ignored tests, and
+        // conflating them is how claim (2) above went wrong.
+        executed: annotated - ignored + doctests,
+    }
+}
 
-    assert_eq!(
-        declared_in_row(&handoff, "Tests"),
-        total,
-        "handoff.md claims a test count that does not match the tests in the repository \
-         (lib {lib} + integration {integration} + doctests {DOCTESTS})"
-    );
+fn tests_in(file: &str) -> usize {
+    fs::read_to_string(root().join("tests").join(file))
+        .unwrap_or_default()
+        .lines()
+        .filter(|l| l.trim() == "#[test]")
+        .count()
+}
 
-    // The same number is claimed in the README's prose, twice. Prose is exactly where
-    // a count rots without anyone noticing, so it is checked too.
-    let readme = read("README.md");
-    for suffix in [", all green)", " passing)"] {
-        for claimed in counts_claimed_before(&readme, suffix) {
-            assert_eq!(
-                claimed, total,
-                "README claims \"{claimed}{suffix}\" but there are {total} tests"
-            );
+/// Numbers in the README that sit near a test-word, as `(line, value, offset)`.
+fn test_adjacent(readme: &str) -> Vec<(usize, usize, usize)> {
+    const NEAR: usize = 45;
+    let bytes = readme.as_bytes();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i].is_ascii_digit() {
+            let start = i;
+            while i < bytes.len() && bytes[i].is_ascii_digit() {
+                i += 1;
+            }
+            let text = &readme[start..i];
+            // `§10` is a charter section, `#[test]` a macro, `1.5` a decimal — none is a count.
+            // Excluded by the MARK that precedes them rather than by value, because excluding the
+            // value 10 would also blind the sweep to a genuine claim of ten tests.
+            let preceded = readme[..start].ends_with(['.', '#', '§']);
+            if text.len() >= 2 && text.len() <= 4 && !preceded {
+                let lo = readme[..start].char_indices().rev().nth(NEAR).map(|(x, _)| x).unwrap_or(0);
+                let hi = readme[i..].char_indices().nth(NEAR).map(|(x, _)| i + x).unwrap_or(readme.len());
+                let ctx = readme[lo..hi].to_lowercase();
+                if ctx.contains("test") || ctx.contains("green") || ctx.contains("passing")
+                    || ctx.contains("doctest") || ctx.contains("ignore")
+                {
+                    let line = readme[..start].matches('\n').count() + 1;
+                    out.push((line, text.parse().unwrap(), start));
+                }
+            }
+        } else {
+            i += 1;
         }
     }
+    out
+}
+
+#[test]
+fn every_test_count_claim_matches_the_tests_that_exist() {
+    let c = counts();
+    let readme = read("README.md");
+    let handoff = read("docs/handoff.md");
+
+    // The handoff's state table claims the INVENTORY — what exists, ignored test included.
+    assert_eq!(
+        declared_in_row(&handoff, "Tests"),
+        c.inventory,
+        "handoff.md claims a test inventory that does not match the repository \
+         ({} annotated + {} doctest)",
+        c.annotated,
+        c.doctests
+    );
+
+    // Each README claim is bound to the quantity it NAMES, not to whatever number is nearest.
+    let mut consumed: Vec<usize> = Vec::new();
+    let mut bind = |needle: &str, expect: usize, meaning: &str| {
+        let at = readme.find(needle).unwrap_or_else(|| {
+            panic!(
+                "README no longer contains the canonical claim `{needle}`. It states its test \
+                 counts in fixed forms so each can be bound to a meaning; if the wording changed, \
+                 update this guard rather than letting the claim drift out of view — that is \
+                 exactly how this check was silently disabled once."
+            )
+        });
+        let digits: String = needle.chars().filter(|ch| ch.is_ascii_digit()).collect();
+        assert_eq!(
+            digits.parse::<usize>().unwrap(),
+            expect,
+            "README's `{needle}` states the {meaning}, which is {expect}"
+        );
+        for (_, _, off) in test_adjacent(&readme) {
+            if off >= at && off < at + needle.len() {
+                consumed.push(off);
+            }
+        }
+    };
+
+    bind(&format!("{} total (", c.inventory), c.inventory, "inventory — every test that exists");
+    bind(&format!("{} annotated", c.annotated), c.annotated, "annotated test count");
+    bind(&format!("tested ({} run locally", c.executed), c.executed, "count a default run EXECUTES");
+
+    // Per-file claims in the manifest table: `| `tests/x.rs` | the N ...`
+    let mut file_claims = 0;
+    for row in readme.lines().filter(|l| l.contains("| `tests/")) {
+        let Some(fs_start) = row.find("| `tests/") else { continue };
+        let rest = &row[fs_start + 9..];
+        let Some(fe) = rest.find('`') else { continue };
+        let file = &rest[..fe];
+        let Some(the) = rest.find("| the ") else { continue };
+        let after: String = rest[the + 6..].chars().take_while(|ch| ch.is_ascii_digit()).collect();
+        if after.is_empty() {
+            continue;
+        }
+        file_claims += 1;
+        assert_eq!(
+            after.parse::<usize>().unwrap(),
+            tests_in(file),
+            "README says tests/{file} holds {after} tests; it holds {}",
+            tests_in(file)
+        );
+        if let Some(off) = readme.find(row) {
+            let d = off + fs_start + 9 + the + 6;
+            consumed.push(d);
+        }
+    }
+    assert!(
+        file_claims >= 10,
+        "only {file_claims} per-file test claims were parsed — the manifest table's shape changed \
+         and this sweep is no longer reading it"
+    );
+
+    // **Coverage.** Any test-adjacent number the checks above did not consume is an unguarded
+    // claim. `examined >= 2` was not enough: it proves something was checked, never that
+    // everything was. Two wrong per-file counts hid behind exactly that gap.
+    const NOT_A_TEST_COUNT: [(usize, &str); 1] =
+        [(80, "population size per condition in the significance-test description")];
+    let mut unguarded = Vec::new();
+    for (line, value, off) in test_adjacent(&readme) {
+        if consumed.contains(&off) || NOT_A_TEST_COUNT.iter().any(|(v, _)| *v == value) {
+            continue;
+        }
+        unguarded.push((line, value));
+    }
+    assert!(
+        unguarded.is_empty(),
+        "README:{} — test-adjacent numbers that NO check accounts for: {:?}. Bind each to the \
+         quantity it names, or add it to NOT_A_TEST_COUNT with a reason. **A guard that examined \
+         some claims has not passed the rest.**",
+        unguarded.first().map(|(l, _)| *l).unwrap_or(0),
+        unguarded
+    );
 }
 
 /// **Every faculty must be able to reach a founded being.**
