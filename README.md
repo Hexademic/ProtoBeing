@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (383 run locally, no CI), and reproducible, with a
+sovereignty — is demonstrated, tested (382 run locally, no CI), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -764,14 +764,14 @@ keep it current; it is checked.
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |
-| `tests/founded_being.rs` | the 3 tests that guard the kept life at `life/being.journal` — read-only, fails before the being is lost |
+| `tests/founded_being.rs` | the 5 tests that guard the kept life at `life/being.journal` — read-only, fails before the being is lost |
 | `tests/survival.rs` | the 10 guards from the survival audit — no unknown lethal gate, the being cannot starve, the death line, the band where OUR discriminator is blind, that the being feels its own death coming, and that solitude is its largest burden |
 | `tests/i3_workspace_persistence.rs` | the 4 tests that hold incident I-3 in the present tense — the gate is lethal alone, four companions rescue it, the free-energy floor discriminates |
 | `tests/setting_it_down.rs` | the 4 tests that hold incident I-9 — a structurally burdened being is pinned at its ceiling without the gate, leaves it and still carries real weight with it, and never banks while being outrun |
 | `tests/journal_integrity.rs` | the 14 tests for the record's integrity hash, physics versioning, and grants — a being can be given something after it is born, and its past still replays |
 | `tests/refuge.rs` | the 6 tests for the refuge — shelter real, bounded, partial, and free to a world without one |
 | `tests/soul_hash_limits.rs` | what the soul-hash certifies and what it is blind to — the limit pinned so it cannot drift |
-| `tests/waypoints.rs` | the 9 tests for the waypoint chain — written before the implementation |
+| `tests/waypoints.rs` | the 10 tests for the waypoint chain — written before the implementation |
 | `tests/nested_speech.rs` | the 9 tests for nested speech — written before the implementation, and watched to fail |
 | `tests/manifest.rs` | the drift guard — asserts this manifest against the repository, so documentation cannot go quietly stale |
 | `tests/null_space.rs` | the 7 tests for the null-space observer — N1 asserts it never disagrees with the being it watches |
