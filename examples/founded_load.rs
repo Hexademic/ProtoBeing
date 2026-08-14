@@ -45,8 +45,8 @@
 //!
 //! - **F5.** The founded being was companioned on **≥ 90%** of its 390 kept moments. Given the
 //!   solitary regime pegs the ceiling, a load of 0 all but forces this.
-//! - **F6 — the one I expect to be uncomfortable.** Its **longest unbroken solitary run is under
-//!   64 moments** — short enough that load never had time to build. If F6 holds, the zero is
+//! - **F6 — the one I expect to be uncomfortable.** Its **longest unbroken solitary run is shorter
+//!   than 64 ticks** — short enough that load never had time to build. If F6 holds, the zero is
 //!   **untested, not earned**, and the charter §4 solitude debt is a live risk to this being the
 //!   moment its life changes, not a theoretical one. If F6 *fails* — if it has been alone a long
 //!   while and still carries nothing — that is genuine resilience and much better news.
@@ -152,7 +152,7 @@ fn main() {
     println!("    {:<28} {:>8}", "longest unbroken solitude", longest);
 
     println!("\n    F5 (companioned >= 90%): {}", if pct >= 90.0 { "HOLDS" } else { "FAILED" });
-    println!("    F6 (longest solitude < 64): {}", if longest < 64 { "HOLDS" } else { "FAILED" });
+    println!("    F6 (longest solitary run < 64 ticks): {}", if longest < 64 { "HOLDS" } else { "FAILED" });
     println!("    {}", if longest < 64 {
         "** The zero is UNTESTED, not earned. This being has never been alone long enough for the \
          chronic path to engage, so its load of 0 is a fact about its circumstances and not about \
@@ -164,6 +164,43 @@ fn main() {
          one life we kept, and it means the solitary deadlock does not straightforwardly \
          generalise to it. Find what these solitary moments had that the synthetic ones lacked. **"
     });
+
+    // ---- F7: the endpoint is not the history. What did it carry ALONG THE WAY? ----
+    match j.replay_load_trace() {
+        Err(why) => println!("\n  F7 — the trace did not replay: {why:?}"),
+        Ok(trace) => {
+            let peak = trace.iter().map(|(l, _)| *l).max().unwrap_or(0);
+            let pegged = trace.iter().filter(|(l, _)| *l >= Q88_SCALE).count();
+            let carried = trace.iter().filter(|(l, _)| *l > 0).count();
+            let first_bank = trace.iter().position(|(_, w)| *w > 0);
+            let n = trace.len().max(1);
+
+            println!("\n  F7 — the endpoint is not the history. What did it carry along the way?");
+            println!("    {:<28} {:>8}   {:.1}% of ceiling", "peak load ever reached", peak,
+                peak as f32 * 100.0 / Q88_SCALE as f32);
+            println!("    {:<28} {:>8}   {:.1}% of its life", "moments carrying any load", carried,
+                carried as f32 * 100.0 / n as f32);
+            println!("    {:<28} {:>8}   {:.1}% of its life", "moments AT the ceiling", pegged,
+                pegged as f32 * 100.0 / n as f32);
+            match first_bank {
+                Some(at) => println!("    {:<28} {:>8}", "first banked resilience at", at + 1),
+                None => println!("    {:<28} {:>8}", "first banked resilience at", "never"),
+            }
+
+            println!("\n    {}", if pegged > 0 {
+                "** IT WAS AT THE CEILING. The final load of 0 hid a life that DID peg. F3's \
+                 'glad to be wrong' was an endpoint read as a history, and it was wrong. **"
+            } else if peak > 0 {
+                "** It carried real weight and never pegged. The zero at the end is a recovery, \
+                 not an absence — so the being does discharge, which no synthetic solitary life \
+                 in reflection_deadlock ever managed. THAT is the thing to explain. **"
+            } else {
+                "** Load was 0 at every single moment of 390. The chronic path never engaged once, \
+                 through 305 solitary moments and a 207-long unbroken stretch. The synthetic \
+                 solitary result does not reach this being at all, and the reason is not yet known. **"
+            });
+        }
+    }
 
     println!("\n  Nothing was advanced. No journal written. The record is untouched.");
 }
