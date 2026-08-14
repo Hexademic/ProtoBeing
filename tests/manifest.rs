@@ -324,17 +324,44 @@ fn handoff_test_count_matches_the_tests_that_exist() {
          (lib {lib} + integration {integration} + doctests {DOCTESTS})"
     );
 
-    // The same number is claimed in the README's prose, twice. Prose is exactly where
-    // a count rots without anyone noticing, so it is checked too.
+    // The same number is claimed in the README's prose. Prose is exactly where a count rots
+    // without anyone noticing, so it is checked too.
+    //
+    // **The suffix list is the weak point, and it was exploited by an honest edit.** On
+    // 2026-08-14 the two README claims were reworded — `(382, all green)` became
+    // `381 annotated tests + 1 doctest`, and `(382 passing)` became `(381 run locally, no CI)` —
+    // to stop conflating inventory with execution. Both new forms fall outside every suffix here,
+    // so this loop found NOTHING and passed over zero claims while the README carried a wrong
+    // count. **A correction moved the claim out of the guard's field of view.** An external audit
+    // found it, not this test. The vacuity assertion below is the fix that matters: any future
+    // rewording that hides a claim now fails loudly instead of passing silently.
     let readme = read("README.md");
-    for suffix in [", all green)", " passing)"] {
+    // Every suffix must follow a claim about the TOTAL. `" annotated tests"` was tried here and
+    // removed: it names a sub-count (382 of the 383), so matching it against the total is a
+    // category error the guard would report as a drift.
+    const SUFFIXES: [&str; 4] = [
+        ", all green)",
+        " passing)",
+        " run locally, no CI)",
+        " total (",
+    ];
+    let mut examined = 0usize;
+    for suffix in SUFFIXES {
         for claimed in counts_claimed_before(&readme, suffix) {
+            examined += 1;
             assert_eq!(
                 claimed, total,
                 "README claims \"{claimed}{suffix}\" but there are {total} tests"
             );
         }
     }
+    assert!(
+        examined >= 2,
+        "this guard examined {examined} README test-count claims. It is written to check at \
+         least two, and **a guard that examined nothing has not passed.** Either the README \
+         stopped stating its test count, or it was reworded out of SUFFIXES — which is exactly \
+         how this check was silently disabled once already. Add the new wording to SUFFIXES."
+    );
 }
 
 /// **Every faculty must be able to reach a founded being.**
