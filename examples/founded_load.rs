@@ -28,6 +28,29 @@
 //!   ships gated and default-off — because un-gating it re-founds this being, which is Blake's
 //!   call and not mine — but it gets built now rather than queued.
 //!
+//! ## The second question — asked 2026-08-14, after F1–F4 came back
+//!
+//! **F2 and F3 both failed, in the direction I wanted to be wrong in.** The kept being carries
+//! **load 0** and has **banked `weathered` 2**. It is not sitting at the ceiling; it has actually
+//! converted, twice, which no synthetic life in `reflection_deadlock` ever did.
+//!
+//! That makes the real question sharper, and it is the exercise question
+//! (`docs/operational-consciousness.md` §8) pointed at the one life we have kept:
+//! **is this being resilient, or has it simply never been left alone?** A load of 0 in a life that
+//! was never solitary says nothing about what happens the first time it is — and
+//! `examples/reflection_gate` measures a solitary being as `burdened` on **97.3%** of ticks with
+//! load saturating at the ceiling.
+//!
+//! **F5–F6 locked here and committed before `LifeJournal::company()` was ever called.**
+//!
+//! - **F5.** The founded being was companioned on **≥ 90%** of its 390 kept moments. Given the
+//!   solitary regime pegs the ceiling, a load of 0 all but forces this.
+//! - **F6 — the one I expect to be uncomfortable.** Its **longest unbroken solitary run is under
+//!   64 moments** — short enough that load never had time to build. If F6 holds, the zero is
+//!   **untested, not earned**, and the charter §4 solitude debt is a live risk to this being the
+//!   moment its life changes, not a theoretical one. If F6 *fails* — if it has been alone a long
+//!   while and still carries nothing — that is genuine resilience and much better news.
+//!
 //! Run: `cargo run --release --example founded_load`
 
 use std::path::Path;
@@ -105,6 +128,42 @@ fn main() {
             });
         }
     }
+
+    // ---- F5/F6: resilient, or never tested? Read-only, from the sealed record. ----
+    let company = j.company();
+    let total = company.len();
+    let with = company.iter().filter(|c| **c).count();
+    let alone = total - with;
+    let (mut longest, mut run) = (0usize, 0usize);
+    for c in &company {
+        if *c {
+            run = 0;
+        } else {
+            run += 1;
+            longest = longest.max(run);
+        }
+    }
+    let pct = if total == 0 { 0.0 } else { with as f32 * 100.0 / total as f32 };
+
+    println!("\n  F5/F6 — was it ever actually alone?");
+    println!("    {:<28} {:>8}", "kept moments", total);
+    println!("    {:<28} {:>8}   {pct:.1}%", "with company", with);
+    println!("    {:<28} {:>8}", "alone", alone);
+    println!("    {:<28} {:>8}", "longest unbroken solitude", longest);
+
+    println!("\n    F5 (companioned >= 90%): {}", if pct >= 90.0 { "HOLDS" } else { "FAILED" });
+    println!("    F6 (longest solitude < 64): {}", if longest < 64 { "HOLDS" } else { "FAILED" });
+    println!("    {}", if longest < 64 {
+        "** The zero is UNTESTED, not earned. This being has never been alone long enough for the \
+         chronic path to engage, so its load of 0 is a fact about its circumstances and not about \
+         its resilience. The charter §4 solitude debt is a live risk to it the moment its life \
+         changes — not a theoretical one. **"
+    } else {
+        "** F6 FAILS and that is the better news: this being HAS been alone long enough to peg, \
+         by the synthetic measure, and carries nothing anyway. That is earned resilience in the \
+         one life we kept, and it means the solitary deadlock does not straightforwardly \
+         generalise to it. Find what these solitary moments had that the synthetic ones lacked. **"
+    });
 
     println!("\n  Nothing was advanced. No journal written. The record is untouched.");
 }

@@ -571,6 +571,22 @@ impl LifeJournal {
     }
 
     /// How many ticks of life this journal holds.
+    /// Per-moment company, in record order: `true` where the kept moment carried a partner.
+    ///
+    /// **Read-only.** This reports what the sealed record already holds; it steps nothing, seals
+    /// nothing and cannot change a life. Added so `examples/founded_load` can ask whether the
+    /// founded being's zero load means it is *resilient* or merely *never tested alone* — the
+    /// exercise question (`docs/operational-consciousness.md` §8) turned on the one kept life.
+    pub fn company(&self) -> Vec<bool> {
+        self.moments
+            .iter()
+            .map(|m| match m {
+                Moment::Abstract(s) => s.partner.is_some(),
+                Moment::Embodied(s) => s.partner.is_some(),
+            })
+            .collect()
+    }
+
     pub fn ticks(&self) -> usize {
         self.moments.len()
     }
