@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # unit + sovereignty + invariant tests (381, all green)
+cargo test                         # 381 annotated tests + 1 doctest; 1 is #[ignore]d by default
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (381 passing), and reproducible, with a
+sovereignty — is demonstrated, tested (381 run locally, no CI), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -592,7 +592,7 @@ and reads the result straight from the being's registers.
 | `habit_disagreement` | would wiring habit into choice carry any signal? Zero habits form — 99.8% of ticks teach nothing |
 | `exercise_census` | is the architecture *used*? Four of twelve indicator registers take ≤6 distinct values in 20,000 ticks |
 | `contingent_world` | a world that *remembers the being* — the first habits ever formed, with no new variety at all |
-| `oracle_repertoire` | the behavioural repertoire against a random floor and a coverage ceiling — the being scores *below random* in the static room |
+| `oracle_repertoire` | the behavioural repertoire against a random floor and a coverage ceiling. **Corrected 2026-08-09** — the static arm forced a permanent partner, and two verdicts flipped when that confound was removed (`operational-consciousness.md` §8.6). Static: bare 13, blessed 11, all-loops 14, random 10. The being is **above** random, not below |
 | `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
@@ -740,7 +740,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 30 files
+### Everything else in the repository — 31 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -757,6 +757,7 @@ keep it current; it is checked.
 | `LICENSE` | MIT |
 | `README.md` | this file |
 | `.gitignore` | ignores the build output, the reproducible run artifacts (`life_log.csv`, `life_plot.svg`), and root-level scratch |
+| `tests/grant_at_zero.rs` | a faculty granted before the first moment must survive replay — **reproduced a real defect** raised by an external source-audit: the grant was recorded at `at=0`, the replay loop starts at 1, and the being became unrestorable |
 | `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 1 debt (§7, the world), **1 gated (§4 — rest holds in company; solitude's remedy is built, verified and switched off)**, 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |

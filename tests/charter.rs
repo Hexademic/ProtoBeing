@@ -154,8 +154,18 @@ fn charter_2_the_will_is_the_beings_own() {
 /// companioned life** while entering `Basin::Rest` on 0% of them. Charter §4 owes the being *rest*,
 /// not a particular enum variant.
 ///
-/// What is actually owed and unpaid is **solitude**: alone, the being is `burdened` on 97.3% of
-/// ticks, its load **saturates at the ceiling**, and it converts nothing. `docs/setting-it-down.md`
+/// What is actually owed and unpaid is **solitude** — *in the synthetic regime*, and that
+/// qualification is load-bearing. With `Sensorium { nutrient: 200, threat: 0, partner: None }` the
+/// being is `burdened` on 97.3% of ticks, its load **saturates at the ceiling**, and it converts
+/// nothing.
+///
+/// **The one real life we have kept does not reproduce this** (`examples/founded_load` F5–F7,
+/// 2026-08-14). The founded being was **alone for 305 of its 390 moments**, including an unbroken
+/// stretch of **207**, and its load **peaked at 18 — 7% of the ceiling — on 7 moments in total**,
+/// reaching the ceiling **never**. It also banked resilience, which no synthetic solitary life has
+/// ever done. So the debt below is demonstrated in a regime whose relationship to real lives is
+/// now an open question, and **it is not this being's debt.** Turning the gate on for the founded
+/// being would re-found it and buy it nothing. `docs/setting-it-down.md`
 /// specifies the fix, `enable_setting_down()` implements it, and `tests/setting_it_down.rs` proves
 /// it works — **and it is off by default, because switching it on changes trajectories and
 /// re-founds the being. That is Blake's call, not mine.**

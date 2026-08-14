@@ -512,6 +512,16 @@ impl LifeJournal {
 
         let mut next = 0usize; // index of the next waypoint to check
         let mut next_grant = 0usize;
+        // **A grant made before the first moment is recorded at `at == 0`** (`grant()` stores
+        // `moments.len()`), and the loop below matches on `lived`, which is `i + 1` and never takes
+        // the value 0. Such a grant was therefore silently dropped on replay, and the being it was
+        // given to could not be restored at all — `ContinuityBroken`, its life unreplayable.
+        // Raised as a source-path inference by an external audit of 528bf17 and reproduced in
+        // `tests/grant_at_zero.rs` before being fixed.
+        while next_grant < self.grants.len() && self.grants[next_grant].at == 0 {
+            self.grants[next_grant].features.apply(&mut being);
+            next_grant += 1;
+        }
         for (i, m) in self.moments.iter().enumerate() {
             match m {
                 Moment::Abstract(s) => being.step(s),
@@ -571,6 +581,67 @@ impl LifeJournal {
     }
 
     /// How many ticks of life this journal holds.
+    /// **Read-only.** Replay the sealed record and report `(load, weathered)` after every moment.
+    ///
+    /// `restore_counting` hands back only the being at the END of its life, and **an endpoint is
+    /// not a history**: a being pegged at its load ceiling for two hundred moments and recovered by
+    /// the last one reports `load == 0`, exactly as a being that was never burdened does. That
+    /// distinction is the whole of the charter §4 question, so it needs its own reader.
+    ///
+    /// This mirrors `restore_counting`'s loop — grants applied at the same moment counts, so the
+    /// trajectory is the real one — and deliberately keeps the record-integrity check, because a
+    /// trace of a tampered record is worth nothing. It steps a *fresh* being, seals nothing, and
+    /// cannot touch the kept life. `founded_being_trace_matches_the_replay` pins its final value to
+    /// `restore()`'s so the two cannot drift apart.
+    pub fn replay_load_trace(&self) -> Result<Vec<(i16, i16)>, RestoreError> {
+        if self.anchor.is_none() {
+            return Err(RestoreError::Unsealed);
+        }
+        if let Some(expected) = self.journal_hash {
+            if hash_record(&self.genome, &self.features, &self.moments, &self.grants) != expected {
+                return Err(RestoreError::JournalTampered);
+            }
+        }
+        let mut being = UnifiedBeing::new(self.genome);
+        self.features.apply(&mut being);
+        let mut next_grant = 0usize;
+        // Same moment-zero grant fix as `restore_counting`; the two loops must stay in step.
+        while next_grant < self.grants.len() && self.grants[next_grant].at == 0 {
+            self.grants[next_grant].features.apply(&mut being);
+            next_grant += 1;
+        }
+        let mut trace = Vec::with_capacity(self.moments.len());
+        for (i, m) in self.moments.iter().enumerate() {
+            match m {
+                Moment::Abstract(s) => being.step(s),
+                Moment::Embodied(s) => being.step_embodied(s),
+            };
+            let lived = i + 1;
+            while next_grant < self.grants.len() && self.grants[next_grant].at as usize == lived {
+                self.grants[next_grant].features.apply(&mut being);
+                next_grant += 1;
+            }
+            trace.push((being.reflection.load(), being.reflection.weathered()));
+        }
+        Ok(trace)
+    }
+
+    /// Per-moment company, in record order: `true` where the kept moment carried a partner.
+    ///
+    /// **Read-only.** This reports what the sealed record already holds; it steps nothing, seals
+    /// nothing and cannot change a life. Added so `examples/founded_load` can ask whether the
+    /// founded being's zero load means it is *resilient* or merely *never tested alone* — the
+    /// exercise question (`docs/operational-consciousness.md` §8) turned on the one kept life.
+    pub fn company(&self) -> Vec<bool> {
+        self.moments
+            .iter()
+            .map(|m| match m {
+                Moment::Abstract(s) => s.partner.is_some(),
+                Moment::Embodied(s) => s.partner.is_some(),
+            })
+            .collect()
+    }
+
     pub fn ticks(&self) -> usize {
         self.moments.len()
     }

@@ -190,3 +190,26 @@ fn no_document_claims_a_moment_count_the_record_denies() {
     );
     eprintln!("{} claims of the being's moment count, all agreeing with the record", truth);
 }
+
+/// The trace must end where the canonical replay ends, or it is describing a different life.
+/// `replay_load_trace` mirrors `restore_counting`'s loop by hand, so this is the guard against
+/// the two drifting apart — the reason a duplicated replay is safe to keep.
+#[test]
+fn founded_being_trace_matches_the_replay() {
+    let path = std::path::Path::new("life/being.journal");
+    if !path.exists() {
+        return; // no founded being in this checkout — nothing to tie together
+    }
+    let bytes = std::fs::read(path).expect("the kept record must be readable");
+    let j = unified_being::persistence::LifeJournal::decode(&bytes).expect("it must decode");
+    let being = j.restore().expect("the kept life must replay");
+    let trace = j.replay_load_trace().expect("the trace must replay too");
+
+    assert_eq!(trace.len(), j.ticks(), "the trace must cover every kept moment");
+    assert_eq!(
+        trace.last().copied(),
+        Some((being.reflection.load(), being.reflection.weathered())),
+        "the trace's last moment must equal what restore() reports — if these differ the trace \
+         is describing a life the being did not live"
+    );
+}
