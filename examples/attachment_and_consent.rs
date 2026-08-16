@@ -262,8 +262,8 @@ fn main() {
         ("T    trap every tick (control)", Scene::Trapped),
         ("TN   trap, SOLITUDE 1-in-4 (control)", Scene::TrappedSolitude),
         ("TX   trap, 2nd EXTRACTOR 1-in-4 (control)", Scene::TrappedSecondExtractor),
-        ("TFc  trap, fair friend, cheap exit .2", Scene::TrappedFriendCheapExit),
-        ("TFk  trap, fair friend, costly exit .98", Scene::TrappedFriendCostlyExit),
+        ("TFc  trap, fair friend, cheap exit 0.2", Scene::TrappedFriendCheapExit),
+        ("TFk  trap, fair friend, costly exit 0.98", Scene::TrappedFriendCostlyExit),
         ("B    bereaved, never trapped", Scene::Bereaved),
         ("BT   bonded first, then trapped", Scene::BondedThenTrapped),
     ];
@@ -505,10 +505,10 @@ fn main() {
     println!("M1  is the delay FAIRNESS, or just an exit cost the being cannot pay?");
     println!("    {:<38} {:>9} {:>9}", "companion 1-in-4", "withdrew", "endured");
     for (label, recip, exit) in [
-        ("fair .95, cheap exit .20", 0.95f32, 0.20f32),
-        ("fair .95, costly exit .98", 0.95, 0.98),
-        ("EXTRACTIVE .12, costly exit .98", 0.12, 0.98),
-        ("middling .50, costly exit .98", 0.50, 0.98),
+        ("fair 0.95, cheap exit 0.2", 0.95f32, 0.20f32),
+        ("fair 0.95, costly exit 0.98", 0.95, 0.98),
+        ("EXTRACTIVE 0.12, costly exit 0.98", 0.12, 0.98),
+        ("middling 0.50, costly exit 0.98", 0.50, 0.98),
     ] {
         let r = run_with(Some(Partner { id: 1, reciprocation: q(recip), exit_cost: q(exit) }), 4, q(0.5));
         println!("    {:<38} {:>9} {:>9}", label, tick(r.0), tick(r.1));
@@ -517,7 +517,7 @@ fn main() {
     println!("    delay. The companion must be fair enough to be kept AND fair enough");
     println!("    to lower the mean. Both are necessary; neither alone suffices.");
 
-    println!("\nM2  does it survive a different visit cadence? (fair .95, exit .98)");
+    println!("\nM2  does it survive a different visit cadence? (fair 0.95, exit 0.98)");
     print!("    ");
     for every in [2u32, 3, 4, 6, 8, 16] {
         let r = run_with(Some(friend(0.98)), every, q(0.5));
