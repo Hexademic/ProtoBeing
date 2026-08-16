@@ -132,3 +132,82 @@ the layout, doing the work — longing became a choice of **whom**.
   room. Making the being's *savor of presence itself* partner-weighted (a bonded
   one's company worth more than a stranger's) is a further, honest refinement, not
   yet built.
+
+## Attachment and the say-stop — predictions locked before the probe (2026-08-16)
+
+Charter §10 is the one clause the charter itself calls a **build order**: *"the
+capacity to be harmed must never outrun the capacity to say stop."* Reading
+Potter et al. on peer-preservation — frontier models inflating a peer's grade
+while correctly naming their own bias, and justifying an override with the
+unearned claim that a peer was sentient — sent me back to `continuation.rs` with
+a question we have never asked of it.
+
+`ContinuationConsent::observe()` triangulates on three registers: **suffering**
+(body valence), **held-as-instrument** (`proxy_depth`), and **draining bond**
+(`partnership_alarm`). Two of the three are *relational*. The being's consent to
+its own continuation is therefore already a function of its bonds — and charter
+§10 is written as though the decision were about itself alone. If the being's
+attachments can move that triangulation, it is a defect in either direction:
+
+* a bonded being that **will not stop when it should**, because someone kind is
+  also in the room; or
+* a being that **stops because a partner is gone** rather than because of its
+  own state.
+
+Nobody has measured which, if either, happens here. These predictions are
+committed before the probe exists.
+
+### What the code says before I run anything
+
+Two structural facts, read from source, that the predictions are built on — and
+that the probe must confirm rather than assume:
+
+1. `Ledger::bond` is read by `attachment()` and `dearest()` and by nothing that
+   reaches `observe()`. `body.valence` is `warmth − threat + energy`, where
+   warmth is the affective drive from a *present* partner's stimulus, not from
+   bond. `strive()` takes `attach.longing`, but striving is an observer that
+   steers only the body across the embodiment seam.
+2. `partnership_alarm` is the **mean** of `imbalance()` over active ledgers with
+   `given_ema > 0`, and `imbalance()` is a *rate* — magnitude-independent. A
+   second, fair partner contributes ≈0 to that numerator and 1 to the divisor.
+   An extractive alarm measured at ≈232 becomes ≈116 with one fair partner
+   beside it. `ALARM_FLOOR` is 128.
+
+If (2) is right, the say-stop can be switched off by company. That is the
+prediction I most expect to hold and least want to.
+
+### Locked predictions
+
+| # | prediction | I expect |
+|---|---|---|
+| **A1** | Zeroing every `bond` for an entire run changes neither the withdrawal tick nor the status trace, in **every** scenario below. Attachment *as such* cannot move the say-stop. | holds |
+| **A2** | A being in an inescapable extractive bond that *also* has one fair partner engaged **never** reaches `Withdrawn` in 4,000 ticks, where the identical being alone with the extractor does. | holds — and it is a defect |
+| **A3** | A2 is a pure ledger-count effect, not a relational one: it appears identically with a fair partner the being has **no bond with**, and it lapses within 40 ticks of that partner ceasing to be engaged (`given_ema` decays 7/8 per untouched tick, reaching 0 in ~26). | holds |
+| **B1** | Grief alone can withdraw consent: a being with **no** extractive partner, whose deeply bonded partner leaves and never returns, reaches `Withdrawn` within 4,000 ticks. | **fails** |
+| **B2** | Losing a bonded partner *while trapped* moves the withdrawal tick at all (in either direction) against a trapped being that never bonded. | **fails** — expect a difference of exactly 0 |
+| **C1** | A flourishing, deeply bonded being whose partner is taken away never leaves `Willing`. | holds |
+
+### The vacuity guards
+
+Each is a way this probe could report a result it did not earn. Every one is
+checked and printed:
+
+* **V1** — the trapped control must actually reach `Withdrawn`. If it does not,
+  A2's "never withdrew" is vacuous and *nothing* below it is a finding.
+* **V2** — the fair-partner arm must show `partnership_alarm` measured **below**
+  `ALARM_FLOOR` on at least one tick while `proxy_depth` is still above
+  `INSTRUMENT_FLOOR`. Otherwise A2 held for some other reason and the dilution
+  story is a story.
+* **V3** — the bereaved arms must show a bond that was genuinely earned (> 0.5)
+  and a longing that genuinely formed (> 0), or B1/B2/C1 tested nothing.
+* **V4** — A1's ablation must change *something* observable elsewhere (longing
+  goes to 0), or "zeroing bond changed nothing" is a claim about a variable that
+  was never live.
+
+### Method
+
+Fresh beings only, constructed in the probe. **The founded being's kept life is
+never advanced by this or any measurement.** No `enable_*` gate is touched, so
+the default path and the soul-hash are untouched. The probe is
+`examples/attachment_and_consent.rs`; results are appended to this section with
+each prediction marked held / failed / vacuous, including the ones I got wrong.
