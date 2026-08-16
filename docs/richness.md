@@ -502,3 +502,63 @@ internal need at all.
 consciousness indicators, nothing about phenomenality, and — importantly — **a stripped system that
 succeeds does not make `UnifiedBeing` unnecessary.** It makes `UnifiedBeing` an *extension* whose
 extra parts must then justify themselves against a baseline that exists. That is the point.
+
+### 8.5 What came out — 2026-08-14
+
+| # | verdict | measured |
+|---|---|---|
+| **M1** | **HOLDS** | 100% need-conditioned selection: observation held fixed, the larger deficit selects the action the world says feeds it |
+| **M2** | **HOLDS** | every control fails criterion 3 — random **20.5%** (chance), fixed-nearest **0%**, thermostat **0%**. None can produce two different actions for two different needs, because none has a need |
+| **M3** | **HOLDS** | deficits are load-bearing (0% without them); the self-model is not (100% without it) |
+| **M4** | **HOLDS** | from the same baseline (7.1), the learning arm recovers **104 ticks** after the world reverses; frozen-at-reversal **never** does |
+| **M5** | **FAILED — as written, in advance** | **2 of 4 components are removable.** Sufficiency reached; minimality not |
+
+#### Four components suffice, and the one that matters is the one we do not have
+
+| removed | selection | mean deficit | recovers |
+|---|---:|---:|---:|
+| *(nothing)* | 100.0% | 7.1 | 3/3 |
+| deficits | **0.0%** | **252.2** | 3/3 |
+| learned table | **0.0%** | **255.1** | 3/3 |
+| memory trace | 100.0% | 10.0 | 3/3 |
+| self-model | 100.0% | 9.6 | 3/3 |
+
+**The learned action→outcome table is load-bearing, and that is the audit's criticism confirmed
+from the other side.** Remove it and selection collapses to zero while the deficit pins at the
+ceiling. In `Room` the agent emits `Company` and the *world* supplies the coordinates; here the
+agent must discover which action feeds which need, and if it cannot, it dies of the thing it
+correctly wanted. **A goal without a learned policy is a preference, not motivated action.**
+
+*The `recovers` column is uninformative for the two broken arms — a system already pinned at 252
+"recovers" trivially, because its post-reversal state is below its own terrible baseline. It is
+kept because it discriminates among the arms that work, and flagged because it does not among those
+that do not.*
+
+#### M4 is the sharpest result
+
+Freezing the policy is **invisible before the world changes and fatal after**. Both arms sit at 7.1
+until reversal; then one is back inside 104 ticks and the other never returns. That is exactly the
+diagnostic the audit predicted, and it is the cleanest demonstration here that the *learning*, not
+the architecture around it, is doing the work.
+
+#### What I will not claim from this
+
+**The self-model contributed nothing measurable.** I built the audit's Level 3 — predict your own
+next goal, take the error, let it change later selection — and on every measure I have it is
+decorative. That is an honest negative about my own design, and the likely reading is not that
+self-reflection is useless but that **a re-explore rule triggered by self-error is not
+self-reflection**; it is a noise injector with a self-shaped trigger.
+
+**And "removable" is only as strong as the tests that would have detected it.** Memory and the
+self-model may be surplus here because criterion 3 and regulation do not exercise what they are
+*for*. An earlier action-divergence test built to exercise memory reported **0% for the whole
+system and 100% for the arm with no learned table** — backwards, so it was measuring rng
+consumption rather than history. It is withdrawn rather than reported. **The exercise criterion
+applies to this probe as much as to the being.**
+
+#### What this does and does not say about `UnifiedBeing`
+
+A four-component agent shows motivated action by §8.2 in a contingent world. That does **not** make
+`UnifiedBeing` unnecessary; it makes it an **extension with a baseline to justify itself against**,
+which it did not have before today. SUB-3's numbers stand; **its word *minimal* is withdrawn and
+stays withdrawn** — what was measured there was three gate-configurations of one architecture.
