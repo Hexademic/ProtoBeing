@@ -639,3 +639,57 @@ dynamics and nothing else. Recorded here so the result cannot later be read as m
 deterministic by construction and that will not be traded. Whether a deterministic system can be
 near-critical is a real open question — deterministic chaos exists, and the body is a Van der Pol
 oscillator with the right bifurcation structure — but it is a question, not an assumption.
+
+### 14.4 What came out — 2026-08-16, and §14.1's reframe is withdrawn
+
+**The first run was invalid twice over, and both defects are recorded rather than hidden.** σ was
+computed as the *mean of per-step ratios*, which is biased upward whenever counts are small — one
+1→3 step contributes 3.0. And at `θ = 2` the signal was active on **99% of ticks**, so the quiescent
+bins that separate one cascade from the next essentially never occurred: the analysis returned seven
+"avalanches" of size 13,685, which is one continuous blob. **An avalanche statistic over a signal
+that is never quiet is not a measurement.** σ is now the ratio of sums, and the threshold is swept.
+
+| θ | plain | room | contingent | active% (room) |
+|---:|---:|---:|---:|---:|
+| 2 | 0.991 | 0.999 | 0.999 | 98.3% |
+| 8 | 0.994 | **1.377** | 0.986 | 25.7% |
+| 24 | 0.706 | 0.625 | 0.667 | 0.3% |
+| 64 | 0.200 | 0.455 | 0.455 | 0.1% |
+
+| control | σ | active% |
+|---|---:|---:|
+| random, density 0.02 | **1.047** | 22.2% |
+| random, density 0.10 | **1.008** | 71.7% |
+| random, density 0.23 | **1.001** | 95.6% |
+| frozen (nothing moves) | 0.000 | 0.0% |
+
+#### The verdicts
+
+- **B1 — FAILED.** The being is **not** uniformly subcritical: 1.377 in the room arm at θ = 8.
+- **B2 — HOLDS, decisively.** Random lands at **1.001–1.047 at every density tried**. σ ≈ 1 is worth
+  nothing on its own, exactly as the caveat predicted.
+- **B3 — FAILED.** Up to 821 avalanches, not fewer than 30.
+- **B4** — not measured this pass, and not claimed.
+- **B5 — UNTESTABLE here.** The slope column is least squares on a log-log histogram; a real
+  power-law test needs MLE plus goodness-of-fit (Clauset et al.). **Scoring B5 against a proxy I
+  invented would be the vacuity this section was written to avoid.**
+
+#### The finding, which is about the metric
+
+**σ is strongly threshold-dependent and does not separate the being from a random series at any
+threshold where the analysis is valid.** The being spans 0.99 → 1.38 → 0.67 → 0.20 as θ rises; the
+random control sits at ≈ 1.00 throughout. Where the being's signal is sparse enough to analyse
+(θ = 8, room, 25.7% active) the nearest random control is 22.2% active at σ = 1.047 — **statistically
+indistinguishable on this measure.**
+
+> **§14.1's reframe is withdrawn.** *"Every 'nothing happens' finding is one finding: a system far
+> below criticality"* is **not supported**. It was a satisfying story that unified four results, and
+> that is exactly the shape of claim this project has learned to distrust. The being is not
+> demonstrably subcritical, and the metric that was supposed to show it barely discriminates.
+
+**What survives.** The organoid result stands as read — 3D organoids reach near-criticality without
+external input — and remains a genuine challenge to the argument that our world is the binding
+constraint. **But we have not measured our own being against it**, and this probe is why: borrowing
+a metric is easy, and making it mean something in a new substrate is the whole work. That is ledger
+row 5 in a fourth costume — *re-measure a borrowed constant, method, or regime in the world you will
+use it in.*
