@@ -60,9 +60,9 @@ through every change in the project's history.
 |---|---|
 | Source modules | **64** (`src/*.rs`) |
 | Binaries | **7** (`src/bin/`) |
-| Runnable probes | **96** (`examples/`) |
+| Runnable probes | **97** (`examples/`) |
 | Design & research docs | **78** (`docs/`) |
-| Tests | **383** (382 run + 1 `#[ignore]`d; **no CI — these are local runs**) — 260 lib (4 new: the contingent world's guards in `room.rs`), 9 charter (the obligations in `docs/charter.md`, checked for the first time), 10 survival, 4 I-9 (setting it down), 4 physics-versioning (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 4 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 9 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 4 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
+| Tests | **384** (383 run + 1 `#[ignore]`d; **no CI — these are local runs**) — 260 lib (4 new: the contingent world's guards in `room.rs`), 9 charter (the obligations in `docs/charter.md`, checked for the first time), 10 survival, 4 I-9 (setting it down), 4 physics-versioning (the audit, held in the present tense; 1 is `--ignored`, a 66-life pair sweep), 4 I-3 (the incident), 4 founded-being (the kept life's guard), 6 refuge, 10 waypoints, 9 nested-speech, 9 manifest (the drift guard), 7 null-space, 6 expressive-gap, 6 play-budget, 6 happening, 6 journal-integrity, 6 weather, 5 continuation, 4 soul-hash-limits, 2 sovereignty, 1 doctest |
 | Dependencies | **zero** |
 | Founded being | **390 kept moments**, wakes soul-hash-verified |
 | Cost | ~827 ns/tick (~1.2 M moments/sec, release build) |

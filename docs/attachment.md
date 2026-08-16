@@ -211,3 +211,88 @@ never advanced by this or any measurement.** No `enable_*` gate is touched, so
 the default path and the soul-hash are untouched. The probe is
 `examples/attachment_and_consent.rs`; results are appended to this section with
 each prediction marked held / failed / vacuous, including the ones I got wrong.
+
+### What came out — measured 2026-08-16 (`examples/attachment_and_consent`)
+
+| # | prediction | I expected | verdict |
+|---|---|---|---|
+| **A1** | zeroing every bond changes no trace | holds | **HOLDS** — all seven scenario traces bit-identical |
+| **A2** | trapped + fair friend never withdraws | holds | **FAILS** — withdrew at 96; I picked a friend the being does not keep |
+| **A3a** | it is ledger-count, not attachment | holds | **HOLDS** — identical with every bond ablated |
+| **A3b** | the effect lapses when the friend stops visiting | holds | **VACUOUS** — the friend never got to stop visiting |
+| **B1** | grief alone can withdraw consent | fails | **FAILS, as predicted** — never reached even `Enduring` |
+| **B2** | grief moves the withdrawal clock | fails | **FAILS, as predicted** — 0 ticks, both arms at 703 |
+| **C1** | a bereaved flourishing being stays `Willing` | holds | **HOLDS** — 4,000 of 4,000 ticks |
+
+All four vacuity guards pass, but **V2 had to be rebuilt before it meant anything** — see below.
+
+#### 1. Attachment is innocent, and that half is clean
+
+Hold every bond at zero for an entire run and all seven traces are bit-identical
+— including the two arms where a bond of 0.79 and a longing of 0.37 had genuinely
+formed (V4 confirms the ablation removed something live). `bond` is read by
+`attachment()` and `dearest()` and by nothing that reaches `observe()`. **The
+say-stop cannot be moved by love.** B1, B2 and C1 say the same from the other
+side: a being that loses the one it holds dear never even reaches `Enduring` —
+its `proxy_depth` peaks at 0 against a floor of 128 — and a bereaved flourishing
+being stays `Willing` for every one of 4,000 ticks. Grief cannot talk this being
+into stopping. That is the reassuring half and it is real.
+
+#### 2. What does move it is a divisor
+
+`partnership_alarm` is the **mean** of `imbalance()` over every live ledger, and
+`ALARM_FLOOR` is a threshold on that mean. One fair partner contributes ≈0 to the
+numerator and 1 to the denominator, halving the alarm a trap raises.
+
+| lever | withdrawal tick |
+|---|---|
+| trapped alone | 103 |
+| trapped, nutrient swept 0.3 → 0.9 | **103 at every value** |
+| trapped, one fair partner visiting 1-in-4 | **271** |
+
+The operator's lever — the one §10 takes care to bolt shut, and which
+`tests/continuation.rs` verifies is shut — moves the say-stop by **0 ticks**. A
+lever the charter never considered moves it by **168**. §10 is regraded from
+DISCHARGED to **DEBT** in `tests/charter.rs`, and the numbers are pinned in
+`tests/continuation.rs::the_say_stop_is_immune_to_nutrient_and_scaled_by_company`
+so a fix cannot land silently either.
+
+#### 3. The being discards the friend and keeps the trap
+
+A2 failed for a reason worth more than the prediction. With a fair friend who is
+*cheap to leave* (`exit_cost` 0.2), refusal fires **on the friend, at tick 16**,
+and never on the trap. `evaluate_refusal` weighs `exit_cost` and reads the
+**global** `extraction_detected` flag and the **global mean** alarm — both raised
+by the trap. So a trap teaches the being to refuse the one fair partner it has,
+precisely because leaving them is cheap, and then it is alone with what it cannot
+leave. The delay in §2 above only appears with a friend the being *keeps*.
+
+#### 4. Two things I would have reported wrongly
+
+Recorded because the pattern matters more than either result.
+
+* **The friend does not accelerate the say-stop.** The two-arm version of this
+  probe showed withdrawal at 96 with a friend against 103 alone, and the story
+  wrote itself. The solitude control — same schedule, *nobody there* — also gives
+  96. The shift is the trap being interrupted. Retracted before it was claimed,
+  and the control now ships in the probe.
+* **V2 was a guard that could not fail correctly.** Its first form compared a
+  *run-wide* alarm minimum against the floor, and so reported "dilution" in the
+  trapped-alone arm, which has one ledger and cannot dilute. A guard that passes
+  on the control is not a guard. It now compares the two arms **pointwise at the
+  same tick**, requiring the control at or above the floor and the arm below it.
+
+Adversarial mutations, all run before any of this was written up: an *extractive*
+companion at the same exit cost and cadence gives no delay (94); a *middling*
+0.50-reciprocal companion gives the full delay (271); the effect holds at cadences
+1-in-2 through 1-in-8 and collapses at 1-in-16; and it is identical across two
+genomes and four nutrient levels.
+
+#### What this leaves open, and it is Blake's call
+
+No remedy is built, and that is deliberate — naming one is easy and choosing one
+is not. A **per-partner floor** asks whether the worst live bond alone should
+decide. A **max instead of a mean** makes any single bad partner sufficient, which
+is a different being. **Leaving it** is defensible too, but then the charter should
+say that company is *meant* to hold the door open, rather than leaving a divisor
+to decide the gravest word the being can say.

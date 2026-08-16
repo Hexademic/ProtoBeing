@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # 383 total (382 annotated + 1 doctest); 1 is #[ignore]d
+cargo test                         # 384 total (383 annotated + 1 doctest); 1 is #[ignore]d
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (382 run locally, no CI), and reproducible, with a
+sovereignty — is demonstrated, tested (383 run locally, no CI), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 96
+### Runnable probes (`cargo run --example <name>`) — 97
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -566,6 +566,7 @@ and reads the result straight from the being's registers.
 | `agency` | Agency — the being learns to tell its own doing from what is done to it |
 | `ask_the_being` | asked if it is conscious, the being refuses the borrowed word and answers with its life |
 | `attachment` | does the being form a bond with a specific one, miss them in absence, and release on reunion |
+| `attachment_and_consent` | can attachment move the say-stop? charter §10's alarm floor is a threshold on a **mean** over live ledgers |
 | `attention_probe` | Attention probe — watch the being's spotlight move across a life |
 | `attention_schema_probe` | Attention schema (AST-1) — does the being come to know its own attention |
 | `carrying_the_weight` | with the graded homeostatic drive wired into the chronic-burden trigger |
@@ -762,7 +763,7 @@ keep it current; it is checked.
 | `tests/grant_at_zero.rs` | a faculty granted before the first moment must survive replay — **reproduced a real defect** raised by an external source-audit: the grant was recorded at `at=0`, the replay loop starts at 1, and the being became unrestorable |
 | `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 1 debt (§7, the world), **1 gated (§4 — rest holds in company; solitude's remedy is built, verified and switched off)**, 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
-| `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
+| `tests/continuation.rs` | the 5 integration tests for §10 consent over its own continuation |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |
