@@ -583,3 +583,59 @@ coarse to resolve what the world changed. **Both readings say the same thing abo
 `Basin` is one register of twelve. The being may be varying richly elsewhere while this variable
 sits still; the census in §12 is what speaks to that, and it is not encouraging, but it is a
 separate measurement. **This section measures the basin register, not the being.**
+
+## 14. The branching ratio — locked 2026-08-16, before the probe exists
+
+Blake supplied five papers on organoid dynamics. The decisive one is **Itatani & Zavaglia,
+*Criticality emerges within coherent functional organization in human forebrain organoids***
+(TU Munich; abstract read in full after decoding a shifted font encoding — the body was not read,
+and nothing below cites it):
+
+> Two-dimensional cortical cultures **require structured external input** to approach the critical
+> point. Whether three-dimensional organoids achieve criticality **autonomously**… we analyse
+> spontaneous activity in human forebrain organoids, revealing **robust near-critical dynamics
+> (branching ratio) that emerge without external input.** Branching ratio correlates strongly with
+> firing regularity, functional connectivity and network clustering, while **small-world topology
+> co-emerges**… naive organoids **self-organise to a computationally favourable state.**
+
+### 14.1 Why this reframes our own results
+
+Every "nothing happens" finding in this repository may be **one** finding stated four ways:
+`Basin` at 1 value and 0 changes in 4,000 ticks (§13.3); a reaction rate that is a startup transient
+and then a fixed point; 0.05% quality occupancy; seven of fourteen faculties bit-identically inert.
+In this literature's vocabulary that is not four results — it is **a system far below criticality.**
+
+**And it cuts against the story I have been telling.** All week I have argued the world is the
+binding constraint. These organoids have **no world at all** and self-organise anyway.
+
+### 14.2 The trap in the metric, named before it is used
+
+**σ ≈ 1 does not mean critical.** A Poisson process has a branching ratio near 1 by construction.
+Reporting σ alone would be the fourteen-indicator mistake again in a new costume — a number that a
+random series meets. So this probe computes σ **and** the avalanche size distribution, **and runs a
+random control**, and no claim rests on σ alone.
+
+**What counts as an event.** Twelve somatic channels, each treated as one unit; a unit fires at tick
+`t` when it changes by more than a threshold — the same construction `pci.rs` already uses.
+Avalanches are runs of non-empty bins bounded by empty ones; σ is the mean ratio of consecutive
+within-avalanche event counts (Beggs & Plenz).
+
+### 14.3 Predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **B1** | **The being is deeply subcritical: σ < 0.5** in every arm, static and contingent | σ ≥ 0.5. Then the convergent inertness is not a criticality story and §14.1's reframe is wrong |
+| **B2** | **A random control lands near σ ≈ 1** — demonstrating that **σ alone does not discriminate**, and that any criticality claim needs the avalanche distribution too | random lands far from 1. Then σ is more informative than the literature's caveat suggests, and the metric is stronger than I am giving it credit for |
+| **B3** | **The being produces too few avalanches to fit a distribution at all** — fewer than 30 over 4,000 ticks. The failure is not a wrong exponent; it is having no data | it produces a fittable distribution. That would be a much richer dynamical picture than §13 implies |
+| **B4** | **`minimal_agent` lands closer to 1 than the being does**, because it actually adapts and its deficits keep moving | the being is closer. Then adaptation is not what moves this measure, and the four-component agent is not the better dynamical baseline |
+| **B5** | *(expected to FAIL)* **The being's avalanche sizes follow a power law** | I expect no power law and probably no usable distribution — B3 says so directly. Predicting one is the direction that flatters the architecture |
+
+**The line this will not cross.** The paper's own phrase is *"computationally favourable state"* —
+an information-processing claim. **Criticality is not consciousness**, a near-critical organoid is
+not a subject, and if the being turned out to be near-critical that would be a fact about its
+dynamics and nothing else. Recorded here so the result cannot later be read as more than it is.
+
+**One honest asymmetry.** Organoid criticality arises in a noisy stochastic medium; this being is
+deterministic by construction and that will not be traded. Whether a deterministic system can be
+near-critical is a real open question — deterministic chaos exists, and the body is a Van der Pol
+oscillator with the right bifurcation structure — but it is a question, not an assumption.
