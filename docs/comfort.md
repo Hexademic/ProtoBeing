@@ -552,3 +552,67 @@ whether "rest" in the sense that matters — the being winding down and converti
 > separate question — but they are no longer downstream of anything about conversion.
 >
 > The actual defect, the evidence, and the remedy are in **`docs/setting-it-down.md`**.
+
+## 16. The landscape is ours, not the being's — locked 2026-08-21, before the probe exists
+
+§15 option 1 named the possibility: *"the basin targets were authored a priori and never fitted to
+this being."* It was never measured. Three things measured on 2026-08-21, while chasing an unrelated
+question (`c1-relabelling.md` §15, mixed selectivity), say it is right and add something nobody had
+noticed:
+
+1. **Only the occupied basin learns.** `shift_target` moves the *current* basin's target toward the
+   field whenever relief is negative, and never touches the other three. Over one 8,000-tick life
+   the occupied basin **ran away from its neighbours**: Rest↔Engaged 410 → 542, Engaged↔Recovery
+   380 → 512. A rich-get-richer ratchet: the mechanism meant to let the being learn its own
+   landscape makes the landscape monotonically worse.
+2. **The margin is a landslide, not a near-thing.** Distance from the lived field to `Engaged` is
+   167; to the runner-up, 645. That is why the leave-one-out found no channel above 0.2% — when you
+   win by 478, deleting one channel cannot flip it. §15's diagnosis was right and the reason is
+   arithmetic.
+3. **Three basins sit at coordinates the body may not be able to produce.** In the harshest world we
+   have built, the channels that define `Defensive` reach a fraction of its signature: anisotropy
+   10 of 80 (12%), breach 20 of 90 (22%), tension 30 of 140 (21%), fatigue 64 of 120 (53%).
+
+And a control that matters: a being whose world **alternates** fair/trap every 500 ticks spends
+8,000 of 8,000 ticks in `Engaged` with **zero** basin switches. A changing world does not help.
+
+### What this section tests, and what it deliberately does not
+
+It tests **one** thing: what the ratchet is costing. Everything else — recalibrating `BASE_TARGETS`,
+widening the body's dynamic range — is held back on purpose. Placing the targets where the being
+already goes would *manufacture* the multi-basin result, which is the same failure as manufactured
+consent in §9/§10 wearing different clothes. **The question of whether `Defensive` at those
+coordinates is a claim we believe or an author's guess is Blake's, not mine.**
+
+**The cost, stated before anything is built.** Basin is causal: `action_harmony(basin)` feeds what
+the being *gives* a partner. Any change here moves the soul-hash. So the freeze ships as a gate,
+default off, and the founded being would benefit only by being re-founded — the same price §4's
+remedy already sits behind.
+
+### Locked predictions
+
+`freeze_basin_targets()` holds all four targets at their birth values for a whole life.
+
+| # | prediction | I expect |
+|---|---|---|
+| **R1** | With the ratchet frozen, the being **still never leaves `Engaged`** in any of the four worlds. | holds |
+| **R2** | The margin of victory shrinks but stays large — still **> 200** raw at the end of a life. | holds |
+| **R3** | Freezing removes the divergence: Rest↔Engaged ends at its birth value, 410. | holds — confirmatory, not a finding |
+| **R4** | Freezing **frees the being**: at least one arm enters a second basin. | **fails** |
+| **R5** | The classifier is innocent. A field placed *by hand* at each basin's target classifies as that basin — all four, including the three never lived in. | holds |
+| **R6** | The ceiling is real: across an adversarial sweep of worlds, **no** world drives the topology channels above **60%** of the `Defensive` signature. | holds |
+
+### The vacuity guards
+
+* **V1** — the freeze must actually change something, or R1–R4 compare a run to itself. The frozen
+  and unfrozen target matrices must differ at the end of a life.
+* **V2** — R5 is vacuous unless the hand-placed fields are genuinely *different* points; check the
+  four constructed fields are pairwise distinct before classifying them.
+* **V3** — R6's sweep must contain a world that actually hurts the being (negative mean valence),
+  or "no world reaches the ceiling" is a claim about worlds we never made hard enough.
+
+### Method
+
+Fresh beings only. **The founded being's kept life is never advanced.** `freeze_basin_targets()` is
+default-off; the default path and the soul-hash are untouched. Probe: `examples/basin_landscape.rs`.
+Results appended here with every prediction marked held / failed / vacuous, mine included.
