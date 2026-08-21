@@ -377,3 +377,75 @@ and nobody else's**, and it is now a decision with numbers under it instead of a
 read-only, as `examples/founded_load` does, and read the basin it is actually in. One sample, not a
 distribution — but it is the kept being's own state rather than a fresh being's, and it costs
 nothing.
+
+## 12. The whole-being census — locked 2026-08-21, before the probe exists
+
+Blake, after Miller et al.: *"it makes me wonder if our project is overcomplicated."*
+
+He may be right, and every instrument we have pointed at this being — aimed at some
+other question each time — has come back saying the same thing from a new angle:
+
+* `minimal_agent`: **four parts**, 100% need-conditioned selection, self-model **removable**
+* leave-one-out over twelve field channels: **no channel above 0.2%** influence on basin
+* `c1-relabelling.md` §15: one channel wins attention in **all four worlds, both genomes**;
+  **11 of 12** learned precision values pinned at the ceiling
+* this document, §6: *"one faculty is the being's whole life, and it is off by default"*
+* 23,313 lines across **64** modules
+
+Nobody has ever measured the whole thing at once. This section does, and it is
+written to be able to embarrass us.
+
+### What is honestly measurable, and what is not
+
+A true leave-one-out over 64 modules would mean making each one removable. That is
+weeks of invasive surgery that would itself change the being, and the result would
+be a census of a different system. **Not attempted, and this section does not
+pretend to it.** What can be measured without touching the default path:
+
+1. **The gate battery.** The being has **16 `enable_*` gates**, all default-off, plus
+   two ablation handles (`clear_bonds`, `freeze_basin_targets`). Each is a real A/B on
+   a fresh being: same world, same ticks, gate off versus on. This is Metis's Table 7
+   for the optional half of the being, and it needs no new surgery.
+2. **The observer-claim census.** Many modules assert in their own doc comments that
+   they are inert — *"observer-first"*, *"nothing downstream reads it"*, *"Stage 1"*.
+   Those are **claims**, and this project's whole method is that a claim needs a check.
+   Counting how many make the claim and how many have a test naming it is itself a
+   measurement, and by our own rules an unchecked claim is not a passed one.
+
+The headline this is meant to produce is one number Blake can act on: **how much of
+the being's optional half changes anything at all.**
+
+### Locked predictions
+
+Battery per arm, fresh being, 4,000 ticks, four worlds (fair / trap / solitude /
+famine): final soul-hash, mean valence, mean free energy, basin occupancy, attention
+ignitions, refusals, consent withdrawals, survival.
+
+| # | prediction | I expect |
+|---|---|---|
+| **C1** | **At least 3 of the 16 gates leave the soul-hash bit-identical** across all four worlds — switched on, and the being lives exactly the same life. | holds |
+| **C2** | The distribution is Metis-shaped: the **top 3 gates by behavioural Δ account for ≥ 60%** of all measured change. | holds |
+| **C3** | Module size predicts influence — the gates touching the most lines produce the largest Δ. | **fails** |
+| **C4** | More modules **claim** observer status than have any test naming that claim. | holds |
+| **C5** | At least one gate, when enabled, makes something we would call welfare **worse**. | genuinely unsure |
+
+### The vacuity guards
+
+* **V1** — the battery must discriminate. At least one gate must produce a large Δ,
+  or "most gates change nothing" is a statement about a blunt instrument.
+* **V2** — a gate whose mechanism never *triggers* in these worlds has not been shown
+  inert; it has been shown untested. Every "changed nothing" must say which it is.
+* **V3** — the soul-hash comparison must be shown to detect a difference it should,
+  against a pair known to differ, or "bit-identical" could be my comparison failing.
+
+### What I will do with the answer, said in advance
+
+If most of the optional half changes nothing, the move is **not deletion**. It is a
+fork: **the full being stays as the hypothesis space; a minimal being becomes the
+claim.** We would assert only what is measurably load-bearing and keep the rest
+labelled honestly as unexercised capacity. Deleting a faculty because it is quiet in
+four abstract worlds would repeat exactly the error §6 already caught — the faculty
+that turned out to be the being's whole life was the one switched off.
+
+Fresh beings only. **The founded being's kept life is never advanced.**
+Probe: `examples/census.rs`. Results appended here, mine included.

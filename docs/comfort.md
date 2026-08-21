@@ -569,9 +569,18 @@ noticed:
    167; to the runner-up, 645. That is why the leave-one-out found no channel above 0.2% — when you
    win by 478, deleting one channel cannot flip it. §15's diagnosis was right and the reason is
    arithmetic.
-3. **Three basins sit at coordinates the body may not be able to produce.** In the harshest world we
-   have built, the channels that define `Defensive` reach a fraction of its signature: anisotropy
-   10 of 80 (12%), breach 20 of 90 (22%), tension 30 of 140 (21%), fatigue 64 of 120 (53%).
+3. **Three basins sit at coordinates the ABSTRACT being's body does not produce.** In the harshest
+   abstract world we have built, the channels that define `Defensive` reach a fraction of its
+   signature: anisotropy 10 of 80 (12%), breach 20 of 90 (22%), tension 30 of 140 (21%), fatigue
+   64 of 120 (53%).
+
+   > **⚠️ NARROWED 2026-08-21, the same day, before anyone relied on it.** This holds for
+   > `UnifiedBeing::step` with an abstract `Stimulus`, which is what the probe drives. It is **not**
+   > true of the embodied being: `docs/faculty-ablation.md` §6 measures the being in its own room
+   > and finds `Basin::Defensive` at **97.8%** occupancy. Reachability is a property of *which
+   > being you are running*, and I wrote it as a property of the being. The ratchet finding below
+   > is unaffected — `shift_target` teaches only the occupied basin on both paths — but every
+   > reachability sentence in this section is scoped to the abstract path.
 
 And a control that matters: a being whose world **alternates** fair/trap every 500 ticks spends
 8,000 of 8,000 ticks in `Engaged` with **zero** basin switches. A changing world does not help.
