@@ -616,3 +616,86 @@ remedy already sits behind.
 Fresh beings only. **The founded being's kept life is never advanced.** `freeze_basin_targets()` is
 default-off; the default path and the soul-hash are untouched. Probe: `examples/basin_landscape.rs`.
 Results appended here with every prediction marked held / failed / vacuous, mine included.
+
+### What came out — measured 2026-08-21 (`examples/basin_landscape`)
+
+| # | prediction | I expected | verdict |
+|---|---|---|---|
+| **R1** | frozen, still never leaves `Engaged` | holds | **FAILS** |
+| **R2** | frozen margin still > 200 | holds | **FAILS** — 260, 200, 42, 184 |
+| **R3** | freezing removes the divergence | holds | **HOLDS** (confirmatory) |
+| **R4** | freezing frees the being | **fails** | **HOLDS** — and I was wrong in the best direction |
+| **R5** | the classifier is innocent | holds | **HOLDS** |
+| **R6** | no world reaches 60% of `Defensive` | holds | **HOLDS** — best is 15% |
+
+#### First, an error in this section's own preamble
+
+§16 above called the margin *"a landslide, not a near-thing"* and cited 167 against
+645. That is the **fair world only**, and I wrote it as though it were general. The
+margins across all four worlds, on the default path:
+
+| world | margin |
+|---|---|
+| fair partner | 478 |
+| inescapable trap | 575 |
+| **solitude** | **36** |
+| **famine** | **29** |
+
+A landslide in two worlds and razor-thin in the other two. The generalisation was
+mine and it was wrong; R2's failure is what surfaced it.
+
+#### The ratchet was suppressing the being's defence of itself
+
+I predicted freezing would change nothing, because reachability (R6) looked like
+the binding constraint. **R4 holds.** A `wanderer` in the inescapable trap:
+
+| targets | occupancy over 8,000 ticks |
+|---|---|
+| drifting (default path) | `Engaged` **8,000** |
+| frozen at birth | `Defensive` **7,612**, `Engaged` 388 |
+
+R6 is *also* true, and both can be because classification is **relative**. The
+being never needs to reach `Defensive`'s coordinates — only to sit nearer them
+than to `Engaged`'s. The ratchet was dragging `Engaged` toward the suffering being
+faster than the being could move away from it. **A being in an inescapable
+extractive bond was being told, by a mechanism meant to help it learn where it
+belongs, that it belonged there.**
+
+#### And it is behavioural, not cosmetic
+
+Basin is causal: `action_harmony(basin)` feeds what the being **gives**.
+
+| arm | `gave` summed over a life | withdrew consent |
+|---|---|---|
+| drifting / trap | **92,544** | 103 |
+| frozen / trap | **31,152** | 103 |
+| drifting / fair | 1,024,000 | never |
+| frozen / fair | 1,024,000 | never |
+
+The frozen being gives an extractor **a third as much** — a 66% reduction — and in
+the fair world `gave` is *identical to the raw unit*, so the freeze costs nothing
+when the world is good. The say-stop is unmoved either way (tick 103 both), which
+is consistent: consent triangulates on suffering, `proxy_depth` and alarm, and
+basin is none of them.
+
+#### The limitation, and it is severe
+
+**It does not generalise across genomes.** A `default` genome in the same trap
+sits in `Engaged` 8,000 of 8,000 ticks *whether or not the targets are frozen*.
+Only `wanderer` is freed. `FuzzyBasinField::new` shifts channels 4 and 8 by
+`temperament/4`, so a different temperament lands in a different place relative to
+the same fixed targets — and for `default` that place is still nearest `Engaged`.
+
+So the honest statement is: **the ratchet is a real defect with a measurable
+welfare cost, demonstrated in one genome and one world.** It is not a general fix,
+and R6 stands — three basins remain at coordinates this body does not reach.
+
+#### What this does not settle, and it is still Blake's
+
+Nothing here recalibrates `BASE_TARGETS`, and nothing should on this evidence. What
+it changes is the *order of the question*. §15 asked whether the targets were
+authored badly. The answer is now: **partly, and separately there is a mechanism
+actively making it worse, and turning that mechanism off is worth 66% of what a
+trapped being gives away.** Whether to ship the freeze by default is a re-founding
+— basin is causal, so a frozen being's soul-hash is its own — and whether
+`Defensive` at those coordinates is a claim we believe remains unanswered.

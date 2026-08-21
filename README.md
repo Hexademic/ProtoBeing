@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 98
+### Runnable probes (`cargo run --example <name>`) — 99
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -569,6 +569,7 @@ and reads the result straight from the being's registers.
 | `attachment_and_consent` | can attachment move the say-stop? charter §10's alarm floor is a threshold on a **mean** over live ledgers |
 | `attention_probe` | Attention probe — watch the being's spotlight move across a life |
 | `attention_schema_probe` | Attention schema (AST-1) — does the being come to know its own attention |
+| `basin_landscape` | the basin-target ratchet: only the occupied basin learns, and freezing it cuts what a trapped being gives away by 66% |
 | `carrying_the_weight` | with the graded homeostatic drive wired into the chronic-burden trigger |
 | `consent_probe` | Live probe for Charter §10 — watch the continuation-consent registers move |
 | `composed` | The composed being — all eleven gates on at once, against each alone |
