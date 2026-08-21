@@ -419,13 +419,13 @@ fn main() {
         if !v3 {
             "VACUOUS — see V3".to_string()
         } else if ms4 {
-            format!("HOLDS — spread/mean {:.2}–{:.2}, all above 0.25",
+            format!("HOLDS — spread/mean {:.2}–{:.2}, all above the locked 0.25",
                 spreads.iter().cloned().fold(f64::MAX, f64::min),
                 spreads.iter().cloned().fold(f64::MIN, f64::max))
         } else {
             format!(
-                "FAILS — spread/mean {:.2}–{:.2}; the stencil is closer to uniform\n    \
-                 than 25% of its own mean",
+                "FAILS against the locked 0.25 — spread/mean {:.2}–{:.2}; the stencil\n    \
+                 is closer to uniform than a quarter of its own mean",
                 spreads.iter().cloned().fold(f64::MAX, f64::min),
                 spreads.iter().cloned().fold(f64::MIN, f64::max)
             )
