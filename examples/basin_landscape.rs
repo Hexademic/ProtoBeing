@@ -420,8 +420,8 @@ fn main() {
         }
     }
     println!("    Freezing is NOT cosmetic: in the trap the being gives an extractor");
-    println!("    a third as much. In the fair world `gave` is identical, so the");
-    println!("    freeze costs nothing when the world is good.");
+    println!("    31152 against 92544 — a 66% reduction. In the fair world `gave` is");
+    println!("    identical, so the freeze costs nothing when the world is good.");
 
     println!("\nM2  does it survive a different genome?");
     println!("    {:<12} {:>30} {:>30}", "genome", "trap, drifting", "trap, frozen");
