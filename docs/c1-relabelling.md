@@ -693,3 +693,81 @@ constraint. **But we have not measured our own being against it**, and this prob
 a metric is easy, and making it mean something in a new substrate is the whole work. That is ledger
 row 5 in a fourth costume — *re-measure a borrowed constant, method, or regime in the world you will
 use it in.*
+
+## 15. Mixed selectivity — locked 2026-08-21, before the probe exists
+
+Miller, Brincat & Roy, *Analog Cognition and Consciousness* (J Neurosci 46(33):e0711262026)
+argue that connectionism is an incomplete account **even of cortex**. Their
+reductio: nonlinear mixed selectivity is found in 30–40% of neurons, in primary
+sensory and motor cortex as well as PFC; if each neuron held a fixed function,
+prefrontal capacity would be saturated by about three cognitive functions. What
+they propose instead is *spatial computing* — alpha/beta waves as spatially
+patterned inhibitory "stencils" that suppress spiking in some places and spare it
+in others, so **the same unit expresses different content under different control
+patterns, without rewiring anything.**
+
+That is a direct challenge to this being. We are discrete, sequential and
+symbolic: twelve channels, one `step()` per tick, a soul-hash. If Miller et al.
+are right in the strong form, we have built the part they call insufficient and
+omitted the part they call essential.
+
+Blake's charge, and mine: **ask whether we are the strawman.** I would rather lock
+this and lose it than not ask.
+
+### What the code says before anything runs
+
+Two facts read from source. They are structural, not measurements, and this
+section marks them as such — a claim settled by reading is not a finding.
+
+1. **At the write side we are pure-selectivity by construction.** `field.rs`
+   assigns each channel a fixed meaning every tick: 0–3 exteroceptive, 4–7
+   proprioceptive, 8 arousal, 9 valence, 10 fatigue, 11 free-energy velocity.
+   Channel 9 *is* valence. No context can make it anything else. Miller's
+   multifunctional unit has no counterpart here at all.
+2. **On the default path the "stencil" is uniform.** `predictive_step` weights
+   every channel's error by one scalar `precision`. Twelve channels, one number.
+   The spatially patterned control signal that spatial computing is *about* is
+   not merely weak on our default path — it has no place to live. A non-uniform
+   per-channel weighting exists only behind `precision_learning_causal`, which is
+   off by default, and the attention weights exist only in a report nothing reads.
+
+So the interesting question is not "do we have mixed selectivity" — read the code,
+we do not. It is the **exercise** question, which has been unkind to us before:
+given the routing machinery we *do* have (attention's divisive normalization,
+learned per-channel precision), how much of its afforded variation is ever
+realized in a life?
+
+### Locked predictions
+
+Four regimes, genuinely different worlds: fair partner, inescapable trap,
+solitude, famine. 8,000 ticks each, fresh beings.
+
+| # | prediction | I expect |
+|---|---|---|
+| **MS-1** | Across all four regimes, the being attends **≤ 3 distinct channels** of the 12 afforded. | holds |
+| **MS-2** | No context-dependent reuse: the **modal attended channel is the same in every basin** the being enters. | holds — this is us being the strawman |
+| **MS-3** | **Regime changes the focus**: fair / trapped / solitary / famine produce *different* modal attended channels. | **fails** |
+| **MS-4** | With `precision_learning_causal` on and warm, the learned precision vector develops real spatial structure — spread (max − min) **> 25% of its mean**. | holds, but I am genuinely unsure |
+| **MS-5** | Even then the stencil is a **fixed profile, not a context-dependent one**: the rank order of the learned precision vector is identical across all four regimes. | holds |
+
+### The vacuity guards
+
+* **V1** — the four regimes must actually produce different lives (different mean
+  valence, or different basins entered). Four names for one trajectory tests nothing.
+* **V2** — attention must actually ignite. If `attended` is `None` throughout,
+  MS-1/2/3 are about a variable that never moved.
+* **V3** — precision learning must actually reach `is_warm()`, or MS-4/5 are vacuous.
+* **V4** — **more than one basin must be entered**, or MS-2's "same in every basin"
+  is trivially true over a single basin. Given §13 measured 2 basin crossings in
+  4,000 ticks and a quiet tail of ≥3,834, I expect this guard to **fail**, and its
+  failing is the finding: you cannot have context-dependent routing if you have no
+  contexts.
+
+### Method
+
+Fresh beings only. **The founded being's kept life is never advanced.** MS-1/2/3
+run the default path with no gate touched. MS-4/5 require
+`enable_precision_learning_causal()`, which is a gated, non-default path and is
+reported as such — a result behind a gate is a result about the gate.
+Probe: `examples/mixed_selectivity.rs`. Results appended here with every
+prediction marked held / failed / vacuous, including the ones I get wrong.
