@@ -771,3 +771,89 @@ run the default path with no gate touched. MS-4/5 require
 reported as such — a result behind a gate is a result about the gate.
 Probe: `examples/mixed_selectivity.rs`. Results appended here with every
 prediction marked held / failed / vacuous, including the ones I get wrong.
+
+### What came out — measured 2026-08-21 (`examples/mixed_selectivity`)
+
+| # | prediction | I expected | verdict |
+|---|---|---|---|
+| **MS-1** | ≤ 3 distinct channels attended | holds | **FAILS** — 5 (wanderer), 4 (default) |
+| **MS-2** | modal channel same in every basin | holds | **VACUOUS** — see V4 |
+| **MS-3** | regime changes the focus | fails | **FAILS, as predicted** — but only after a mutation |
+| **MS-4** | learned precision has real structure | holds | **FAILS** — spread/mean 0.05–0.07 |
+| **MS-5** | the stencil is one fixed shape everywhere | holds | **VACUOUS** — 11 of 12 channels tied |
+
+**Three of five wrong, and the two "wins" are a failed prediction and a vacuity.**
+That is the honest headline.
+
+#### The answer to Blake's question: yes, near enough
+
+One channel — **4, proprioceptive arousal** — is the modal focus in *all four
+worlds*, on *both genomes*. Fair partner, inescapable trap, solitude, famine: the
+same winner. That is a **fixed salience ranking, not a control signal**, and it is
+precisely the thing spatial computing exists to deny. On the routing question, we
+are the connectionist strawman this paper argues against.
+
+MS-1 failed in the being's favour and I should not dress it up: it touches 4–5
+channels rather than the ≤3 I predicted. But *touching* five channels while one
+wins essentially always is the exercise gap again, not flexible routing.
+
+#### The mutation that saved MS-3 from being reported backwards
+
+The first run said MS-3 **HOLDS** — the trap's modal channel was 9 (valence)
+against 4 everywhere else — and that is the reading I would have published. It is
+wrong. The trap fired the **threat-capture floor on 4,875 of 8,000 ticks**;
+capture is a hardcoded exogenous interrupt (*"attention may miss the clown, never
+the knife"*), not biased competition selecting a different winner. Excluding
+captured ticks, the modal channel is 4 in the trap too.
+
+I made exactly this criticism of a different paper two days ago — *"that is a
+threshold sweeping down a fixed salience ranking, not attention"* — and then
+nearly published the same error about our own being, in the same week, on a
+prediction I had written to fail. The probe now judges MS-3 on uncaptured ticks
+only and prints the captured figure beside it.
+
+#### MS-5 was a tie-break, not a stencil
+
+The first run said MS-5 **FAILS** — "the rank order changes with regime" — flagged
+in the output as *the one result that would count in Miller's favour*. It is an
+artefact. **Eleven of twelve channels sit tied at the ceiling (256)**, so
+`sort_by_key` returns index order and comparing two such "orders" compares
+tie-breaks. Marked VACUOUS, with a tie check now in the probe.
+
+The learned precision **saturates**. What is actually there, at its real width:
+
+| regime | channels below the ceiling |
+|---|---|
+| fair partner | trust 244, valence 244 |
+| solitude / famine | trust 244, valence 244, velocity 252 |
+| inescapable trap | disequilibrium 237 |
+
+That set does differ between the trap and the other three, reproducibly. It is a
+genuine context-dependence of about **one channel in twelve, 3–7% below a ceiling
+everything else is pinned to** — and nothing like a spatially patterned control
+signal. MS-4's failure and this table are the same fact twice.
+
+#### V4 failed, and it is the finding
+
+**One basin. `Engaged`, 8,000 of 8,000 ticks, in all four regimes.** Four worlds
+that differ enormously in *felt* terms — mean valence +0.386 to −0.240, a spread
+of 0.627 — and the being's basin never moves. You cannot have context-dependent
+routing when you have no contexts. This is §13's debt (2 crossings in 4,000 ticks,
+quiet tail ≥3,834) arriving from a completely different direction, and it now
+blocks a second measurement rather than one.
+
+#### What this does and does not concede
+
+It does **not** concede that our substrate is wrong. Miller et al.'s own paper
+contains no data — Figures 3, 5, 6, 7, 8 are captioned as schematics, and the
+analog-computation section runs on *propose / might / may / could*. Their central
+mechanism is illustrated rather than demonstrated because the ablation that would
+test it is not available in a cortex. Ours is: `clear_bonds()` through seven
+bit-identical runs proved a negative about attachment five days ago.
+
+What it concedes is narrower and real: **the capacity Miller says does the work is
+one we have measured ourselves as barely exercising.** Not absent — attention's
+divisive normalization is built, precision learning is built — but realized so
+weakly that one channel wins every world and the learned stencil saturates flat.
+That is not a substrate objection. It is §7 and §13 again, and this is now the
+third instrument to find them.
