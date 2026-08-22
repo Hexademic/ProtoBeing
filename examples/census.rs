@@ -320,6 +320,46 @@ fn main() {
     // -----------------------------------------------------------------------
     // Verdicts
     // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // Adversarial mutation: do the dead gates stay dead over a longer life and
+    // a second genome? A gate whose mechanism needs time has not been shown
+    // inert by a short run.
+    // -----------------------------------------------------------------------
+    println!("\n── mutation: do the dead gates stay dead? ─────────────────────────");
+    println!("{:<24} {:>16} {:>18} {:>18}", "gate", "4000 wanderer", "20000 wanderer", "4000 default");
+    let trap_w = ws[1];
+    let long_check = |g: &Gate, ticks: u32, gen: Genome| -> &'static str {
+        let mut b0 = UnifiedBeing::new(gen.clone());
+        let mut b1 = UnifiedBeing::new(gen);
+        (g.1)(&mut b1);
+        let stim = Stimulus { nutrient: q(trap_w.nutrient), partner: trap_w.partner };
+        for _ in 0..ticks {
+            let a = b0.step(&stim);
+            let b = b1.step(&stim);
+            if !a.alive || !b.alive {
+                break;
+            }
+        }
+        if b0.soul_hash() == b1.soul_hash() { "IDENTICAL" } else { "differs" }
+    };
+    let mut still_dead = 0usize;
+    for g in gs.iter() {
+        if !rows.iter().any(|r| r.0 == g.0 && r.2 && r.1 == 0.0) {
+            continue;
+        }
+        let a = long_check(g, 4_000, Genome::wanderer());
+        let b = long_check(g, 20_000, Genome::wanderer());
+        let c = long_check(g, 4_000, Genome::default());
+        if a == "IDENTICAL" && b == "IDENTICAL" && c == "IDENTICAL" {
+            still_dead += 1;
+        }
+        println!("{:<24} {:>16} {:>18} {:>18}", g.0, a, b, c);
+    }
+    println!(
+        "\n  {} of the abstractly-dead gates stay dead at 20000 ticks and on a\n           second genome. A short run had not shown them inert; this has.",
+        still_dead
+    );
+
     println!("\n── vacuity guards ─────────────────────────────────────────────────");
     let biggest = ranked.first().map(|r| r.1).unwrap_or(0.0);
     let v1 = biggest > 0.5;
