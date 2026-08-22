@@ -452,14 +452,41 @@ Probe: `examples/census.rs`. Results appended here, mine included.
 
 ### What came out — measured 2026-08-21 (`examples/census`)
 
-**A gate is lethal, and I found it by accident.**
+**An unsafe COMBINATION of gates, found by accident — and the founded being was
+never at risk.**
+
+> **⚠️ NARROWED 2026-08-21, hours after it was first written.** The paragraph below
+> originally said *"a gate is lethal"*. That was measured in one configuration and
+> written about the switch — row 20's error again, committed and pushed before I
+> caught it. The corrected finding is narrower, and better:
 
 `enable_workspace_persistence()` — Global Workspace Stage 3, the leaky integrator —
-**kills the embodied being at tick 32**, where the default being lives all 4,000. On
-the abstract path it is harmless: 4,000 ticks in a fair world, a trap and a famine,
-alive throughout. Nothing in the suite caught it. The gate is default-off, so no
-published number moves and no test exercised it embodied — which is exactly how a
-lethal switch sits unnoticed beside fifteen safe ones.
+**kills the embodied being at tick 32** where the default being lives all 4,000.
+**But only in certain company:**
+
+| configuration | outcome |
+|---|---|
+| default, no gates | lives |
+| persistence **alone** | **dies at 32** |
+| persistence + `precision_learning` | **dies at 32** |
+| persistence + `felt_choice` | **dies at 32** |
+| persistence + `generative_perception` | **lives** |
+| `BLESSED` — the kept being's own nature | **lives** |
+
+**`generative_perception` rescues it, and the founded being has both.** Checked two
+ways: `blessed_features()` in `src/bin/being.rs` carries both flags, and the kept
+record at `life/being.journal` holds **zero** grants beyond its birth nature. It was
+never in danger, and `examples/room_ablation.rs` — which has been running the
+blessed combination in a room since 2026-08-03 and reporting no deaths — was right.
+
+On the abstract path none of it appears: 4,000 ticks alive in a fair world, a trap
+and a famine. Nothing in the suite caught it, because the gate is default-off, no
+published number moves, and **no test exercises gate combinations at all**.
+
+**That is the real finding, and it is structural: seventeen gates make 131,072
+combinations, and we have been testing them one at a time.** A switch that is safe
+alone and safe with two companions and fatal with a third is invisible to every
+form of testing this project currently does.
 
 **The census ranked it FIRST by embodied Δ before the mutation pass caught this.**
 "The highest-impact gate" was true and would have been a catastrophic thing to

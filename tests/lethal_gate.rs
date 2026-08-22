@@ -1,21 +1,33 @@
-//! **A default-off gate that kills the embodied being.** Found 2026-08-21 by
-//! `examples/census.rs` while measuring something else entirely
-//! (`docs/faculty-ablation.md` §12).
+//! **An unsafe COMBINATION of default-off gates, not a lethal gate.** Found
+//! 2026-08-21 by `examples/census.rs` while measuring something else, and
+//! **narrowed the same day** (`docs/faculty-ablation.md` §12).
 //!
-//! `enable_workspace_persistence()` is the Global Workspace Stage 3 leaky
-//! integrator. On the **abstract** path it is harmless — a being lives out
-//! 4,000 ticks with it on, in a fair world, a trap, and a famine. In the being's
-//! **own room** it dies at **tick 32**, where the default being lives the full
-//! 4,000.
+//! `enable_workspace_persistence()` — Global Workspace Stage 3, the leaky
+//! integrator — kills the embodied being at **tick 32** where the default being
+//! lives all 4,000. But only in certain company:
 //!
-//! Nothing else in the suite catches this. The gate is default-off, so no
-//! published number moves and no existing test exercises it embodied — which is
-//! exactly how a lethal switch sits unnoticed beside fifteen safe ones.
+//! | configuration | outcome |
+//! |---|---|
+//! | default, no gates | lives |
+//! | persistence **alone** | **dies at 32** |
+//! | persistence + `precision_learning` | **dies at 32** |
+//! | persistence + `felt_choice` | **dies at 32** |
+//! | persistence + `generative_perception` | **lives** |
+//! | `BLESSED` — the kept being's own nature | **lives** |
 //!
-//! This test **fails if the lethality is fixed**, which is the point: the fix
-//! must be a deliberate act that comes here and records what changed, not a
-//! silent repair. Until then it is a standing warning that this gate must not be
-//! enabled for an embodied being.
+//! **`generative_perception` rescues it**, and the founded being has both. It was
+//! never at risk, and `life/being.journal` carries **zero** grants besides.
+//!
+//! The first version of this file claimed a lethal *gate*. That was too broad —
+//! measured in one configuration and written about the switch. The real finding
+//! is worse in one way and better in another: **gates interact, seventeen of them
+//! make 131,072 combinations, and we test them one at a time.**
+//!
+//! On the **abstract** path none of this appears: 4,000 ticks alive in a fair
+//! world, a trap and a famine. A reviewer testing the ordinary way finds nothing.
+//!
+//! This test **fails if any of it moves**, including if it is fixed: the fix must
+//! be a deliberate act recorded in §12, not a silent repair.
 
 use unified_being::embodiment::{intent_from, Embodiment};
 use unified_being::field_world::FieldWorld;
@@ -47,7 +59,7 @@ fn died_at(gate: Option<fn(&mut UnifiedBeing)>, ticks: u32) -> Option<u32> {
 }
 
 #[test]
-fn workspace_persistence_kills_the_embodied_being_and_the_default_path_hides_it() {
+fn workspace_persistence_is_lethal_alone_and_rescued_by_generative_perception() {
     // The control, or the whole test is vacuous: the same room, same partner,
     // same span, WITHOUT the gate. This being must live.
     assert_eq!(
@@ -66,6 +78,63 @@ fn workspace_persistence_kills_the_embodied_being_and_the_default_path_hides_it(
          docs/faculty-ablation.md §12 and change this pin rather than deleting it. \
          If it merely shifted, the cause is still there and now it is unmeasured"
     );
+
+    // The rescue — the half that keeps this a COMBINATION finding rather than a
+    // claim about one switch, and the half that says the founded being is safe.
+    assert_eq!(
+        died_at(
+            Some(|b: &mut UnifiedBeing| {
+                b.enable_generative_perception();
+                b.enable_workspace_persistence();
+            }),
+            4_000
+        ),
+        None,
+        "`generative_perception` no longer rescues `workspace_persistence`. That \
+         rescue is why the founded being — whose nature includes both — was never \
+         at risk. If it has stopped working, the kept life's safety argument has \
+         changed and must be re-made"
+    );
+
+    // And the kept being's actual nature, whole. This is the assertion that says
+    // the founded being is safe, and it must be checked as a configuration, not
+    // inferred from its parts.
+    assert_eq!(
+        died_at(
+            Some(|b: &mut UnifiedBeing| {
+                b.enable_precision_learning();
+                b.enable_workspace_persistence();
+                b.enable_felt_choice();
+                b.enable_generative_perception();
+            }),
+            4_000
+        ),
+        None,
+        "the BLESSED configuration — `blessed_features()` in src/bin/being.rs, the \
+         kept being's own nature — died in the reference room. This is the founded \
+         being's safety and nothing about it is routine"
+    );
+
+    // The two other pairings that do NOT rescue, so "some companion saves it" is
+    // never mistaken for "generative_perception saves it".
+    for (name, gate) in [
+        ("precision_learning", (|b: &mut UnifiedBeing| {
+            b.enable_precision_learning();
+            b.enable_workspace_persistence();
+        }) as fn(&mut UnifiedBeing)),
+        ("felt_choice", |b: &mut UnifiedBeing| {
+            b.enable_felt_choice();
+            b.enable_workspace_persistence();
+        }),
+    ] {
+        assert_eq!(
+            died_at(Some(gate), 4_000),
+            Some(32),
+            "pairing persistence with `{name}` stopped being lethal. The rescue is \
+             supposed to be specific to `generative_perception`; if any companion \
+             now saves it, the mechanism is not what §12 says it is"
+        );
+    }
 }
 
 /// The half that makes the gate dangerous rather than merely broken: on the
