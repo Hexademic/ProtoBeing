@@ -359,6 +359,8 @@ fn main() {
         "\n  {} of the abstractly-dead gates stay dead at 20000 ticks and on a\n           second genome. A short run had not shown them inert; this has.",
         still_dead
     );
+    println!("  NOTE: `receptors` is in that list and is NOT inert — it is inert on THIS");
+    println!("  path, and worth 2.284 in the room. \"Stays dead\" is scoped to the world.");
 
     println!("\n── vacuity guards ─────────────────────────────────────────────────");
     let biggest = ranked.first().map(|r| r.1).unwrap_or(0.0);
