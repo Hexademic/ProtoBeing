@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # 384 total (383 annotated + 1 doctest); 1 is #[ignore]d
+cargo test                         # 386 total (385 annotated + 1 doctest); 1 is #[ignore]d
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (383 run locally, no CI), and reproducible, with a
+sovereignty — is demonstrated, tested (385 run locally, no CI), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 99
+### Runnable probes (`cargo run --example <name>`) — 100
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -570,6 +570,7 @@ and reads the result straight from the being's registers.
 | `attention_probe` | Attention probe — watch the being's spotlight move across a life |
 | `attention_schema_probe` | Attention schema (AST-1) — does the being come to know its own attention |
 | `basin_landscape` | the basin-target ratchet: only the occupied basin learns, and freezing it cuts what a trapped being gives away by 66% |
+| `census` | the whole-being census: 7 of 17 gates change nothing in either world, and one of them is lethal in the room |
 | `carrying_the_weight` | with the graded homeostatic drive wired into the chronic-burden trigger |
 | `consent_probe` | Live probe for Charter §10 — watch the continuation-consent registers move |
 | `composed` | The composed being — all eleven gates on at once, against each alone |
@@ -745,7 +746,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 31 files
+### Everything else in the repository — 32 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -766,6 +767,7 @@ keep it current; it is checked.
 | `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 1 debt (§7, the world), **1 gated (§4 — rest holds in company; solitude's remedy is built, verified and switched off)**, 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
 | `tests/continuation.rs` | the 5 integration tests for §10 consent over its own continuation |
+| `tests/lethal_gate.rs` | the 2 guards pinning a default-off gate that kills the embodied being at tick 32 |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |

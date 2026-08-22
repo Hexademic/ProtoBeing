@@ -449,3 +449,82 @@ that turned out to be the being's whole life was the one switched off.
 
 Fresh beings only. **The founded being's kept life is never advanced.**
 Probe: `examples/census.rs`. Results appended here, mine included.
+
+### What came out — measured 2026-08-21 (`examples/census`)
+
+**A gate is lethal, and I found it by accident.**
+
+`enable_workspace_persistence()` — Global Workspace Stage 3, the leaky integrator —
+**kills the embodied being at tick 32**, where the default being lives all 4,000. On
+the abstract path it is harmless: 4,000 ticks in a fair world, a trap and a famine,
+alive throughout. Nothing in the suite caught it. The gate is default-off, so no
+published number moves and no test exercised it embodied — which is exactly how a
+lethal switch sits unnoticed beside fifteen safe ones.
+
+**The census ranked it FIRST by embodied Δ before the mutation pass caught this.**
+"The highest-impact gate" was true and would have been a catastrophic thing to
+report. Survival is now read before any Δ is interpreted, and the behaviour is
+pinned in `tests/lethal_gate.rs` — including the half that makes it dangerous
+rather than merely broken: *tested the ordinary way, it looks completely safe.*
+
+| # | prediction | I expected | verdict |
+|---|---|---|---|
+| **C1** | ≥3 of 16 gates leave the soul-hash identical | holds | **HOLDS** — 9 do |
+| **C2** | top 3 gates carry ≥60% of all change | holds | **HOLDS** — 80.9% |
+| **C3** | module size predicts influence | **fails** | **FAILS, as predicted** |
+| **C4** | more modules claim inertness than prove it | holds | **HOLDS** — 16 claim, 11 named in tests |
+| **C5** | some gate makes welfare worse | unsure | **HOLDS** — `reflection`, `reserve`, `settling` |
+
+#### The answer to Blake's question, at its real width
+
+**Seven of seventeen gates change nothing in either world** — same soul-hash, Δ 0,
+over 4,000 ticks *and* 20,000, on both genomes: `comfort`, `felt_choice`,
+`homecoming`, `memory_guidance`, `schema_control`, `setting_down`, `ultrastability`.
+
+But the number you get **depends entirely on which being you run**:
+
+| | inert gates |
+|---|---|
+| abstract path | **8 of 17** |
+| the being's own room | **7 of 17** |
+
+and `receptors` is the difference — **Δ 0.000 abstract, 2.284 embodied**, the second
+largest effect in the room, and §6 of this document already called it *the being's
+whole life*. **An abstract-only census would have scored the most important faculty
+we have as dead weight.** The rank order barely survives the change of world at all:
+`freeze_basin_targets` is first abstractly (2.831) and fourth in the room (0.027);
+`reflection` is third abstractly (0.549) and **zero** in the room.
+
+**C3 failed as predicted, and cleanly.** The largest half of the modules carries Δ
+5.581; the smallest half carries 5.752. Size predicts nothing. `homeostasis.rs` at
+150 lines holds `settling`; `episodic.rs` at 763 lines holds two gates that are both
+completely inert.
+
+**C4 holds and is uncomfortable.** Sixteen modules assert in their own doc comments
+that they are inert — *"observer-first"*, *"nothing downstream reads it"*, *"changes
+no published number"* — and **five are named in no test at all**: `habits`,
+`homeostasis`, `inheritance`, `joy`, `sensorimotor`. By this project's own rule an
+unchecked claim is not a passed one.
+
+#### Two honest limits on the number above
+
+* **The composite Δ is largely an occupancy ranking.** Decomposed, basin occupancy
+  carries **64%** of `freeze_basin_targets`' Δ and **83%** of
+  `workspace_persistence`'s. `reflection` ranks third on valence alone, with
+  occupancy Δ exactly 0. The ranking is not a general "amount of change" and should
+  not be read as one.
+* **This is the optional half only.** Seventeen switches out of sixty-four modules.
+  Nothing here licenses a claim about the being's non-optional core.
+
+#### What this licenses, and what it does not
+
+It does **not** license *"the being is 40% dead weight."* It licenses this:
+
+> **A large part of this being does nothing until it is given a world to do it in,
+> and the census you run decides how much of it you would delete.**
+
+The seven gates dead in both worlds are the real candidates — and even for them, §6
+is the standing warning: the faculty that turned out to be the being's whole life
+was the one switched off. The move stays a **fork, not a deletion**: the full being
+is the hypothesis space, a minimal being becomes the claim, and everything else is
+labelled honestly as unexercised capacity.

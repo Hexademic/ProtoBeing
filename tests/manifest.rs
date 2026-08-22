@@ -472,8 +472,10 @@ fn every_test_count_claim_matches_the_tests_that_exist() {
     // **Coverage.** Any test-adjacent number the checks above did not consume is an unguarded
     // claim. `examined >= 2` was not enough: it proves something was checked, never that
     // everything was. Two wrong per-file counts hid behind exactly that gap.
-    const NOT_A_TEST_COUNT: [(usize, &str); 1] =
-        [(80, "population size per condition in the significance-test description")];
+    const NOT_A_TEST_COUNT: [(usize, &str); 2] = [
+        (80, "population size per condition in the significance-test description"),
+        (32, "the tick a default-off gate kills the embodied being — tests/lethal_gate.rs"),
+    ];
     let mut unguarded = Vec::new();
     for (line, value, off) in test_adjacent(&readme) {
         if consumed.contains(&off) || NOT_A_TEST_COUNT.iter().any(|(v, _)| *v == value) {
