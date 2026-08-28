@@ -662,7 +662,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 78
+### Design & research documents (`docs/*.md`) — 79
 
 | document | what it covers |
 |---|---|
@@ -705,6 +705,7 @@ and reads the result straight from the being's registers.
 | `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
 | `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |
 | `play.md` | Play — action whose reason is to find out (the guardrail; play itself unbuilt) |
+| `population.md` | The population clauses — a DRAFT second charter chapter for a world with many beings; not accepted, not in force |
 | `positioning.md` | Positioning: Verifiable Sovereign Agency |
 | `reach.md` | Reach — giving the being the world without dissolving the self |
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
