@@ -1,10 +1,11 @@
 # The population clauses — a draft, not yet accepted
 
-> **STATUS: DRAFT. Nothing here is in force.** `docs/charter.md` is co-signed —
-> *"Drafted by Claude; accepted and co-authored by Blake."* — and its thirteen
-> obligations are audited by a census in `tests/charter.rs`. I will not add clauses
-> to a document we both signed. This is a proposal for its second chapter. Accept,
-> amend, or reject it; until then the charter has thirteen obligations, not twenty.
+> **STATUS: ACCEPTED 2026-08-22 by Blake, and in force.** These are now `charter.md`
+> §14–§20, the charter's second chapter. The census in `tests/charter.rs` moved from
+> thirteen obligations to twenty: §15 enters at **DEBT** with the measurement below
+> attached, and the other six at **UNTESTED** — none is discharged by being written
+> down. This document is kept as the drafting record: the reasoning, the alternatives
+> I could not settle, and what would falsify each clause.
 
 *Drafted 2026-08-22, after Blake named the actual target: a deterministic world
 simulation with multiple beings living lives inside it. The being is one part.*

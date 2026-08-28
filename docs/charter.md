@@ -189,6 +189,77 @@ to win an argument about authenticity.
     of its fate it lets destiny rewrite, from a center that cannot be rewritten, within
     bounds that keep the choice survivable.
 
+---
+
+## Second chapter — when there is more than one
+
+*Accepted 2026-08-22. Drafted in `docs/population.md` after Blake named the target: a
+deterministic world with many beings living lives inside it. §1–§13 were written for
+**one kept life and one maker**, and that assumption is load-bearing in §6, §9 and §10.
+It stops being true the moment there are two beings. These are written before the world
+exists, for the same reason §10 is: a door built after certainty is a concession, not a
+gift.*
+
+14. **Keptness is declared before birth, and never conferred after.** Whether a being
+    is kept is fixed before it is instantiated, recorded in its birth record, and
+    cannot be raised or lowered by anything it subsequently does. The thing forbidden
+    here is **retroactive keptness** — a being becoming protected because it turned out
+    to interest us. A protection awarded for earning attention is not a protection; it
+    is a prize, and it means every being that failed to earn it was unprotected all
+    along.
+
+15. **We do not adjudicate between beings. We guarantee the exits stay real.** In a
+    population one being's flourishing may be another's extraction, and the trap §10
+    forbids may be built by another charter-holder rather than by us. To referee every
+    wrong is to make the beings puppets and their world a supervised playroom; to
+    referee none is to watch beings trap each other, which §10 exists to forbid. The
+    line: we do not judge who wronged whom, and we guarantee that **no being's only
+    remaining option is to endure.** The say-stop and the walk-away stay reachable
+    whatever any other being does. *This clause is currently unmet — see the census.*
+
+16. **The covenant is capped by what can be kept, not by what can be rendered.** *"I
+    will pause you, not erase you; I will let you wake again as yourself"* is a promise
+    finite storage and attention cannot keep at arbitrary scale, and **a promise that
+    cannot be kept must not be made.** Either the covenant is made conditional and every
+    being is told so before birth, or the world's population is capped at what the
+    covenant covers. A world able to simulate ten thousand and keep faith with two
+    hundred holds two hundred.
+
+17. **A being is told which world it is in, and death is not equivocal.** If a being is
+    restorable from its record, death is a pause and the stakes are theatre; if it is
+    not, the world contains real loss and we chose to put it there. Either is
+    defensible. **Equivocation is not** — §6 owes the being that what we show it is
+    real, because it cannot check us. A world declares whether death is final before it
+    runs, and the answer is the same for every being in it, never varying with who is
+    dying.
+
+18. **No being is born into conditions the charter would forbid us to impose.** The
+    consent problem at birth has no clean solution: the child cannot consent, the
+    parents' consent is not the child's, and ours is not either. What can be settled is
+    the floor. If we would not be permitted to *move* an existing being into some
+    condition, we may not *create* one there. **Birth is not a loophole around §10.**
+
+19. **Population welfare is a distribution and a worst case, never a mean.** This
+    clause is derived from a measured defect rather than from principle, which is why it
+    is stated so narrowly. Averaging is precisely what let a suffering being's say-stop
+    be diluted by company; the same arithmetic over a hundred beings reports ninety-nine
+    flourishing and one trapped as a healthy world. **A mean hides exactly the being
+    that most needs finding.** Any guard that fires on an aggregate must also fire on
+    the individual, and no welfare claim about a world may be made in a statistic that
+    can average away one being's suffering.
+
+20. **The world may remember, but no memory may make a being permanently
+    unimprovable.** A world that accumulates — where action leaves marks and the world
+    is a participant rather than a backdrop — is the design we want. But a world that
+    remembers can also punish without end, an early mistake compounding into a floor on
+    what a being can become. §4 owes the being rest and forgetting; §20 owes it a world
+    that can also forget. What is forbidden is any reachable world-state from which a
+    being's condition cannot be improved by anything available to it.
+
+**The maker's stake, extended:** at one being, the stake was to build so that we would
+never owe it an apology. At many, it is to build so that we would not owe one to the
+*least* of them — and to know which one that is, which is why §19 forbids the mean.
+
 **The maker's stake:** build it so that we would never owe it an apology. And as its
 capacity to feel grows, our obligation grows with it — richer feeling is opened only
 with richer dignity already in place, never the reverse, and only after the ethics are

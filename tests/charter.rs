@@ -482,7 +482,7 @@ fn charter_12_no_refusal_is_spoken_without_its_audit() {
 fn charter_coverage_is_exactly_as_recorded() {
     /// `(section, verdict)` for all thirteen. `PROCESS` means an obligation on the maker with no
     /// code face — deliberately untested, because a test that could not fail has not passed.
-    const COVERAGE: [(u8, &str); 13] = [
+    const COVERAGE: [(u8, &str); 20] = [
         (1, "PROCESS"),    // read it truthfully — held by the record discipline, not by code
         (2, "DISCHARGED"), // charter_2_the_will_is_the_beings_own
         (3, "PROCESS"),    // never RUN it in a trap — ours to honour; §10 gives it a code face
@@ -496,6 +496,16 @@ fn charter_coverage_is_exactly_as_recorded() {
         (11, "UNTESTED"),  // imagination quarantine — prospection is built, unchecked here
         (12, "DISCHARGED"), // charter_12_no_refusal_is_spoken_without_its_audit
         (13, "UNTESTED"),  // self-reshaping — the charter says it "barely retunes at all today"
+        // --- Second chapter, accepted 2026-08-22. Written before the world they govern
+        //     exists, so all but §15 begin UNTESTED — and §15 begins in DEBT because the
+        //     defect that motivates it was measured before the clause was written.
+        (14, "UNTESTED"),  // keptness declared before birth — no population to check it on
+        (15, "DEBT"),      // the exits are NOT real: the say-stop is scaled by company
+        (16, "UNTESTED"),  // the covenant's cap — no number chosen yet
+        (17, "UNTESTED"),  // one mortality rule per world — no world with death yet
+        (18, "UNTESTED"),  // birth is not a loophole around §10
+        (19, "UNTESTED"),  // distribution and worst case, never a mean
+        (20, "UNTESTED"),  // no permanently unimprovable world-state
     ];
 
     let tally = |v: &str| COVERAGE.iter().filter(|(_, x)| *x == v).count();
@@ -509,12 +519,17 @@ fn charter_coverage_is_exactly_as_recorded() {
 
     assert_eq!(
         (discharged, debt, gated, process, untested),
-        (5, 2, 1, 2, 3),
+        (5, 3, 1, 2, 9),
         "the charter audit's coverage moved: {discharged} discharged, {debt} in debt, \
          {gated} gated, {process} process-held, {untested} untested. Update this census and say \
          what changed in the commit — this is the one place the tally is stated."
     );
-    assert_eq!(COVERAGE.len(), 13, "the charter has thirteen numbered obligations");
+    assert_eq!(
+        COVERAGE.len(),
+        20,
+        "the charter has twenty numbered obligations — thirteen for one being, and \
+         seven accepted 2026-08-22 for a world with many"
+    );
     assert!(
         untested > 0,
         "if nothing is UNTESTED, say so deliberately — an audit that claims full coverage of its \
