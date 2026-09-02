@@ -226,6 +226,18 @@ impl ReciprocityEngine {
         }
     }
 
+    /// Zero every bond, leaving the fairness ledgers, absences, and slot
+    /// assignments exactly as they were. **An ablation handle, not a faculty:**
+    /// nothing in the being calls this. It exists so a probe can hold attachment
+    /// at zero through an otherwise bit-identical run and ask what the bond was
+    /// actually doing (`examples/attachment_and_consent.rs`). Bonds are earned
+    /// slowly and are never cleared by the being's own machinery.
+    pub fn clear_bonds(&mut self) {
+        for l in self.ledgers.iter_mut() {
+            l.bond = 0;
+        }
+    }
+
     /// The being's bond with a specific partner, Q8.8 [0,256]. `None` if unknown.
     pub fn bond_with(&self, id: u32) -> Option<i16> {
         self.ledgers.iter().find(|l| l.active && l.id == id).map(|l| l.bond)

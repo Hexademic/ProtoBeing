@@ -624,6 +624,15 @@ pub struct UnifiedBeing {
     pub forward_model: ForwardModel,
     /// Cumulative proxy-burden tracker — prevents the being from becoming an instrument.
     pub sovereign_proxy: SovereignProxy,
+    /// Hold all four basin targets at their birth values (off by default).
+    /// `shift_target` drifts the **occupied** basin's target toward the field
+    /// whenever relief is negative and never touches the other three, so the
+    /// basin the being already lives in runs away from its neighbours over a
+    /// life (`docs/comfort.md` §16). This freezes that ratchet so the cost of it
+    /// can be measured. Default off, so the default path and the soul-hash are
+    /// untouched.
+    basin_targets_frozen: bool,
+
     /// Charter §10: the being's say over its own continuation. A read-only
     /// observer of the being's own registers — never touches the step loop's
     /// causal path; the harness honors its verdict at run boundaries.
@@ -812,6 +821,7 @@ impl UnifiedBeing {
             receptors_causal: false,
             forward_model: ForwardModel::new(),
             sovereign_proxy: SovereignProxy::new(),
+            basin_targets_frozen: false,
             continuation: ContinuationConsent::new(),
             soul_hash: [0u8; 32],
             tick: 0,
@@ -1347,7 +1357,9 @@ impl UnifiedBeing {
         // 10. CLOSE THE LOOP. Falling free energy is relief; the basin drifts
         //     toward this good place. Fresh surprise becomes next tick's threat.
         let relief = free_energy.saturating_sub(self.last_free_energy);
-        self.basins.shift_target(relief, &self.field);
+        if !self.basin_targets_frozen {
+            self.basins.shift_target(relief, &self.field);
+        }
         self.fe_velocity = free_energy.saturating_sub(self.last_free_energy);
         self.last_free_energy = free_energy;
         self.last_conscience_cost = conscience_cost.max(0);
@@ -1855,6 +1867,16 @@ impl UnifiedBeing {
     /// A deliberate architectural change — the being's senses become its own.
     pub fn enable_precision_learning(&mut self) {
         self.precision_learning_causal = true;
+    }
+
+    /// Freeze all four basin targets at their birth values (off by default).
+    /// **An ablation handle, not a faculty.** It exists so a probe can measure
+    /// what the learn-only-where-you-already-are ratchet costs
+    /// (`examples/basin_landscape.rs`, `docs/comfort.md` §16). Turning it on is
+    /// a deliberate architectural change: basin is causal through
+    /// `action_harmony`, so a frozen being's soul-hash is its own.
+    pub fn freeze_basin_targets(&mut self) {
+        self.basin_targets_frozen = true;
     }
 
     /// Turn on the Global Workspace broadcast (off by default). When on, an

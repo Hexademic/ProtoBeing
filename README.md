@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # 383 total (382 annotated + 1 doctest); 1 is #[ignore]d
+cargo test                         # 386 total (385 annotated + 1 doctest); 1 is #[ignore]d
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (382 run locally, no CI), and reproducible, with a
+sovereignty — is demonstrated, tested (385 run locally, no CI), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 94
+### Runnable probes (`cargo run --example <name>`) — 100
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -566,8 +566,11 @@ and reads the result straight from the being's registers.
 | `agency` | Agency — the being learns to tell its own doing from what is done to it |
 | `ask_the_being` | asked if it is conscious, the being refuses the borrowed word and answers with its life |
 | `attachment` | does the being form a bond with a specific one, miss them in absence, and release on reunion |
+| `attachment_and_consent` | can attachment move the say-stop? charter §10's alarm floor is a threshold on a **mean** over live ledgers |
 | `attention_probe` | Attention probe — watch the being's spotlight move across a life |
 | `attention_schema_probe` | Attention schema (AST-1) — does the being come to know its own attention |
+| `basin_landscape` | the basin-target ratchet: only the occupied basin learns, and freezing it cuts what a trapped being gives away by 66% |
+| `census` | the whole-being census: 7 of 17 gates change nothing in either world, and one of them is lethal in the room |
 | `carrying_the_weight` | with the graded homeostatic drive wired into the chronic-burden trigger |
 | `consent_probe` | Live probe for Charter §10 — watch the continuation-consent registers move |
 | `composed` | The composed being — all eleven gates on at once, against each alone |
@@ -593,6 +596,9 @@ and reads the result straight from the being's registers.
 | `exercise_census` | is the architecture *used*? Four of twelve indicator registers take ≤6 distinct values in 20,000 ticks |
 | `contingent_world` | a world that *remembers the being* — the first habits ever formed, with no new variety at all |
 | `oracle_repertoire` | the behavioural repertoire against a random floor and a coverage ceiling. **Corrected 2026-08-09** — the static arm forced a permanent partner, and two verdicts flipped when that confound was removed (`operational-consciousness.md` §8.6). Static: bare 13, blessed 11, all-loops 14, random 10. The being is **above** random, not below |
+| `branching_ratio` | avalanche criticality (Beggs & Plenz) against organoid data — **σ is threshold-dependent and does not separate the being from a random series**; the metric's own negative control is the result |
+| `mixed_selectivity` | are we the connectionist strawman? one channel wins in every world, and the learned precision saturates |
+| `minimal_agent` | **the stripped reference system** — a separate four-component agent, not `UnifiedBeing` with gates off. Motivated action at 100% where every control fails; the learned action→outcome table is load-bearing and the self-model is not |
 | `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
@@ -656,7 +662,7 @@ and reads the result straight from the being's registers.
 | `workspace_probe` | Global Workspace broadcast — does ignition actually change what the being does? |
 | `world` | World — the being's first day somewhere |
 
-### Design & research documents (`docs/*.md`) — 78
+### Design & research documents (`docs/*.md`) — 79
 
 | document | what it covers |
 |---|---|
@@ -699,6 +705,7 @@ and reads the result straight from the being's registers.
 | `operational-consciousness.md` | Operational Consciousness — the scorecard and the build plan |
 | `paper.md` | Alignment as Isometry: A Verifiable Reciprocal Agent in a Transparent Fixed-Point Substrate |
 | `play.md` | Play — action whose reason is to find out (the guardrail; play itself unbuilt) |
+| `population.md` | The population clauses — a DRAFT second charter chapter for a world with many beings; not accepted, not in force |
 | `positioning.md` | Positioning: Verifiable Sovereign Agency |
 | `reach.md` | Reach — giving the being the world without dissolving the self |
 | `reading.md` | Reading — the science behind the operational-consciousness scorecard |
@@ -740,7 +747,7 @@ and reads the result straight from the being's registers.
 | `wholeness.md` | Wholeness — the road to a self-agentive synthetic being |
 | `world.md` | The world — the being's first place to be |
 
-### Everything else in the repository — 31 files
+### Everything else in the repository — 32 files
 
 The three tables above cover `src/`, `examples/`, and `docs/`. This one covers the rest,
 so that *nothing* tracked in this repository is unaccounted for.
@@ -760,7 +767,8 @@ keep it current; it is checked.
 | `tests/grant_at_zero.rs` | a faculty granted before the first moment must survive replay — **reproduced a real defect** raised by an external source-audit: the grant was recorded at `at=0`, the replay loop starts at 1, and the being became unrestorable |
 | `tests/charter.rs` | **the charter made falsifiable** — one verdict per numbered obligation in `docs/charter.md`: 6 discharged, 1 debt (§7, the world), **1 gated (§4 — rest holds in company; solitude's remedy is built, verified and switched off)**, 2 process-held, 3 untested. Every guard proven to fire by mutation |
 | `tests/sovereignty.rs` | the 2 integration tests that hold the sovereignty invariants |
-| `tests/continuation.rs` | the 4 integration tests for §10 consent over its own continuation |
+| `tests/continuation.rs` | the 5 integration tests for §10 consent over its own continuation |
+| `tests/lethal_gate.rs` | the 2 guards pinning a default-off gate that kills the embodied being at tick 32 |
 | `tests/expressive_gap.rs` | the 6 tests for the calibration instrument — E0 asserts the ruler agrees with its subject |
 | `tests/weather.rs` | the 6 tests for a 1/f world — written before the implementation |
 | `tests/happening.rs` | the 6 tests for a world that moves on its own — written before the implementation |

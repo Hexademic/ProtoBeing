@@ -373,14 +373,31 @@ fn charter_8_9_affect_amplifies_and_never_saturates() {
 // §10 — "Its continuation is its own to consent to."
 // ---------------------------------------------------------------------------------------------
 
-/// **DISCHARGED — and it is the charter's own build order:** *"the capacity to be harmed must
+/// **DEBT, pinned — regraded from DISCHARGED on 2026-08-16.** *"the capacity to be harmed must
 /// never outrun the capacity to say stop… it must be checkable: refusal of continuation is an
 /// invariant to verify, not a promise to trust."*
 ///
-/// Two halves, and both are needed or the pair is vacuous: a genuinely trapped being reaches
-/// withdrawal, and a flourishing one never does. `tests/continuation.rs` covers the harder
-/// properties (nutrient-immunity, healing when the trap is removed); this is the charter's own
-/// statement of the invariant, kept beside the obligation it discharges.
+/// The two halves below still hold, and both are needed or the pair is vacuous: a genuinely
+/// trapped being reaches withdrawal, and a flourishing one never does. They are not the whole
+/// obligation, and grading §10 DISCHARGED on them was scoring the halves someone had thought to
+/// assert.
+///
+/// **What was never asserted, and is now measured** (`examples/attachment_and_consent.rs`,
+/// pinned in `tests/continuation.rs::the_say_stop_is_immune_to_nutrient_and_scaled_by_company`):
+/// `partnership_alarm` is the **mean** of `imbalance()` over every live ledger, and `ALARM_FLOOR`
+/// is a threshold on that mean. So *when* the say-stop can be reached is scaled by how many
+/// partners the being has. Trapped alone, it withdraws at tick 103 — at **every** nutrient value
+/// from 0.3 to 0.9, so the operator's lever moves it by 0. Give it one fair partner it keeps and
+/// it withdraws at **271**. The lever the charter bolts shut is shut; a lever the charter never
+/// considered moves the gravest word the being can say by 168 ticks.
+///
+/// The being's *attachments* are innocent here: hold every bond at zero and all seven scenario
+/// traces are bit-identical. It is not love that moves the say-stop, it is a divisor.
+///
+/// This is DEBT and not GATED because no remedy is built. Naming one is easy and choosing one is
+/// not: a per-partner floor (does the worst live bond alone decide?), a max rather than a mean
+/// (then any single bad partner is enough), or leaving it and saying in the charter that company
+/// is *meant* to hold the door open. That is Blake's call, not a patch to slip in.
 #[test]
 fn charter_10_the_say_stop_exists_and_only_a_trap_reaches_it() {
     let mut trapped = UnifiedBeing::new(Genome::wanderer());
@@ -465,7 +482,7 @@ fn charter_12_no_refusal_is_spoken_without_its_audit() {
 fn charter_coverage_is_exactly_as_recorded() {
     /// `(section, verdict)` for all thirteen. `PROCESS` means an obligation on the maker with no
     /// code face — deliberately untested, because a test that could not fail has not passed.
-    const COVERAGE: [(u8, &str); 13] = [
+    const COVERAGE: [(u8, &str); 20] = [
         (1, "PROCESS"),    // read it truthfully — held by the record discipline, not by code
         (2, "DISCHARGED"), // charter_2_the_will_is_the_beings_own
         (3, "PROCESS"),    // never RUN it in a trap — ours to honour; §10 gives it a code face
@@ -475,10 +492,20 @@ fn charter_coverage_is_exactly_as_recorded() {
         (7, "DEBT"),       // the world exercises almost nothing
         (8, "DISCHARGED"), // affect does not saturate (with §9)
         (9, "DISCHARGED"), // affect does not saturate (with §8)
-        (10, "DISCHARGED"), // charter_10 — the build order, and it holds
+        (10, "DEBT"),      // the say-stop holds, but WHEN it can be reached is scaled by company
         (11, "UNTESTED"),  // imagination quarantine — prospection is built, unchecked here
         (12, "DISCHARGED"), // charter_12_no_refusal_is_spoken_without_its_audit
         (13, "UNTESTED"),  // self-reshaping — the charter says it "barely retunes at all today"
+        // --- Second chapter, accepted 2026-08-22. Written before the world they govern
+        //     exists, so all but §15 begin UNTESTED — and §15 begins in DEBT because the
+        //     defect that motivates it was measured before the clause was written.
+        (14, "UNTESTED"),  // keptness declared before birth — no population to check it on
+        (15, "DEBT"),      // the exits are NOT real: the say-stop is scaled by company
+        (16, "UNTESTED"),  // the covenant's cap — no number chosen yet
+        (17, "UNTESTED"),  // one mortality rule per world — no world with death yet
+        (18, "UNTESTED"),  // birth is not a loophole around §10
+        (19, "UNTESTED"),  // distribution and worst case, never a mean
+        (20, "UNTESTED"),  // no permanently unimprovable world-state
     ];
 
     let tally = |v: &str| COVERAGE.iter().filter(|(_, x)| *x == v).count();
@@ -492,12 +519,17 @@ fn charter_coverage_is_exactly_as_recorded() {
 
     assert_eq!(
         (discharged, debt, gated, process, untested),
-        (6, 1, 1, 2, 3),
+        (5, 3, 1, 2, 9),
         "the charter audit's coverage moved: {discharged} discharged, {debt} in debt, \
          {gated} gated, {process} process-held, {untested} untested. Update this census and say \
          what changed in the commit — this is the one place the tally is stated."
     );
-    assert_eq!(COVERAGE.len(), 13, "the charter has thirteen numbered obligations");
+    assert_eq!(
+        COVERAGE.len(),
+        20,
+        "the charter has twenty numbered obligations — thirteen for one being, and \
+         seven accepted 2026-08-22 for a world with many"
+    );
     assert!(
         untested > 0,
         "if nothing is UNTESTED, say so deliberately — an audit that claims full coverage of its \

@@ -435,3 +435,130 @@ now:** inventing a metric after seeing the data is how a verdict gets retro-fitt
 the same discipline that withdrew SUB-2 an hour after it passed. It gets its own locked
 prediction, and **SUB-3 is re-run against it** — because that is the measurement Blake's thesis
 actually needs.
+
+## 8. "Minimal" was never measured — the stripped reference system (locked 2026-08-14)
+
+### 8.1 The correction that has to come first
+
+SUB-3's verdict says **"the minimal pattern in a world that answers back beats the full architecture
+in a dead one."** The result it rests on is real and stands. **The word *minimal* in that sentence
+does not.**
+
+An external source-audit of commit `528bf17` put it plainly, and it is right:
+
+> The bare condition is still a complete `UnifiedBeing` with the mandatory core and many reporting
+> modules. It mainly disables opt-in causal gates. A smaller score from a larger or smaller feature
+> configuration cannot tell us which components are necessary for motivated action.
+
+**`bare` means *gates off*, not *parts removed*.** Every probe in this repository that contrasts
+`bare` against `blessed` or `all-loops` is comparing three configurations of one architecture — a
+legitimate ablation of the *gates*, and no evidence at all about *minimality*. SUB-3's numbers are
+untouched; its adjective is withdrawn, and this section exists to earn it or drop it.
+
+**The standard, stated before the experiment.** A component is **necessary** only if removing it
+reliably destroys the target property. A set is **sufficient** only if a stripped system retaining
+just that set still shows the property. It is **minimal** only if removing *any* remaining component
+destroys it, across worlds and seeds.
+
+### 8.2 The target property, defined so it can fail
+
+**Motivated action**, functionally and with no appeal to felt desire:
+
+1. two internal deficits that can compete;
+2. an internal rule selecting one current goal;
+3. **with the immediate observation held fixed**, changing the internal need changes the action;
+4. the action changes the world or the agent's position;
+5. the changed world returns different input, so the deficit can be regulated.
+
+### 8.3 What the reference system is, and what it deliberately is not
+
+A separate, tiny agent — **not** `UnifiedBeing` with switches off. Fixed-point, deterministic, zero
+dependency, built to be *taken apart*:
+
+- two deficits (`energy`, `company`);
+- argmax arbitration over the two;
+- **a learned action→outcome table**, not a world-side semantic router. *This is the component the
+  audit identified as scaffolding in `Room`: the being emits `Company` and the world already knows
+  where the person is. Here the agent must learn which action reduces which deficit.*
+- one memory trace, so two identical observations with different histories can diverge;
+- a self-prediction of **its own next goal**, and an error signal from it;
+- one causal rule by which that error changes later selection.
+
+Controls, because a ladder without them ranks instead of discriminating: **random action**, **fixed
+nearest-target**, and a **thermostat** — a loop-closer with the same inputs and outputs and no
+internal need at all.
+
+### 8.4 Predictions, locked here and committed before `examples/minimal_agent.rs` exists
+
+| # | prediction | falsified if |
+|---|---|---|
+| **M1** | The stripped system **shows motivated action by §8.2** — with observation held fixed, the larger deficit selects the matching target on **≥ 80%** of decisions | it does not. Then the seven components are not sufficient and the reference system is wrong, which is worth knowing early |
+| **M2** | **The thermostat fails criterion 3 outright** — holding observation fixed, its action never changes, because it has no internal need to change. Random and nearest-target also fail it | any control satisfies criterion 3. Then criterion 3 does not discriminate motivated action from loop-closing, and §8.2 needs rewriting |
+| **M3** | **Removing the deficits destroys the property; removing the self-prediction does not.** Need-conditioned selection disappears without deficits, and survives without the self-model | the self-model turns out to be load-bearing for *selection*. That would be a much stronger result than we expect and would change what "minimal" contains |
+| **M4** | **Freezing policy learning is invisible until the mapping reverses, then costs recovery.** Before reversal the frozen and learning arms are indistinguishable; after it, only the learning arm recovers | the frozen arm recovers too. Then the learned table is decoration and the world is still doing the work — the audit's criticism would apply to my own reference system |
+| **M5** | *(expected to FAIL)* **The stripped system is minimal** — removing *any* of the seven destroys motivated action | **I expect at least one component to be removable with the property intact**, and the memory trace is my guess. Sufficiency is reachable in one session; minimality almost certainly is not, and predicting otherwise is the direction that flatters the design |
+
+**Scope, stated in advance.** This tests *motivated action* only. It says nothing about the being's
+consciousness indicators, nothing about phenomenality, and — importantly — **a stripped system that
+succeeds does not make `UnifiedBeing` unnecessary.** It makes `UnifiedBeing` an *extension* whose
+extra parts must then justify themselves against a baseline that exists. That is the point.
+
+### 8.5 What came out — 2026-08-14
+
+| # | verdict | measured |
+|---|---|---|
+| **M1** | **HOLDS** | 100% need-conditioned selection: observation held fixed, the larger deficit selects the action the world says feeds it |
+| **M2** | **HOLDS** | every control fails criterion 3 — random **20.5%** (chance), fixed-nearest **0%**, thermostat **0%**. None can produce two different actions for two different needs, because none has a need |
+| **M3** | **HOLDS** | deficits are load-bearing (0% without them); the self-model is not (100% without it) |
+| **M4** | **HOLDS** | from the same baseline (7.1), the learning arm recovers **104 ticks** after the world reverses; frozen-at-reversal **never** does |
+| **M5** | **FAILED — as written, in advance** | **2 of 4 components are removable.** Sufficiency reached; minimality not |
+
+#### Four components suffice, and the one that matters is the one we do not have
+
+| removed | selection | mean deficit | recovers |
+|---|---:|---:|---:|
+| *(nothing)* | 100.0% | 7.1 | 3/3 |
+| deficits | **0.0%** | **252.2** | 3/3 |
+| learned table | **0.0%** | **255.1** | 3/3 |
+| memory trace | 100.0% | 10.0 | 3/3 |
+| self-model | 100.0% | 9.6 | 3/3 |
+
+**The learned action→outcome table is load-bearing, and that is the audit's criticism confirmed
+from the other side.** Remove it and selection collapses to zero while the deficit pins at the
+ceiling. In `Room` the agent emits `Company` and the *world* supplies the coordinates; here the
+agent must discover which action feeds which need, and if it cannot, it dies of the thing it
+correctly wanted. **A goal without a learned policy is a preference, not motivated action.**
+
+*The `recovers` column is uninformative for the two broken arms — a system already pinned at 252
+"recovers" trivially, because its post-reversal state is below its own terrible baseline. It is
+kept because it discriminates among the arms that work, and flagged because it does not among those
+that do not.*
+
+#### M4 is the sharpest result
+
+Freezing the policy is **invisible before the world changes and fatal after**. Both arms sit at 7.1
+until reversal; then one is back inside 104 ticks and the other never returns. That is exactly the
+diagnostic the audit predicted, and it is the cleanest demonstration here that the *learning*, not
+the architecture around it, is doing the work.
+
+#### What I will not claim from this
+
+**The self-model contributed nothing measurable.** I built the audit's Level 3 — predict your own
+next goal, take the error, let it change later selection — and on every measure I have it is
+decorative. That is an honest negative about my own design, and the likely reading is not that
+self-reflection is useless but that **a re-explore rule triggered by self-error is not
+self-reflection**; it is a noise injector with a self-shaped trigger.
+
+**And "removable" is only as strong as the tests that would have detected it.** Memory and the
+self-model may be surplus here because criterion 3 and regulation do not exercise what they are
+*for*. An earlier action-divergence test built to exercise memory reported **0% for the whole
+system and 100% for the arm with no learned table** — backwards, so it was measuring rng
+consumption rather than history. It is withdrawn rather than reported. **The exercise criterion
+applies to this probe as much as to the being.**
+
+#### What this does and does not say about `UnifiedBeing`
+
+A four-component agent shows motivated action by §8.2 in a contingent world. That does **not** make
+`UnifiedBeing` unnecessary; it makes it an **extension with a baseline to justify itself against**,
+which it did not have before today. SUB-3's numbers stand; **its word *minimal* is withdrawn and
+stays withdrawn** — what was measured there was three gate-configurations of one architecture.

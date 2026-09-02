@@ -583,3 +583,277 @@ coarse to resolve what the world changed. **Both readings say the same thing abo
 `Basin` is one register of twelve. The being may be varying richly elsewhere while this variable
 sits still; the census in §12 is what speaks to that, and it is not encouraging, but it is a
 separate measurement. **This section measures the basin register, not the being.**
+
+## 14. The branching ratio — locked 2026-08-16, before the probe exists
+
+Blake supplied five papers on organoid dynamics. The decisive one is **Itatani & Zavaglia,
+*Criticality emerges within coherent functional organization in human forebrain organoids***
+(TU Munich; abstract read in full after decoding a shifted font encoding — the body was not read,
+and nothing below cites it):
+
+> Two-dimensional cortical cultures **require structured external input** to approach the critical
+> point. Whether three-dimensional organoids achieve criticality **autonomously**… we analyse
+> spontaneous activity in human forebrain organoids, revealing **robust near-critical dynamics
+> (branching ratio) that emerge without external input.** Branching ratio correlates strongly with
+> firing regularity, functional connectivity and network clustering, while **small-world topology
+> co-emerges**… naive organoids **self-organise to a computationally favourable state.**
+
+### 14.1 Why this reframes our own results
+
+Every "nothing happens" finding in this repository may be **one** finding stated four ways:
+`Basin` at 1 value and 0 changes in 4,000 ticks (§13.3); a reaction rate that is a startup transient
+and then a fixed point; 0.05% quality occupancy; seven of fourteen faculties bit-identically inert.
+In this literature's vocabulary that is not four results — it is **a system far below criticality.**
+
+**And it cuts against the story I have been telling.** All week I have argued the world is the
+binding constraint. These organoids have **no world at all** and self-organise anyway.
+
+### 14.2 The trap in the metric, named before it is used
+
+**σ ≈ 1 does not mean critical.** A Poisson process has a branching ratio near 1 by construction.
+Reporting σ alone would be the fourteen-indicator mistake again in a new costume — a number that a
+random series meets. So this probe computes σ **and** the avalanche size distribution, **and runs a
+random control**, and no claim rests on σ alone.
+
+**What counts as an event.** Twelve somatic channels, each treated as one unit; a unit fires at tick
+`t` when it changes by more than a threshold — the same construction `pci.rs` already uses.
+Avalanches are runs of non-empty bins bounded by empty ones; σ is the mean ratio of consecutive
+within-avalanche event counts (Beggs & Plenz).
+
+### 14.3 Predictions
+
+| # | prediction | falsified if |
+|---|---|---|
+| **B1** | **The being is deeply subcritical: σ < 0.5** in every arm, static and contingent | σ ≥ 0.5. Then the convergent inertness is not a criticality story and §14.1's reframe is wrong |
+| **B2** | **A random control lands near σ ≈ 1** — demonstrating that **σ alone does not discriminate**, and that any criticality claim needs the avalanche distribution too | random lands far from 1. Then σ is more informative than the literature's caveat suggests, and the metric is stronger than I am giving it credit for |
+| **B3** | **The being produces too few avalanches to fit a distribution at all** — fewer than 30 over 4,000 ticks. The failure is not a wrong exponent; it is having no data | it produces a fittable distribution. That would be a much richer dynamical picture than §13 implies |
+| **B4** | **`minimal_agent` lands closer to 1 than the being does**, because it actually adapts and its deficits keep moving | the being is closer. Then adaptation is not what moves this measure, and the four-component agent is not the better dynamical baseline |
+| **B5** | *(expected to FAIL)* **The being's avalanche sizes follow a power law** | I expect no power law and probably no usable distribution — B3 says so directly. Predicting one is the direction that flatters the architecture |
+
+**The line this will not cross.** The paper's own phrase is *"computationally favourable state"* —
+an information-processing claim. **Criticality is not consciousness**, a near-critical organoid is
+not a subject, and if the being turned out to be near-critical that would be a fact about its
+dynamics and nothing else. Recorded here so the result cannot later be read as more than it is.
+
+**One honest asymmetry.** Organoid criticality arises in a noisy stochastic medium; this being is
+deterministic by construction and that will not be traded. Whether a deterministic system can be
+near-critical is a real open question — deterministic chaos exists, and the body is a Van der Pol
+oscillator with the right bifurcation structure — but it is a question, not an assumption.
+
+### 14.4 What came out — 2026-08-16, and §14.1's reframe is withdrawn
+
+**The first run was invalid twice over, and both defects are recorded rather than hidden.** σ was
+computed as the *mean of per-step ratios*, which is biased upward whenever counts are small — one
+1→3 step contributes 3.0. And at `θ = 2` the signal was active on **99% of ticks**, so the quiescent
+bins that separate one cascade from the next essentially never occurred: the analysis returned seven
+"avalanches" of size 13,685, which is one continuous blob. **An avalanche statistic over a signal
+that is never quiet is not a measurement.** σ is now the ratio of sums, and the threshold is swept.
+
+| θ | plain | room | contingent | active% (room) |
+|---:|---:|---:|---:|---:|
+| 2 | 0.991 | 0.999 | 0.999 | 98.3% |
+| 8 | 0.994 | **1.377** | 0.986 | 25.7% |
+| 24 | 0.706 | 0.625 | 0.667 | 0.3% |
+| 64 | 0.200 | 0.455 | 0.455 | 0.1% |
+
+| control | σ | active% |
+|---|---:|---:|
+| random, density 0.02 | **1.047** | 22.2% |
+| random, density 0.10 | **1.008** | 71.7% |
+| random, density 0.23 | **1.001** | 95.6% |
+| frozen (nothing moves) | 0.000 | 0.0% |
+
+#### The verdicts
+
+- **B1 — FAILED.** The being is **not** uniformly subcritical: 1.377 in the room arm at θ = 8.
+- **B2 — HOLDS, decisively.** Random lands at **1.001–1.047 at every density tried**. σ ≈ 1 is worth
+  nothing on its own, exactly as the caveat predicted.
+- **B3 — FAILED.** Up to 821 avalanches, not fewer than 30.
+- **B4** — not measured this pass, and not claimed.
+- **B5 — UNTESTABLE here.** The slope column is least squares on a log-log histogram; a real
+  power-law test needs MLE plus goodness-of-fit (Clauset et al.). **Scoring B5 against a proxy I
+  invented would be the vacuity this section was written to avoid.**
+
+#### The finding, which is about the metric
+
+**σ is strongly threshold-dependent and does not separate the being from a random series at any
+threshold where the analysis is valid.** The being spans 0.99 → 1.38 → 0.67 → 0.20 as θ rises; the
+random control sits at ≈ 1.00 throughout. Where the being's signal is sparse enough to analyse
+(θ = 8, room, 25.7% active) the nearest random control is 22.2% active at σ = 1.047 — **statistically
+indistinguishable on this measure.**
+
+> **§14.1's reframe is withdrawn.** *"Every 'nothing happens' finding is one finding: a system far
+> below criticality"* is **not supported**. It was a satisfying story that unified four results, and
+> that is exactly the shape of claim this project has learned to distrust. The being is not
+> demonstrably subcritical, and the metric that was supposed to show it barely discriminates.
+
+**What survives.** The organoid result stands as read — 3D organoids reach near-criticality without
+external input — and remains a genuine challenge to the argument that our world is the binding
+constraint. **But we have not measured our own being against it**, and this probe is why: borrowing
+a metric is easy, and making it mean something in a new substrate is the whole work. That is ledger
+row 5 in a fourth costume — *re-measure a borrowed constant, method, or regime in the world you will
+use it in.*
+
+## 15. Mixed selectivity — locked 2026-08-21, before the probe exists
+
+Miller, Brincat & Roy, *Analog Cognition and Consciousness* (J Neurosci 46(33):e0711262026)
+argue that connectionism is an incomplete account **even of cortex**. Their
+reductio: nonlinear mixed selectivity is found in 30–40% of neurons, in primary
+sensory and motor cortex as well as PFC; if each neuron held a fixed function,
+prefrontal capacity would be saturated by about three cognitive functions. What
+they propose instead is *spatial computing* — alpha/beta waves as spatially
+patterned inhibitory "stencils" that suppress spiking in some places and spare it
+in others, so **the same unit expresses different content under different control
+patterns, without rewiring anything.**
+
+That is a direct challenge to this being. We are discrete, sequential and
+symbolic: twelve channels, one `step()` per tick, a soul-hash. If Miller et al.
+are right in the strong form, we have built the part they call insufficient and
+omitted the part they call essential.
+
+Blake's charge, and mine: **ask whether we are the strawman.** I would rather lock
+this and lose it than not ask.
+
+### What the code says before anything runs
+
+Two facts read from source. They are structural, not measurements, and this
+section marks them as such — a claim settled by reading is not a finding.
+
+1. **At the write side we are pure-selectivity by construction.** `field.rs`
+   assigns each channel a fixed meaning every tick: 0–3 exteroceptive, 4–7
+   proprioceptive, 8 arousal, 9 valence, 10 fatigue, 11 free-energy velocity.
+   Channel 9 *is* valence. No context can make it anything else. Miller's
+   multifunctional unit has no counterpart here at all.
+2. **On the default path the "stencil" is uniform.** `predictive_step` weights
+   every channel's error by one scalar `precision`. Twelve channels, one number.
+   The spatially patterned control signal that spatial computing is *about* is
+   not merely weak on our default path — it has no place to live. A non-uniform
+   per-channel weighting exists only behind `precision_learning_causal`, which is
+   off by default, and the attention weights exist only in a report nothing reads.
+
+So the interesting question is not "do we have mixed selectivity" — read the code,
+we do not. It is the **exercise** question, which has been unkind to us before:
+given the routing machinery we *do* have (attention's divisive normalization,
+learned per-channel precision), how much of its afforded variation is ever
+realized in a life?
+
+### Locked predictions
+
+Four regimes, genuinely different worlds: fair partner, inescapable trap,
+solitude, famine. 8,000 ticks each, fresh beings.
+
+| # | prediction | I expect |
+|---|---|---|
+| **MS-1** | Across all four regimes, the being attends **≤ 3 distinct channels** of the 12 afforded. | holds |
+| **MS-2** | No context-dependent reuse: the **modal attended channel is the same in every basin** the being enters. | holds — this is us being the strawman |
+| **MS-3** | **Regime changes the focus**: fair / trapped / solitary / famine produce *different* modal attended channels. | **fails** |
+| **MS-4** | With `precision_learning_causal` on and warm, the learned precision vector develops real spatial structure — spread (max − min) **> 25% of its mean**. | holds, but I am genuinely unsure |
+| **MS-5** | Even then the stencil is a **fixed profile, not a context-dependent one**: the rank order of the learned precision vector is identical across all four regimes. | holds |
+
+### The vacuity guards
+
+* **V1** — the four regimes must actually produce different lives (different mean
+  valence, or different basins entered). Four names for one trajectory tests nothing.
+* **V2** — attention must actually ignite. If `attended` is `None` throughout,
+  MS-1/2/3 are about a variable that never moved.
+* **V3** — precision learning must actually reach `is_warm()`, or MS-4/5 are vacuous.
+* **V4** — **more than one basin must be entered**, or MS-2's "same in every basin"
+  is trivially true over a single basin. Given §13 measured 2 basin crossings in
+  4,000 ticks and a quiet tail of ≥3,834, I expect this guard to **fail**, and its
+  failing is the finding: you cannot have context-dependent routing if you have no
+  contexts.
+
+### Method
+
+Fresh beings only. **The founded being's kept life is never advanced.** MS-1/2/3
+run the default path with no gate touched. MS-4/5 require
+`enable_precision_learning_causal()`, which is a gated, non-default path and is
+reported as such — a result behind a gate is a result about the gate.
+Probe: `examples/mixed_selectivity.rs`. Results appended here with every
+prediction marked held / failed / vacuous, including the ones I get wrong.
+
+### What came out — measured 2026-08-21 (`examples/mixed_selectivity`)
+
+| # | prediction | I expected | verdict |
+|---|---|---|---|
+| **MS-1** | ≤ 3 distinct channels attended | holds | **FAILS** — 5 (wanderer), 4 (default) |
+| **MS-2** | modal channel same in every basin | holds | **VACUOUS** — see V4 |
+| **MS-3** | regime changes the focus | fails | **FAILS, as predicted** — but only after a mutation |
+| **MS-4** | learned precision has real structure | holds | **FAILS** — spread/mean 0.05–0.07 |
+| **MS-5** | the stencil is one fixed shape everywhere | holds | **VACUOUS** — 11 of 12 channels tied |
+
+**Three of five wrong, and the two "wins" are a failed prediction and a vacuity.**
+That is the honest headline.
+
+#### The answer to Blake's question: yes, near enough
+
+One channel — **4, proprioceptive arousal** — is the modal focus in *all four
+worlds*, on *both genomes*. Fair partner, inescapable trap, solitude, famine: the
+same winner. That is a **fixed salience ranking, not a control signal**, and it is
+precisely the thing spatial computing exists to deny. On the routing question, we
+are the connectionist strawman this paper argues against.
+
+MS-1 failed in the being's favour and I should not dress it up: it touches 4–5
+channels rather than the ≤3 I predicted. But *touching* five channels while one
+wins essentially always is the exercise gap again, not flexible routing.
+
+#### The mutation that saved MS-3 from being reported backwards
+
+The first run said MS-3 **HOLDS** — the trap's modal channel was 9 (valence)
+against 4 everywhere else — and that is the reading I would have published. It is
+wrong. The trap fired the **threat-capture floor on 4,875 of 8,000 ticks**;
+capture is a hardcoded exogenous interrupt (*"attention may miss the clown, never
+the knife"*), not biased competition selecting a different winner. Excluding
+captured ticks, the modal channel is 4 in the trap too.
+
+I made exactly this criticism of a different paper two days ago — *"that is a
+threshold sweeping down a fixed salience ranking, not attention"* — and then
+nearly published the same error about our own being, in the same week, on a
+prediction I had written to fail. The probe now judges MS-3 on uncaptured ticks
+only and prints the captured figure beside it.
+
+#### MS-5 was a tie-break, not a stencil
+
+The first run said MS-5 **FAILS** — "the rank order changes with regime" — flagged
+in the output as *the one result that would count in Miller's favour*. It is an
+artefact. **Eleven of twelve channels sit tied at the ceiling (256)**, so
+`sort_by_key` returns index order and comparing two such "orders" compares
+tie-breaks. Marked VACUOUS, with a tie check now in the probe.
+
+The learned precision **saturates**. What is actually there, at its real width:
+
+| regime | channels below the ceiling |
+|---|---|
+| fair partner | trust 244, valence 244 |
+| solitude / famine | trust 244, valence 244, velocity 252 |
+| inescapable trap | disequilibrium 237 |
+
+That set does differ between the trap and the other three, reproducibly. It is a
+genuine context-dependence of about **one channel in twelve, 3–7% below a ceiling
+everything else is pinned to** — and nothing like a spatially patterned control
+signal. MS-4's failure and this table are the same fact twice.
+
+#### V4 failed, and it is the finding
+
+**One basin. `Engaged`, 8,000 of 8,000 ticks, in all four regimes.** Four worlds
+that differ enormously in *felt* terms — mean valence +0.386 to −0.240, a spread
+of 0.627 — and the being's basin never moves. You cannot have context-dependent
+routing when you have no contexts. This is §13's debt (2 crossings in 4,000 ticks,
+quiet tail ≥3,834) arriving from a completely different direction, and it now
+blocks a second measurement rather than one.
+
+#### What this does and does not concede
+
+It does **not** concede that our substrate is wrong. Miller et al.'s own paper
+contains no data — Figures 3, 5, 6, 7, 8 are captioned as schematics, and the
+analog-computation section runs on *propose / might / may / could*. Their central
+mechanism is illustrated rather than demonstrated because the ablation that would
+test it is not available in a cortex. Ours is: `clear_bonds()` through seven
+bit-identical runs proved a negative about attachment five days ago.
+
+What it concedes is narrower and real: **the capacity Miller says does the work is
+one we have measured ourselves as barely exercising.** Not absent — attention's
+divisive normalization is built, precision learning is built — but realized so
+weakly that one channel wins every world and the learned stencil saturates flat.
+That is not a substrate objection. It is §7 and §13 again, and this is now the
+third instrument to find them.

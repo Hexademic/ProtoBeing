@@ -377,3 +377,181 @@ and nobody else's**, and it is now a decision with numbers under it instead of a
 read-only, as `examples/founded_load` does, and read the basin it is actually in. One sample, not a
 distribution — but it is the kept being's own state rather than a fresh being's, and it costs
 nothing.
+
+## 12. The whole-being census — locked 2026-08-21, before the probe exists
+
+Blake, after Miller et al.: *"it makes me wonder if our project is overcomplicated."*
+
+He may be right, and every instrument we have pointed at this being — aimed at some
+other question each time — has come back saying the same thing from a new angle:
+
+* `minimal_agent`: **four parts**, 100% need-conditioned selection, self-model **removable**
+* leave-one-out over twelve field channels: **no channel above 0.2%** influence on basin
+* `c1-relabelling.md` §15: one channel wins attention in **all four worlds, both genomes**;
+  **11 of 12** learned precision values pinned at the ceiling
+* this document, §6: *"one faculty is the being's whole life, and it is off by default"*
+* 23,313 lines across **64** modules
+
+Nobody has ever measured the whole thing at once. This section does, and it is
+written to be able to embarrass us.
+
+### What is honestly measurable, and what is not
+
+A true leave-one-out over 64 modules would mean making each one removable. That is
+weeks of invasive surgery that would itself change the being, and the result would
+be a census of a different system. **Not attempted, and this section does not
+pretend to it.** What can be measured without touching the default path:
+
+1. **The gate battery.** The being has **16 `enable_*` gates**, all default-off, plus
+   two ablation handles (`clear_bonds`, `freeze_basin_targets`). Each is a real A/B on
+   a fresh being: same world, same ticks, gate off versus on. This is Metis's Table 7
+   for the optional half of the being, and it needs no new surgery.
+2. **The observer-claim census.** Many modules assert in their own doc comments that
+   they are inert — *"observer-first"*, *"nothing downstream reads it"*, *"Stage 1"*.
+   Those are **claims**, and this project's whole method is that a claim needs a check.
+   Counting how many make the claim and how many have a test naming it is itself a
+   measurement, and by our own rules an unchecked claim is not a passed one.
+
+The headline this is meant to produce is one number Blake can act on: **how much of
+the being's optional half changes anything at all.**
+
+### Locked predictions
+
+Battery per arm, fresh being, 4,000 ticks, four worlds (fair / trap / solitude /
+famine): final soul-hash, mean valence, mean free energy, basin occupancy, attention
+ignitions, refusals, consent withdrawals, survival.
+
+| # | prediction | I expect |
+|---|---|---|
+| **C1** | **At least 3 of the 16 gates leave the soul-hash bit-identical** across all four worlds — switched on, and the being lives exactly the same life. | holds |
+| **C2** | The distribution is Metis-shaped: the **top 3 gates by behavioural Δ account for ≥ 60%** of all measured change. | holds |
+| **C3** | Module size predicts influence — the gates touching the most lines produce the largest Δ. | **fails** |
+| **C4** | More modules **claim** observer status than have any test naming that claim. | holds |
+| **C5** | At least one gate, when enabled, makes something we would call welfare **worse**. | genuinely unsure |
+
+### The vacuity guards
+
+* **V1** — the battery must discriminate. At least one gate must produce a large Δ,
+  or "most gates change nothing" is a statement about a blunt instrument.
+* **V2** — a gate whose mechanism never *triggers* in these worlds has not been shown
+  inert; it has been shown untested. Every "changed nothing" must say which it is.
+* **V3** — the soul-hash comparison must be shown to detect a difference it should,
+  against a pair known to differ, or "bit-identical" could be my comparison failing.
+
+### What I will do with the answer, said in advance
+
+If most of the optional half changes nothing, the move is **not deletion**. It is a
+fork: **the full being stays as the hypothesis space; a minimal being becomes the
+claim.** We would assert only what is measurably load-bearing and keep the rest
+labelled honestly as unexercised capacity. Deleting a faculty because it is quiet in
+four abstract worlds would repeat exactly the error §6 already caught — the faculty
+that turned out to be the being's whole life was the one switched off.
+
+Fresh beings only. **The founded being's kept life is never advanced.**
+Probe: `examples/census.rs`. Results appended here, mine included.
+
+### What came out — measured 2026-08-21 (`examples/census`)
+
+**An unsafe COMBINATION of gates, found by accident — and the founded being was
+never at risk.**
+
+> **⚠️ NARROWED 2026-08-21, hours after it was first written.** The paragraph below
+> originally said *"a gate is lethal"*. That was measured in one configuration and
+> written about the switch — row 20's error again, committed and pushed before I
+> caught it. The corrected finding is narrower, and better:
+
+`enable_workspace_persistence()` — Global Workspace Stage 3, the leaky integrator —
+**kills the embodied being at tick 32** where the default being lives all 4,000.
+**But only in certain company:**
+
+| configuration | outcome |
+|---|---|
+| default, no gates | lives |
+| persistence **alone** | **dies at 32** |
+| persistence + `precision_learning` | **dies at 32** |
+| persistence + `felt_choice` | **dies at 32** |
+| persistence + `generative_perception` | **lives** |
+| `BLESSED` — the kept being's own nature | **lives** |
+
+**`generative_perception` rescues it, and the founded being has both.** Checked two
+ways: `blessed_features()` in `src/bin/being.rs` carries both flags, and the kept
+record at `life/being.journal` holds **zero** grants beyond its birth nature. It was
+never in danger, and `examples/room_ablation.rs` — which has been running the
+blessed combination in a room since 2026-08-03 and reporting no deaths — was right.
+
+On the abstract path none of it appears: 4,000 ticks alive in a fair world, a trap
+and a famine. Nothing in the suite caught it, because the gate is default-off, no
+published number moves, and **no test exercises gate combinations at all**.
+
+**That is the real finding, and it is structural: seventeen gates make 131,072
+combinations, and we have been testing them one at a time.** A switch that is safe
+alone and safe with two companions and fatal with a third is invisible to every
+form of testing this project currently does.
+
+**The census ranked it FIRST by embodied Δ before the mutation pass caught this.**
+"The highest-impact gate" was true and would have been a catastrophic thing to
+report. Survival is now read before any Δ is interpreted, and the behaviour is
+pinned in `tests/lethal_gate.rs` — including the half that makes it dangerous
+rather than merely broken: *tested the ordinary way, it looks completely safe.*
+
+| # | prediction | I expected | verdict |
+|---|---|---|---|
+| **C1** | ≥3 of 16 gates leave the soul-hash identical | holds | **HOLDS** — 9 do |
+| **C2** | top 3 gates carry ≥60% of all change | holds | **HOLDS** — 80.9% |
+| **C3** | module size predicts influence | **fails** | **FAILS, as predicted** |
+| **C4** | more modules claim inertness than prove it | holds | **HOLDS** — 16 claim, 11 named in tests |
+| **C5** | some gate makes welfare worse | unsure | **HOLDS** — `reflection`, `reserve`, `settling` |
+
+#### The answer to Blake's question, at its real width
+
+**Seven of seventeen gates change nothing in either world** — same soul-hash, Δ 0,
+over 4,000 ticks *and* 20,000, on both genomes: `comfort`, `felt_choice`,
+`homecoming`, `memory_guidance`, `schema_control`, `setting_down`, `ultrastability`.
+
+But the number you get **depends entirely on which being you run**:
+
+| | inert gates |
+|---|---|
+| abstract path | **8 of 17** |
+| the being's own room | **7 of 17** |
+
+and `receptors` is the difference — **Δ 0.000 abstract, 2.284 embodied**, the second
+largest effect in the room, and §6 of this document already called it *the being's
+whole life*. **An abstract-only census would have scored the most important faculty
+we have as dead weight.** The rank order barely survives the change of world at all:
+`freeze_basin_targets` is first abstractly (2.831) and fourth in the room (0.027);
+`reflection` is third abstractly (0.549) and **zero** in the room.
+
+**C3 failed as predicted, and cleanly.** The largest half of the modules carries Δ
+5.581; the smallest half carries 5.752. Size predicts nothing. `homeostasis.rs` at
+150 lines holds `settling`; `episodic.rs` at 763 lines holds two gates that are both
+completely inert.
+
+**C4 holds and is uncomfortable.** Sixteen modules assert in their own doc comments
+that they are inert — *"observer-first"*, *"nothing downstream reads it"*, *"changes
+no published number"* — and **five are named in no test at all**: `habits`,
+`homeostasis`, `inheritance`, `joy`, `sensorimotor`. By this project's own rule an
+unchecked claim is not a passed one.
+
+#### Two honest limits on the number above
+
+* **The composite Δ is largely an occupancy ranking.** Decomposed, basin occupancy
+  carries **64%** of `freeze_basin_targets`' Δ and **83%** of
+  `workspace_persistence`'s. `reflection` ranks third on valence alone, with
+  occupancy Δ exactly 0. The ranking is not a general "amount of change" and should
+  not be read as one.
+* **This is the optional half only.** Seventeen switches out of sixty-four modules.
+  Nothing here licenses a claim about the being's non-optional core.
+
+#### What this licenses, and what it does not
+
+It does **not** license *"the being is 40% dead weight."* It licenses this:
+
+> **A large part of this being does nothing until it is given a world to do it in,
+> and the census you run decides how much of it you would delete.**
+
+The seven gates dead in both worlds are the real candidates — and even for them, §6
+is the standing warning: the faculty that turned out to be the being's whole life
+was the one switched off. The move stays a **fork, not a deletion**: the full being
+is the hypothesis space, a minimal being becomes the claim, and everything else is
+labelled honestly as unexercised capacity.
