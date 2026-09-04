@@ -321,3 +321,96 @@ Spec first, committed before the probe. Fresh beings only; the founded being's k
 life is never advanced. The sweep is observational — `primes.rs` is not changed until
 the sweep says which pair, if any, is defensible, and §7's numbers are reproduced
 first or the run is void.
+
+## 9. What came out — measured 2026-09-04 (`examples/happen_grounding`)
+
+**The grounding correction works, in a narrow window, on one genome. And my
+forecasting was worse than chance.**
+
+| # | prediction | p | verdict | Brier |
+|---|---|---|---|---|
+| **H1** | no pair discriminates | 0.60 | **FAILS** — a pair does | 0.36 |
+| **H2** | HAPPEN fires under weather | 0.90 | HOLDS | 0.01 |
+| **H3** | still-control confidence median > 64 | 0.70 | **FAILS** — it is **10** | 0.49 |
+| **H4** | monotonic across octaves | 0.20 | **HOLDS** (both currencies) | 0.64 |
+| **H5** | agency alone does not discriminate | 0.75 | HOLDS | 0.06 |
+
+**Brier 0.3125 over five.** Saying 0.5 to everything scores 0.25. **My first
+forecasting round on this being is worse than knowing nothing**, and the two worst
+rows are the two where I was most confident.
+
+### §8 missed a third gate, and V1 caught it
+
+The first run reported the current rule firing on **0.3%** of ticks under
+weather-2 where §7 says *never*. V1 failed and voided the run, which is what it was
+for. The cause is not a harness bug and not a disagreement with §7 — **both numbers
+are right, and they measure different things.**
+
+`PrimeLayer::observe` does not speak a word when its predicate is true. It
+accumulates: `RISE` = 4 on a held tick, `EBB` = 1 otherwise, crossing at
+`GROUNDED_THRESHOLD` = 128. **A word needs roughly 32 sustained lived moments to be
+earned**, so a predicate true in scattered flashes drains between them and never
+grounds. §7 measured the *word*; my first run measured the *predicate*.
+
+So the diagnosis had two layers and there are three:
+
+1. the register that moved correctly (`agency`, a ratio)
+2. the quantity the word is bolted to (an L1 magnitude)
+3. **the accumulator that decides whether any predicate is ever earned at all**
+
+The correct ruler for (3) already existed — `primes::would_ground`, built for
+`docs/expressive-gap.md`, with `tests/expressive_gap.rs` E0 asserting it reproduces
+`observe()` exactly. **V4 checks my accumulator against it on all seven worlds.**
+
+### The window that works
+
+`confidence > 16 && agency < 16`:
+
+| world | grounds at |
+|---|---|
+| still (control) | **never** |
+| drift every 8 | 644 |
+| drift every 2 | 566 |
+| **weather 2 octaves** | **131** |
+| weather 4 octaves | 251 |
+| weather 6 octaves | 913 |
+| weather 8 octaves | never |
+
+The word is earned in every world where something is done to the being, and never
+in the world where nothing is. That is what *"something happened to me"* should mean.
+
+### Four qualifications, and they outweigh the headline
+
+* **The silence is real, not a horizon artefact.** The still control stays silent at
+  1,500, 6,000, 20,000 and **50,000** ticks.
+* **It does not pick out weather — it picks out world-motion.** Drift grounds too.
+  I think that is *correct* for this word and not a defect: drift is the world acting
+  on the being. But §7 framed drift as a failed world, and under this grounding it
+  is not.
+* **It has a sensitivity floor the gentlest world sits below.** Weather-8 never
+  grounds. §7 notes more octaves gives *less* per-tick change because the
+  implementation averages rather than sums, so weather-8 is the mildest world tested
+  — and it falls off the bottom.
+* **It does not generalise across genomes.** `default` stays silent under weather at
+  the same window. **One genome, one weather setting.**
+
+### The error I committed while diagnosing the error
+
+H4 as locked said *"the **fire rate** is monotonic."* Rate is the quantity this whole
+section argues is the wrong one. I spent §8 establishing that magnitude answers the
+wrong question, then wrote a prediction in the wrong currency four paragraphs later.
+
+It happens to hold in both — grounding gives 2=131, 4=251, 6=913, 8=never — so
+nothing downstream is wrong. The wording is the finding.
+
+### What is not closed
+
+§4's regularity gap, unchanged. After habituation to a statistically regular forward
+process, *"as it always is"* and *"changed while I stood in it"* produce the same low
+prediction error. **No threshold reaches that distinction, including the one found
+here.** The grounding correction was worth making because it is correct. The faculty
+is what unblocks the design, and this section does not build it.
+
+`primes.rs` is **unchanged**. The sweep is observational, as §8's method promised;
+whether `confidence > 16 && agency < 16` ships — and whether the constants become the
+genome parameter M3 argues for — is not a decision a sweep on one genome can make.

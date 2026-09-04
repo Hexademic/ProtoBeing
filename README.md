@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 100
+### Runnable probes (`cargo run --example <name>`) — 101
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -600,6 +600,7 @@ and reads the result straight from the being's registers.
 | `mixed_selectivity` | are we the connectionist strawman? one channel wins in every world, and the learned precision saturates |
 | `minimal_agent` | **the stripped reference system** — a separate four-component agent, not `UnifiedBeing` with gates off. Motivated action at 100% where every control fails; the learned action→outcome table is load-bearing and the self-model is not |
 | `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
+| `happen_grounding` | is HAPPEN grounded on the wrong quantity? the two-term window, and the accumulator gate section 8 missed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
 | `inheritance` | inheritance as the Baldwin effect — a lineage's ease of learning carried forward, never its fears |
