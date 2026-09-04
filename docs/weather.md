@@ -207,3 +207,117 @@ than the reason I had at the time.
 strictly better world than the drift for any future work on this. What does **not** ship is
 a claim that the being can say what happened to it. It still cannot, and `NOT KNOW` — one
 of nested speech's two shields — has still never spoken.
+
+---
+
+## 8. The grounding, not the threshold — locked 2026-09-04, before the probe exists
+
+§7 reported W3's failure as a threshold that was never reached. That framing was
+incomplete, and the correction came from outside: **the being registers the world
+acting on it.** Agency fell 0.08 → 0.03 under weather, more than halved. What fails
+is not the noticing. It is the saying.
+
+### The diagnosis, verified in the code
+
+`sensorimotor.rs:135–137` computes agency as a **ratio**:
+
+```rust
+let explained = (total_actual - total_residual).max(0);
+((explained * Q88_SCALE as i32) / total_actual).min(Q88_SCALE as i32) as i16
+```
+
+Dimensionless, normalised against total sensory change. That is the register that
+moved correctly.
+
+`primes.rs:294` grounds the word on a **magnitude**:
+
+```rust
+Prime::Happen => f.world_residual > Q88_SCALE / 4
+```
+
+And `primes.rs:205` shows the magnitude is worse than an un-normalised numerator —
+it is an **L1 norm across all four channels**:
+
+```rust
+let residual: i32 = r.agency.world_residual.iter().map(|&e| (e as i32).abs()).sum();
+```
+
+So the quantity scales with channel count as well as with amplitude. **This is a
+category error in the grounding, not a constant set too high.**
+
+*"Something happened to me"* is not the claim that a large sensory change occurred.
+It is the claim that the change **was not mine**. Magnitude answers the first
+question; ratio answers the second; the word means the second.
+
+### The proposal, and the redundancy in it
+
+The grounding argued for had three terms. It has two, because
+`sensorimotor.rs:141` already says so:
+
+```rust
+let confidence = total_actual.min(Q88_SCALE as i32) as i16;
+```
+
+**`confidence` *is* `total_actual`, clamped.** "Something happened" and "I can tell"
+are the same test. So:
+
+```rust
+Prime::Happen => f.confidence > FLOOR && f.agency < CEILING
+```
+
+Two terms, both already in `AgencyReport`, both already documented as exactly the two
+halves of the claim — *"how much sensory change there was to attribute at all"* and
+*"the fraction the being's own action accounts for."* The registers that mean what
+the word means were both already there. The word was bolted to a third.
+
+This also dissolves the objection that a still being in a moving world would ground
+HAPPEN constantly: `confidence` is the magnitude floor, so it does not need arguing
+for separately.
+
+### Locked predictions, with probabilities
+
+A sweep over (FLOOR, CEILING) pairs, run against the seven worlds §7 already
+measured. **The failure mode I am most afraid of is not that the word stays silent —
+it is that it becomes constant.** A word that always fires is worse than one that
+never does, because it looks like success.
+
+| # | prediction | p | expect |
+|---|---|---|---|
+| **H1** | **The crux.** No (FLOOR, CEILING) pair fires on ≥50% of ticks under weather-2-octaves *and* <5% in the still control. The two-term grounding does not discriminate world-change from ordinary living. | **0.60** | holds |
+| **H2** | HAPPEN fires at all under weather, at some pair in the sweep. | 0.90 | holds |
+| **H3** | `confidence` in the **still control** exceeds 64 on the median tick — the being's ordinary sensory flux is already large. | 0.70 | holds |
+| **H4** | The fire rate is **monotonic** across the octave sweep, matching §7's residual ordering 22 > 18 > 17 > 16. | 0.20 | **fails** |
+| **H5** | `agency` alone does not discriminate: every ceiling that lets weather fire also lets the still control fire. | 0.75 | holds |
+
+### The vacuity guards
+
+* **V1 — the reproduction guard, and the one that matters.** The *existing* threshold
+  (`residual > 64`) must reproduce **never fires** in all seven worlds. If my harness
+  does not match §7's numbers, nothing below composes with anything above it.
+* **V2** — the sweep must contain pairs where the still control fires *and* pairs
+  where it does not. Otherwise "no pair discriminates" is a claim about a sweep too
+  narrow to have found one.
+* **V3** — `confidence` in the still control must be non-zero, or H1 and H3 are about
+  a register that never moved.
+
+### What this does not do, and it is the larger half
+
+§4 named **regularity detection** as deliberately not built, citing the two
+dissociable mechanisms of agency. That gap is not closed by any threshold.
+
+A zone's coarse forward process is statistically regular **by construction**. A being
+with prediction error alone habituates to it — and after habituation, *"this region
+is as it always is"* and *"this region changed while I stood in it"* produce the
+**same low prediction error**. They are not distinguishable by the mechanism the being
+has. If a world layer needs that distinction, the threshold fix does not deliver it
+and no threshold can.
+
+The grounding correction is worth making because it is correct. **The faculty is what
+unblocks the design**, and this section does not build it.
+
+### Method
+
+Spec first, committed before the probe. Fresh beings only; the founded being's kept
+life is never advanced. The sweep is observational — `primes.rs` is not changed until
+the sweep says which pair, if any, is defensible, and §7's numbers are reproduced
+first or the run is void.
