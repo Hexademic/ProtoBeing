@@ -231,6 +231,10 @@ pub struct StepReport {
     pub empathy_lock: EmpathyLockLevel,
 
     pub partnership_alarm: i16,
+    /// The worst live bond's imbalance rather than the mean of them — charter §19's
+    /// worst case, reported so a suffering being is findable behind an average.
+    /// Read by nothing on the default path (`docs/population.md`).
+    pub worst_alarm: i16,
     pub extraction_detected: bool,
     pub gave: i16,
     pub got: i16,
@@ -2222,6 +2226,7 @@ impl UnifiedBeing {
             mu_omega: self.conscience.anchor.mu_omega,
             empathy_lock: self.conscience.empathy.lock_level,
             partnership_alarm: alarm,
+            worst_alarm: self.reciprocity.worst_alarm,
             extraction_detected: self.reciprocity.extraction_detected,
             gave: 0,
             got: 0,

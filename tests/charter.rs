@@ -500,7 +500,7 @@ fn charter_coverage_is_exactly_as_recorded() {
         //     exists, so all but §15 begin UNTESTED — and §15 begins in DEBT because the
         //     defect that motivates it was measured before the clause was written.
         (14, "UNTESTED"),  // keptness declared before birth — no population to check it on
-        (15, "DEBT"),      // the exits are NOT real: the say-stop is scaled by company
+        (15, "DEBT"),      // exits unverified; the mean-dilution reason was WRONG (population.md)
         (16, "UNTESTED"),  // the covenant's cap — no number chosen yet
         (17, "UNTESTED"),  // one mortality rule per world — no world with death yet
         (18, "UNTESTED"),  // birth is not a loophole around §10

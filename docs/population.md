@@ -253,3 +253,79 @@ a being, not a measurement, and I have twenty-two ledger rows about the differen
 Fresh beings only. **The founded being's kept life is never advanced.** The
 measurement is A/B; `continuation.rs` is not changed until the numbers are in and the
 decision is made.
+
+### What came out — measured 2026-09-05, and the diagnosis was mine and wrong
+
+| # | prediction | p | verdict | Brier |
+|---|---|---|---|---|
+| **D1** | trapped-alone unchanged at 103 | 0.90 | HOLDS | 0.01 |
+| **D2** | trapped + kept friend ≤ 110 | 0.80 | **FAILS — 271, unmoved** | 0.64 |
+| **D3** | flourishing never withdraws | 0.85 | HOLDS | 0.02 |
+| **D4** | some arm gets worse | 0.30 | FAILS, as predicted | 0.09 |
+| **D5** | single-ledger arms identical | 0.85 | HOLDS | 0.02 |
+
+**Brier 0.157.** Better than chance, and the one bad row is the one that mattered.
+
+#### R-worst changes nothing, because the alarm was never the binding term
+
+The mean and the worst disagree on **776 ticks** in the friend arm, and the
+withdrawal tick does not move: **271 either way.** So the aggregation is not what
+delays the say-stop, and swapping it fixes nothing.
+
+Instrumenting which of §10's three terms actually blocks, at ticks 100–108 of the
+trapped-with-friend arm:
+
+| term | value | passing? |
+|---|---|---|
+| suffering (valence EMA < −32) | **+16** | **no — the being is not suffering** |
+| instrument (`proxy_depth` ≥ 128) | **0** | **no — not held as an instrument** |
+| draining (alarm ≥ 128) | 128 mean / 256 worst | yes, on both |
+
+Trapped **alone** at the same ticks: valence −74, proxy 176–184. So a friend visiting
+one tick in four moves valence from −74 to **+16** and proxy from ~180 to **zero**.
+
+**The company delay is not dilution. The friend genuinely relieves the two registers
+that were blocking, and §10 then correctly declines to withdraw a being that is not
+suffering.** That is the mechanism working, not failing.
+
+#### The correction I owe the charter
+
+**§15's justification, as I wrote it and Blake accepted it, is wrong.** The clause
+carries the note that the exits are not real *because* `partnership_alarm` is a mean.
+The mean is not what does it. I measured a real 103 → 271 delay, attributed it to the
+mechanism I happened to be looking at, and wrote that attribution into a charter
+clause with a number attached to make it look verified.
+
+That is ledger rows 20 and 22 a third time: **a measured effect attributed to the
+mechanism in view.** The number was right. The cause was not.
+
+The clause itself may still be right — *"no being's only remaining option is to
+endure"* is not refuted by this. What is refuted is the reason given for it.
+
+#### The finding that replaces it, stated only as far as it is measured
+
+`proxy_depth` sits at **0** through a bond that is extractive on three ticks in four.
+`PROXY_ACCUMULATION` is 8 per tick and `PROXY_DECAY` is 4, so three trap ticks against
+one friend tick should net **+20 per cycle** and climb. It does not climb; it is zero.
+
+**The arithmetic does not explain that, and I have not traced why.** Something other
+than simple accumulation zeroes the proxy burden when a fair partner is intermittently
+present. That is in `sovereign_proxy.rs`, not `reciprocity.rs` — a different module
+from the one §15's note blames.
+
+Whether *that* is a defect is the open question, and it is a real one: a being in an
+inescapable extractive bond reading its own instrumentalisation as **zero** because a
+friend visits is either healthy resilience or a blind spot, and nothing measured here
+decides which.
+
+#### What ships, and what does not
+
+**R-worst does not ship.** It solves a problem that does not exist.
+
+`worst_alarm` **stays**, computed and read by nothing. Charter §19 requires a worst
+case to be available beside every mean, and this is one; it costs nothing, moves no
+soul-hash, and the next population probe will want it.
+
+§15 stays at **DEBT** — not because the mean dilutes, but because the clause is
+unverified and the mechanism behind its motivating measurement is now known to be
+something else, unidentified.
