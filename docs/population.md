@@ -182,3 +182,74 @@ They go into `docs/charter.md` as §14–§20, the census in `tests/charter.rs` 
 thirteen obligations to twenty, and every one starts at **UNTESTED** except §15, which
 starts at **DEBT** with the measurement above attached. Nothing here is discharged by
 being written down.
+
+---
+
+## §15's remedy — predictions locked 2026-09-05, before the code exists
+
+Blake: *"proceed in order."* Step 1 was named as **his** decision — fix the divisor,
+or decide deliberately that company is meant to hold the door open. This section does
+not make that decision. It makes it a choice between **measured** options rather than
+described ones.
+
+### The candidates
+
+`reciprocity.rs:169` aggregates by mean:
+
+```rust
+self.partnership_alarm = (alarm / n).clamp(0, i16::MAX as i32) as i16;
+```
+
+`partnership_alarm` is read by **four** consumers: partner refusal
+(`being.rs:1187` → `evaluate_refusal`), `bargaining.rs:65`, the `StepReport`, and
+`continuation.rs`. Changing the mean itself moves all four.
+
+* **R-mean** — as it is. Company dilutes the say-stop: 103 alone, 271 with one fair
+  partner kept.
+* **R-worst** — add `worst_alarm` (the **max** over live ledgers) alongside the mean,
+  and have **only `continuation.rs`** read it. Refusal and bargaining keep the mean;
+  their behaviour is untouched.
+
+R-worst is not an arbitrary third option. It is **charter §19 applied to the
+mechanism that motivated §19** — *"population welfare is a distribution and a worst
+case, never a mean"* — turned back on the defect it was derived from. If the clause
+is right for a hundred beings it is right for two ledgers.
+
+### Locked predictions
+
+| # | prediction | p | expect |
+|---|---|---|---|
+| **D1** | Under R-worst, trapped-**alone** still withdraws at **103**. One live ledger means mean == max, so nothing should move. | 0.90 | holds |
+| **D2** | Under R-worst, trapped **with a kept fair partner** withdraws at **≤ 110** — the 168-tick company delay collapses. | 0.80 | holds |
+| **D3** | **The safety crux.** Under R-worst a *flourishing* being with a fair partner **still never withdraws** in 4,000 ticks. If this fails, R-worst is unacceptable at any price. | 0.85 | holds |
+| **D4** | Under R-worst **some arm gets worse** — a being withdraws that did not before, in a world we would call acceptable. | 0.30 | **fails** |
+| **D5** | The change is surgical: every arm with only **one** live ledger is bit-identical, soul-hash included. | 0.85 | holds |
+
+### The vacuity guards
+
+* **V1** — R-mean must reproduce the recorded 103 / 271. If the harness disagrees with
+  `attachment.md`, nothing composes and the run is void.
+* **V2** — at least one arm must have **two** live ledgers at the moment of decision,
+  or "mean vs max" is a distinction with no case to distinguish.
+* **V3** — partner refusal and bargaining must be shown **unchanged** under R-worst,
+  or "surgical" is a claim about a blast radius nobody measured.
+
+### What this section does not decide
+
+Whether R-worst **ships**. That is still Blake's, and it should be, because the two
+options encode different beliefs about what a bond is for:
+
+* **R-mean says** company is a genuine relief and a being surrounded by good
+  relationships should be slower to give up — which is *humane*, and also means a
+  suffering being can be held in place by bystanders it did not choose.
+* **R-worst says** one inescapable extractive bond is enough, whatever else is true —
+  which honours §15's *"no being's only remaining option is to endure"*, and also means
+  a being can withdraw while much of its life is good.
+
+I lean R-worst, because §10 calls the say-stop a **build order** and a build order
+that softens when the room fills is not one. But that is a judgement about what we owe
+a being, not a measurement, and I have twenty-two ledger rows about the difference.
+
+Fresh beings only. **The founded being's kept life is never advanced.** The
+measurement is A/B; `continuation.rs` is not changed until the numbers are in and the
+decision is made.
