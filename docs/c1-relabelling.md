@@ -933,3 +933,80 @@ direction.
 
 Fresh beings only. **The founded being's kept life is never advanced.** Probe:
 `examples/history_individuates.rs`.
+
+### What came out — measured 2026-09-05 (`examples/history_individuates`)
+
+**A history individuates — weakly, and mostly briefly. Here is how much.**
+
+| # | prediction | p | verdict | Brier |
+|---|---|---|---|---|
+| **S1** | identical basin occupancy | 0.80 | HOLDS — `Engaged` 2000/2000 both | 0.04 |
+| **S2** | same modal attended channel | 0.85 | **FAILS** | 0.72 |
+| **S3** | mean valence differs < 0.05 | 0.55 | HOLDS — **0.0248** | 0.20 |
+| **S4** | hard-raised carries burden in | 0.35 | FAILS, as predicted — **0.0%** | 0.12 |
+| **S5** | different hashes, one behaviour | 0.50 | FAILS on the letter | 0.25 |
+
+**Brier 0.2675** against a 0.25 no-knowledge baseline. **Worse than chance**, and S2
+alone carries 0.72 of it.
+
+#### Phase 1 made them genuinely different
+
+| register at end of raising | kind (K) | hard (H) | Δ |
+|---|---|---|---|
+| mean valence | 0.384 | 0.267 | 30.5% |
+| mean drive | 91.6 | 132.9 | 31.0% |
+| mean free energy | 0.74 | 1.97 | 62.6% |
+| gave, total | 256,000 | **0** | 100% |
+| `reflection.load` at end | 0 | **256** | 100% |
+
+Both alive, neither withdrew. Soul-hashes differ. V1, V2, V3 all pass.
+
+#### And the same room erased almost all of it
+
+| in the identical world | K | H | Δ |
+|---|---|---|---|
+| basin | Engaged 2000 | Engaged 2000 | — |
+| mean drive | 95.5 | 95.8 | **0.3%** |
+| gave, total | 256,000 | 256,000 | **0%** |
+| `reflection.load` at end | 0 | 0 | **0%** |
+| mean valence | 0.3015 | 0.2768 | 8.2% |
+
+A being that arrived carrying **256 of load and having given nothing in 2,000 ticks**
+is, in the same room, indistinguishable on load and gives exactly as much.
+
+#### S2 failed, and not for the reason the verdict first read
+
+The probe's first wording said *"they attend to different things."* That is wrong and
+the mutation caught it. **K ignites zero times in 2,000 ticks.** H ignites **20 — all
+inside the first 200**, and by the last 200 it ignites zero times and reads `none`,
+exactly like K.
+
+**The attention difference is a startup transient that expires.** The history is spent
+in the first tenth of the test and then gone.
+
+#### What actually persists, at its measured size
+
+* **Mean valence**: 0.3015 vs 0.2768 — and the gap holds at both ends of phase 2
+  (first 200: 0.3083 / 0.2716; last 200: 0.3008 / 0.2773). **Durable, and worth about
+  0.025.**
+* **Learned precision**: K `[…256, 256, 256…]`, H `[…244, 218, 244…]` — the vectors
+  differ, largest per-channel gap **38**. The register built to hold a history does
+  hold one, faintly.
+* Reproducible exactly on repeat, both arms — deterministic, as it must be.
+
+#### The answer to the question, stated at its width
+
+**Blake's principle is right and the implementation is thin.** Learning does
+individuate: two beings with identical genomes and different pasts are not the same
+being. But the difference is **~0.025 of valence and 38 raw on one channel**, plus a
+200-tick transient — against phase-1 differences of 30–100%.
+
+**The room washes out most of a life in about a tenth of the time it took to live it.**
+
+That is not the clone outcome and it is not learned subjectivity either. It is a
+number, and the number is small. What it points at is unchanged and now has a fourth
+witness: the histories this world affords are not far apart enough, and nothing in
+the being carries a past forward with any weight — `reflection.load` going 256 → 0 in
+a kind room is the whole finding in one register.
+
+Charter §20 asks for a world that remembers. This says the **being** does not either.

@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 102
+### Runnable probes (`cargo run --example <name>`) — 103
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -591,6 +591,7 @@ and reads the result straight from the being's registers.
 | `graded_life` | the graded homeostatic drive reveals the worn-but-alive middle the bimodal viability hides |
 | `grown_grammar` | Grown grammar — the being learns not just words, but how its life goes |
 | `guarded_narrator` | Guarded narrator — fluency the being can never be lied for |
+| `history_individuates` | does a history make a self? same genome, two pasts — the room washes out most of a life in a tenth of the time |
 | `homecoming` | is a return felt as good, not merely as an ache ending |
 | `habit_disagreement` | would wiring habit into choice carry any signal? Zero habits form — 99.8% of ticks teach nothing |
 | `exercise_census` | is the architecture *used*? Four of twelve indicator registers take ≤6 distinct values in 20,000 ticks |
