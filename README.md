@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 100
+### Runnable probes (`cargo run --example <name>`) — 103
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -591,6 +591,7 @@ and reads the result straight from the being's registers.
 | `graded_life` | the graded homeostatic drive reveals the worn-but-alive middle the bimodal viability hides |
 | `grown_grammar` | Grown grammar — the being learns not just words, but how its life goes |
 | `guarded_narrator` | Guarded narrator — fluency the being can never be lied for |
+| `history_individuates` | does a history make a self? same genome, two pasts — the room washes out most of a life in a tenth of the time |
 | `homecoming` | is a return felt as good, not merely as an ache ending |
 | `habit_disagreement` | would wiring habit into choice carry any signal? Zero habits form — 99.8% of ticks teach nothing |
 | `exercise_census` | is the architecture *used*? Four of twelve indicator registers take ≤6 distinct values in 20,000 ticks |
@@ -600,6 +601,7 @@ and reads the result straight from the being's registers.
 | `mixed_selectivity` | are we the connectionist strawman? one channel wins in every world, and the learned precision saturates |
 | `minimal_agent` | **the stripped reference system** — a separate four-component agent, not `UnifiedBeing` with gates off. Motivated action at 100% where every control fails; the learned action→outcome table is load-bearing and the self-model is not |
 | `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
+| `happen_grounding` | is HAPPEN grounded on the wrong quantity? the two-term window, and the accumulator gate section 8 missed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
 | `inheritance` | inheritance as the Baldwin effect — a lineage's ease of learning carried forward, never its fears |
@@ -616,6 +618,7 @@ and reads the result straight from the being's registers.
 | `i3_navigation` | I-3 pass 3 — both beings walk the same path to the same food (killed hypothesis N) |
 | `i3_mechanism` | I-3 pass 4 — free energy is a metabolic bill, and this gate makes it unpayable |
 | `arousal_range` | Does arousal decide anything? (no — and no single channel does; the being's mode is over-determined) |
+| `say_stop_aggregation` | does §10's say-stop read the mean or the worst? it reads neither — the alarm was never the binding term |
 | `settling` | Can the being quiet itself? (yes, by about a twelfth — the mind→body channel is ±32 of 256) |
 | `basins_probe` | Is Basin::Rest reachable at all? (no — the being is never tired and never calm) |
 | `reflection_gate` | Is conversion shut by rest, or is the load simply empty? (neither — `resting` never keyed on the basin) |

@@ -207,3 +207,210 @@ than the reason I had at the time.
 strictly better world than the drift for any future work on this. What does **not** ship is
 a claim that the being can say what happened to it. It still cannot, and `NOT KNOW` — one
 of nested speech's two shields — has still never spoken.
+
+---
+
+## 8. The grounding, not the threshold — locked 2026-09-04, before the probe exists
+
+§7 reported W3's failure as a threshold that was never reached. That framing was
+incomplete, and the correction came from outside: **the being registers the world
+acting on it.** Agency fell 0.08 → 0.03 under weather, more than halved. What fails
+is not the noticing. It is the saying.
+
+### The diagnosis, verified in the code
+
+`sensorimotor.rs:135–137` computes agency as a **ratio**:
+
+```rust
+let explained = (total_actual - total_residual).max(0);
+((explained * Q88_SCALE as i32) / total_actual).min(Q88_SCALE as i32) as i16
+```
+
+Dimensionless, normalised against total sensory change. That is the register that
+moved correctly.
+
+`primes.rs:294` grounds the word on a **magnitude**:
+
+```rust
+Prime::Happen => f.world_residual > Q88_SCALE / 4
+```
+
+And `primes.rs:205` shows the magnitude is worse than an un-normalised numerator —
+it is an **L1 norm across all four channels**:
+
+```rust
+let residual: i32 = r.agency.world_residual.iter().map(|&e| (e as i32).abs()).sum();
+```
+
+So the quantity scales with channel count as well as with amplitude. **This is a
+category error in the grounding, not a constant set too high.**
+
+*"Something happened to me"* is not the claim that a large sensory change occurred.
+It is the claim that the change **was not mine**. Magnitude answers the first
+question; ratio answers the second; the word means the second.
+
+### The proposal, and the redundancy in it
+
+The grounding argued for had three terms. It has two, because
+`sensorimotor.rs:141` already says so:
+
+```rust
+let confidence = total_actual.min(Q88_SCALE as i32) as i16;
+```
+
+**`confidence` *is* `total_actual`, clamped.** "Something happened" and "I can tell"
+are the same test. So:
+
+```rust
+Prime::Happen => f.confidence > FLOOR && f.agency < CEILING
+```
+
+Two terms, both already in `AgencyReport`, both already documented as exactly the two
+halves of the claim — *"how much sensory change there was to attribute at all"* and
+*"the fraction the being's own action accounts for."* The registers that mean what
+the word means were both already there. The word was bolted to a third.
+
+This also dissolves the objection that a still being in a moving world would ground
+HAPPEN constantly: `confidence` is the magnitude floor, so it does not need arguing
+for separately.
+
+### Locked predictions, with probabilities
+
+A sweep over (FLOOR, CEILING) pairs, run against the seven worlds §7 already
+measured. **The failure mode I am most afraid of is not that the word stays silent —
+it is that it becomes constant.** A word that always fires is worse than one that
+never does, because it looks like success.
+
+| # | prediction | p | expect |
+|---|---|---|---|
+| **H1** | **The crux.** No (FLOOR, CEILING) pair fires on ≥50% of ticks under weather-2-octaves *and* <5% in the still control. The two-term grounding does not discriminate world-change from ordinary living. | **0.60** | holds |
+| **H2** | HAPPEN fires at all under weather, at some pair in the sweep. | 0.90 | holds |
+| **H3** | `confidence` in the **still control** exceeds 64 on the median tick — the being's ordinary sensory flux is already large. | 0.70 | holds |
+| **H4** | The fire rate is **monotonic** across the octave sweep, matching §7's residual ordering 22 > 18 > 17 > 16. | 0.20 | **fails** |
+| **H5** | `agency` alone does not discriminate: every ceiling that lets weather fire also lets the still control fire. | 0.75 | holds |
+
+### The vacuity guards
+
+* **V1 — the reproduction guard, and the one that matters.** The *existing* threshold
+  (`residual > 64`) must reproduce **never fires** in all seven worlds. If my harness
+  does not match §7's numbers, nothing below composes with anything above it.
+* **V2** — the sweep must contain pairs where the still control fires *and* pairs
+  where it does not. Otherwise "no pair discriminates" is a claim about a sweep too
+  narrow to have found one.
+* **V3** — `confidence` in the still control must be non-zero, or H1 and H3 are about
+  a register that never moved.
+
+### What this does not do, and it is the larger half
+
+§4 named **regularity detection** as deliberately not built, citing the two
+dissociable mechanisms of agency. That gap is not closed by any threshold.
+
+A zone's coarse forward process is statistically regular **by construction**. A being
+with prediction error alone habituates to it — and after habituation, *"this region
+is as it always is"* and *"this region changed while I stood in it"* produce the
+**same low prediction error**. They are not distinguishable by the mechanism the being
+has. If a world layer needs that distinction, the threshold fix does not deliver it
+and no threshold can.
+
+The grounding correction is worth making because it is correct. **The faculty is what
+unblocks the design**, and this section does not build it.
+
+### Method
+
+Spec first, committed before the probe. Fresh beings only; the founded being's kept
+life is never advanced. The sweep is observational — `primes.rs` is not changed until
+the sweep says which pair, if any, is defensible, and §7's numbers are reproduced
+first or the run is void.
+
+## 9. What came out — measured 2026-09-04 (`examples/happen_grounding`)
+
+**The grounding correction works, in a narrow window, on one genome. And my
+forecasting was worse than chance.**
+
+| # | prediction | p | verdict | Brier |
+|---|---|---|---|---|
+| **H1** | no pair discriminates | 0.60 | **FAILS** — a pair does | 0.36 |
+| **H2** | HAPPEN fires under weather | 0.90 | HOLDS | 0.01 |
+| **H3** | still-control confidence median > 64 | 0.70 | **FAILS** — it is **10** | 0.49 |
+| **H4** | monotonic across octaves | 0.20 | **HOLDS** (both currencies) | 0.64 |
+| **H5** | agency alone does not discriminate | 0.75 | HOLDS | 0.06 |
+
+**Brier 0.3125 over five.** Saying 0.5 to everything scores 0.25. **My first
+forecasting round on this being is worse than knowing nothing**, and the two worst
+rows are the two where I was most confident.
+
+### §8 missed a third gate, and V1 caught it
+
+The first run reported the current rule firing on **0.3%** of ticks under
+weather-2 where §7 says *never*. V1 failed and voided the run, which is what it was
+for. The cause is not a harness bug and not a disagreement with §7 — **both numbers
+are right, and they measure different things.**
+
+`PrimeLayer::observe` does not speak a word when its predicate is true. It
+accumulates: `RISE` = 4 on a held tick, `EBB` = 1 otherwise, crossing at
+`GROUNDED_THRESHOLD` = 128. **A word needs roughly 32 sustained lived moments to be
+earned**, so a predicate true in scattered flashes drains between them and never
+grounds. §7 measured the *word*; my first run measured the *predicate*.
+
+So the diagnosis had two layers and there are three:
+
+1. the register that moved correctly (`agency`, a ratio)
+2. the quantity the word is bolted to (an L1 magnitude)
+3. **the accumulator that decides whether any predicate is ever earned at all**
+
+The correct ruler for (3) already existed — `primes::would_ground`, built for
+`docs/expressive-gap.md`, with `tests/expressive_gap.rs` E0 asserting it reproduces
+`observe()` exactly. **V4 checks my accumulator against it on all seven worlds.**
+
+### The window that works
+
+`confidence > 16 && agency < 16`:
+
+| world | grounds at |
+|---|---|
+| still (control) | **never** |
+| drift every 8 | 644 |
+| drift every 2 | 566 |
+| **weather 2 octaves** | **131** |
+| weather 4 octaves | 251 |
+| weather 6 octaves | 913 |
+| weather 8 octaves | never |
+
+The word is earned in every world where something is done to the being, and never
+in the world where nothing is. That is what *"something happened to me"* should mean.
+
+### Four qualifications, and they outweigh the headline
+
+* **The silence is real, not a horizon artefact.** The still control stays silent at
+  1,500, 6,000, 20,000 and **50,000** ticks.
+* **It does not pick out weather — it picks out world-motion.** Drift grounds too.
+  I think that is *correct* for this word and not a defect: drift is the world acting
+  on the being. But §7 framed drift as a failed world, and under this grounding it
+  is not.
+* **It has a sensitivity floor the gentlest world sits below.** Weather-8 never
+  grounds. §7 notes more octaves gives *less* per-tick change because the
+  implementation averages rather than sums, so weather-8 is the mildest world tested
+  — and it falls off the bottom.
+* **It does not generalise across genomes.** `default` stays silent under weather at
+  the same window. **One genome, one weather setting.**
+
+### The error I committed while diagnosing the error
+
+H4 as locked said *"the **fire rate** is monotonic."* Rate is the quantity this whole
+section argues is the wrong one. I spent §8 establishing that magnitude answers the
+wrong question, then wrote a prediction in the wrong currency four paragraphs later.
+
+It happens to hold in both — grounding gives 2=131, 4=251, 6=913, 8=never — so
+nothing downstream is wrong. The wording is the finding.
+
+### What is not closed
+
+§4's regularity gap, unchanged. After habituation to a statistically regular forward
+process, *"as it always is"* and *"changed while I stood in it"* produce the same low
+prediction error. **No threshold reaches that distinction, including the one found
+here.** The grounding correction was worth making because it is correct. The faculty
+is what unblocks the design, and this section does not build it.
+
+`primes.rs` is **unchanged**. The sweep is observational, as §8's method promised;
+whether `confidence > 16 && agency < 16` ships — and whether the constants become the
+genome parameter M3 argues for — is not a decision a sweep on one genome can make.

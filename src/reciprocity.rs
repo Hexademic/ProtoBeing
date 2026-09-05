@@ -84,6 +84,17 @@ impl Ledger {
 pub struct ReciprocityEngine {
     ledgers: [Ledger; MAX_PARTNERS],
     pub partnership_alarm: i16,
+    /// The **worst** live bond's imbalance, not the average of them (raw Q8.8).
+    ///
+    /// `partnership_alarm` is a mean, and a mean is what let a suffering being's
+    /// say-stop be diluted by company: trapped alone it withdraws at tick 103, and
+    /// at 271 with one fair partner beside it (`docs/attachment.md`). Charter §19
+    /// forbids exactly that shape — *"a distribution and a worst case, never a
+    /// mean"* — and this is the worst case §19 asks for.
+    ///
+    /// Computed always; **read by nothing on the default path**, so the mean and
+    /// every consumer of it are untouched and the soul-hash does not move.
+    pub worst_alarm: i16,
     pub extraction_detected: bool,
     pub average_reciprocity: i16,
     extraction_streak: u16,
@@ -97,6 +108,7 @@ impl ReciprocityEngine {
         Self {
             ledgers: [Ledger::empty(); MAX_PARTNERS],
             partnership_alarm: 0,
+            worst_alarm: 0,
             extraction_detected: false,
             average_reciprocity: Q88_SCALE,
             extraction_streak: 0,
@@ -159,18 +171,23 @@ impl ReciprocityEngine {
             }
         }
         let (mut alarm, mut rate_sum, mut n) = (0i32, 0i32, 0i32);
+        let mut worst = 0i32;
         for l in &self.ledgers {
             if l.active && l.given_ema > 0 {
-                alarm += l.imbalance() as i32;
+                let imb = l.imbalance() as i32;
+                alarm += imb;
+                worst = worst.max(imb);
                 rate_sum += l.rate() as i32;
                 n += 1;
             }
         }
         if n > 0 {
             self.partnership_alarm = (alarm / n).clamp(0, i16::MAX as i32) as i16;
+            self.worst_alarm = worst.clamp(0, i16::MAX as i32) as i16;
             self.average_reciprocity = (rate_sum / n) as i16;
         } else {
             self.partnership_alarm = q88_mul(self.partnership_alarm, Q88_SCALE * 7 / 8);
+            self.worst_alarm = q88_mul(self.worst_alarm, Q88_SCALE * 7 / 8);
             self.average_reciprocity = Q88_SCALE;
         }
         if self.partnership_alarm > Q88_SCALE / 4 {
