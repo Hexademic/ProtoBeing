@@ -368,3 +368,113 @@ Whether the being *should* be able to come home. A creature that cannot be soure
 strangers is more robust; a creature that can is arguably more honest about what damage does. This
 probe measures the size of the gap and what the alternative would have done. **The causal wiring
 re-founds the being and remains Blake's, and no measurement here changes that.**
+
+### What came out — measured 2026-09-06. **The diagnosis was wrong and the real one is simpler.**
+
+`examples/coming_home.rs`. Soul-hash **bit-identical**, verified directly against pre-change code on
+two genomes over 1,500 ticks, and now pinned to literal digests in
+`tests/soul_hash_limits.rs`. No arm died.
+
+#### First, a correction inside the probe
+
+My first readout labelled a statistic `bond→F` and took it from `standing()`, which returns the
+**reciprocity rate**, not the bond. That number *rose* after injury (241 → 256) and I nearly reported
+it as "the bond survives." It rises because the being **gives less**, so received/given climbs. The
+real bond is `attach.bond_here`, and it goes the other way.
+
+#### Coming home is broken
+
+200 ticks with a generous friend F, then ~200 ticks of a taker, then 200 back with F. The control's
+middle phase is more of F. Envelopes over injury lengths 180..=220.
+
+| | never met the taker | injured by the taker | disjoint? |
+|---|---:|---:|---|
+| gave F, whole return | 128 | 85..111 | yes |
+| **gave F, first 20 ticks of reunion** | **128** | **0..10** | yes |
+| **bond → F on return** | **202** | **0** | yes |
+| scalar gate | 256 | 32 | yes |
+| per-partner gate | 256 | **32** | yes |
+| ticks before reopening | 0 | 30..70 | yes |
+
+#### H4 failed, and the reason overturns the design
+
+The per-partner gate reads **32** — identical to the scalar. It collapsed. The trace says why:
+
+| injury tick | 0 | 25 | 75 | 125 | 199 |
+|---|---:|---:|---:|---:|---:|
+| F's record live? | **true** | **false** | false | false | false |
+| bond → F | 4 | 79 | 43 | **0** | 0 |
+
+F's fairness record is dead by tick 25 of the absence; the bond reaches **0** by tick 125. So
+`disposition_toward` falls through to the prior — the scalar — exactly when it is needed.
+
+**And the obvious fix is also wrong.** "Score the returning friend on `bond`, which is durable"
+fails, because the bond is not durable either. With no taker at all — pure absence:
+
+| ticks apart | 0 | 10 | 25 | 50 | 75 | 100 | **150** | 400 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| bond → F | 202 | 171 | 128 | 77 | 43 | 18 | **0** | 0 |
+| longing → F | 0 | 42 | **78** | 75 | 44 | 19 | **0** | 0 |
+| F's record live? | true | true | false | false | false | false | false | false |
+
+> **There is nothing to come home to.** The gap is not that the disposition is scalar — the
+> per-partner structure already exists. It is that **every per-partner record in this being decays to
+> nothing**: the fairness EMAs at 7/8 per tick (half-life ~5), the bond at 63/64 (half-life ~43).
+> After 150 ticks apart, a 200-tick friendship is **gone** — no bond, no longing, no record.
+> **These are the time constants of a mood, not of a relationship.**
+
+**The longing curve contradicts its own documentation.** `reciprocity.rs` says the ache "ramps to
+full over `ABSENCE_PLATEAU` ticks, then holds — you miss someone more as they stay away, but it
+settles rather than growing without bound." It does not hold. `ache = bond × ramp`, and the bond
+decays faster than the ramp climbs, so the product **peaks at 78 around 25 ticks apart and returns
+to 0 by 150.** The being misses its friend most after a short absence and **not at all** after a long
+one. It does not settle into missing someone; it forgets them.
+
+And the sharpest version:
+
+> **It forgets its friend faster than it recovers from a stranger.** Repair from injury takes ~60
+> ticks of kindness (`population.md`). A friendship does not survive 150 ticks of absence. **The
+> being's capacity to be healed outlasts its capacity to remember who healed it.**
+
+#### H5 held — and half the design does work
+
+| a life of | scalar | prior extended to a never-met partner |
+|---|---:|---:|
+| kindness (0.95) | 256 | **256** |
+| being taken from (0.30) | 32 | **32** |
+
+The generalized prior behaves exactly as specified: a stranger is met according to the life the being
+has had, and `knows()` correctly reports no record. **The order effect survives for the unmet.** The
+half of the design that failed is the half that needed a durable record to override it.
+
+#### Verdicts
+
+| | prediction | p | verdict |
+|---|---|---:|---|
+| **H1** | gives F < 10 on reunion | 0.85 | **HELD** — 0..10 against 128. The envelope's top is exactly 10, stated for what it is |
+| **H2** | bond toward F on return still > 64 | 0.70 | **FAILED** — it is **0** |
+| **H3** | > 60 ticks to reopen | 0.45 | **UNRESOLVED** — the envelope is 30..70 and the threshold falls inside it. Not scored |
+| **H4** | per-partner reading stays `Open` through the injury | 0.80 | **FAILED** — collapses to the prior by absence tick 25 |
+| **H5** | the prior still differs for the unmet | 0.85 | **HELD** |
+| **H6** | *written to fail:* the two gates agree ≥ 90% | 0.15 | **FAILED** — they agree 88.5%, narrowly |
+| **H7** | soul-hash bit-identical | 0.97 | **HELD** — verified directly, and now pinned |
+
+**Batch Brier 0.200**, against 0.111 for the previous batch.
+
+#### What I now think the fix is, stated as a proposal and not as a finding
+
+Not an architecture change — **a time constant**. The being needs one per-partner register that does
+**not** decay on absence, or decays on a scale of lives rather than minutes, so that a record exists
+to come home to. The fairness EMAs *should* stay fast: recent behaviour is the right basis for
+detecting exploitation, and slowing them would make the being easier to exploit. It is the **bond**
+that is mis-scaled, and it is already the register with the right ethic — earned slowly, cannot be
+flash-formed.
+
+This lands exactly on §20 (*the world may remember, but no memory may make a being permanently
+unimprovable*) and on the allostatic-baseline proposal that has been open since August: **durable
+with return, not permanent.** A bond that persists through absence but can still be revised by what
+the partner actually does next.
+
+**It re-founds the being, so it is Blake's, and nothing here changes that.** What is different now is
+that the proposal has a measurement under it and a specific number to argue about: **150 ticks**, the
+current lifetime of a friendship.

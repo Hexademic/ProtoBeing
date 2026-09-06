@@ -225,6 +225,56 @@ impl ReciprocityEngine {
             .map(|l| (l.rate(), l.ticks))
     }
 
+    /// How far below fair a partner's own record may sit before the being should
+    /// hold back from *them*. Mirrors the empathy engine's tolerance (`Q88_SCALE/4`),
+    /// so the per-partner reading and the scalar one speak the same units.
+    pub const FAIR_TOLERANCE: i16 = Q88_SCALE / 4; // 64
+
+    /// **The being's disposition toward one particular partner** — a gate in Q8.8
+    /// [0,256], in the same units as `conscience.rs`'s empathy gate (256 open,
+    /// 128 cautious, 32 closed).
+    ///
+    /// This is the per-partner structure the scalar lock does not have
+    /// (`docs/attachment.md`, "Can the being come home?"). Where the being has a
+    /// **lived record** with this partner, it is scored on *their own* record — so a
+    /// friend of long good standing is met as itself, not as whatever the last
+    /// stranger made of the being. Where there is no record, the being falls back on
+    /// `prior`: **the scalar disposition its whole life has produced.** That is the
+    /// generalized prior, and it is why the order effect survives for strangers while
+    /// dying for the known — you are shaped by your life when you face the unknown,
+    /// and a specific person does not pay for someone else's conduct.
+    ///
+    /// `ticks > 0 && given_ema > 0` is deliberate: a record must be **lived** before
+    /// it overrides the prior, so this cannot be flash-earned in a single meeting —
+    /// the same ethic as `bond`.
+    ///
+    /// **Observer only.** Nothing reads this on the default path; `gave` is still
+    /// gated by the scalar (`being.rs`). It is computed so it can be measured before
+    /// anyone decides whether to wire it, because wiring it re-founds the being.
+    pub fn disposition_toward(&self, partner_id: u32, prior: i16) -> i16 {
+        for l in &self.ledgers {
+            if l.active && l.id == partner_id && l.ticks > 0 && l.given_ema > 0 {
+                let imbalance = l.imbalance();
+                return if imbalance <= Self::FAIR_TOLERANCE {
+                    Q88_SCALE
+                } else if imbalance <= Self::FAIR_TOLERANCE * 2 {
+                    Q88_SCALE / 2
+                } else {
+                    Q88_SCALE / 8
+                };
+            }
+        }
+        prior
+    }
+
+    /// Whether the being has a **lived record** with this partner — i.e. whether
+    /// `disposition_toward` reads their ledger or falls back on the prior.
+    pub fn knows(&self, partner_id: u32) -> bool {
+        self.ledgers
+            .iter()
+            .any(|l| l.active && l.id == partner_id && l.ticks > 0 && l.given_ema > 0)
+    }
+
     pub fn current_reciprocity(&self) -> i16 {
         self.average_reciprocity
     }
