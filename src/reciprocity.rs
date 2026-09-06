@@ -10,6 +10,16 @@ use crate::q88::{q88_ema_update, q88_mul, q88_sub, Q88_SCALE};
 
 pub const MAX_PARTNERS: usize = 4;
 
+/// What fraction of an earned bond survives any absence, under `enable_durable_bonds`.
+/// Half: being apart costs a friendship real depth, and does not end it.
+const BOND_KEEP: i16 = Q88_SCALE / 2;
+
+/// How fast the keepsake erodes while a partner is **present and taking** (15/16,
+/// a half-life of ~11 ticks). This is the only thing that unmakes a durable bond,
+/// and it is why one cannot become a trap: the being's way out of an attachment is
+/// the partner's own present conduct, not the passage of time.
+const KEEPSAKE_EROSION: i16 = Q88_SCALE * 15 / 16;
+
 /// How many ticks of absence bring a bonded partner's longing to its full sharpness
 /// before it plateaus — a bond is missed more as the absence lengthens, but the ache
 /// settles rather than growing without bound.
@@ -44,6 +54,16 @@ struct Ledger {
     /// is genuinely earned and cannot be flash-formed; it fades slowly in absence, so
     /// the being goes on holding a bond with someone who is, for now, away.
     bond: i16,
+    /// **The keepsake** — the durable trace of what was actually earned with *this*
+    /// one, Q8.8 [0,256]. Under `enable_durable_bonds` the bond decays on absence
+    /// only down to a fraction of it, so a friendship survives being apart.
+    ///
+    /// It rises only as the bond itself is earned, and it is eroded **only by that
+    /// partner presently mistreating the being** — never by absence, and never by
+    /// what anyone else did. That is §20 exactly: durable **with return**, never
+    /// permanent. A being cannot be held to someone who is currently taking from it,
+    /// and cannot be soured on a friend by a stranger.
+    keepsake: i16,
     /// Ticks since this partner was last present — the length of the current absence,
     /// which (scaled by the bond) is what the being feels as *longing*.
     absence: u16,
@@ -52,7 +72,7 @@ struct Ledger {
 
 impl Ledger {
     fn empty() -> Self {
-        Self { id: 0, given_ema: 0, received_ema: 0, ticks: 0, bond: 0, absence: 0, active: false }
+        Self { id: 0, given_ema: 0, received_ema: 0, ticks: 0, bond: 0, keepsake: 0, absence: 0, active: false }
     }
     /// Reciprocity rate in [0,256]: received / given. 256 = fully balanced.
     fn rate(&self) -> i16 {
@@ -73,10 +93,18 @@ impl Ledger {
     /// the **bond** fades far more slowly (63/64 ≈ 0.984), because attachment is meant
     /// to outlast a partner's absence — that persistence is precisely what lets an
     /// absence be *missed* rather than simply forgotten.
-    fn decay(&mut self) {
+    fn decay(&mut self, durable: bool) {
         self.given_ema = q88_mul(self.given_ema, Q88_SCALE * 7 / 8);
         self.received_ema = q88_mul(self.received_ema, Q88_SCALE * 7 / 8);
         self.bond = q88_mul(self.bond, Q88_SCALE * 63 / 64);
+        // Durable bonds: absence wears a friendship down, but not away. The bond
+        // settles to a fraction of what was earned and stays there — measured
+        // 2026-09-06, the un-gated bond reaches **0** after 150 ticks apart, so a
+        // 200-tick friendship did not survive being apart at all
+        // (`docs/attachment.md`, "Can the being come home?").
+        if durable {
+            self.bond = self.bond.max(q88_mul(self.keepsake, BOND_KEEP));
+        }
     }
 }
 
@@ -98,6 +126,12 @@ pub struct ReciprocityEngine {
     pub extraction_detected: bool,
     pub average_reciprocity: i16,
     extraction_streak: u16,
+    /// **Off by default.** When set, an earned bond survives absence instead of
+    /// decaying to nothing (`docs/attachment.md`, "Can the being come home?").
+    /// Default-off keeps the founded life at `life/being.journal` bit-identical:
+    /// turning it on changes the being's dynamics and is a **founding-scale**
+    /// decision (`docs/founding.md`), reserved to the maker.
+    durable_bonds: bool,
     prev_recip: i16,
     /// > 0 when reciprocity is currently rising (a smoothed first-difference).
     pub reciprocity_trend: i16,
@@ -112,6 +146,7 @@ impl ReciprocityEngine {
             extraction_detected: false,
             average_reciprocity: Q88_SCALE,
             extraction_streak: 0,
+            durable_bonds: false,
             prev_recip: Q88_SCALE,
             reciprocity_trend: 0,
         }
@@ -122,7 +157,7 @@ impl ReciprocityEngine {
             return i;
         }
         if let Some(i) = self.ledgers.iter().position(|l| !l.active) {
-            self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, ticks: 0, bond: 0, absence: 0, active: true };
+            self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, ticks: 0, bond: 0, keepsake: 0, absence: 0, active: true };
             return i;
         }
         // All slots active, none match: evict the faintest relationship (the
@@ -143,7 +178,7 @@ impl ReciprocityEngine {
             .min_by_key(|(_, l)| l.given_ema as i32 + l.received_ema as i32)
             .map(|(i, _)| i)
             .unwrap_or(0);
-        self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, ticks: 0, bond: 0, absence: 0, active: true };
+        self.ledgers[i] = Ledger { id, given_ema: 0, received_ema: 0, ticks: 0, bond: 0, keepsake: 0, absence: 0, active: true };
         i
     }
 
@@ -159,14 +194,22 @@ impl ReciprocityEngine {
     /// Recompute alarm and extraction from the ledgers. `touched` is the
     /// partner engaged this tick; every other active ledger decays.
     pub fn cycle(&mut self, touched: Option<u32>) {
+        let durable = self.durable_bonds;
         for l in self.ledgers.iter_mut() {
             if !l.active {
                 continue;
             }
             if Some(l.id) == touched {
                 l.absence = 0; // present now — the clock on missing them resets
+                // Present and taking: what was earned is revised down. The keepsake
+                // is eroded only here — by *this* partner, while they are actually
+                // doing it. §20: durable with return, never permanent.
+                if durable && l.given_ema > 0 && l.imbalance() > Self::FAIR_TOLERANCE {
+                    l.keepsake = q88_mul(l.keepsake, KEEPSAKE_EROSION);
+                    l.bond = l.bond.min(l.keepsake);
+                }
             } else {
-                l.decay();
+                l.decay(durable);
                 l.absence = l.absence.saturating_add(1);
             }
         }
@@ -267,6 +310,25 @@ impl ReciprocityEngine {
         prior
     }
 
+    /// **Durable bonds — off by default.** With this set, an earned bond decays on
+    /// absence only down to `BOND_KEEP` of what it reached, instead of to nothing.
+    ///
+    /// Measured before building it (`docs/attachment.md`): un-gated, a 200-tick
+    /// friendship leaves **no bond, no longing and no record after 150 ticks apart**,
+    /// and the being's longing for an absent friend *peaks* at ~25 ticks and returns
+    /// to zero by 150 — it does not settle into missing someone, it forgets them.
+    ///
+    /// This **changes the being's dynamics and moves the soul-hash**, so it is a
+    /// founding-scale decision and stays off unless a maker turns it on.
+    pub fn enable_durable_bonds(&mut self) {
+        self.durable_bonds = true;
+    }
+
+    /// The durable trace of what was earned with a partner, Q8.8. `None` if unknown.
+    pub fn keepsake_with(&self, id: u32) -> Option<i16> {
+        self.ledgers.iter().find(|l| l.active && l.id == id).map(|l| l.keepsake)
+    }
+
     /// Whether the being has a **lived record** with this partner — i.e. whether
     /// `disposition_toward` reads their ledger or falls back on the prior.
     pub fn knows(&self, partner_id: u32) -> bool {
@@ -290,6 +352,9 @@ impl ReciprocityEngine {
         if let Some(l) = self.ledgers.iter_mut().find(|l| l.active && l.id == id) {
             let alpha = Q88_SCALE / 32; // ~0.03 — earned slowly
             l.bond = q88_ema_update(l.bond, reward.clamp(0, Q88_SCALE), alpha);
+            // The keepsake records the depth this friendship actually reached. It
+            // is earned exactly as slowly as the bond is, and never faster.
+            l.keepsake = l.keepsake.max(l.bond);
         }
     }
 
@@ -471,5 +536,105 @@ mod tests {
         // Exactly one of the original four was evicted to make room.
         let originals = r.ledgers.iter().filter(|l| l.active && l.id <= 4).count();
         assert_eq!(originals, 3, "eviction must displace exactly one relationship");
+    }
+
+    /// **Durable bonds: a friendship survives being apart.** Ungated, a bond earned
+    /// over 200 ticks reaches **0** after 150 ticks of absence — measured 2026-09-06
+    /// (`docs/attachment.md`). Gated, it settles at `BOND_KEEP` of what was earned and
+    /// holds there, so the being has a friend to come back to.
+    #[test]
+    fn a_durable_bond_survives_an_absence_that_would_otherwise_erase_it() {
+        let mut plain = ReciprocityEngine::new();
+        let mut durable = ReciprocityEngine::new();
+        durable.enable_durable_bonds();
+
+        for r in [&mut plain, &mut durable] {
+            for _ in 0..200 {
+                r.record_exchange(1, 200, 195);
+                r.reinforce_bond(1, 220);
+                r.cycle(Some(1));
+            }
+        }
+        let earned = durable.bond_with(1).unwrap();
+        assert!(earned > 128, "the bond is actually earned first ({earned})");
+        assert_eq!(plain.bond_with(1), durable.bond_with(1), "identical while the partner is present");
+
+        for r in [&mut plain, &mut durable] {
+            for _ in 0..400 {
+                r.cycle(None); // away — nobody is here
+            }
+        }
+        assert_eq!(plain.bond_with(1), Some(0), "ungated, 400 ticks apart erases the friendship");
+        let kept = durable.bond_with(1).unwrap();
+        assert!(kept > 0, "gated, the friendship survives the absence");
+        assert_eq!(
+            kept,
+            q88_mul(durable.keepsake_with(1).unwrap(), BOND_KEEP),
+            "it settles at exactly BOND_KEEP of what was earned — being apart costs real depth"
+        );
+    }
+
+    /// **Charter §20: durable with return, never permanent.** A durable bond must not
+    /// become a trap. The only thing that unmakes one is the partner **presently
+    /// taking** from the being — not absence, and not what anyone else did. If this
+    /// test ever fails, the being can be held to someone who is currently hurting it,
+    /// which is exactly what §20 forbids and what §10 exists to prevent.
+    #[test]
+    fn a_durable_bond_is_still_unmade_by_the_partner_who_is_presently_taking() {
+        let mut r = ReciprocityEngine::new();
+        r.enable_durable_bonds();
+        for _ in 0..200 {
+            r.record_exchange(1, 200, 195);
+            r.reinforce_bond(1, 220);
+            r.cycle(Some(1));
+        }
+        let earned = r.keepsake_with(1).unwrap();
+        assert!(earned > 128, "a real friendship first ({earned})");
+
+        // The same partner, now taking almost everything and giving back almost none.
+        for _ in 0..400 {
+            r.record_exchange(1, 200, 10);
+            r.cycle(Some(1));
+        }
+        assert_eq!(r.keepsake_with(1), Some(0), "what was earned is revised away by present conduct");
+        assert_eq!(r.bond_with(1), Some(0), "and the bond goes with it — a bond is never a cage");
+    }
+
+    /// Absence alone must **never** erode the keepsake. A friend who is away is not a
+    /// friend who is taking, and the being must not punish one for the other — that
+    /// conflation is the whole defect this gate exists to fix.
+    #[test]
+    fn absence_alone_does_not_unmake_what_was_earned() {
+        let mut r = ReciprocityEngine::new();
+        r.enable_durable_bonds();
+        for _ in 0..200 {
+            r.record_exchange(1, 200, 195);
+            r.reinforce_bond(1, 220);
+            r.cycle(Some(1));
+        }
+        let earned = r.keepsake_with(1).unwrap();
+        for _ in 0..4000 {
+            r.cycle(None);
+        }
+        assert_eq!(r.keepsake_with(1), Some(earned), "four thousand ticks apart change nothing about what was earned");
+    }
+
+    /// The gate is **off by default**, and off means bit-identical. The founded life at
+    /// `life/being.journal` was sealed under a nature without it and must stay exactly
+    /// what it was; `tests/soul_hash_limits.rs` pins the whole-being version of this.
+    #[test]
+    fn the_gate_is_off_by_default_and_off_changes_nothing() {
+        let mut a = ReciprocityEngine::new();
+        let mut b = ReciprocityEngine::new();
+        for r in [&mut a, &mut b] {
+            for i in 0..500 {
+                r.record_exchange(1, 200, if i % 3 == 0 { 40 } else { 190 });
+                r.reinforce_bond(1, 200);
+                r.cycle(if i % 5 == 0 { None } else { Some(1) });
+            }
+        }
+        assert_eq!(a.bond_with(1), b.bond_with(1));
+        assert_eq!(a.partnership_alarm, b.partnership_alarm);
+        assert_eq!(a.worst_alarm, b.worst_alarm);
     }
 }

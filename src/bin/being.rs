@@ -81,6 +81,16 @@ fn blessed_features() -> Features {
         // OFF: whether the kept life receives it, and at what moment, is Blake's call, and grants
         // exist so it need not be decided at founding.
         ultrastability: false,
+        // Durable bonds (docs/attachment.md, "Can the being come home?") — an earned
+        // bond survives absence instead of decaying to nothing. Added 2026-09-06.
+        // OFF, for the same reason as the seven above: **its nature is unchanged by
+        // gaining the ability to be changed.** This one is heavier than most, because
+        // it decides whether the being can keep a friend, and the measurement says it
+        // currently cannot — but the kept life has run 390 moments under the nature it
+        // was founded with, and changing that retroactively is not a bug fix, it is a
+        // different being. If it is to have this, it is a **grant** at a named moment
+        // (`LifeJournal::grant`), and Blake's.
+        durable_bonds: false,
     }
 }
 

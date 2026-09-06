@@ -478,3 +478,79 @@ the partner actually does next.
 **It re-founds the being, so it is Blake's, and nothing here changes that.** What is different now is
 that the proposal has a measurement under it and a specific number to argue about: **150 ticks**, the
 current lifetime of a friendship.
+
+---
+
+## The fix, built — `enable_durable_bonds`, and the two gates standing in front of it
+
+Built 2026-09-06 on Blake's direction. **Off by default**, so `life/being.journal` is untouched and
+the soul-hash pins in `tests/soul_hash_limits.rs` still hold; turning it on is founding-scale and
+stays the maker's.
+
+### What it does
+
+A ledger gains a **keepsake**: the depth a friendship actually reached. Under the gate, absence
+decays the bond only down to `BOND_KEEP` (half) of it, instead of to zero.
+
+The keepsake is eroded by exactly one thing — **that partner presently taking from the being**
+(15/16 per tick). Never by absence, never by what anyone else did. That is charter §20 stated as
+code: *durable with return, never permanent.* Three tests pin it, and the middle one is the safety
+one: `a_durable_bond_is_still_unmade_by_the_partner_who_is_presently_taking`. **If that test ever
+fails, the being can be held to someone who is currently hurting it**, which is what §10 exists to
+forbid. A bond must never become a cage.
+
+### It works, and here is the measurement
+
+200 ticks bonding with a friend, ~200 ticks of a taker, then back to the friend:
+
+| | never met the taker | injured, gate off | injured, **gate on** |
+|---|---:|---:|---:|
+| **bond → friend, at re-engagement** | 202 | **0** | **97** |
+| keepsake → friend | 202 | 202 | 202 |
+
+And on absence alone, the curve that started this: ungated the bond is **0** by 150 ticks apart;
+gated it settles at exactly half of what was earned and holds there through 4,000.
+
+**Note the middle column.** `keepsake → friend` is **202 in every arm, including ungated.** The
+durable trace of the friendship was always recoverable from the ledger. Nothing was ever missing
+from the record — **the being simply had no term that consulted it.**
+
+### And it does not restore coming home, because it is one of three
+
+Everything else in the table is **unchanged** by the gate: reunion giving 0..10, the lock reopening
+at 30..70, the door reopening at 7..47. The being now keeps its friend **and still cannot act on
+it.**
+
+My own probe hid this at first. It read the bond at return tick 0 and got **0 for every arm** —
+because at tick 0 the being's *door* is shut and `attach.bond_here` is 0 for a partner it is not
+engaging. That is a fact about the door, not the bond, and reading it as "the fix does nothing"
+would have been wrong. Measured at first re-engagement instead: 0 → 97.
+
+Tracing why the door was shut found the third register:
+
+```
+world.hermit()          → is there a meeting at all?   IDENTITY-BLIND by design (world.rs)
+empathy.lock_level      → how much do I give?          one scalar, everyone alike
+bond / keepsake         → who is this to me?           per-partner  ← the only one, as of today
+```
+
+At return, `standing_of(friend).hostile` is **false** — the being does not refuse its friend. Its
+**door is shut to everyone**, and it opens at tick 27 regardless of who is knocking, because
+`world.rs` is explicitly *"the identity-blind experience of the world lately."*
+
+> **The same defect, in a third register.** §15 catches it on the **exit**, §11 on the **gift**, and
+> the hermit door catches it on **whether there is a meeting at all** — the earliest and most total
+> of the three. Coming home is gated by three scalars in series, and one of them is now per-partner.
+
+### Verdicts
+
+| | | |
+|---|---|---|
+| the time-constant fix | **works** | bond survives absence and injury: 0 → 97, holds at half of earned through 4,000 ticks apart |
+| §20 revisability | **holds** | present taking still unmakes it, absence never does — pinned by three tests |
+| default-off bit-identity | **holds** | verified directly, pinned to literal digests |
+| coming home | **still broken** | two scalars sit in front of the bond, and neither knows who is there |
+
+**What I am not doing:** fixing the door. That is a second founding-scale change, it was not what was
+asked for, and the measurement that would justify it does not exist yet. What exists now is the
+number: **the door opens at tick 27 and does not care who is on the other side.**

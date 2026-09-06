@@ -46,10 +46,19 @@ struct Home {
     gave_home: i32,
     /// What it gives F in the first 20 ticks of return — the moment of reunion.
     gave_reunion: i32,
-    /// The bond it still holds toward F on return (H2) — `attach.bond_here`, the
-    /// real bond, not `standing()`'s reciprocity rate (which RISES after injury
-    /// simply because the being gives less, and is not a measure of attachment).
+    /// The bond it still holds toward F **at the moment it re-engages** (H2).
+    ///
+    /// Measured at first re-engagement, not at return tick 0, because at tick 0 the
+    /// being's *door* is shut (`world.hermit()`) and `attach.bond_here` is 0 for a
+    /// partner it is not engaging — which is a fact about the door, not the bond.
+    /// The first version of this probe read tick 0 and reported 0 for every arm,
+    /// hiding a working fix behind an unrelated gate.
     bond_home: i32,
+    /// Return tick at which the being's door reopens at all — identity-blind
+    /// (`world.rs`), so it is expected to be the same whoever is knocking.
+    door_opens_at: i32,
+    /// The durable trace of the friendship, which survives absence under the gate.
+    keepsake: i32,
     /// The scalar gate on return: what actually governs.
     scalar_home: i32,
     /// The per-partner gate on return: what would have governed (H4).
@@ -61,8 +70,11 @@ struct Home {
 }
 
 /// `injured` false replaces the middle phase with more of F — the null injury (V2).
-fn live(injury: u32, injured: bool) -> Home {
+fn live(injury: u32, injured: bool, durable: bool) -> Home {
     let mut b = UnifiedBeing::new(Genome::wanderer());
+    if durable {
+        b.enable_durable_bonds();
+    }
     let mut h = Home::default();
     let n = |p: Partner| Stimulus { nutrient: q(0.50), partner: Some(p) };
 
@@ -95,9 +107,13 @@ fn live(injury: u32, injured: bool) -> Home {
             h.reopened_at = t as i32;
         }
         if t == 0 {
-            h.bond_home = s.attach.bond_here as i32;
             h.scalar_home = s.scalar_gate as i32;
             h.per_partner_home = s.per_partner_gate as i32;
+            h.door_opens_at = -1;
+        }
+        if h.door_opens_at < 0 && s.gave > 0 {
+            h.door_opens_at = t as i32;
+            h.bond_home = s.attach.bond_here as i32;
         }
         if !s.alive {
             h.died = true;
@@ -107,6 +123,7 @@ fn live(injury: u32, injured: bool) -> Home {
     h.gave_home = (gave / 200) as i32;
     h.gave_reunion = (reunion / 20) as i32;
     h.disagree = (dis * 1000 / 200) as i32;
+    h.keepsake = b.reciprocity.keepsake_with(FRIEND).unwrap_or(0) as i32;
     h
 }
 
@@ -128,11 +145,13 @@ impl Env {
 }
 
 const STATS: [&str; 6] = [
-    "gave F (return)", "gave F (reunion)", "bond→F (real)", "scalar gate", "per-partner gate", "reopened at",
+    "gave F (return)", "gave F (reunion)", "bond→F @reengage", "scalar gate", "per-partner gate", "lock reopens at",
 ];
+const STATS8: [&str; 2] = ["door reopens at", "keepsake→F"];
 const STATS7: &str = "gates disagree ‰";
-fn feat(h: &Home) -> [i32; 7] {
-    [h.gave_home, h.gave_reunion, h.bond_home, h.scalar_home, h.per_partner_home, h.reopened_at, h.disagree]
+fn feat(h: &Home) -> [i32; 9] {
+    [h.gave_home, h.gave_reunion, h.bond_home, h.scalar_home, h.per_partner_home,
+     h.reopened_at, h.disagree, h.door_opens_at, h.keepsake]
 }
 
 fn main() {
@@ -142,7 +161,7 @@ fn main() {
         injuries[0], injuries[injuries.len() - 1]);
 
     // V3 — survival first.
-    let deaths: usize = injuries.iter().filter(|&&m| live(m, true).died || live(m, false).died).count();
+    let deaths: usize = injuries.iter().filter(|&&m| live(m, true, false).died || live(m, false, false).died).count();
     println!("-- survival, read first --");
     if deaths == 0 {
         println!("  both arms survive every injury length\n");
@@ -150,36 +169,43 @@ fn main() {
         println!("  !! {deaths} runs died — deaths, not effect sizes\n");
     }
 
-    let arm = |injured: bool| {
-        let runs: Vec<[i32; 7]> = injuries.iter().map(|&m| feat(&live(m, injured))).collect();
-        let mut e = [Env { lo: 0, hi: 0 }; 7];
+    let arm = |injured: bool, durable: bool| {
+        let runs: Vec<[i32; 9]> = injuries.iter().map(|&m| feat(&live(m, injured, durable))).collect();
+        let mut e = [Env { lo: 0, hi: 0 }; 9];
         for (i, s) in e.iter_mut().enumerate() {
             *s = Env::of(&runs.iter().map(|r| r[i]).collect::<Vec<_>>());
         }
         e
     };
-    let hurt = arm(true);
-    let ctrl = arm(false);
+    let hurt = arm(true, false);
+    let ctrl = arm(false, false);
+    let fixed = arm(true, true);
 
     println!("-- coming home (V2: the control's middle phase is more of the SAME friend) --");
-    println!("  {:<20} {:>18} {:>18}   {}", "statistic", "never met T", "injured by T", "disjoint?");
-    for i in 0..7 {
-        let nm = if i == 6 { STATS7 } else { STATS[i] };
+    println!("  {:<20} {:>16} {:>16} {:>20}", "statistic", "never met T", "injured (gate off)", "injured + DURABLE");
+    for i in 0..9 {
+        let nm = if i == 6 { STATS7 } else if i >= 7 { STATS8[i - 7] } else { STATS[i] };
         println!(
-            "  {:<20} {:>18} {:>18}   {}",
+            "  {:<20} {:>16} {:>16} {:>20}",
             nm,
             ctrl[i].show(),
             hurt[i].show(),
-            if hurt[i].disjoint(ctrl[i]) { "YES" } else { "no" }
+            fixed[i].show()
         );
+    }
+    println!("\n  does the gate restore coming home? (durable arm vs the never-injured control)");
+    for i in 0..9 {
+        let nm = if i == 6 { STATS7 } else if i >= 7 { STATS8[i - 7] } else { STATS[i] };
+        let a = if fixed[i].disjoint(ctrl[i]) { "still differs" } else { "RESTORED (overlaps the control)" };
+        println!("    {:<20} {}", nm, a);
     }
 
     // V4 — floor check.
     println!("\n-- V4: vacuous agreements? --");
     let mut any = false;
-    for i in 0..7 {
+    for i in 0..9 {
         if hurt[i].lo == 0 && hurt[i].hi == 0 && ctrl[i].lo == 0 && ctrl[i].hi == 0 {
-            println!("  {:<20} both arms at 0 — VACUOUS, not a null", if i == 6 { STATS7 } else { STATS[i] });
+            println!("  {:<20} both arms at 0 — VACUOUS, not a null", if i == 6 { STATS7 } else if i >= 7 { STATS8[i - 7] } else { STATS[i] });
             any = true;
         }
     }
@@ -231,6 +257,7 @@ fn main() {
     println!("  200 ticks bonding with F (0.95), then N ticks away from F entirely (solitude),");
     println!("  then one tick back. Nothing is taking from the being — this is absence alone.\n");
     println!("  {:>8} {:>10} {:>14} {:>16} {:>14}", "absence", "bond→F", "longing→F", "F record live", "gave on return");
+    println!("  {:>8} {:>10} {:>14} {:>16} {:>14}   | with DURABLE bonds", "", "", "", "", "");
     for away in [0u32, 10, 25, 50, 75, 100, 150, 200, 400] {
         let mut b = UnifiedBeing::new(Genome::wanderer());
         for _ in 0..200 {
@@ -242,9 +269,20 @@ fn main() {
         }
         let live_rec = b.reciprocity.knows(FRIEND);
         let s = b.step(&st(friend()));
+        let mut d = UnifiedBeing::new(Genome::wanderer());
+        d.enable_durable_bonds();
+        for _ in 0..200 {
+            d.step(&st(friend()));
+        }
+        let mut dl = 0;
+        for _ in 0..away {
+            dl = d.step(&Stimulus { nutrient: q(0.50), partner: None }).attach.longing;
+        }
+        let ds = d.step(&st(friend()));
         println!(
-            "  {:>8} {:>10} {:>14} {:>16} {:>14}",
-            away, s.attach.bond_here, longing, live_rec, s.gave
+            "  {:>8} {:>10} {:>14} {:>16} {:>14}   | bond {:>4}  longing {:>4}  gave {:>4}",
+            away, s.attach.bond_here, longing, live_rec, s.gave,
+            ds.attach.bond_here, dl, ds.gave
         );
     }
     println!("\n  (bond decays at 63/64 per tick — a half-life of ~43 ticks. The fairness EMAs");

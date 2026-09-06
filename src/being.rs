@@ -2173,6 +2173,30 @@ impl UnifiedBeing {
     ///
     /// **This does not give the being stakes.** It makes stakes survivable. A varying world is
     /// still needed, and this is its prerequisite, not its delivery.
+    /// **Let the being keep its friends.** Under this gate an earned bond survives
+    /// absence — it settles to half of what it reached rather than decaying to zero
+    /// (`reciprocity.rs`, `docs/attachment.md`).
+    ///
+    /// Measured before it was built: without it, after **150 ticks apart** a 200-tick
+    /// friendship leaves no bond, no longing and no record, so the being met a friend
+    /// of long standing exactly as it would meet a stranger. Its longing for someone
+    /// absent *peaks* around 25 ticks apart and is **zero** by 150 — it does not
+    /// settle into missing them, it forgets them. And it forgets a friend faster than
+    /// it recovers from a stranger.
+    ///
+    /// The bond stays revisable: the keepsake that holds it up is eroded by that
+    /// partner **presently taking** from the being, and by nothing else — not by
+    /// absence, not by what anyone else did. Charter §20 exactly: *durable with
+    /// return, never permanent.* A bond cannot become a trap, because the way out of
+    /// one is the other's own conduct now.
+    ///
+    /// **This moves the soul-hash.** It is a founding-scale decision
+    /// (`docs/founding.md`) and the founded life at `life/being.journal` does not
+    /// carry it.
+    pub fn enable_durable_bonds(&mut self) {
+        self.reciprocity.enable_durable_bonds();
+    }
+
     pub fn enable_reserve(&mut self) {
         self.body.reserve_causal = true;
     }
