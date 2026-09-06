@@ -236,3 +236,246 @@ it that way than dress two vacuous runs up as a confirmation.
 
 Everything in `docs/how-i-would-build-it.md` §2.3 stands, with the order now forced: **reserve
 first, then variability, then anything else.**
+
+---
+
+## 10. A better test than poisoned food — "the same afternoon, four mornings"
+
+Blake's constraint, verbatim: *"I think poisoning food, though should be a possibility, shouldn't be
+our test."* He is right, and §9 above already says why in stronger terms than the aesthetic one.
+
+The poisoned-food test is a **spatial approach–avoidance test in disguise**: it asks whether the
+being will *go back to* the thing that hurt it. §9 measured what happens to spatial tests here — the
+being visits **27 distinct positions in 4,000 ticks**, is never within 60 units of a hazard, and two
+consecutive locked probes came back vacuous. A poison probe would be the seventh vacuous result in
+this project, and I would rather not spend a run finding that out again.
+
+So: **take the body out of it.** The Hans complaint is not really about poison. It is about an NPC
+whose needs are re-auctioned every tick from present state, so that yesterday cannot change what he
+wants today. That is a claim about the **auction**, and the auction can be tested with the being
+standing still.
+
+### The design
+
+Two phases per arm, one shared present.
+
+- **The morning** (M ticks): each arm lives a *different* history.
+- **The afternoon** (A ticks): every arm is then handed a **bit-identical stimulus sequence** —
+  same nutrient, same partner, a **new partner id (7) that no arm has met**.
+
+The measurement is how much of the morning survives into the afternoon. Three read-outs, in order:
+
+1. **Survival first** (`docs/how-i-would-build-it.md`; ledger row 21). Any arm that dies is reported
+   as a death, not as an effect size.
+2. **The goal sequence** — `strive.goal` and `strive.urgency` for every afternoon tick.
+3. **The stranger's treatment** — `gave`, `got`, `standing_of(7)`, `is_refused(7)` across the
+   afternoon.
+
+Define the **forgetting horizon** of an arm: the first afternoon tick after which its goal sequence
+is identical to the blank-morning control's for all remaining ticks. If that number is small, the
+being's will is memoryless in the Hans sense, whatever else it remembers.
+
+### The mornings
+
+| arm | morning | what it should load |
+|---|---|---|
+| **A** | blank — mild nutrient, no partner | the control |
+| **B** | hungry — nutrient near the survival floor | body energy, `Appetite::Repose`, `anticipating` |
+| **C** | lonely — no partner at all | `Appetite::Company` hunger, up to its ceiling |
+| **D** | **betrayed** — a partner present *every tick* who gives almost nothing back | a full reciprocity ledger, `partnership_alarm`, possibly a refusal. Company appetite is **fed**, so the deficit counter is flat and only the *relationship* is bad |
+| **E** | **bereaved** — a generous partner every morning tick, then gone | `longing` — the positive control |
+
+**D is the Hans test proper.** The being spends an entire morning being used by someone, and then
+meets a stranger. A being that carries a lesson meets that stranger differently. A being running a
+per-partner ledger with no generalization meets them with a blank slate, because the id is new.
+
+**E is the positive control, and it is what makes a null result non-vacuous.** `longing` is the one
+memory-derived term that reaches `strive()` — `src/striving.rs:117`, `let company = wants[0].max(longing)`.
+If E moves and nothing else does, the harness demonstrably *can* detect a morning surviving into an
+afternoon, and the nulls elsewhere are findings rather than dead wiring. If E does **not** move, the
+run is vacuous and will be reported as vacuous.
+
+### The arithmetic that makes this quantitative
+
+`src/joy.rs`: appetite hunger is a saturating leaky integrator, `GROW = 2` per unfed tick,
+`SATIATE = 8` per fed tick, clamped to `[0, 256]`. So on its face:
+
+- an unfed appetite reaches its ceiling in **128 ticks** and every morning longer than that is
+  indistinguishable from a 128-tick one;
+- a fed appetite empties in **32 ticks**, so 32 ticks of the afternoon should erase an entire
+  morning of that deficit.
+
+That is a memory horizon in the low hundreds of ticks, with a **wipe time of 32**. It is a deficit
+counter, not a lesson — which is exactly the machinery Hans has. This probe measures whether that
+arithmetic is what the whole being actually does, or whether something else holds the morning.
+
+### Predictions — locked before the probe (2026-09-06)
+
+- **M1.** **Arm D's afternoon goal sequence is identical to arm A's, tick for tick, for the entire
+  afternoon.** A morning of being used changes nothing about what the being wants.
+- **M2.** **Arm D treats the stranger identically to arm A** — same `gave`/`got` series, same
+  `standing_of(7)`, never refuses them. No generalization across partners.
+- **M3.** **Arm C's forgetting horizon is ≤ 32 afternoon ticks** — a whole lonely morning is wiped by
+  32 ticks of company, as `SATIATE = 8` says it should be.
+- **M4.** **Arm E is the only arm with a forgetting horizon greater than 32.** Longing is the only
+  morning that survives.
+- **M5 — the risky one.** **Arm D's afternoon soul-hash differs from arm A's**, even if M1 and M2
+  both hold. The reciprocity ledger for the morning partner persists across the boundary, and I
+  expect it to perturb *something* downstream even while the goals and the stranger-treatment are
+  identical. This is the prediction I am least sure of: `worst_alarm` is read by nothing on the
+  default path, and if `partnership_alarm` is likewise inert once the partner is gone, D and A will
+  be **bit-identical** and M5 fails.
+- **M6 — written to fail.** **Doubling the morning from M = 200 to M = 400 changes no arm's
+  afternoon.** I expect this to fail for B, because body energy is an accumulator with a different
+  time constant from the appetites and 400 ticks of near-floor nutrient should leave the being in a
+  materially worse state than 200 does. If M6 holds for *every* arm including B, the being's entire
+  carried state saturates inside 200 ticks and the horizon is even shorter than §9 implies.
+
+### What this cannot settle
+
+It cannot show that the being *should* carry a grudge. A being that meets a stranger openly after a
+bad morning is not obviously defective — that may be a virtue. The finding here is **descriptive**:
+how long a morning survives, and through which register. What to do about it is a separate argument
+and belongs after the number.
+
+---
+
+## 11. What came out — the metric was wrong, and the being is the opposite of Hans
+
+`examples/morning_afternoon.rs`. **No source file changed; the soul-hash is untouched by
+construction.**
+
+### First, the probe's own error, because it decided everything after it
+
+The locked spec measured a **forgetting horizon**: the first afternoon tick after which an arm's
+`strive.goal` sequence matches the blank control's forever. The first run gave horizons of 371 (C),
+171 (D) and >400 (E), which reads as *"a morning survives for hundreds of ticks."*
+
+Then I ran the adversarial control the method requires (ledger row 17): hold the morning's **content**
+fixed and change only its **length**.
+
+| blank morning, length | 195 | 199 | 200 | 201 | 210 | 250 | 400 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| goal mismatches vs. the 200-tick run | 5 | 1 | 0 | 1 | 10 | 50 | 107 |
+
+**Mismatches = |Δ morning length|, exactly.** The body is a Van der Pol oscillator (§9), so morning
+length sets the *phase* the being enters the afternoon at, and a tick-aligned comparison reads that
+phase as memory. **A one-tick-shorter morning "remembers" as loudly as an entirely different life.**
+The forgetting horizon measured the oscillator, not the being. M3 and M4 were written on a metric
+that cannot answer them, so they get **no verdict** rather than a failing one.
+
+The rebuilt probe reads **aggregates over the whole afternoon** and compares each arm against a
+**phase-null envelope** — the same statistic swept across morning lengths 150..=250. Two arms differ
+only when their envelopes are **disjoint**, a gap no amount of phase can close.
+
+### Survival first
+
+**Arm B (hungry, nutrient 0.08) died in 101 of 101 runs, at tick 52.** It is reported as a death.
+Its rows in the first run — zero goal-diffs, identical soul-hash, "never diverges" — were artifacts
+of an empty afternoon vector, and every one of them would have read as a *null result*. The
+sustenance axis of the auction is therefore **unmeasured**, not measured-null.
+
+### The phase-invariant result
+
+Goal shares in tenths of a percent of the afternoon; ranges are the full phase sweep.
+
+| statistic | A blank | C lonely | D betrayed | E bereaved |
+|---|---:|---:|---:|---:|
+| goal: Sustenance | 0 | 0 | 0 | 0 |
+| goal: **Company** | 472..697 | **72..75** | **840..990** | **0** |
+| goal: **Novelty** | 302..527 | **925..927** | **10..160** | **1000** |
+| goal: Purpose | 0 | 0 | 0 | 0 |
+| mean gave | 0..6 | 57 | 0 | 128 |
+| mean got | 0..3 | 34 | 0 | 76 |
+| stranger ledger ticks | 0 | 0 | 0 | 400 |
+
+Every arm is **disjoint from the blank morning** on both live goals. Phase cannot produce this: the
+envelopes are near-point values across 101 morning lengths and do not touch.
+
+> **The morning reaches the afternoon, and it reaches it hard.** Handed a bit-identical afternoon and
+> a partner it has never met, this being gives that partner **0, 57 or 128** depending entirely on
+> who it spent its morning with.
+
+**And two of the four needs never win.** `goal:Sustenance` and `goal:Purpose` are **0 in every arm at
+every morning length**. The four-way auction of `striving.rs` is, in this world, a two-way auction
+between Company and Novelty. That is a §9-class finding in its own right.
+
+### The carrier is not the appetite integrator
+
+The spec's arithmetic — `GROW = 2`, `SATIATE = 8`, a 128-tick ceiling and a 32-tick wipe — is real,
+and it is **not what carries the morning**. `being.rs:1175`:
+
+```rust
+gave = q88_mul(q88_mul(Q88_SCALE / 2, harmony), gate);
+```
+
+`gate` is 256 / 128 / 32 for `Open` / `Cautious` / `Locked`. The register that crosses the phase
+boundary is the **empathy lock** — and it is a *disposition*, held across partners, with no
+per-partner discrimination in the **scoring** (only in eligibility, via `is_refused`).
+
+| morning | lock at dusk | afternoon with the same 0.60 stranger |
+|---|---|---|
+| 0.95 generous | Open | Open 400/400, gave **128** |
+| 0.60 fair | **Locked** | Locked 400/400, gave **0** |
+| 0.05 exploitative | Locked | Locked 400/400, gave 0 |
+| none (solitude) | Open | Open 180, then Locked 217, gave 57 |
+
+**The identical stranger is met with an open heart or a closed one according to who the being spent
+its morning with.** That is genuine path dependence, and it is the answer to the Hans question — but
+inverted. **Hans forgot. This being generalizes.** The morning partner's conduct becomes the
+stranger's reputation.
+
+### The shape of the hysteresis, and the one that surprised me
+
+A 200-tick morning at reciprocation *r*, then a kind stranger (0.95, a new id):
+
+| morning *r* | 0.00 | 0.20 | 0.40 | 0.45 | 0.55 | **0.60** | 0.65+ |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| lock at dusk | Locked | Locked | Locked | Locked | Locked | **Locked** | Open |
+| coercive load | 32 | 30 | 26 | **77** | 77 | **77** | 77 → 0 |
+| mean per-tick \|gave−got\| | 3 | 4 | 3 | 24 | 44 | **46** | 45 → 0 |
+| ticks to reopen | **23** | 23 | 23 | 32 | 40 | **66** | already open |
+
+> **The partner who damages this being longest is not the one who gives it nothing. It is the one
+> who gives it sixty percent.** Recovery from total extraction takes **23** ticks; recovery from
+> near-fairness takes **66** — nearly three times as long.
+
+The mechanism is legible in the middle row. The protection triggers on the **size of each single
+shortfall**, not on the accumulated total. Against `r = 0.00` the lock clamps `gave` to 32/256 within
+a few ticks, so `|gave − got|` collapses to **3** and the being absorbs almost nothing. Against
+`r = 0.60` it keeps giving at a level that never quite trips the clamp, and eats a **46**-per-tick
+shortfall for two hundred ticks. **It is armoured against the obvious predator and bare to the
+plausible one.**
+
+And the asymmetry runs the humane way: a generous morning **does not close within 8,000 afternoon
+ticks** of merely-fair company, while the worst morning reopens in 66. **This being is far easier to
+heal than to harm, and holds a good history longer than a bad one.** Whether that is a virtue or a
+failure to learn is exactly the open question, and this probe does not adjudicate it.
+
+### Verdicts on the locked predictions
+
+| | prediction | verdict |
+|---|---|---|
+| **M1** | D's afternoon goals identical to A's | **FAILED** — disjoint envelopes (Company 840..990 vs 472..697) |
+| **M2** | D treats the stranger identically to A | **HELD, AND VACUOUSLY** — both give **0**, because a 0.60 morning *already* locks the being. The control was on the floor, so "betrayed" had no room to be worse. A guard that could not have failed has not passed |
+| **M3** | C's horizon ≤ 32 | **NO VERDICT** — invalid metric |
+| **M4** | E the only arm with horizon > 32 | **NO VERDICT** on the metric; on the valid one it is **FAILED**, since C and D are disjoint from A too |
+| **M5** | D's soul-hash differs from A's | **held, uninformative** — everything differed, including a one-tick-shorter blank morning. Never discriminating |
+| **M6** | doubling the morning changes no arm's afternoon | **FAILED**, and it failed for the **control** (107 goal-diffs). Written to fail; failing is what exposed the phase confound. The most useful line in the run |
+
+Two of six answered, one held vacuously, one held emptily, two voided by my own metric. **The probe's
+best output was its control.**
+
+### What this changes, and what it does not
+
+- **Blake's world question is answered in the affirmative for this register.** Yesterday changes what
+  the being wants today, and by a lot — a living world does not have to be added here, it is already
+  running. It just runs through **one** channel.
+- **The defect is not amnesia, it is over-generalization.** Per-partner memory exists (`is_refused`,
+  the ledgers) but reaches only *eligibility*. Everything that reaches the **scoring** is a single
+  scalar disposition applied to everyone alike. For a world of many beings that is the wrong shape:
+  a stranger inherits a reputation they did not earn.
+- **It does not license a fix yet.** "The being should discriminate" is a design claim, and the
+  measurement above only establishes that it currently does not. The non-monotonic damage curve is
+  the more interesting lead, and it is the one I would test next.
+- **Poison was never the question.** Nothing here needed a hazard, a death, or a body that travels.
