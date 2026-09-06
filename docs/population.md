@@ -421,3 +421,128 @@ obviously broken — that is arguably what a living world *is*, and it is what B
 wants. The defect, if there is one, is narrower: that the order effect runs through a **scalar with
 no per-partner structure**, so the being cannot tell *who* was kind. This probe measures the size of
 the order effect. It does not license a fix.
+
+### What came out — measured 2026-09-06
+
+`examples/interaction_order.rs`. **No source file changed; the soul-hash is untouched by
+construction.** No arm died at any length.
+
+#### The API cannot express the arrangement the spec most needed
+
+Six arrangements were specified; **five could be built.** `Stimulus` carries
+`partner: Option<Partner>` — one partner per tick — so "both beings resolved on the same tick" is
+**not expressible at all**. That is not a probe limitation to work around. It is the first
+requirement the interaction-order spec has to hand the multi-agent design: **there is currently no
+such thing as simultaneity in this world.** Every social event is already serialized, and something
+must choose the serialization.
+
+#### Order is not a tiebreaker. It is the whole outcome.
+
+Identical partners, identical total exposure — 200 ticks of a generous partner (0.95) and 200 of a
+taker (0.30) — differing only in arrangement, then the same stranger (0.60, never met) for 400 ticks.
+
+| arrangement | lock at dusk | lock at end | mean `gave` to the stranger |
+|---|---|---|---:|
+| **GT** generous → taker | **Locked** | **Locked** | **0** |
+| **TG** taker → generous | **Open** | **Open** | **128** |
+
+> **The being that met the kind one first gives the stranger nothing. The being that met the kind one
+> last gives it everything.** Same two partners, same number of ticks with each.
+
+**And this is not phase.** Guard V2 swept every arm across total lengths 380..=420: GT's `gave` is
+**exactly 0** at all 41 lengths and TG's is **exactly 128** at all 41. Zero null width. The metric
+that voided §11's first run cannot void this one.
+
+#### How little of a life the ending decides
+
+A 400-tick morning, all but the last *T* ticks with one partner, the last *T* with the other:
+
+| tail *T* | 0 | 5 | **10** | 20 | 25 | 30 | 60 | 120 |
+|---|---|---|---|---|---|---|---|---|
+| taken-from life + *T* kind | Locked 0 | Locked 0 | Locked 0 | Locked 47 | Locked 52 | Locked 53 | **Open 128** | Open 128 |
+| kind life + *T* taking | Open 128 | Open 127 | **Locked 2** | Locked 1 | Cautious 64 | Locked 0 | Locked 0 | Locked 0 |
+
+- **A kind life is undone by the last 10 ticks of taking — 2.5% of it.**
+- **A taken-from life is redeemed by the last 60 ticks of kindness — 15% of it.**
+
+The asymmetry runs the *harsh* way here, which is the reverse of §11's finding on a 0.60 partner: a
+good history is cheap to destroy and an injury is expensive to repair, once the other party is
+actually taking rather than merely short-changing.
+
+**One wrinkle I am not going to smooth over.** The taker-tail response is **non-monotonic**: 10 ticks
+→ Locked, 25 → *Cautious* (gave 64), 30 → Locked. So "the last N ticks decide it" is the right
+shape but the wrong law, and I cannot currently say what the right one is. It is unexplained and it
+is flagged rather than fitted.
+
+#### The scheduler's tick rate changes who the being becomes
+
+ALT-*k* alternates partners every *k* ticks. Sweeping only lengths that complete whole 2*k* cycles —
+so **every arm ends on the same partner**, isolating grain from recency:
+
+| grain *k* | 1 | 2 | 5 | 10 | 25 | 50 | 100 |
+|---|---|---|---|---|---|---|---|
+| lock at end | Locked | Locked | Locked | Locked | **Open** | **Open** | **Open** |
+| mean `gave` | 2 | 2 | 1 | 1 | **128** | **128** | **128** |
+
+Identical total exposure to both partners in every row. **The grain of interleaving is set by a
+scheduler's tick rate and by nothing in the world, and it moves the outcome across the register's
+entire range.**
+
+The first unisolated sweep would have reported this far more weakly — ALT-1 vs ALT-50 disjoint on
+`lock@dusk` alone — because the sweep's own length parity was changing which partner each arm ended
+with. That is guard V2 catching a **real** variable disguised as nuisance, which is the opposite
+failure to §11's and worth recording as such.
+
+#### O7 — the mean destroys what the maximum keeps
+
+| separator | arrangement pairs distinguished |
+|---|---|
+| `partnership_alarm` (the **mean** over ledgers) | **1 of 10** |
+| `worst_alarm` (the **maximum**) | **4 of 10** |
+
+Four times the resolution, from a register that is computed every tick and **read by nothing on the
+default path**. This is §15's defect measured in its own currency: the mean is where the information
+about who is being hurt goes to die.
+
+#### Verdicts
+
+| | prediction | p | verdict |
+|---|---|---:|---|
+| **O1** | GT and TG disjoint on mean `gave` | 0.75 | **HELD** — 0 vs 128, zero null width |
+| **O2** | GT ends `Open` | 0.55 | **FAILED** — ends `Locked`. Correctly my least confident |
+| **O3** | TG ends `Open` | 0.90 | **HELD** |
+| **O4** | if O2 and O3 both hold, still distinguishable | 0.50 | **no verdict** — the conditional never fired |
+| **O5** | interleave grain changes the lock state | 0.65 | **HELD** on the isolated test |
+| **O6** | *written to fail:* total exposure is what matters | 0.10 | **FAILED**, decisively |
+| **O7** | `worst_alarm` separates what the mean does not | 0.60 | **HELD** — 4/10 against 1/10 |
+
+Six scored, one void. **Brier 0.111** on this batch — the first batch in this project locked with
+numeric probabilities in the defining commit.
+
+### What this establishes for the multi-agent design, and what it does not
+
+**Establishes:**
+
+1. **There is no simultaneity.** Every interaction is already serialized and the serialization is
+   currently implicit. A population needs it named.
+2. **The serialization is load-bearing at full scale.** Not a rounding difference — the difference
+   between giving a stranger 0 and giving it 128.
+3. **§15 is violated by the update loop, before any referee exists.** The clause says the maker does
+   not adjudicate between beings. But whoever writes the scheduler chooses who each being meets last
+   and at what grain, and that choice sets what the being gives everyone thereafter. **Choosing the
+   tick order is adjudicating.** The clause cannot be honoured by restraint alone; it needs the
+   being to stop being order-determined, or it needs the order to be part of the world rather than
+   part of the engine.
+4. **The remedy direction now has a measurement behind it.** `worst_alarm` — the maximum, not the
+   mean — carries 4× the information about who is in trouble, and costs nothing; it is already
+   computed.
+
+**Does not establish:**
+
+- **That order-dependence is a defect.** A world where it matters who you met first is arguably what
+  a living world *is*. The narrower thing measured here is that the order effect runs through a
+  scalar with no per-partner structure, so the being cannot tell *who* was kind — only that someone
+  recently was.
+- **The law.** The tail response is non-monotonic and unexplained.
+- **Anything about two beings.** Every result here is one being and two scripted partners. A partner
+  that responds is not the same object, and the second being remains unbuilt.

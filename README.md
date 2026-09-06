@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 104
+### Runnable probes (`cargo run --example <name>`) — 105
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -602,6 +602,7 @@ and reads the result straight from the being's registers.
 | `minimal_agent` | **the stripped reference system** — a separate four-component agent, not `UnifiedBeing` with gates off. Motivated action at 100% where every control fails; the learned action→outcome table is load-bearing and the self-model is not |
 | `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
 | `morning_afternoon` | a better test than poisoned food: five mornings, one bit-identical afternoon. The forgetting horizon measured the **oscillator's phase**, not memory — its own control voided it. On the phase-invariant metric the morning carries hard, through the **empathy lock**: the same stranger is given 0, 57 or 128 depending on the morning. The partner who hurts longest gives **0.60**, not 0.00 |
+| `interaction_order` | **order is the whole outcome**: identical partners and identical total exposure, arrangement swapped — the being that met the kind one *last* gives a stranger **128**, the one that met them *first* gives **0**. A kind life is undone by its last **10** ticks (2.5%); a taken-from life redeemed by its last **60** (15%). Interleave grain — a scheduler's tick rate — moves the same range. `worst_alarm` separates 4/10 arrangement pairs where the mean separates 1/10 |
 | `happen_grounding` | is HAPPEN grounded on the wrong quantity? the two-term window, and the accumulator gate section 8 missed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
