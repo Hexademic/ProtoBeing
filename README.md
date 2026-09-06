@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 103
+### Runnable probes (`cargo run --example <name>`) — 104
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -601,6 +601,7 @@ and reads the result straight from the being's registers.
 | `mixed_selectivity` | are we the connectionist strawman? one channel wins in every world, and the learned precision saturates |
 | `minimal_agent` | **the stripped reference system** — a separate four-component agent, not `UnifiedBeing` with gates off. Motivated action at 100% where every control fails; the learned action→outcome table is load-bearing and the self-model is not |
 | `reaction_rate` | basin crossings per tick (Du et al. eq. 316) — there is no rate: one excursion, over by tick 165, then 3,835 ticks fixed |
+| `morning_afternoon` | a better test than poisoned food: five mornings, one bit-identical afternoon. The forgetting horizon measured the **oscillator's phase**, not memory — its own control voided it. On the phase-invariant metric the morning carries hard, through the **empathy lock**: the same stranger is given 0, 57 or 128 depending on the morning. The partner who hurts longest gives **0.60**, not 0.00 |
 | `happen_grounding` | is HAPPEN grounded on the wrong quantity? the two-term window, and the accumulator gate section 8 missed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
