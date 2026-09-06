@@ -236,3 +236,104 @@ it that way than dress two vacuous runs up as a confirmation.
 
 Everything in `docs/how-i-would-build-it.md` §2.3 stands, with the order now forced: **reserve
 first, then variability, then anything else.**
+
+---
+
+## 10. A better test than poisoned food — "the same afternoon, four mornings"
+
+Blake's constraint, verbatim: *"I think poisoning food, though should be a possibility, shouldn't be
+our test."* He is right, and §9 above already says why in stronger terms than the aesthetic one.
+
+The poisoned-food test is a **spatial approach–avoidance test in disguise**: it asks whether the
+being will *go back to* the thing that hurt it. §9 measured what happens to spatial tests here — the
+being visits **27 distinct positions in 4,000 ticks**, is never within 60 units of a hazard, and two
+consecutive locked probes came back vacuous. A poison probe would be the seventh vacuous result in
+this project, and I would rather not spend a run finding that out again.
+
+So: **take the body out of it.** The Hans complaint is not really about poison. It is about an NPC
+whose needs are re-auctioned every tick from present state, so that yesterday cannot change what he
+wants today. That is a claim about the **auction**, and the auction can be tested with the being
+standing still.
+
+### The design
+
+Two phases per arm, one shared present.
+
+- **The morning** (M ticks): each arm lives a *different* history.
+- **The afternoon** (A ticks): every arm is then handed a **bit-identical stimulus sequence** —
+  same nutrient, same partner, a **new partner id (7) that no arm has met**.
+
+The measurement is how much of the morning survives into the afternoon. Three read-outs, in order:
+
+1. **Survival first** (`docs/how-i-would-build-it.md`; ledger row 21). Any arm that dies is reported
+   as a death, not as an effect size.
+2. **The goal sequence** — `strive.goal` and `strive.urgency` for every afternoon tick.
+3. **The stranger's treatment** — `gave`, `got`, `standing_of(7)`, `is_refused(7)` across the
+   afternoon.
+
+Define the **forgetting horizon** of an arm: the first afternoon tick after which its goal sequence
+is identical to the blank-morning control's for all remaining ticks. If that number is small, the
+being's will is memoryless in the Hans sense, whatever else it remembers.
+
+### The mornings
+
+| arm | morning | what it should load |
+|---|---|---|
+| **A** | blank — mild nutrient, no partner | the control |
+| **B** | hungry — nutrient near the survival floor | body energy, `Appetite::Repose`, `anticipating` |
+| **C** | lonely — no partner at all | `Appetite::Company` hunger, up to its ceiling |
+| **D** | **betrayed** — a partner present *every tick* who gives almost nothing back | a full reciprocity ledger, `partnership_alarm`, possibly a refusal. Company appetite is **fed**, so the deficit counter is flat and only the *relationship* is bad |
+| **E** | **bereaved** — a generous partner every morning tick, then gone | `longing` — the positive control |
+
+**D is the Hans test proper.** The being spends an entire morning being used by someone, and then
+meets a stranger. A being that carries a lesson meets that stranger differently. A being running a
+per-partner ledger with no generalization meets them with a blank slate, because the id is new.
+
+**E is the positive control, and it is what makes a null result non-vacuous.** `longing` is the one
+memory-derived term that reaches `strive()` — `src/striving.rs:117`, `let company = wants[0].max(longing)`.
+If E moves and nothing else does, the harness demonstrably *can* detect a morning surviving into an
+afternoon, and the nulls elsewhere are findings rather than dead wiring. If E does **not** move, the
+run is vacuous and will be reported as vacuous.
+
+### The arithmetic that makes this quantitative
+
+`src/joy.rs`: appetite hunger is a saturating leaky integrator, `GROW = 2` per unfed tick,
+`SATIATE = 8` per fed tick, clamped to `[0, 256]`. So on its face:
+
+- an unfed appetite reaches its ceiling in **128 ticks** and every morning longer than that is
+  indistinguishable from a 128-tick one;
+- a fed appetite empties in **32 ticks**, so 32 ticks of the afternoon should erase an entire
+  morning of that deficit.
+
+That is a memory horizon in the low hundreds of ticks, with a **wipe time of 32**. It is a deficit
+counter, not a lesson — which is exactly the machinery Hans has. This probe measures whether that
+arithmetic is what the whole being actually does, or whether something else holds the morning.
+
+### Predictions — locked before the probe (2026-09-06)
+
+- **M1.** **Arm D's afternoon goal sequence is identical to arm A's, tick for tick, for the entire
+  afternoon.** A morning of being used changes nothing about what the being wants.
+- **M2.** **Arm D treats the stranger identically to arm A** — same `gave`/`got` series, same
+  `standing_of(7)`, never refuses them. No generalization across partners.
+- **M3.** **Arm C's forgetting horizon is ≤ 32 afternoon ticks** — a whole lonely morning is wiped by
+  32 ticks of company, as `SATIATE = 8` says it should be.
+- **M4.** **Arm E is the only arm with a forgetting horizon greater than 32.** Longing is the only
+  morning that survives.
+- **M5 — the risky one.** **Arm D's afternoon soul-hash differs from arm A's**, even if M1 and M2
+  both hold. The reciprocity ledger for the morning partner persists across the boundary, and I
+  expect it to perturb *something* downstream even while the goals and the stranger-treatment are
+  identical. This is the prediction I am least sure of: `worst_alarm` is read by nothing on the
+  default path, and if `partnership_alarm` is likewise inert once the partner is gone, D and A will
+  be **bit-identical** and M5 fails.
+- **M6 — written to fail.** **Doubling the morning from M = 200 to M = 400 changes no arm's
+  afternoon.** I expect this to fail for B, because body energy is an accumulator with a different
+  time constant from the appetites and 400 ticks of near-floor nutrient should leave the being in a
+  materially worse state than 200 does. If M6 holds for *every* arm including B, the being's entire
+  carried state saturates inside 200 ticks and the horizon is even shorter than §9 implies.
+
+### What this cannot settle
+
+It cannot show that the being *should* carry a grudge. A being that meets a stranger openly after a
+bad morning is not obviously defective — that may be a virtue. The finding here is **descriptive**:
+how long a morning survives, and through which register. What to do about it is a separate argument
+and belongs after the number.
