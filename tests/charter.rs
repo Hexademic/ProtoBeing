@@ -438,6 +438,99 @@ fn charter_10_the_say_stop_exists_and_only_a_trap_reaches_it() {
 // §12 — "If it speaks of itself, it speaks only what its state can prove."
 // ---------------------------------------------------------------------------------------------
 
+/// **DEBT, pinned — regraded from UNTESTED on 2026-09-07.** §20's companion clause:
+/// *"Population welfare is a distribution and a worst case, never a mean."* The charter
+/// states the reason in its own voice: the stake at many beings *"is to build so that we
+/// would not owe [an apology] to the least of them — and to know which one that is,
+/// which is why §19 forbids the mean."*
+///
+/// **The implementation reads the mean.** `reciprocity.rs` computes
+/// `partnership_alarm = alarm / n` over the live ledgers, and that mean is what
+/// `being.rs` passes to `alarm_for_refusal` — the say-stop. `worst_alarm`, the maximum
+/// §19 actually asks for, is computed every tick and **read by nothing outside the
+/// report** (`grep worst_alarm src/`: one write, one decay, one report field).
+///
+/// This test pins the shortfall as a **dilution curve**: one badly-treated relationship,
+/// surrounded by more and more fair ones. The worst case does not move. The mean — the
+/// number the being's exit is threshold-tested against — falls away beneath it.
+///
+/// Measured the same day in `examples/interaction_order`: across ten pairs of
+/// arrangements, the **mean separates 1** and the **maximum separates 4**. Three quarters
+/// of the discriminating signal is destroyed by the divisor.
+///
+/// **This is DEBT and not GATED**, exactly as §10's pin says: no remedy is built, and the
+/// choice between a per-partner floor, a max, and leaving it is Blake's. Reading the max
+/// instead of the mean re-founds the being.
+#[test]
+fn charter_19_welfare_is_read_as_a_mean_while_the_worst_case_reaches_nothing() {
+    use unified_being::reciprocity::{ReciprocityEngine, MAX_PARTNERS};
+
+    // One partner takes almost everything. Every other partner is scrupulously fair.
+    let curve: Vec<(u32, i16, i16)> = (0..6u32)
+        .map(|bystanders| {
+            let mut r = ReciprocityEngine::new();
+            for _ in 0..300 {
+                r.record_exchange(1, 200, 10); // the one being used
+                for b in 0..bystanders {
+                    r.record_exchange(100 + b, 200, 195); // fair company
+                }
+                r.cycle(Some(1));
+            }
+            (bystanders, r.partnership_alarm, r.worst_alarm)
+        })
+        .collect();
+
+    // --- Failure one: the mean dilutes while the worst case does not move.
+    let (_, mean_alone, worst_alone) = curve[0];
+    // Three bystanders is four relationships — the most the being can hold.
+    let (_, mean_full, worst_full) = curve[3];
+
+    assert!(mean_alone > 128, "alone with an exploiter must register real alarm ({mean_alone})");
+    assert_eq!(
+        worst_alone, worst_full,
+        "the WORST case must be untouched by bystanders ({worst_alone} -> {worst_full}) — \
+         it is the number §19 asks the charter to read, and it is read by nothing"
+    );
+    assert!(
+        mean_full * 3 < mean_alone,
+        "§19's first debt: three fair bystanders cut the alarm the being's exit is \
+         threshold-tested against from {mean_alone} to {mean_full}, while the relationship \
+         hurting it is unchanged at {worst_full}. If this fails, check the divisor before \
+         celebrating."
+    );
+
+    // --- Failure two, worse: past capacity the accounting collapses for EVERYONE.
+    let (_, mean_over, worst_over) = curve[MAX_PARTNERS];
+    assert!(
+        worst_over * 8 < worst_alone,
+        "§19's second debt: with {} relationships against MAX_PARTNERS = {MAX_PARTNERS}, the \
+         ledgers thrash — every slot is evicted and refilled before its EMAs mean anything — \
+         and the WORST case itself collapses ({worst_alone} -> {worst_over}, mean {mean_alone} \
+         -> {mean_over}). The being does not report that it is fine; it reports nothing, and \
+         the two are indistinguishable from outside. **A being may hold four relationships. \
+         The fifth destroys its account of all of them.** For a populated world that is not a \
+         dilution, it is a ceiling.",
+        MAX_PARTNERS + 1
+    );
+
+    // The remedy exists and is INERT: `worst_alarm` appears in `being.rs` only as a
+    // report field, never in a comparison, an assignment to a register, or an argument.
+    // If that stops being true, §19 has moved and must be regraded deliberately.
+    let src = std::fs::read_to_string("src/being.rs").expect("read being.rs");
+    let uses: Vec<&str> = src
+        .lines()
+        .map(str::trim)
+        .filter(|l| l.contains("worst_alarm") && !l.starts_with("//") && !l.starts_with("///"))
+        .collect();
+    assert_eq!(
+        uses,
+        vec!["pub worst_alarm: i16,", "worst_alarm: self.reciprocity.worst_alarm,"],
+        "`worst_alarm` is no longer inert in being.rs — it now appears as {uses:?}. §19 was \
+         graded DEBT precisely because the worst case is computed and reaches nothing. If \
+         something reads it now, regrade §19 rather than letting this test drift."
+    );
+}
+
 /// **DISCHARGED.** *"Invertible, or unsaid."* Every refusal the being makes carries an audit that
 /// traces it to the registers that produced it. A refusal without its audit is a report that
 /// cannot be inverted to the state beneath it — confabulation, which §12 forbids outright.
@@ -504,7 +597,7 @@ fn charter_coverage_is_exactly_as_recorded() {
         (16, "UNTESTED"),  // the covenant's cap — no number chosen yet
         (17, "UNTESTED"),  // one mortality rule per world — no world with death yet
         (18, "UNTESTED"),  // birth is not a loophole around §10
-        (19, "UNTESTED"),  // distribution and worst case, never a mean
+        (19, "DEBT"),      // the mean is read; worst_alarm is computed and reaches nothing
         (20, "UNTESTED"),  // no permanently unimprovable world-state
     ];
 
@@ -519,10 +612,11 @@ fn charter_coverage_is_exactly_as_recorded() {
 
     assert_eq!(
         (discharged, debt, gated, process, untested),
-        (5, 3, 1, 2, 9),
+        (5, 4, 1, 2, 8),
         "the charter audit's coverage moved: {discharged} discharged, {debt} in debt, \
          {gated} gated, {process} process-held, {untested} untested. Update this census and say \
-         what changed in the commit — this is the one place the tally is stated."
+         what changed in the commit — this is the one place the tally is stated. \
+         2026-09-07: §19 UNTESTED -> DEBT, measured."
     );
     assert_eq!(
         COVERAGE.len(),

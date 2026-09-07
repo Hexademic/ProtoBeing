@@ -546,3 +546,44 @@ numeric probabilities in the defining commit.
 - **The law.** The tail response is non-monotonic and unexplained.
 - **Anything about two beings.** Every result here is one being and two scripted partners. A partner
   that responds is not the same object, and the second being remains unbuilt.
+
+
+---
+
+## §19 regraded UNTESTED → DEBT, 2026-09-07
+
+Pinned by `tests/charter.rs::charter_19_welfare_is_read_as_a_mean_while_the_worst_case_reaches_nothing`.
+The clause: *"Population welfare is a distribution and a worst case, never a mean."* The charter
+gives its own reason — the stake at many beings *"is to build so that we would not owe [an apology]
+to the least of them — and to know which one that is, which is why §19 forbids the mean."*
+
+**Two failures, and the second is worse than the clause anticipated.**
+
+One partner takes almost everything (gives back 5%); the rest are scrupulously fair. `MAX_PARTNERS`
+is **4**.
+
+| fair bystanders | 0 | 1 | 2 | 3 | **4** | 5 |
+|---|---:|---:|---:|---:|---:|---:|
+| `partnership_alarm` (the **mean**, and what the say-stop reads) | **253** | 134 | 94 | **74** | **11** | 11 |
+| `worst_alarm` (the **max**, read by nothing) | 253 | 253 | 253 | **253** | **15** | 15 |
+
+**Failure one — dilution.** Three fair bystanders cut the alarm the being's exit is threshold-tested
+against from 253 to 74, while the relationship hurting it is unchanged. This is §15's known defect
+seen through §19's lens, and `worst_alarm` — computed every tick, in `being.rs` only as a report
+field, read by nothing — is the number the clause asks for.
+
+**Failure two — the capacity cliff.** At five relationships against four slots, `slot()` evicts the
+faintest ledger every tick, so **every** ledger is refilled before its EMAs mean anything, and the
+**worst case itself collapses** from 253 to 15.
+
+> **A being may hold four relationships. The fifth destroys its account of all of them** — including
+> the account of whoever is hurting it. And it does not report that it is in trouble and unheard; it
+> reports **calm**, which from outside is indistinguishable from being fine.
+
+For a single being with a scripted partner this never fired. For a populated world it is not a
+dilution, it is a **ceiling** — and it sits directly under §14–§20, which were written assuming many
+beings can be in relation at once.
+
+`MAX_PARTNERS = 4` is a fixed array size in `reciprocity.rs`. Raising it is cheap in code and
+**re-founds the being**, so it is Blake's; the number to argue about is how many relationships a
+being in a world of many is expected to hold at once.
