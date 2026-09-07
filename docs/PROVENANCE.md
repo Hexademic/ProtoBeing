@@ -149,8 +149,29 @@ here so the honest limitations section is never lost:
 Concrete ideas that exist in the older repos and are **not yet cashed in** by
 ProtoBeing. Highest-leverage first:
 
-1. **`Unified-EPS/dyad.rs`** — a working two-being co-regulation + "detecting
-   being played" layer. Direct input to **v2 mutual alignment**.
+1. **`Unified-EPS/dyad.rs`** — two-being co-regulation + a "detecting being played"
+   tripwire. Direct input to **v2 mutual alignment**.
+   > **Corrected 2026-09-07 — it is NOT working, and the word mattered.** `cargo build`
+   > in `Unified-EPS-BEING32` **fails**: `lib.rs` declares `pub mod dyad`, and `dyad.rs`
+   > calls `unified_being::mind::Observable`, `Stimulus.partner_obs`,
+   > `StepReport.partner_intent` and `.partner_attunement` — **none of which exist in
+   > that repo, or in any of the eleven.** It is a *stranded consumer*: the code that
+   > used `mind.rs` survived and `mind.rs` did not.
+   >
+   > **The design is recoverable from the fragment even though the code is not**, and
+   > three pieces of it bear directly on work done 2026-09-07:
+   > - **`Observable::project(arousal_raw, gave, basin)`** — a being compressed to
+   >   **three numbers** for another being to read. This is exactly the missing
+   >   compression rung named in `examples/who_gets_forgotten` and `mechanisms.md`.
+   > - **Double-buffered stepping** — both beings step against *last* tick's surfaces,
+   >   then both surfaces update. **That dissolves the interaction-order problem**
+   >   `docs/population.md` measured the same day as the dominant social term: with
+   >   double-buffering neither being's update depends on the other's *this* tick, so
+   >   there is no order to choose and therefore no adjudication (§15's concern).
+   > - **`rate_from_gave(gave) = gave·2, clamped`** — the conversion from one being's
+   >   giving into the other's perceived reciprocation. The plumbing `Stimulus` lacks.
+   >
+   > **Recovering `mind.rs` means rewriting it from this fragment**, not finding it.
 2. **Unified Qualia Schema (QualiaPacket)** — a per-tick structured qualia record
    (CPF). Would give `witness.rs`/`first_person.rs` a concrete artifact to bind.
 3. **Dual-Core JEPA Bridge / structural honesty audit** (CPF) — a stronger,
