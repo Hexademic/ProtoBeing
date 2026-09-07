@@ -15,7 +15,7 @@
 //! the two registers that hold what a relationship was worth.
 //!
 //! And eviction writes a **blank** ledger: `bond: 0, keepsake: 0, ticks: 0`. So it is
-//! not demotion, it is deletion. A friend of three hundred shared moments returns as
+//! not demotion, it is deletion. A friend of three hundred shared ticks returns as
 //! someone the being has never met.
 //!
 //! Measured below: **`enable_durable_bonds` does not save it.** That gate protects a
@@ -64,11 +64,11 @@ fn main() {
         }
         let st = |x: Partner| Stimulus { nutrient: q(0.5), partner: Some(x) };
 
-        // A long, earned friendship — 300 shared moments with a generous partner.
+        // A long, earned friendship — 300 shared ticks with a generous partner.
         for _ in 0..300 {
             b.step(&st(p(1, 0.95)));
         }
-        println!("  a friendship of 300 moments: {:?}", slots(&b));
+        println!("  a friendship of 300 shared ticks: {:?}", slots(&b));
         println!("  then a season among other people, each met for 60 ticks:\n");
 
         let mut lost_at = None;
