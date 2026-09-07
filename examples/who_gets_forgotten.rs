@@ -1,6 +1,6 @@
 //! **When the being meets one person too many, who does it forget?**
 //!
-//! Blake, 2026-09-08, on the `MAX_PARTNERS = 4` ceiling: *"I think the human mind
+//! Blake, 2026-09-07, on the `MAX_PARTNERS = 4` ceiling: *"I think the human mind
 //! starts compartmentalizing people by their traits or even just by name. with enough
 //! people the mind has to compress the data down in some way that is still readable
 //! and useable for pulling actionable knowledge."*
