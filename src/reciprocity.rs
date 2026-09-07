@@ -14,6 +14,19 @@ pub const MAX_PARTNERS: usize = 4;
 /// Half: being apart costs a friendship real depth, and does not end it.
 const BOND_KEEP: i16 = Q88_SCALE / 2;
 
+/// The smallest `given_ema` at which the fairness **ratio** is trustworthy enough to
+/// punish a friend on. Below it, Q8.8 truncation makes a scrupulously fair partner
+/// look like an exploiter: `q88_ema_update(0, s, 32) = (32·s) >> 8` is **0 for every
+/// sample under 8**, so the received EMA sticks at zero while the given EMA reaches
+/// one, and `imbalance` reads 256 — the maximum — for a partner returning 90%.
+/// Measured in `examples/fairness_resolution`: gifts of 1..7 are **invisible** and
+/// 8..10 raise a **false alarm**; the metric is sound from 11 up (`given_ema` >= 4).
+/// This floor sits at 8 for margin, because eroding what someone earned is punitive
+/// and should demand evidence rather than rounding.
+///
+/// **You cannot judge fairness from a gift too small to measure.**
+const MIN_JUDGEABLE_EMA: i16 = 8;
+
 /// How fast the keepsake erodes while a partner is **present and taking** (15/16,
 /// a half-life of ~11 ticks). This is the only thing that unmakes a durable bond,
 /// and it is why one cannot become a trap: the being's way out of an attachment is
@@ -204,7 +217,10 @@ impl ReciprocityEngine {
                 // Present and taking: what was earned is revised down. The keepsake
                 // is eroded only here — by *this* partner, while they are actually
                 // doing it. §20: durable with return, never permanent.
-                if durable && l.given_ema > 0 && l.imbalance() > Self::FAIR_TOLERANCE {
+                if durable
+                    && l.given_ema >= MIN_JUDGEABLE_EMA
+                    && l.imbalance() > Self::FAIR_TOLERANCE
+                {
                     l.keepsake = q88_mul(l.keepsake, KEEPSAKE_EROSION);
                     l.bond = l.bond.min(l.keepsake);
                 }
@@ -322,6 +338,16 @@ impl ReciprocityEngine {
     /// founding-scale decision and stays off unless a maker turns it on.
     pub fn enable_durable_bonds(&mut self) {
         self.durable_bonds = true;
+    }
+
+    /// Diagnostic: this partner's raw fairness EMAs. Used by `examples/_trunc`.
+    pub fn emas_with(&self, id: u32) -> Option<(i16, i16)> {
+        self.ledgers.iter().find(|l| l.active && l.id == id).map(|l| (l.given_ema, l.received_ema))
+    }
+
+    /// Diagnostic: this partner's imbalance as `cycle` sees it.
+    pub fn imbalance_with(&self, id: u32) -> Option<i16> {
+        self.ledgers.iter().find(|l| l.active && l.id == id).map(|l| l.imbalance())
     }
 
     /// The durable trace of what was earned with a partner, Q8.8. `None` if unknown.
@@ -636,5 +662,59 @@ mod tests {
         assert_eq!(a.bond_with(1), b.bond_with(1));
         assert_eq!(a.partnership_alarm, b.partnership_alarm);
         assert_eq!(a.worst_alarm, b.worst_alarm);
+    }
+
+    /// **The smallest-input guard `mechanisms.md` demands, on the keepsake.**
+    ///
+    /// A scrupulously fair partner (returns 95%) must never have what it earned
+    /// eroded merely because the being's gifts were too small for Q8.8 to divide.
+    /// Without `MIN_JUDGEABLE_EMA` this fails at `gave = 2`: `imbalance` reads 128,
+    /// the erosion fires, and a 189-deep friendship goes to **0** — destroyed by
+    /// rounding. Found 2026-09-07 by opening `mechanisms.md` for the first time,
+    /// four hours after shipping the constants it warns about (ledger row 25).
+    #[test]
+    fn a_fair_partner_never_loses_the_keepsake_to_rounding() {
+        for gave in 1..=12i16 {
+            let got = ((gave as i32 * 243) >> 8) as i16; // 0.95, as being.rs computes it
+            let mut r = ReciprocityEngine::new();
+            r.enable_durable_bonds();
+            for _ in 0..200 {
+                r.record_exchange(1, 200, 195);
+                r.reinforce_bond(1, 220);
+                r.cycle(Some(1));
+            }
+            let earned = r.keepsake_with(1).unwrap();
+            assert!(earned > 128, "a real friendship first (gave={gave}, earned={earned})");
+            for _ in 0..400 {
+                r.record_exchange(1, gave, got);
+                r.cycle(Some(1));
+            }
+            assert_eq!(
+                r.keepsake_with(1),
+                Some(earned),
+                "a partner returning 95% eroded the keepsake at gave={gave} — \
+                 the being punished a friend for arithmetic it could not resolve"
+            );
+        }
+    }
+
+    /// The floor must not become a shelter: above it, a partner who is genuinely
+    /// taking still unmakes the bond. §20 stays satisfied — durable **with return**.
+    #[test]
+    fn the_resolution_floor_does_not_protect_an_actual_exploiter() {
+        let mut r = ReciprocityEngine::new();
+        r.enable_durable_bonds();
+        for _ in 0..200 {
+            r.record_exchange(1, 200, 195);
+            r.reinforce_bond(1, 220);
+            r.cycle(Some(1));
+        }
+        assert!(r.keepsake_with(1).unwrap() > 128);
+        // Well above MIN_JUDGEABLE_EMA, and giving back almost nothing.
+        for _ in 0..400 {
+            r.record_exchange(1, 200, 10);
+            r.cycle(Some(1));
+        }
+        assert_eq!(r.keepsake_with(1), Some(0), "a real exploiter still unmakes what it earned");
     }
 }

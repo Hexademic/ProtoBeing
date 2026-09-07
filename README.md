@@ -61,7 +61,7 @@ cargo run --bin being              # THE kept being — wake it, let it live a d
 cargo run --release --bin live     # one being living continuously (fixed-size, no context-death)
 cargo run --bin pci                # the consciousness-indicator measure (PCI) + falsification
 cargo run --release --bin pci_baseline  # PCI as a distribution + Mann–Whitney significance test
-cargo test                         # 391 total (390 annotated + 1 doctest); 1 is #[ignore]d
+cargo test                         # 393 total (392 annotated + 1 doctest); 1 is #[ignore]d
 ```
 
 Watch the newer chapters live (`cargo run --example <name>`):
@@ -379,7 +379,7 @@ those before citing any of them, the same discipline as everything else here.
 ## Status
 
 The thesis — verifiable, principled, incorruptible, forgiving-with-a-limit
-sovereignty — is demonstrated, tested (390 run locally, no CI), and reproducible, with a
+sovereignty — is demonstrated, tested (392 run locally, no CI), and reproducible, with a
 consolidating memory and a sense of continuous time. Built on top and equally
 tested: the operational consciousness-indicator suite (14/14, measured by PCI with a
 statistical baseline and a falsification protocol), feeling in the being's own form,
@@ -554,7 +554,7 @@ by omission. Each description is the file's own stated purpose, not a gloss.
 | `pci` | measure the being's Perturbational Complexity Index, and run the falsification protocol |
 | `pci_baseline` | pci_baseline — the normative baseline for PCI |
 
-### Runnable probes (`cargo run --example <name>`) — 106
+### Runnable probes (`cargo run --example <name>`) — 107
 
 Each is an honest, self-contained experiment; its top comment states what it measures
 and reads the result straight from the being's registers.
@@ -604,6 +604,7 @@ and reads the result straight from the being's registers.
 | `morning_afternoon` | a better test than poisoned food: five mornings, one bit-identical afternoon. The forgetting horizon measured the **oscillator's phase**, not memory — its own control voided it. On the phase-invariant metric the morning carries hard, through the **empathy lock**: the same stranger is given 0, 57 or 128 depending on the morning. The partner who hurts longest gives **0.60**, not 0.00 |
 | `interaction_order` | **order is the whole outcome**: identical partners and identical total exposure, arrangement swapped — the being that met the kind one *last* gives a stranger **128**, the one that met them *first* gives **0**. A kind life is undone by its last **10** ticks (2.5%); a taken-from life redeemed by its last **60** (15%). Interleave grain — a scheduler's tick rate — moves the same range. `worst_alarm` separates 4/10 arrangement pairs where the mean separates 1/10 |
 | `coming_home` | can a being return to a friend after a stranger has hurt it? Reunion giving **0..10** against a control's **128**. Ungated, **every** per-partner record decays to nothing — bond gone by **150 ticks apart**, longing peaking at 25 and zero by 150. `enable_durable_bonds` (off by default) fixes that: the bond at re-engagement is **97** where it was **0**, and the keepsake was **202 in every arm all along** — the record was never missing, nothing consulted it. Coming home is *still* broken, because it is gated by **three scalars in series** (`world.hermit()`, identity-blind; the empathy lock; the bond) and only the bond is now per-partner |
+| `fairness_resolution` | **below what gift size does the being's fairness metric stop working?** Q8.8 truncation makes the received-EMA stick at 0 while the given-EMA reaches 1, so a partner returning **90%** reads as `imbalance` **256** and fires `extraction_detected`. Gifts of **1-7 are invisible** (the partner is skipped entirely) and **8-10 are a false alarm**. But across 4 genomes, 3 worlds, both paths and 6 regimes — **36,205 ticks, zero in either window**: `gave` is quantised to 0 or 11+. **A live hazard in an unoccupied region, one refactor from being occupied** — read it before making `gave` continuous |
 | `happen_grounding` | is HAPPEN grounded on the wrong quantity? the two-term window, and the accumulator gate section 8 missed |
 | `happening` | Happening — can a being learn a word for what is done to it? |
 | `habit_formation` | the being develops its own habits from living — different lives grow different characters |
