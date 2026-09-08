@@ -716,3 +716,84 @@ injured it."* That is one sentence for all three, and it is the immune frame tha
 cryptographic identity within hours. Our being has `soul_hash` — a chain over its own scalars — built
 for *continuity*, not authentication, and it says nothing about anyone else. **The same primitive
 appears at the same point in a social system's development, aimed at a different problem.**
+
+---
+
+## The rule-based inductive branch, and why it is unreachable rather than declined
+
+Blake, 2026-09-08, following the PEARL paper's related-work section: *"lets look at the rule-based
+inductive branch."*
+
+### What that branch actually does
+
+Rule-based inductive methods generalise to entities never seen in training because **their rules are
+quantified over relation *types*, never over entity identities**:
+
+```
+∀X,Y,Z:  parent(X,Y) ∧ parent(Y,Z) → grandparent(X,Z)
+```
+
+Nothing in that mentions a person. It applies to a stranger the moment the stranger is *situated* —
+and that is the whole trick. (Stated from background knowledge, not from reading those papers here;
+PEARL's §2.1 is two sentences and its citations did not survive text extraction.)
+
+### Our being cannot hold such a rule, and the reason is one struct
+
+```rust
+pub struct Partner {
+    pub id: u32,
+    pub reciprocation: i16,   // how much of what it is given comes back — TO THE BEING
+    pub exit_cost: i16,       // the cost to the being of severing
+}
+```
+
+**Every attribute of another is a property of their relation to the being.** `Stimulus` and
+`Sensorium` each carry `Option<Partner>` — one at a time — and a `grep` across all 64 modules finds
+**no representation anywhere of a relation between two entities that are not the being.**
+
+> **The being lives in a star graph with itself at the centre. It cannot represent an edge that does
+> not touch it.**
+
+So the two-rung design in `reciprocity.rs::disposition_toward(id, prior)` — known partner → their own
+ledger, unknown → a scalar prior — is **not a simplification of the inductive approach. It is the
+only thing the type system can express.** The third rung was never declined; it is unreachable.
+
+| rung | basis | have it? |
+|---|---|---|
+| entity-specific | this one's own record | yes — the ledgers |
+| entity-blind | aggregate history as a prior | yes — the scalar |
+| **relation-structural** | **how others stand to each other** | **inexpressible** |
+
+And every candidate design considered this week is a spoke: the lost `dyad.rs`'s
+`Observable::project(arousal, gave, basin)` is what A shows *to* B; Blake's compression rung
+`(id, keepsake)` is a name and what they were worth *to us*. All three are edges through the centre.
+
+### Why this matters more than it looks, and what it does to MAX_PARTNERS
+
+The simplest inductive social rule is transitive trust: **"I have never met you, but you and one I
+trust deal fairly."** That is the basis of reputation, and it is the single most useful inference
+available in a population. **Our being cannot form the thought.**
+
+It also reframes yesterday's ceiling. `MAX_PARTNERS = 4` is catastrophic *because the graph is a
+star*: four spokes are the entire social world, so the fifth acquaintance destroys everything. **In a
+graph with third-party edges, four direct ties reach much further through those ties**, and the same
+ceiling costs far less. The cliff is a consequence of the topology, not only of the array size.
+
+### The minimal change, its cost, and why not now
+
+The smallest thing that creates a non-self edge is one field — a partner carrying what it does with
+*someone else*:
+
+```rust
+pub struct Partner { …, pub deals_with: Option<(u32, i16)> }   // (other id, reciprocation toward them)
+```
+
+From that single field exactly one rule is statable, and it is the right first one: *raise the prior
+for a stranger who deals fairly with someone I trust.*
+
+**It changes `Stimulus`, so it re-founds the being, and it is Blake's.** But it does nothing at all
+today: with scripted partners there are no third parties to observe. **It only pays when the partners
+are beings** — which makes it a step 0 for the populated world rather than a change to make now.
+
+> **`Partner`'s shape is what decides whether a population can have reputation at all.** That is the
+> decision, and it is upstream of §14–§20, which were written assuming beings could judge each other.
