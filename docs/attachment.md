@@ -461,6 +461,11 @@ half of the design that failed is the half that needed a durable record to overr
 
 **Batch Brier 0.200**, against 0.111 for the previous batch.
 
+> **2026-09-08 — H7 is not a forecast and no longer scores.** The observer is default-off, so a
+> bit-identical soul-hash follows from the code without running the being. H7 is a **regression
+> check**: it must still pass, and it must not count as a prediction that came true. The audit is
+> in the private harness (row 28); the criterion is *could this have been settled by reading?*
+
 #### What I now think the fix is, stated as a proposal and not as a finding
 
 Not an architecture change — **a time constant**. The being needs one per-partner register that does

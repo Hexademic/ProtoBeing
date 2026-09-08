@@ -519,6 +519,12 @@ net at index 16 and the sweep covers it, but this world hands the being **the sa
 tick**, so no ledger ever decays and the durable floor never binds. The gate is therefore
 **UNTESTED FOR SURVIVAL**, not survival-safe.
 
+> **2026-09-08 — and neither D1 nor D3 was a forecast.** This section already called the pass
+> vacuous, which was right. What it did not say is that **both rows were settleable by reading the
+> world config**: one always-present partner means no ledger decays, so D3 follows, and D1 follows
+> from D3. They are regression checks, not predictions, and they no longer score (row 28).
+> D2 and D4 are unaffected — a 16-gate lethality sweep has to be run.
+
 What the guard needs next is a survival world with a partner **who leaves** — which is also the only
 world in which this faculty does anything at all. Until that exists, the honest status is a gap, and
 recording it as a pass would have been the seventh vacuous result in this project rather than the

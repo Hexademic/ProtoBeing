@@ -266,6 +266,14 @@ decision is made.
 
 **Brier 0.157.** Better than chance, and the one bad row is the one that mattered.
 
+> **2026-09-08 — D1 and D5 are not forecasts, and the proof was written inside D1.** *"One live
+> ledger means mean == max, so nothing should move"* — `alarm / 1` and `max([alarm])` are the same
+> integer, so both rows follow from arithmetic without running anything. **The 0.157 above is left
+> as written; over the three rows that were real forecasts it is 0.251** — (0.64 + 0.0225 + 0.09)/3.
+> **That is the score of saying 0.5 to everything, slightly worse.** The 0.157 came from counting
+> two certainties as wins. First written here as 0.243, which I had not computed — corrected.
+> **D3 stays a forecast**: whether a flourishing being withdraws in 4,000 ticks has to be run.
+
 #### R-worst changes nothing, because the alarm was never the binding term
 
 The mean and the worst disagree on **776 ticks** in the friend arm, and the
