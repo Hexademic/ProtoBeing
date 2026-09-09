@@ -140,7 +140,7 @@ fn live(arm: Arm, morning_ticks: u32, afternoon_ticks: u32) -> Stats {
     s.mean_got = (got / n) as i32;
     s.mean_longing = (longing / n) as i32;
     s.stranger_trust = b.standing_of(7).trust;
-    s.stranger_lived = b.reciprocity.standing(7).map_or(0, |(_, l)| l);
+    s.stranger_lived = b.reciprocity.reciprocation_rate(7).map_or(0, |(_, l)| l);
     s
 }
 

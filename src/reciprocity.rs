@@ -270,14 +270,25 @@ impl ReciprocityEngine {
         self.ledgers.iter().find(|l| l.active).map(|l| l.id)
     }
 
-    /// What this partner has earned with the being: `(rate, lived)` — the
-    /// reciprocity rate of the relationship (Q8.8, 256 = fully balanced) and how
-    /// many exchanges of shared history it actually rests on. `None` if there is
-    /// no relationship. Read-only; this is the ledger the door consults when depth
-    /// of disclosure must be *earned* (`disclosure.rs`). The length matters
-    /// because the EMAs saturate within a few ticks — intensity can be
-    /// flash-earned, history cannot.
-    pub fn standing(&self, partner_id: u32) -> Option<(i16, u16)> {
+    /// `(rate, lived)` — the reciprocity **rate** of the relationship (Q8.8, 256 =
+    /// fully balanced) and how many exchanges of shared history it rests on. `None`
+    /// if there is no relationship. Read-only; the door consults this when depth of
+    /// disclosure must be *earned* (`disclosure.rs`). Length matters because the EMAs
+    /// saturate within a few ticks — intensity can be flash-earned, history cannot.
+    ///
+    /// # This is NOT the bond, and the difference inverts
+    ///
+    /// **`rate = received_ema / given_ema`, so the being's own giving is the
+    /// DENOMINATOR.** A being that withdraws reads as *better* reciprocated, and one
+    /// that gives generously into an under-repaying partner reads as *worse*. At
+    /// `given_ema == 0` it returns 256 — **perfectly balanced** — for a being that has
+    /// stopped giving entirely.
+    ///
+    /// It was called `standing` until 2026-09-09, and that name is what produced the
+    /// near-miss: the number rose after an injury and the sentence *"the bond survives"*
+    /// followed from the word, not from the data. **For the bond, call `bond_with`.**
+    /// Guarded by `withdrawing_reads_as_better_reciprocation_than_generosity_did`.
+    pub fn reciprocation_rate(&self, partner_id: u32) -> Option<(i16, u16)> {
         self.ledgers
             .iter()
             .find(|l| l.active && l.id == partner_id)
@@ -459,6 +470,68 @@ impl Default for ReciprocityEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// **The reciprocity rate carries the being's own giving in the DENOMINATOR, so a
+    /// being that withdraws reads as BETTER reciprocated, not worse.**
+    ///
+    /// `rate() = received_ema / given_ema`. Halve what the being gives and the rate
+    /// doubles. This is the sentence that was nearly published as *"the bond survives
+    /// the injury"* on 2026-09-07 — the number rose, and it rose **because** the being
+    /// had stopped giving. The integer was right and every word about it was wrong.
+    ///
+    /// **Locked before running, second attempt (2026-09-09).** The first version of
+    /// this guard was **vacuous**: it opened with `record_exchange(7, 200, 200)`, which
+    /// is already a perfect rate, so it asserted 256 == 256 with nothing moving. It was
+    /// caught only because an unrelated assertion failed. *"Vacuous is not passed"* —
+    /// written in the harness, and still walked into.
+    ///
+    /// Prediction: from a relationship where the being **over-gives** (200 out, 100
+    /// back) the rate reads roughly half-balanced; after the being withdraws to a
+    /// trickle it matched by the partner (10 out, 10 back), the rate reads **256,
+    /// fully balanced** — while `given_ema` has collapsed. `p = 0.90`, and it is high
+    /// because this follows from the arithmetic; the guard exists so the behaviour
+    /// cannot drift away from the arithmetic unnoticed.
+    #[test]
+    fn withdrawing_reads_as_better_reciprocation_than_generosity_did() {
+        let mut r = ReciprocityEngine::new();
+
+        // The being gives generously and is under-repaid. This is a WORSE
+        // relationship for it than the one below, by any reading that matters.
+        for _ in 0..80 {
+            r.record_exchange(7, 200, 100);
+            r.cycle(Some(7));
+        }
+        let (generous_rate, _) = r.reciprocation_rate(7).expect("partner 7 is known");
+        let (given_generous, _) = r.emas_with(7).expect("partner 7 is known");
+
+        // The being withdraws to almost nothing, and the partner matches it.
+        for _ in 0..80 {
+            r.record_exchange(7, 10, 10);
+            r.cycle(Some(7));
+        }
+        let (withdrawn_rate, lived) = r.reciprocation_rate(7).expect("partner 7 is known");
+        let (given_withdrawn, _) = r.emas_with(7).expect("partner 7 is known");
+
+        assert!(
+            generous_rate < 160,
+            "over-giving must read as under-reciprocated; got {generous_rate}"
+        );
+        assert_eq!(
+            withdrawn_rate, Q88_SCALE,
+            "a matched trickle must read FULLY BALANCED; got {withdrawn_rate}"
+        );
+        assert!(
+            withdrawn_rate > generous_rate,
+            "THE TRAP: withdrawing must score HIGHER than generosity did \
+             ({generous_rate} -> {withdrawn_rate})"
+        );
+        assert!(
+            given_withdrawn * 4 < given_generous,
+            "the being must actually be giving far less — else the guard proves nothing \
+             (gave {given_generous}, now {given_withdrawn})"
+        );
+        assert!(lived > 0, "shared history must survive, or the reading is vacuous");
+    }
 
     /// A bond forms with a specific partner from rewarding meetings, is felt as
     /// longing when they are absent (and *for them* — the being misses a particular

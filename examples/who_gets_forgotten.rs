@@ -49,7 +49,7 @@ fn slots(b: &UnifiedBeing) -> Vec<(u32, u16, i16)> {
     (0..40u32)
         .filter_map(|id| {
             b.reciprocity
-                .standing(id)
+                .reciprocation_rate(id)
                 .map(|(_, lived)| (id, lived, b.reciprocity.keepsake_with(id).unwrap_or(-1)))
         })
         .collect()
@@ -94,7 +94,7 @@ fn main() {
         println!(
             "    bond felt: {}   ledger ticks: {:?}   keepsake: {:?}",
             r.attach.bond_here,
-            b.reciprocity.standing(1).map(|(_, l)| l),
+            b.reciprocity.reciprocation_rate(1).map(|(_, l)| l),
             b.reciprocity.keepsake_with(1)
         );
         match lost_at {

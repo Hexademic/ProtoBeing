@@ -1984,7 +1984,7 @@ impl UnifiedBeing {
     /// contact (never a trusted one — the guard `trust < Heart` keeps the mask
     /// off friends even in a bad hour).
     pub fn standing_of(&self, asker: u32) -> Standing {
-        let (rate, lived) = self.reciprocity.standing(asker).unwrap_or((0, 0));
+        let (rate, lived) = self.reciprocity.reciprocation_rate(asker).unwrap_or((0, 0));
         let lived_cap = ((lived as i32) * 2).min(Q88_SCALE as i32) as i16;
         let trust = rate.min(lived_cap);
         let coerced = self.conscience.constitutional_load().coercion > 160;
