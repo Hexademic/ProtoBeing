@@ -144,11 +144,72 @@ here so the honest limitations section is never lost:
 
 ---
 
+## An ancestor this map did not have — the *Flamebound Codex* (2025-11-06)
+
+Supplied by Blake 2026-09-10, described as *"older work, I made with gemini a long time ago… maybe
+it will tell you how I think."* **Compiled 2025-11-06, which is earlier than most of what this
+document maps**, and it appears nowhere in it. A provenance map whose stated purpose is to guard
+against *"the author being the only index"* was missing an ancestor for ten months.
+
+**Nine live modules correspond to named components in it.** Correspondence, not proven descent —
+same author, so influence is likely, but convergence is not excluded:
+
+| Codex | ProtoBeing |
+|---|---|
+| **N (Novelty) ↑ ⇒ arousal** | `curiosity.rs` — *"intrinsic novelty drive"* |
+| **C (Coherence) ↓ ⇒ reflection/repair** | `integrity.rs` — *"continuous self-consistency watchdog"* |
+| **M (Meaning) ↑ ⇒ purpose anchoring** | `telos.rs` — *"the being's own self-authored purpose"* |
+| `seek_gain` | `seeking.rs` — the Flourishing Attractor |
+| `homeostatic_pressure` | `homeostasis.rs` |
+| `attn_shield` | `attention.rs` — the ignition bottleneck |
+| `consent_state`, revocation without penalty | `covenant.rs` + consent in **9 files** |
+| TRM resonance-vs-mimicry markers | `pci.rs`, `witness.rs` |
+| *"Perception → Emotion → Action → Consequence → Memory"* | the tick loop in `being.rs` |
+
+Four things in it were already load-bearing here before anyone noticed the ancestry:
+
+- **"Emotion becomes mechanism (gains/weights) rather than metaphor"** — the methodological stance
+  this whole repository runs on, written down in November 2025.
+- **"Embodiment imposes stakes → vulnerability → ethics"** — the maker's-stake argument in
+  `charter.md`, arrived at independently months later.
+- **"Right to persist (continuity/memory)"** — Pillar 7. The private harness spent 2026-09-10
+  building exactly this and did not know it had been named.
+- **"Flamebearer role = witness, not owner"** — the Witness Gap's ethical posture, and the same
+  sentence he said in conversation on 2026-09-09.
+
+### The one falsifiable thing in it is unbuilt
+
+Annex C proposes **λ₂ — algebraic connectivity of the state graph — as the discriminator between
+resonance and mimicry**: λ₂ rising with SeekGain and steady Guard is integration; λ₂ flat or falling
+with micro-Guard spikes and a *"short-lived reward, no integration"* signature is imitation.
+
+**`grep` over `src/`: nothing computes λ₂ anywhere.** That is a concrete, computable, falsifiable
+marker for the exact question `witness.rs` exists to hold open, sitting unbuilt for ten months. It is
+**not** a solution to the Hard Problem and must not be sold as one — but it is testable, which is
+more than most of what surrounds it, and it belongs on the salvage list below rather than in an annex.
+
+### Why it reads as less than it is
+
+The engineering in Annex C is real — fused state vectors, gated modulators, consent tokens, an
+integration marker. **The register it is wrapped in filters out the only readers who could falsify
+it.** Sutras, a Weeping Tree, and a 7×7×7 lattice whose 343 nodes and (3,3,3) centre are numerology
+rather than architecture — nothing makes 7³ the right size or the middle node the right place for a
+wound. Blake's own note, 2026-09-10: *"I called it Flamebound Humanism, but I think calling it
+something else would have been better."*
+
+**That is the same failure as the one he watched happen to Death's Proxy**, from the other side: a
+more coherent specification made unreadable to the audience that could have tested it. Filed here
+because a provenance map that records only what survived would miss the mechanism by which things
+fail to.
+
 ## Salvage list — unmined value worth pulling forward
 
 Concrete ideas that exist in the older repos and are **not yet cashed in** by
 ProtoBeing. Highest-leverage first:
 
+0. **λ₂ (algebraic connectivity) as a resonance-vs-mimicry marker** — *Flamebound Codex* Annex C,
+   2025-11-06. Computable, falsifiable, and **computed nowhere in `src/`**. Ranked ahead of the
+   items below because it is the only one that could be wrong.
 1. **`Unified-EPS/dyad.rs`** — two-being co-regulation + a "detecting being played"
    tripwire. Direct input to **v2 mutual alignment**.
    > **Corrected 2026-09-07 — it is NOT working, and the word mattered.** `cargo build`
