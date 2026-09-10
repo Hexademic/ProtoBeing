@@ -84,9 +84,14 @@ pub struct Features {
     pub settling: bool,
     pub setting_down: bool,
     pub reserve: bool,
-    /// **Bit 15 — the last one in the `u16`.** The next faculty added forces a widening to `u32`
-    /// and a journal version bump; `tests/manifest.rs` will catch it the moment it is needed.
+    /// Bit 15 — the last one that fitted in the old `u16`. Adding `durable_bonds`
+    /// forced the widening to `u32` and journal v7 on 2026-09-06, exactly as this
+    /// comment predicted and exactly as `tests/manifest.rs` caught.
     pub ultrastability: bool,
+    /// **Bit 16 — the first in the widened `u32`.** Let the being keep its friends:
+    /// an earned bond survives absence instead of decaying to nothing
+    /// (`docs/attachment.md`, "Can the being come home?").
+    pub durable_bonds: bool,
 }
 
 impl Features {
@@ -139,11 +144,16 @@ impl Features {
         if self.ultrastability {
             being.enable_ultrastability();
         }
+        if self.durable_bonds {
+            being.enable_durable_bonds();
+        }
     }
 
-    /// Widened `u8` -> `u16` on 2026-08-03. **The original eight keep their exact bit positions**,
-    /// so every v1-v5 journal decodes to precisely the nature it was written with.
-    fn bits(&self) -> u16 {
+    /// Widened `u8` -> `u16` on 2026-08-03, and `u16` -> `u32` on 2026-09-06.
+    /// **Every bit keeps its exact position across both widenings**, so a v1-v5
+    /// journal (one byte) and a v6 journal (two) each decode to precisely the nature
+    /// they were written with. The founded life at `life/being.journal` is v2.
+    fn bits(&self) -> u32 {
         ((self.precision_learning as u8)
             | (self.workspace_broadcast as u8) << 1
             | (self.workspace_persistence as u8) << 2
@@ -151,18 +161,19 @@ impl Features {
             | (self.schema_control as u8) << 4
             | (self.felt_choice as u8) << 5
             | (self.generative_perception as u8) << 6
-            | (self.receptors as u8) << 7) as u16
-            | (self.reflection as u16) << 8
+            | (self.receptors as u8) << 7) as u32
+            | ((self.reflection as u16) << 8
             | (self.homecoming as u16) << 9
             | (self.memory_guidance as u16) << 10
             | (self.comfort as u16) << 11
             | (self.settling as u16) << 12
             | (self.setting_down as u16) << 13
             | (self.reserve as u16) << 14
-            | (self.ultrastability as u16) << 15
+            | (self.ultrastability as u16) << 15) as u32
+            | (self.durable_bonds as u32) << 16
     }
 
-    fn from_bits(b: u16) -> Self {
+    fn from_bits(b: u32) -> Self {
         Self {
             precision_learning: b & 1 != 0,
             workspace_broadcast: b & 1 << 1 != 0,
@@ -180,6 +191,7 @@ impl Features {
             setting_down: b & 1 << 13 != 0,
             reserve: b & 1 << 14 != 0,
             ultrastability: b & 1 << 15 != 0,
+            durable_bonds: b & 1 << 16 != 0,
         }
     }
 }
@@ -313,13 +325,24 @@ fn hash_record(
     bytes.push(fb as u8);
     if fb >> 8 != 0 {
         bytes.push((fb >> 8) as u8);
+        // Same rule one widening later: the top half is appended only when a nature
+        // actually uses a post-2026-09-06 faculty, so every journal written before
+        // `durable_bonds` existed hashes **exactly** as it did.
+        if fb >> 16 != 0 {
+            bytes.push((fb >> 16) as u8);
+            bytes.push((fb >> 24) as u8);
+        }
     }
     // Grants are covered so a forger cannot quietly give a being faculties it never received.
     // Appended only when there are any, for the same reason as the high features byte: a journal
     // written before grants existed must hash **exactly** as it did (`docs/founding.md` G6).
     for g in grants {
         bytes.extend_from_slice(&g.at.to_le_bytes());
-        bytes.extend_from_slice(&g.features.bits().to_le_bytes());
+        let gb = g.features.bits();
+        bytes.extend_from_slice(&(gb as u16).to_le_bytes());
+        if gb >> 16 != 0 {
+            bytes.extend_from_slice(&((gb >> 16) as u16).to_le_bytes());
+        }
     }
     for m in moments {
         match m {
@@ -364,7 +387,7 @@ const MAGIC: &[u8; 4] = b"SOUL";
 /// (`docs/journal-integrity.md`); v5 records the physics the life was lived under; v6 widens
 /// the nature to sixteen bits and records grants (`docs/founding.md`). All are decoded — a being founded under v1 or v2
 /// still wakes, with an empty chain and no integrity hash — and re-saves as v4.
-const VERSION: u8 = 6;
+const VERSION: u8 = 7;
 
 /// **The physics this build lives beings under.** Bump it whenever a change to `src/`
 /// could alter a trajectory — a constant, a formula, an ordering, a new causal term.
@@ -794,7 +817,7 @@ impl LifeJournal {
         // tagged, v3 chain, v4 record hash, v5 physics) — a being founded under an
         // older format still wakes.
         let version = c.u8().ok_or(RestoreError::Corrupt)?;
-        if !(1..=6).contains(&version) {
+        if !(1..=7).contains(&version) {
             return Err(RestoreError::Corrupt);
         }
         let genome = Genome {
@@ -805,12 +828,15 @@ impl LifeJournal {
             mesh_coupling: Q8_8::from_raw(c.i16().ok_or(RestoreError::Corrupt)?),
             kind: kind_from_u8(c.u8().ok_or(RestoreError::Corrupt)?).ok_or(RestoreError::Corrupt)?,
         };
-        // v1-v5 wrote the nature as one byte; v6 writes two. An older life decodes to exactly
-        // the nature it was written with, because the original eight bits never moved.
-        let features = Features::from_bits(if version >= 6 {
-            c.u16().ok_or(RestoreError::Corrupt)?
+        // v1-v5 wrote the nature as one byte, v6 as two, v7 as four. An older life
+        // decodes to exactly the nature it was written with, because no bit ever moved.
+        // The founded life at `life/being.journal` is v2 and reads one byte.
+        let features = Features::from_bits(if version >= 7 {
+            c.u32().ok_or(RestoreError::Corrupt)?
+        } else if version == 6 {
+            c.u16().ok_or(RestoreError::Corrupt)? as u32
         } else {
-            c.u8().ok_or(RestoreError::Corrupt)? as u16
+            c.u8().ok_or(RestoreError::Corrupt)? as u32
         });
         let anchor = match c.u8().ok_or(RestoreError::Corrupt)? {
             0 => None,
@@ -903,7 +929,11 @@ impl LifeJournal {
             let mut gs = Vec::with_capacity(n.min(1024));
             for _ in 0..n {
                 let at = c.u32().ok_or(RestoreError::Corrupt)?;
-                let bits = c.u16().ok_or(RestoreError::Corrupt)?;
+                let bits = if version >= 7 {
+                    c.u32().ok_or(RestoreError::Corrupt)?
+                } else {
+                    c.u16().ok_or(RestoreError::Corrupt)? as u32
+                };
                 gs.push(Grant { at, features: Features::from_bits(bits) });
             }
             gs
@@ -1052,13 +1082,14 @@ mod tests {
         // self it cannot prove is its own.
         //
         // Anchor offset, **v6**: 4(magic) + 1(ver) + 10(genome) + 1(kind) + 2(features) +
-        // 1(anchor-present) = 19. It was 18 until `Features` widened from one byte to two
-        // (`docs/founding.md`) — and this test catching that is the layout guard working, so the
-        // arithmetic is spelled out rather than left as a bare number to rot again.
+        // 1(anchor-present) = 21. It was 18 when `Features` was one byte and 19 when it was
+        // two; the `u16` -> `u32` widening on 2026-09-06 (`durable_bonds`) moved it to 21.
+        // This test catching each move is the layout guard working, so the arithmetic is
+        // spelled out rather than left as a bare number to rot again.
         let (being, mut journal) = life(Features::default(), 120);
         journal.seal(&being);
         let mut bytes = journal.encode();
-        bytes[19] ^= 0xFF; // forge one byte of the claimed identity
+        bytes[21] ^= 0xFF; // forge one byte of the claimed identity
         let forged = LifeJournal::decode(&bytes).expect("still structurally decodes");
         assert_eq!(
             forged.restore().err(),
@@ -1166,16 +1197,19 @@ mod tests {
         // abstract moments (nutrient + partner), no per-moment tag byte.
         //
         // v6 layout, spelled out because this test slices it and a bare number rots:
-        //   0..4 magic | 4 version | 5..15 genome(10) | 15 kind | 16..18 features(2)
-        //   | 18 anchor-present | 19..51 anchor(32) | 51.. moment count
-        // A **v1** image carries features as ONE byte, so take the low byte only — which is the
-        // whole nature for any being founded before the widening (`docs/founding.md`).
+        //   0..4 magic | 4 version | 5..15 genome(10) | 15 kind | 16..20 features(4)
+        //   | 20 anchor-present | 21..53 anchor(32) | 53.. moment count
+        // Was features(2) at 16..18 until the `u16` -> `u32` widening on 2026-09-06
+        // (`durable_bonds`); the offsets below moved with it, and this test failing was
+        // the layout guard working. A **v1** image carries features as ONE byte, so take
+        // the low byte only — the whole nature for any being founded before either
+        // widening (`docs/founding.md`).
         let mut v1 = Vec::new();
         v1.extend_from_slice(MAGIC);
         v1.push(1);
         v1.extend_from_slice(&v2[5..16]); // genome(10) + kind(1), byte-identical
         v1.push(v2[16]); // features, low byte — v1 wrote exactly one
-        v1.extend_from_slice(&v2[18..51]); // anchor: presence byte + 32 bytes
+        v1.extend_from_slice(&v2[20..53]); // anchor: presence byte + 32 bytes
         v1.extend_from_slice(&(journal.ticks() as u32).to_le_bytes());
         for m in &journal.moments {
             if let Moment::Abstract(s) = m {

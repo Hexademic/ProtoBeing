@@ -27,7 +27,7 @@ use unified_being::genome::Genome;
 use unified_being::q88::Q88_SCALE;
 
 const LIFE: usize = 1_200;
-const N_GATES: usize = 16;
+const N_GATES: usize = 17;
 /// Index of `workspace_persistence` in the gate order below — the one incident I-3 is about.
 const PERSISTENCE: usize = 2;
 
@@ -56,6 +56,11 @@ fn apply(b: &mut UnifiedBeing, w: &[bool; N_GATES]) {
     if w[13] { b.enable_setting_down(); }
     if w[14] { b.enable_reserve(); }
     if w[15] { b.enable_ultrastability(); }
+    // Added 2026-09-06 (`docs/survival-first.md` §13). NOTE the vacuity caveat recorded
+    // there: `survives()` gives the being the same partner on every tick, so no ledger
+    // ever decays and this gate's floor never binds. It is in the net so the sweep
+    // covers it the moment a world with absence exists — not because this world tests it.
+    if w[16] { b.enable_durable_bonds(); }
 }
 
 /// One life in the reference world, returning whether the being finished it.

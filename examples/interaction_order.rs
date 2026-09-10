@@ -152,7 +152,7 @@ fn live(arm: Arm, total: u32, afternoon: u32) -> Run {
     r.mean_worst = (worst / n) as i32;
     r.goal_company = (company * 1000 / n) as i32;
     r.goal_novelty = (novelty * 1000 / n) as i32;
-    r.stranger_ledger = b.reciprocity.standing(STRANGER).map_or(0, |(_, l)| l) as i32;
+    r.stranger_ledger = b.reciprocity.reciprocation_rate(STRANGER).map_or(0, |(_, l)| l) as i32;
     r
 }
 

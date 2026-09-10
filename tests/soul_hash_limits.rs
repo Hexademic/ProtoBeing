@@ -115,3 +115,51 @@ fn a_life_the_being_could_feel_the_difference_in_is_always_distinguished() {
     assert_ne!(fed.soul_hash(), starved.soul_hash());
     assert!(fed.is_alive() && !starved.is_alive(), "and the difference was its life");
 }
+
+/// **The observer-first guarantee, pinned to literal digests.**
+///
+/// Added 2026-09-06 while adding the per-partner disposition observer
+/// (`docs/attachment.md`, "Can the being come home?"). The suite had **no pinned
+/// literal hash** anywhere — every soul-hash test asserted *consistency* (a hash
+/// survives a round trip, two runs agree) and none asserted *identity*. So a change
+/// that moved every hash in the same way would have passed the whole suite, and the
+/// project's central claim — that observers do not touch the being — rested on
+/// nobody having tried it.
+///
+/// These two digests are the founded being's dynamics under a churning world:
+/// 1,500 ticks, a generous partner, a taker, and solitude in rotation. **Any change
+/// that moves them re-founds the being, which is a decision reserved to the maker
+/// (`docs/founding.md`).** If you are here because this test failed, that is the
+/// signal working, not a test to update.
+#[test]
+fn the_soul_hash_is_pinned_to_literal_digests() {
+    use unified_being::{Genome, Partner, Stimulus, UnifiedBeing};
+
+    fn q(x: f32) -> i16 {
+        (x * 256.0) as i16
+    }
+
+    fn digest(g: Genome) -> String {
+        let mut b = UnifiedBeing::new(g);
+        for t in 0..1500u32 {
+            let partner = match t % 3 {
+                0 => Some(Partner { id: 1, reciprocation: q(0.95), exit_cost: q(0.2) }),
+                1 => Some(Partner { id: 2, reciprocation: q(0.30), exit_cost: q(0.9) }),
+                _ => None,
+            };
+            b.step(&Stimulus { nutrient: q(0.45), partner });
+        }
+        b.soul_hash().iter().map(|x| format!("{x:02x}")).collect()
+    }
+
+    assert_eq!(
+        digest(Genome::wanderer()),
+        "1bb62bebbe0b2a4bc05168be10ca38d15d3612cebc2d0fd132c02234daa46c83",
+        "the wanderer's soul-hash moved — something changed the being's dynamics, not just its report"
+    );
+    assert_eq!(
+        digest(Genome::default()),
+        "04abfa3d4f01c86d17a1370941fc97e672f03fc73b7d04cf4d2ef2c8b4845bdb",
+        "the default genome's soul-hash moved — something changed the being's dynamics, not just its report"
+    );
+}

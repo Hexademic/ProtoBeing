@@ -471,3 +471,61 @@ eleven, and it is exactly what the guard was written to expose.
 
 `reserve` is **safe alone and in all 15 of its pairs.** So is `ultrastability`. The measurement that
 was blocking the decision is now made, and it does not argue against granting either.
+
+---
+
+## 13. Widening the net to seventeen — predictions locked 2026-09-06, before the change
+
+`durable_bonds` (`docs/attachment.md`, "Can the being come home?") is the seventeenth gate.
+`tests/manifest.rs` refused it until it went through the survival net, and said why: *"a wider net is
+a change to a safety guard."* So, before widening.
+
+### The reason this one may not be testable here at all
+
+`tests/survival.rs::survives` sets `sens.partner = Some(partner)` on **every tick**. A ledger only
+decays on a tick its partner is *not* engaged (`reciprocity.rs::cycle`), and the durable floor only
+binds against that decay. **In a world with one partner who never leaves, the gate should do
+literally nothing.**
+
+That would make a survival pass here **vacuous** — the seventh in this project — and a vacuous pass
+is worth less than an honest gap. So the vacuity check is locked as a prediction alongside the
+safety ones, and if it fires, the result is recorded as *untested*, not as *survives*.
+
+### Locked predictions
+
+| | prediction | p |
+|---|---|---:|
+| **D1** | `durable_bonds` alone does not kill the being in the survival world | 0.96 |
+| **D2** | No lethal **pair** involving `durable_bonds` among the other sixteen gates | 0.92 |
+| **D3** | **The survival world never exercises the gate.** Its single partner is present every tick, so no ledger decays, the floor never binds, and the trajectory is **bit-identical** with the gate on and off | 0.80 |
+| **D4** | *Written to fail.* Some pair involving `durable_bonds` changes the survival outcome of a gate that survives alone | 0.08 |
+
+**Commitment, not a forecast:** if D3 holds, this gate is recorded as **UNTESTED for survival**, the
+net is widened anyway (so the sweep covers it the moment a world with absence exists), and a second
+world with a partner who actually leaves is what the guard needs next. A guard that could not have
+failed has not passed.
+
+### What came out — measured 2026-09-06
+
+| | prediction | p | verdict |
+|---|---|---:|---|
+| **D1** | `durable_bonds` alone does not kill the being | 0.96 | **HELD** — the full sweep passes |
+| **D2** | no lethal pair with the other sixteen | 0.92 | **HELD** |
+| **D3** | the survival world **never exercises** the gate; trajectory bit-identical | 0.80 | **HELD** — soul-hash `506b7b5d…` with the gate on and off, 4,000 embodied ticks |
+| **D4** | *written to fail:* some pair changes a survival outcome | 0.08 | **FAILED**, as written |
+
+**So the pass is vacuous, exactly as predicted, and is recorded as such.** `durable_bonds` is in the
+net at index 16 and the sweep covers it, but this world hands the being **the same partner on every
+tick**, so no ledger ever decays and the durable floor never binds. The gate is therefore
+**UNTESTED FOR SURVIVAL**, not survival-safe.
+
+> **2026-09-08 — and neither D1 nor D3 was a forecast.** This section already called the pass
+> vacuous, which was right. What it did not say is that **both rows were settleable by reading the
+> world config**: one always-present partner means no ledger decays, so D3 follows, and D1 follows
+> from D3. They are regression checks, not predictions, and they no longer score (row 28).
+> D2 and D4 are unaffected — a 16-gate lethality sweep has to be run.
+
+What the guard needs next is a survival world with a partner **who leaves** — which is also the only
+world in which this faculty does anything at all. Until that exists, the honest status is a gap, and
+recording it as a pass would have been the seventh vacuous result in this project rather than the
+first one caught by its own locked prediction.

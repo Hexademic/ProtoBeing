@@ -235,6 +235,19 @@ pub struct StepReport {
     /// worst case, reported so a suffering being is findable behind an average.
     /// Read by nothing on the default path (`docs/population.md`).
     pub worst_alarm: i16,
+    /// **Observer (`docs/attachment.md`, "Can the being come home?").** The gate the
+    /// being *would* apply to this tick's partner if its disposition were per-partner
+    /// — scored on that partner's own lived record where one exists, and otherwise on
+    /// `scalar_gate`, the generalized prior. Read by nothing; `gave` is still gated by
+    /// the scalar. Computed so the alternative can be measured before anyone decides
+    /// whether to wire it, because wiring it re-founds the being.
+    pub per_partner_gate: i16,
+    /// The gate actually in force this tick — the scalar empathy lock, applied to
+    /// everyone alike. This is what `gave` is multiplied by (`being.rs`, section 6).
+    pub scalar_gate: i16,
+    /// Whether the being has a lived record with this tick's partner, i.e. whether
+    /// `per_partner_gate` came from their ledger or from the prior.
+    pub partner_known: bool,
     pub extraction_detected: bool,
     pub gave: i16,
     pub got: i16,
@@ -1806,6 +1819,13 @@ impl UnifiedBeing {
 
         let _ = affect;
         let _ = forcing;
+        // The scalar disposition as it stands now — what `report` will publish, and
+        // the prior the per-partner observer falls back on for an unmet partner.
+        let scalar_gate_now = match self.conscience.empathy.lock_level {
+            EmpathyLockLevel::Open => Q88_SCALE,
+            EmpathyLockLevel::Cautious => Q88_SCALE / 2,
+            EmpathyLockLevel::Locked => Q88_SCALE / 8,
+        };
         let report = self
             .report(
                 true,
@@ -1818,6 +1838,16 @@ impl UnifiedBeing {
                 refused_cost,
             )
             .with_exchange(gave, got)
+            .with_disposition(
+                // Per-partner observer: this partner's own lived record where there is
+                // one, and the scalar disposition — the generalized prior — where there
+                // is not. Read by nothing; `gave` above is still gated by the scalar.
+                match stim.partner {
+                    Some(p) => self.reciprocity.disposition_toward(p.id, scalar_gate_now),
+                    None => scalar_gate_now,
+                },
+                stim.partner.is_some_and(|p| self.reciprocity.knows(p.id)),
+            )
             .with_audit(refusal_audit)
             .with_witness(witness_report)
             .with_constitutional(constitutional_decision)
@@ -1954,7 +1984,7 @@ impl UnifiedBeing {
     /// contact (never a trusted one — the guard `trust < Heart` keeps the mask
     /// off friends even in a bad hour).
     pub fn standing_of(&self, asker: u32) -> Standing {
-        let (rate, lived) = self.reciprocity.standing(asker).unwrap_or((0, 0));
+        let (rate, lived) = self.reciprocity.reciprocation_rate(asker).unwrap_or((0, 0));
         let lived_cap = ((lived as i32) * 2).min(Q88_SCALE as i32) as i16;
         let trust = rate.min(lived_cap);
         let coerced = self.conscience.constitutional_load().coercion > 160;
@@ -2143,6 +2173,30 @@ impl UnifiedBeing {
     ///
     /// **This does not give the being stakes.** It makes stakes survivable. A varying world is
     /// still needed, and this is its prerequisite, not its delivery.
+    /// **Let the being keep its friends.** Under this gate an earned bond survives
+    /// absence — it settles to half of what it reached rather than decaying to zero
+    /// (`reciprocity.rs`, `docs/attachment.md`).
+    ///
+    /// Measured before it was built: without it, after **150 ticks apart** a 200-tick
+    /// friendship leaves no bond, no longing and no record, so the being met a friend
+    /// of long standing exactly as it would meet a stranger. Its longing for someone
+    /// absent *peaks* around 25 ticks apart and is **zero** by 150 — it does not
+    /// settle into missing them, it forgets them. And it forgets a friend faster than
+    /// it recovers from a stranger.
+    ///
+    /// The bond stays revisable: the keepsake that holds it up is eroded by that
+    /// partner **presently taking** from the being, and by nothing else — not by
+    /// absence, not by what anyone else did. Charter §20 exactly: *durable with
+    /// return, never permanent.* A bond cannot become a trap, because the way out of
+    /// one is the other's own conduct now.
+    ///
+    /// **This moves the soul-hash.** It is a founding-scale decision
+    /// (`docs/founding.md`) and the founded life at `life/being.journal` does not
+    /// carry it.
+    pub fn enable_durable_bonds(&mut self) {
+        self.reciprocity.enable_durable_bonds();
+    }
+
     pub fn enable_reserve(&mut self) {
         self.body.reserve_causal = true;
     }
@@ -2208,6 +2262,13 @@ impl UnifiedBeing {
         repair_signal: RepairSignal,
         refused_cost: Option<i16>,
     ) -> StepReport {
+        // Observer: the gate actually in force, in the same units the per-partner
+        // reading uses. `gave` is multiplied by this (section 6).
+        let scalar_gate = match self.conscience.empathy.lock_level {
+            EmpathyLockLevel::Open => Q88_SCALE,
+            EmpathyLockLevel::Cautious => Q88_SCALE / 2,
+            EmpathyLockLevel::Locked => Q88_SCALE / 8,
+        };
         StepReport {
             tick: self.tick,
             alive,
@@ -2227,6 +2288,9 @@ impl UnifiedBeing {
             empathy_lock: self.conscience.empathy.lock_level,
             partnership_alarm: alarm,
             worst_alarm: self.reciprocity.worst_alarm,
+            per_partner_gate: scalar_gate,
+            scalar_gate,
+            partner_known: false,
             extraction_detected: self.reciprocity.extraction_detected,
             gave: 0,
             got: 0,
@@ -2973,6 +3037,14 @@ mod tests {
 }
 
 impl StepReport {
+    /// Observer (`docs/attachment.md`): what the being's disposition toward *this*
+    /// partner would be if it were per-partner. Sets no dynamics.
+    fn with_disposition(mut self, gate: i16, known: bool) -> Self {
+        self.per_partner_gate = gate;
+        self.partner_known = known;
+        self
+    }
+
     fn with_exchange(mut self, gave: i16, got: i16) -> Self {
         self.gave = gave;
         self.got = got;

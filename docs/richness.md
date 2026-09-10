@@ -523,6 +523,17 @@ extra parts must then justify themselves against a baseline that exists. That is
 | memory trace | 100.0% | 10.0 | 3/3 |
 | self-model | 100.0% | 9.6 | 3/3 |
 
+> **Re-run 2026-09-09, 26 days later: every figure above reproduces exactly.** 100.0 / 20.5 / 0.0 /
+> 0.0; 7.1 / 252.2 / 255.1 / 10.0 / 9.6; 104 ticks and never. Nothing was retuned in between. The
+> baseline is stable and can be cited without re-measuring — **which is the whole point of having
+> one**, and it had not been checked until now.
+>
+> **The occasion for the re-run was a false claim of mine, not a question about the agent.** I told
+> Blake this example *"has never been run in any session I have a record of."* It was run
+> 2026-08-14 (`58a0910`) with M1–M5 locked in advance and M5 predicted to fail, and it is cited as a
+> comparator in `faculty-ablation.md`. See `errors.md` row 29 in the private harness: the error ran
+> in the self-critical direction, which is the direction that looks like rigour.
+
 **The learned action→outcome table is load-bearing, and that is the audit's criticism confirmed
 from the other side.** Remove it and selection collapses to zero while the deficit pins at the
 ceiling. In `Room` the agent emits `Company` and the *world* supplies the coordinates; here the

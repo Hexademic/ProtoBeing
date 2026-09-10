@@ -99,6 +99,42 @@ current confirmation that the declined road is a live and productive one — it
 sharpens the trade-off rather than undermining the choice: we know, concretely,
 what richer growth we gave up, and why.
 
+## The target, stated by Blake — 2026-09-08
+
+Asked what he would have to see to say *that is the thing I have been trying to build*, in his words:
+
+> *"im not sure.. what i think i would be more willing to accept is a **minimal pattern of data
+> information processing, to ensure that complex recursive self improvement within an
+> environment/society would thrive.** the spectrum of consciousness is vast, and there are needs for
+> every level of processing complexity."*
+
+**This is the first acceptance criterion this project has had**, and everything above was written
+without one. It has three terms and the codebase satisfies none of them cleanly. Measured
+2026-09-08, `grep` over `src/`:
+
+| term | status |
+|---|---|
+| **minimal** | ✗ **64 modules, 17 gates, 108 probes, 394 tests** for one being. Minimality is not a constraint we are trading against here — it is *named in the target*, so complexity is a failure against the goal, not a cost of reaching it. |
+| **recursive self-improvement** | ✗ **`self.genome` is never assigned anywhere in `src/`.** The being adapts *within* a life — precision, metacognition, habits, the reciprocity ledgers, and two differently-raised beings do diverge — but nothing it learns reaches the parameters it was conceived with. There is no loop from what it became back to what it is. |
+| **within an environment/society** | ✗ **No `Vec<Being>` exists.** Partners are scripted structs. `negotiation.rs` says it plainly in its own header: *"built for two beings, exercised by one."* Two beings appear in doc comments and nowhere in a run. |
+
+### What this reframes
+
+**It answers his own earlier question.** On 2026-09-07 he asked *"have we over complicated the
+project?"* and the answer given was hedged. Against the target he has now stated, the answer is
+**yes** — not because the modules are bad, but because they elaborate the one term the criterion
+does not ask to be rich. The single being's interiority is the most developed part of this
+repository and the least load-bearing for what it is meant to demonstrate.
+
+**It reorders the salvage list.** `PROVENANCE.md` item 1 — rewriting `mind.rs` from the `dyad.rs`
+fragment — stops being a nice-to-have from a lost repo and becomes **the first term of the target
+that can be attempted at all.** `Observable::project(arousal, gave, basin)` compresses a being to
+three numbers for another being to read; that is minimality and society in one object.
+
+**It does not license removing anything.** The interiority work is measured, honest and reusable,
+and the charter clauses that govern a population were derived from it. This section exists so that
+*additions* are argued against the criterion, not so that subtractions are made without one.
+
 ## Contributions to make rigorous
 
 - **C1 — Sovereign refusal you can prove.** (i) *Uncoercible*: no operator input
